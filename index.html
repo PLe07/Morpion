@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcade Ultimate 2026 - Masterpiece Edition</title>
+    <title>Arcade Ultimate 2026 - Masterpiece & Network</title>
     <style>
         /* =========================================
            1. VARIABLES ET BASE
@@ -27,21 +27,22 @@
         .modal-box {
             background: var(--panel-bg); padding: 40px; border-radius: 20px; text-align: center;
             border: 2px solid var(--accent); box-shadow: 0 15px 50px var(--accent-glow);
-            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-width: 400px;
+            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-width: 450px;
         }
         .modal-box h2 { font-size: 2.2rem; margin-bottom: 15px; }
         .modal-box p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 30px; line-height: 1.5; }
         @keyframes modalPop { 0% { transform: scale(0.7) translateY(30px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
 
         /* =========================================
-           3. INTERFACE GLOBALE (NAV & MAIN)
+           3. INTERFACE GLOBALE
            ========================================= */
-        nav { width: 260px; background: #020617; padding: 30px 20px; border-right: 1px solid #1e293b; display: flex; flex-direction: column; z-index: 100; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
-        nav h2 { color: var(--accent); text-transform: uppercase; letter-spacing: 3px; text-align: center; font-size: 1.1rem; margin-bottom: 40px; }
-        nav ul { list-style: none; }
-        nav li { padding: 16px; cursor: pointer; border-radius: 12px; margin-bottom: 12px; background: var(--panel-bg); transition: 0.3s; font-weight: 600; display: flex; align-items: center; gap: 15px; border: 1px solid transparent; }
+        nav { width: 270px; background: #020617; padding: 30px 20px; border-right: 1px solid #1e293b; display: flex; flex-direction: column; z-index: 100; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+        nav h2 { color: var(--accent); text-transform: uppercase; letter-spacing: 3px; text-align: center; font-size: 1.1rem; margin-bottom: 30px; }
+        nav ul { list-style: none; overflow-y: auto; }
+        nav li { padding: 15px; cursor: pointer; border-radius: 12px; margin-bottom: 10px; background: var(--panel-bg); transition: 0.3s; font-weight: 600; display: flex; align-items: center; gap: 15px; border: 1px solid transparent; }
         nav li:hover { background: var(--panel-hover); transform: translateX(5px); }
         nav li.active { background: var(--accent); color: #000; box-shadow: 0 0 20px var(--accent-glow); border-color: var(--accent); }
+        .nav-divider { height: 2px; background: #1e293b; margin: 15px 0; border-radius: 2px; }
 
         main { flex-grow: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; position: relative; scroll-behavior: smooth; }
         .screen { display: none; width: 100%; max-width: 1000px; animation: screenFade 0.4s ease-out; }
@@ -50,11 +51,12 @@
         
         h1 { text-align: center; margin-bottom: 10px; font-size: 2.8rem; font-weight: 800; background: linear-gradient(to right, var(--accent), #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 40px; font-size: 1.1rem; }
-        .btn { padding: 12px 28px; background: var(--accent); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; color: #000; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; }
+        .btn { padding: 12px 28px; background: var(--accent); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; color: #000; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; margin: 5px; }
         .btn:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--accent-glow); }
+        input[type="text"] { padding: 15px; font-size: 1.5rem; border-radius: 8px; border: 2px solid #334155; background: #020617; color: white; text-align: center; margin: 10px; text-transform: uppercase; width: 250px; font-weight: bold; }
 
         /* =========================================
-           4. MORPION SIMPLE
+           4. MORPIONS (Local & Réseau)
            ========================================= */
         .ms-grid { display: grid; grid-template-columns: repeat(3, 130px); gap: 12px; margin: 0 auto 40px auto; width: fit-content; }
         .ms-cell { height: 130px; background: var(--panel-bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 5rem; cursor: pointer; font-weight: 900; transition: 0.2s; border: 2px solid #1e293b; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
@@ -62,74 +64,65 @@
         .ms-cell.win { animation: pulseWin 1s infinite alternate; background: rgba(16, 185, 129, 0.1); border-color: var(--accent); }
         @keyframes pulseWin { from { transform: scale(1); box-shadow: 0 0 10px var(--accent-glow); } to { transform: scale(1.05); box-shadow: 0 0 30px var(--accent-glow); } }
 
-        /* =========================================
-           5. MORPION ULTIME
-           ========================================= */
         #mu-status { text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; }
         .mu-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; background: #020617; padding: 20px; border-radius: 20px; margin: 0 auto 30px auto; width: fit-content; border: 3px solid #1e293b; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .mu-grid { display: grid; grid-template-columns: repeat(3, 50px); gap: 4px; background: var(--panel-bg); padding: 8px; border-radius: 10px; position: relative; transition: 0.3s; }
         .mu-cell { height: 50px; background: var(--bg-color); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; cursor: pointer; }
         .mu-cell:hover:not(.taken) { background: var(--panel-hover); }
         .mu-active { outline: 4px solid var(--accent); background: #064e3b; box-shadow: 0 0 25px var(--accent-glow); animation: muPulse 2s infinite; z-index: 5; }
-        .mu-won { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.85); display: flex; align-items: center; justify-content: center; font-size: 6rem; font-weight: 900; border-radius: 10px; backdrop-filter: blur(3px); z-index: 10; animation: screenFade 0.3s ease-out; }
+        .mu-won { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.85); display: flex; align-items: center; justify-content: center; font-size: 6rem; font-weight: 900; border-radius: 10px; backdrop-filter: blur(3px); z-index: 10; }
         @keyframes muPulse { 0% { outline-color: var(--accent); } 50% { outline-color: #34d399; } 100% { outline-color: var(--accent); } }
 
         /* =========================================
-           6. DÉMINEUR EXPERT
+           5. DÉMINEUR EXPERT
            ========================================= */
         .dm-header { display: flex; justify-content: center; gap: 40px; margin-bottom: 30px; font-size: 1.4rem; font-weight: bold; background: #000; padding: 15px 30px; border-radius: 50px; border: 1px solid #1e293b; }
         #dm-board { display: grid; grid-template-columns: repeat(20, 30px); gap: 2px; background: #334155; padding: 3px; border: 4px solid #1e293b; margin: 0 auto 30px auto; width: fit-content; border-radius: 8px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
-        .dm-tile { width: 30px; height: 30px; background: var(--panel-bg); display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 900; cursor: pointer; user-select: none; border-radius: 3px; transition: background 0.1s; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3), inset 2px 2px 5px rgba(255,255,255,0.05); }
+        .dm-tile { width: 30px; height: 30px; background: var(--panel-bg); display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 900; cursor: pointer; border-radius: 3px; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3); }
         .dm-tile:hover:not(.open) { background: var(--panel-hover); }
         .dm-tile.open { background: #cbd5e1; box-shadow: inset 2px 2px 6px rgba(0,0,0,0.3); cursor: default; }
         .dm-tile.mine { background: var(--player-x); font-size: 1.2rem; }
-        /* Couleurs Officielles du Démineur */
         .dm-c1 { color: #2563eb; } .dm-c2 { color: #16a34a; } .dm-c3 { color: #dc2626; } .dm-c4 { color: #7c3aed; }
-        .dm-c5 { color: #991b1b; } .dm-c6 { color: #0d9488; } .dm-c7 { color: #000000; } .dm-c8 { color: #57534e; }
+        .dm-c5 { color: #991b1b; } .dm-c6 { color: #0d9488; }
 
         /* =========================================
-           7. YAMS PRO MULTI-JOUEURS
+           6. YAMS PRO
            ========================================= */
-        .yams-layout { display: flex; gap: 50px; justify-content: center; align-items: flex-start; margin-top: 20px; }
+        .yams-layout { display: flex; gap: 50px; justify-content: center; align-items: flex-start; margin-top: 20px; flex-wrap: wrap; }
         .y-dice-area { background: var(--panel-bg); padding: 40px; border-radius: 20px; text-align: center; border: 2px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 400px; }
         .y-dice-container { font-size: 4.5rem; display: flex; gap: 15px; margin-bottom: 30px; justify-content: center; min-height: 80px; }
-        .y-die { cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .y-die { cursor: pointer; transition: 0.3s; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .y-die.kept { color: var(--accent); transform: translateY(-15px) scale(1.1); text-shadow: 0 10px 20px var(--accent-glow); }
         .y-tables { display: flex; gap: 15px; }
-        .y-table { border-collapse: collapse; background: var(--panel-bg); border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .y-table { border-collapse: collapse; background: var(--panel-bg); border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; }
         .y-table th { padding: 15px; background: #020617; color: var(--text-main); font-size: 1.2rem; border-bottom: 2px solid var(--accent); }
         .y-table td { border: 1px solid #1e293b; padding: 12px 20px; cursor: pointer; font-size: 1.1rem; }
-        .y-table td:first-child { font-weight: 600; color: var(--text-muted); }
         .y-table .pot { color: var(--accent); opacity: 0.4; font-style: italic; font-weight: bold; }
         .y-table .locked { color: var(--accent); font-weight: 900; background: rgba(16,185,129,0.05); }
-        .y-table .total-row { background: #020617; color: var(--gold); font-weight: 900; font-size: 1.3rem; }
 
         /* =========================================
-           8. BELOTE (LE MOTEUR DE PLI)
+           7. BELOTE
            ========================================= */
         .bl-info { text-align: center; margin-bottom: 20px; font-size: 1.3rem; font-weight: bold; }
         .bl-atout { display: inline-block; padding: 5px 15px; background: #000; border-radius: 8px; border: 1px solid #333; margin-left: 10px; }
-        .bl-tapis { 
-            background: radial-gradient(circle, #065f46 0%, #022c22 100%); width: 700px; height: 450px; 
-            border-radius: 220px; margin: 0 auto; border: 15px solid #451a03; 
-            position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 50px rgba(0,0,0,0.6);
-        }
-        .bl-slot { position: absolute; width: 80px; height: 115px; border: 2px dashed rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .bl-tapis { background: radial-gradient(circle, #065f46 0%, #022c22 100%); width: 700px; height: 450px; border-radius: 220px; margin: 0 auto; border: 15px solid #451a03; position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.8); }
+        .bl-slot { position: absolute; width: 80px; height: 115px; border: 2px dashed rgba(255,255,255,0.15); border-radius: 8px; }
         #bl-s-n { top: 25px; left: 295px; } #bl-s-s { bottom: 25px; left: 295px; }
         #bl-s-e { right: 60px; top: 152px; } #bl-s-w { left: 60px; top: 152px; }
-        .bl-card { 
-            width: 80px; height: 115px; background: #fff; color: #000; border-radius: 8px; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            font-weight: 900; font-size: 1.5rem; cursor: pointer; border: 1px solid #ccc; 
-            box-shadow: -2px 5px 15px rgba(0,0,0,0.4); transition: 0.3s; position: relative;
-        }
+        .bl-card { width: 80px; height: 115px; background: #fff; color: #000; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5rem; cursor: pointer; box-shadow: -2px 5px 15px rgba(0,0,0,0.4); position: relative; transition: 0.3s; }
         .bl-card.red { color: #ef4444; }
         .bl-hand { display: flex; gap: -20px; justify-content: center; margin-top: 30px; height: 130px; }
-        .bl-hand .bl-card { margin-left: -30px; } /* Effet éventail */
-        .bl-hand .bl-card:first-child { margin-left: 0; }
-        .bl-hand .bl-card:hover { transform: translateY(-20px); z-index: 50; border-color: var(--accent); box-shadow: 0 10px 25px rgba(0,0,0,0.6); }
-        .bl-played { position: absolute; animation: playCard 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; pointer-events: none; }
+        .bl-hand .bl-card { margin-left: -30px; } .bl-hand .bl-card:first-child { margin-left: 0; }
+        .bl-hand .bl-card:hover { transform: translateY(-20px); z-index: 50; border-color: var(--accent); }
+        .bl-played { position: absolute; animation: playCard 0.4s forwards; pointer-events: none; }
         @keyframes playCard { from { transform: scale(1.5) translateY(50px); opacity: 0; } to { transform: scale(1) translateY(0) rotate(calc(-5deg + 10deg * var(--rand))); opacity: 1; } }
+
+        /* =========================================
+           8. FIREBASE NETWORK LOBBY
+           ========================================= */
+        .lobby-box { background: var(--panel-bg); padding: 40px; border-radius: 20px; border: 2px solid #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
+        .room-code-display { font-size: 4rem; letter-spacing: 10px; color: var(--accent); font-weight: 900; margin: 30px 0; background: #020617; padding: 20px; border-radius: 15px; }
+        #net-status-bar { background: #020617; padding: 20px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 30px; font-size: 1.4rem; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -137,42 +130,42 @@
 <div id="modal-overlay">
     <div class="modal-box">
         <h2 id="modal-title">Titre</h2>
-        <p id="modal-desc">Description du message ici.</p>
+        <p id="modal-desc">Description</p>
         <button class="btn" onclick="UI.closeModal()">Continuer</button>
     </div>
 </div>
 
 <nav>
-    <h2>Arcade Pro</h2>
+    <h2>Arcade 2026</h2>
     <ul id="nav-menu">
-        <li data-target="s-sim" class="active"><span>✖️</span> Morpion Simple</li>
+        <li data-target="s-sim" class="active"><span>✖️</span> Morpion Local</li>
         <li data-target="s-ult"><span>🔥</span> Morpion Ultime</li>
         <li data-target="s-mine"><span>💣</span> Démineur Expert</li>
         <li data-target="s-yams"><span>🎲</span> Yams Complet</li>
         <li data-target="s-belote"><span>🃏</span> Belote (Partie)</li>
+        <div class="nav-divider"></div>
+        <li data-target="s-net-lobby" style="color:var(--accent); border-color:var(--accent);"><span>🌐</span> Morpion en Ligne</li>
     </ul>
 </nav>
 
 <main>
     <section id="s-sim" class="screen active">
-        <h1>Tic-Tac-Toe</h1>
-        <p class="subtitle">Le classique indémodable.</p>
+        <h1>Tic-Tac-Toe</h1><p class="subtitle">Mode Local (Même écran)</p>
         <div id="ms-board" class="ms-grid"></div>
-        <div style="text-align: center;"><button class="btn" onclick="App.Sim.init()">Réinitialiser la grille</button></div>
+        <div style="text-align: center;"><button class="btn" onclick="App.Sim.init()">Réinitialiser</button></div>
     </section>
 
     <section id="s-ult" class="screen">
-        <h1>Morpion Ultime</h1>
-        <p class="subtitle" id="mu-status">Chargement...</p>
+        <h1>Morpion Ultime</h1><p class="subtitle" id="mu-status">Chargement...</p>
         <div id="mu-board" class="mu-container"></div>
-        <div style="text-align: center;"><button class="btn" onclick="App.Ult.init()">Abandonner et recommencer</button></div>
+        <div style="text-align: center;"><button class="btn" onclick="App.Ult.init()">Recommencer</button></div>
     </section>
 
     <section id="s-mine" class="screen">
         <h1>Démineur Expert</h1>
         <div class="dm-header">
-            <span>🚩 Drapeaux : <span id="dm-flags" style="color:var(--player-x)">60</span></span>
-            <span>⏱️ Temps : <span id="dm-time" style="color:var(--accent)">0</span>s</span>
+            <span>🚩 <span id="dm-flags" style="color:var(--player-x)">60</span></span>
+            <span>⏱️ <span id="dm-time" style="color:var(--accent)">0</span>s</span>
         </div>
         <div id="dm-board"></div>
         <div style="text-align: center;"><button class="btn" onclick="App.Mine.init()">Nouvelle Génération</button></div>
@@ -180,7 +173,6 @@
 
     <section id="s-yams" class="screen">
         <h1>Yams Championship</h1>
-        <p class="subtitle">Sélectionnez vos dés pour les garder entre deux lancers.</p>
         <div class="yams-layout">
             <div class="y-dice-area">
                 <div id="y-dice" class="y-dice-container"></div>
@@ -189,393 +181,390 @@
             </div>
             <div id="y-score-container" class="y-tables"></div>
         </div>
-        <div style="text-align: center; margin-top: 30px;"><button class="btn" onclick="App.Yams.init()">Remettre à zéro le championnat</button></div>
+        <div style="text-align: center; margin-top: 30px;"><button class="btn" onclick="App.Yams.init()">Remettre à zéro</button></div>
     </section>
 
     <section id="s-belote" class="screen">
         <h1>Belote Interactive</h1>
-        <div class="bl-info">
-            Atout de la manche : <span id="bl-atout" class="bl-atout">-</span>
-        </div>
+        <div class="bl-info">Atout : <span id="bl-atout" class="bl-atout">-</span></div>
         <div class="bl-tapis">
-            <div id="bl-s-n" class="bl-slot"></div>
-            <div id="bl-s-s" class="bl-slot"></div>
-            <div id="bl-s-e" class="bl-slot"></div>
-            <div id="bl-s-w" class="bl-slot"></div>
+            <div id="bl-s-n" class="bl-slot"></div><div id="bl-s-s" class="bl-slot"></div>
+            <div id="bl-s-e" class="bl-slot"></div><div id="bl-s-w" class="bl-slot"></div>
         </div>
         <div id="bl-hand" class="bl-hand"></div>
-        <div style="text-align: center; margin-top: 30px;"><button class="btn" onclick="App.Belote.init()">Distribuer une nouvelle main</button></div>
+        <div style="text-align: center; margin-top: 30px;"><button class="btn" onclick="App.Belote.init()">Nouvelle Donne</button></div>
+    </section>
+
+    <section id="s-net-lobby" class="screen">
+        <div class="lobby-box">
+            <h1>Arcade Réseau</h1>
+            <p class="subtitle">Jouez sur deux téléphones distincts avec Firebase.</p>
+            <div style="margin: 40px 0; border-bottom: 2px solid #1e293b; padding-bottom: 40px;">
+                <button class="btn" id="btn-create-room">Héberger un Salon</button>
+            </div>
+            <div>
+                <input type="text" id="input-room-code" placeholder="Entrez le code" maxlength="4"><br>
+                <button class="btn" id="btn-join-room" style="background:var(--player-o); color:white;">Rejoindre l'Ami</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="s-net-waiting" class="screen">
+        <div class="lobby-box">
+            <h2>Votre Code Secret :</h2>
+            <div class="room-code-display" id="display-room-code">----</div>
+            <p>Donnez ce code à votre adversaire. La partie se lancera automatiquement.</p>
+            <button class="btn" style="background:var(--player-x); color:white; margin-top:20px;" onclick="window.location.reload()">Annuler</button>
+        </div>
+    </section>
+
+    <section id="s-net-game" class="screen">
+        <h1>Morpion En Ligne</h1>
+        <div id="net-status-bar">Synchronisation...</div>
+        <div id="net-board" class="ms-grid"></div>
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="btn" id="btn-net-leave" style="background:var(--player-x); color:white;">Quitter le Salon</button>
+        </div>
     </section>
 </main>
 
-<script>
-/**
- * CORE : Interface et Utilitaires globaux
- */
-const UI = {
-    modalCallback: null,
-    showModal(title, desc, callback) {
-        document.getElementById('modal-title').textContent = title;
-        document.getElementById('modal-title').style.color = (title.includes('Victoire') || title.includes('Gagné')) ? 'var(--accent)' : 'var(--player-x)';
-        document.getElementById('modal-desc').innerHTML = desc;
-        this.modalCallback = callback || (() => {});
-        document.getElementById('modal-overlay').style.display = 'flex';
-    },
-    closeModal() {
-        document.getElementById('modal-overlay').style.display = 'none';
-        if(this.modalCallback) this.modalCallback();
-    },
-    switchScreen(targetId) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(targetId).classList.add('active');
-        // Cleanups globaux (ex: stopper le chrono du démineur si on quitte)
-        if(targetId !== 's-mine') clearInterval(App.Mine.timer);
-    }
-};
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-/**
- * MOTEUR 1 : Morpion Simple
- */
-const App = {}; // Espace de nommage global
-
-App.Sim = {
-    state: [], player: 'X',
-    init() {
-        const board = document.getElementById('ms-board'); board.innerHTML = '';
-        this.state = Array(9).fill(null); this.player = 'X';
-        for(let i=0; i<9; i++) {
-            let c = document.createElement('div'); c.className = 'ms-cell';
-            c.onclick = () => this.play(i, c);
-            board.appendChild(c);
-        }
-    },
-    play(idx, el) {
-        if(this.state[idx]) return;
-        this.state[idx] = this.player; el.textContent = this.player;
-        el.style.color = this.player === 'X' ? 'var(--player-x)' : 'var(--player-o)';
-        el.classList.add('taken');
-        
-        const win = this.checkWin(this.state);
-        if(win) {
-            win.forEach(i => document.getElementById('ms-board').children[i].classList.add('win'));
-            setTimeout(() => UI.showModal('Gagné !', `Le joueur <b style="color:${el.style.color}">${this.player}</b> a remporté la manche.`, () => this.init()), 600);
-        } else if(!this.state.includes(null)) {
-            setTimeout(() => UI.showModal('Égalité', `Personne ne gagne, la grille est pleine.`, () => this.init()), 200);
-        } else {
-            this.player = this.player === 'X' ? 'O' : 'X';
-        }
-    },
-    checkWin(g) {
-        const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-        return lines.find(l => g[l[0]] && g[l[0]] === g[l[1]] && g[l[0]] === g[l[2]]);
-    }
-};
-
-/**
- * MOTEUR 2 : Morpion Ultime
- */
-App.Ult = {
-    bGrid: [], sGrids: [], player: 'X', next: -1,
-    init() {
-        const board = document.getElementById('mu-board'); board.innerHTML = '';
-        this.bGrid = Array(9).fill(null);
-        this.sGrids = Array(9).fill().map(() => Array(9).fill(null));
-        this.player = 'X'; this.next = -1;
-        this.updateUI();
-
-        for(let i=0; i<9; i++) {
-            let g = document.createElement('div'); g.className = 'mu-grid'; g.id = `mu-g-${i}`;
-            for(let j=0; j<9; j++) {
-                let c = document.createElement('div'); c.className = 'mu-cell';
-                c.onclick = () => this.play(i, j, c);
-                g.appendChild(c);
-            }
-            board.appendChild(g);
-        }
-        this.highlight();
-    },
-    play(bg, sg, el) {
-        if(this.sGrids[bg][sg] || this.bGrid[bg] || (this.next !== -1 && this.next !== bg)) return;
-        
-        this.sGrids[bg][sg] = this.player; el.textContent = this.player; el.classList.add('taken');
-        el.style.color = this.player === 'X' ? 'var(--player-x)' : 'var(--player-o)';
-
-        if(App.Sim.checkWin(this.sGrids[bg])) {
-            this.bGrid[bg] = this.player;
-            let cover = document.createElement('div'); cover.className = 'mu-won'; cover.textContent = this.player;
-            cover.style.color = el.style.color;
-            document.getElementById(`mu-g-${bg}`).appendChild(cover);
-        } else if(!this.sGrids[bg].includes(null)) {
-            this.bGrid[bg] = 'Draw';
-        }
-
-        const cleanBigGrid = this.bGrid.map(v => v === 'Draw' ? null : v);
-        if(App.Sim.checkWin(cleanBigGrid)) {
-            setTimeout(() => UI.showModal('Victoire Ultime !', `Le stratège <b>${this.player}</b> domine la carte !`, () => this.init()), 300);
-            this.next = 999;
-        } else {
-            this.next = (this.bGrid[sg]) ? -1 : sg;
-            this.player = this.player === 'X' ? 'O' : 'X';
-            this.updateUI(); this.highlight();
-        }
-    },
-    highlight() {
-        document.querySelectorAll('.mu-grid').forEach((g, i) => {
-            g.classList.remove('mu-active');
-            if((this.next === -1 || this.next === i) && !this.bGrid[i]) g.classList.add('mu-active');
-        });
-    },
-    updateUI() {
-        const pColor = this.player === 'X' ? 'var(--player-x)' : 'var(--player-o)';
-        document.getElementById('mu-status').innerHTML = `C'est au tour du joueur : <b style="color:${pColor}; font-size:1.8rem;">${this.player}</b>`;
-    }
-};
-
-/**
- * MOTEUR 3 : Démineur Expert "Perfect Start"
- */
-App.Mine = {
-    grid: [], open: [], flags: 60, total: 60, time: 0, timer: null, first: true,
-    init() {
-        const board = document.getElementById('dm-board'); board.innerHTML = '';
-        this.grid = Array(400).fill(0); this.open = Array(400).fill(false);
-        this.flags = this.total; this.time = 0; this.first = true;
-        clearInterval(this.timer);
-        this.updateStats();
-
-        for(let i=0; i<400; i++) {
-            let t = document.createElement('div'); t.className = 'dm-tile';
-            t.onmousedown = (e) => {
-                if(e.button === 2) {
-                    e.preventDefault();
-                    if(this.open[i]) return;
-                    if(t.textContent === '🚩') { t.textContent = ''; this.flags++; }
-                    else if(this.flags > 0) { t.textContent = '🚩'; this.flags--; }
-                    this.updateStats();
-                } else {
-                    if(t.textContent === '🚩' || this.open[i]) return;
-                    if(this.first) this.generate(i);
-                    this.reveal(i);
-                }
-            };
-            t.oncontextmenu = e => e.preventDefault();
-            board.appendChild(t);
-        }
-    },
-    updateStats() {
-        document.getElementById('dm-flags').textContent = this.flags;
-        document.getElementById('dm-time').textContent = this.time;
-    },
-    getNeighbors(idx) {
-        let r=Math.floor(idx/20), c=idx%20, res=[];
-        for(let x=-1; x<=1; x++) for(let y=-1; y<=1; y++) {
-            let nr=r+x, nc=c+y; if(nr>=0&&nr<20&&nc>=0&&nc<20) res.push(nr*20+nc);
-        } return res;
-    },
-    generate(safeIdx) {
-        this.first = false; let m = 0;
-        const safeZone = [...this.getNeighbors(safeIdx), safeIdx]; // Protection absolue du premier clic
-        
-        while(m < this.total) {
-            let r = Math.floor(Math.random()*400);
-            if(!safeZone.includes(r) && this.grid[r] !== 'M') { this.grid[r] = 'M'; m++; }
-        }
-        for(let i=0; i<400; i++) {
-            if(this.grid[i] === 'M') continue;
-            this.grid[i] = this.getNeighbors(i).filter(n => this.grid[n] === 'M').length;
-        }
-        this.timer = setInterval(() => { this.time++; this.updateStats(); }, 1000);
-    },
-    reveal(i) {
-        if(this.open[i]) return;
-        const t = document.getElementById('dm-board').children[i];
-        this.open[i] = true; t.classList.add('open');
-        
-        if(this.grid[i] === 'M') {
-            t.classList.add('mine'); t.textContent = '💣'; clearInterval(this.timer);
-            setTimeout(() => UI.showModal('💥 BOUM !', `Opération échouée à ${this.time} secondes. La zone est perdue.`, () => this.init()), 300);
-        } else {
-            if(this.grid[i] > 0) {
-                t.textContent = this.grid[i]; t.classList.add('dm-c' + this.grid[i]);
-            } else {
-                this.getNeighbors(i).forEach(n => this.reveal(n)); // Propagation Flood Fill
-            }
-            this.checkWin();
-        }
-    },
-    checkWin() {
-        const closed = this.open.filter(o => !o).length;
-        if(closed === this.total) {
-            clearInterval(this.timer);
-            setTimeout(() => UI.showModal('Déminage Réussi !', `Félicitations, grille sécurisée en ${this.time}s !`, () => this.init()), 300);
-        }
-    }
-};
-
-/**
- * MOTEUR 4 : Yams Complet (L'algorithme exact)
- */
-App.Yams = {
-    dice: [1,1,1,1,1], kept: [false,false,false,false,false], rolls: 3, player: 0, scores: [{}, {}],
-    init() {
-        this.scores = [{}, {}]; this.player = 0; this.rolls = 3; this.kept.fill(false);
-        const container = document.getElementById('y-score-container'); container.innerHTML = '';
-        
-        for(let i=0; i<2; i++) {
-            let table = `<table class="y-table" id="yt-${i}"><tr><th colspan="2">Joueur ${i+1}</th></tr>`;
-            ['1','2','3','4','5','6','Bonus (si > 62)','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(c => {
-                if(c.includes('Bonus')) table += `<tr style="background:#020617"><td style="color:var(--gold)">${c}</td><td class="val" id="y-${i}-Bonus">0</td></tr>`;
-                else table += `<tr><td>${c}</td><td class="val" id="y-${i}-${c.replace(/\s/g, '')}" onclick="App.Yams.lock('${c}', ${i})">-</td></tr>`;
-            });
-            table += `<tr class="total-row"><td>TOTAL</td><td id="y-tot-${i}">0</td></tr></table>`;
-            container.innerHTML += table;
-        }
-        this.roll();
-    },
-    roll() {
-        if(this.rolls <= 0) return;
-        this.dice = this.dice.map((d, i) => this.kept[i] ? d : Math.floor(Math.random()*6)+1);
-        this.rolls--; this.updateUI();
-    },
-    updateUI() {
-        const box = document.getElementById('y-dice'); box.innerHTML = '';
-        this.dice.forEach((d, i) => {
-            let el = document.createElement('div'); el.className = 'y-die' + (this.kept[i] ? ' kept' : '');
-            el.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][d-1];
-            el.onclick = () => { if(this.rolls < 3) { this.kept[i] = !this.kept[i]; this.updateUI(); } };
-            box.appendChild(el);
-        });
-        document.getElementById('y-roll-btn').textContent = `Lancer (${this.rolls})`;
-        document.getElementById('y-turn').textContent = `C'est au tour du Joueur ${this.player+1}`;
-        this.calculatePotentials();
-    },
-    calculatePotentials() {
-        const c = {}; this.dice.forEach(x => c[x] = (c[x]||0)+1);
-        const vals = Object.values(c), s = new Set(this.dice);
-        const hasSeq = (len) => { let st=0, mx=0; for(let i=1;i<=6;i++) { if(s.has(i)) st++; else st=0; mx=Math.max(mx,st); } return mx>=len; };
-        
-        ['1','2','3','4','5','6','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(cat => {
-            let cid = cat.replace(/\s/g, ''); const el = document.getElementById(`y-${this.player}-${cid}`);
-            if(this.scores[this.player][cat] !== undefined) return;
-            let p = 0;
-            if(!isNaN(cat)) p = (c[cat]||0) * parseInt(cat);
-            else if(cat==='Brelan' && vals.some(v=>v>=3)) p = this.dice.reduce((a,b)=>a+b);
-            else if(cat==='Carré' && vals.some(v=>v>=4)) p = this.dice.reduce((a,b)=>a+b);
-            else if(cat==='Full' && vals.includes(3) && vals.includes(2)) p = 25;
-            else if(cat==='Petite Suite' && hasSeq(4)) p = 30;
-            else if(cat==='Grande Suite' && hasSeq(5)) p = 40;
-            else if(cat==='Yams' && vals.includes(5)) p = 50;
-            else if(cat==='Chance') p = this.dice.reduce((a,b)=>a+b);
-            el.textContent = p; el.className = 'val pot';
-        });
-    },
-    lock(cat, pIdx) {
-        if(pIdx !== this.player || this.scores[pIdx][cat] !== undefined) return;
-        let cid = cat.replace(/\s/g, ''); const el = document.getElementById(`y-${pIdx}-${cid}`);
-        let pts = parseInt(el.textContent);
-        this.scores[pIdx][cat] = pts; el.className = 'val locked';
-        
-        // Calcul du Bonus Supérieur
-        let sumTop = ['1','2','3','4','5','6'].reduce((sum, k) => sum + (this.scores[pIdx][k] || 0), 0);
-        if(sumTop >= 63) document.getElementById(`y-${pIdx}-Bonus`).textContent = 35;
-        
-        // Total
-        let tot = Object.values(this.scores[pIdx]).reduce((a,b)=>a+b, 0) + (sumTop >= 63 ? 35 : 0);
-        document.getElementById(`y-tot-${pIdx}`).textContent = tot;
-
-        // Reset pour le joueur suivant
-        this.player = (this.player + 1) % 2; this.rolls = 3; this.kept.fill(false);
-        document.querySelectorAll('.pot').forEach(e => { e.textContent = '-'; e.classList.remove('pot'); });
-        
-        // Fin de partie check
-        if(Object.keys(this.scores[1]).length === 13) {
-            let t0 = parseInt(document.getElementById(`y-tot-0`).textContent);
-            let t1 = parseInt(document.getElementById(`y-tot-1`).textContent);
-            let winner = t0 > t1 ? 'Joueur 1' : (t1 > t0 ? 'Joueur 2' : 'Égalité');
-            setTimeout(() => UI.showModal('Fin du Championnat', `Le vainqueur est : <b>${winner}</b> !<br>Scores : J1(${t0}) - J2(${t1})`, () => this.init()), 500);
-        } else {
-            this.roll();
-        }
-    }
-};
-
-/**
- * MOTEUR 5 : Belote (Système de pli réel)
- */
-App.Belote = {
-    isPlaying: false,
-    init() {
-        const hand = document.getElementById('bl-hand'); hand.innerHTML = '';
-        const suits = [{s:'♠',c:'b'},{s:'♣',c:'b'},{s:'♥',c:'r'},{s:'♦',c:'r'}];
-        const ranks = ['7','8','9','10','V','D','R','A'];
-        
-        let atoutObj = suits[Math.floor(Math.random()*4)];
-        const atoutEl = document.getElementById('bl-atout');
-        atoutEl.textContent = atoutObj.s; atoutEl.style.color = atoutObj.c === 'r' ? '#f43f5e' : '#fff';
-        
-        document.querySelectorAll('.bl-slot').forEach(s => s.innerHTML = '');
-        this.isPlaying = false;
-
-        for(let i=0; i<8; i++) {
-            let su = suits[Math.floor(Math.random()*4)], ra = ranks[Math.floor(Math.random()*8)];
-            let c = document.createElement('div'); c.className = `bl-card ${su.c==='r'?'red':''}`;
-            c.innerHTML = `<span>${ra}</span><span>${su.s}</span>`;
-            c.onclick = () => this.playCard(c);
-            hand.appendChild(c);
-        }
-    },
-    playCard(el) {
-        if(this.isPlaying) return;
-        this.isPlaying = true;
-        el.onclick = null;
-        
-        // Placement de la carte du joueur au centre
-        const slotSud = document.getElementById('bl-s-s');
-        let playedCard = el.cloneNode(true);
-        playedCard.style.setProperty('--rand', Math.random());
-        playedCard.className = el.className + ' bl-played';
-        slotSud.appendChild(playedCard);
-        el.remove(); // Retire de la main
-        
-        // Simulation des robots
-        setTimeout(() => {
-            ['n','e','w'].forEach((p, idx) => {
-                setTimeout(() => {
-                    const bc = document.createElement('div'); bc.className = 'bl-card bl-played'; 
-                    bc.style.background = '#e2e8f0'; bc.style.color = '#0f172a';
-                    bc.innerHTML = '🤖'; bc.style.setProperty('--rand', Math.random());
-                    document.getElementById('bl-s-'+p).appendChild(bc);
-                }, idx * 300);
-            });
-            
-            // Ramassage du pli
-            setTimeout(() => {
-                document.querySelectorAll('.bl-slot').forEach(sl => sl.innerHTML = '');
-                this.isPlaying = false;
-                if(document.getElementById('bl-hand').children.length === 0) {
-                    UI.showModal('Donne Terminée', 'Toutes les cartes ont été jouées. Prêt pour la prochaine donne ?', () => this.init());
-                }
-            }, 1800);
-        }, 400);
-    }
-};
-
-// LANCEMENT GLOBAL VIA LA NAVIGATION
-document.querySelectorAll('#nav-menu li').forEach(li => {
-    li.onclick = (e) => {
-        document.querySelectorAll('#nav-menu li').forEach(i => i.classList.remove('active'));
-        e.currentTarget.classList.add('active');
-        UI.switchScreen(e.currentTarget.dataset.target);
-        if(e.currentTarget.dataset.target === 's-sim') App.Sim.init();
-        if(e.currentTarget.dataset.target === 's-ult') App.Ult.init();
-        if(e.currentTarget.dataset.target === 's-mine') App.Mine.init();
-        if(e.currentTarget.dataset.target === 's-yams') App.Yams.init();
-        if(e.currentTarget.dataset.target === 's-belote') App.Belote.init();
+    // --- CONFIGURATION FIREBASE ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyD5YeADpzCBrjhiYIgGjZU6ilRipK66NwY",
+        authDomain: "arcade-8546c.firebaseapp.com",
+        databaseURL: "https://arcade-8546c-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "arcade-8546c",
+        storageBucket: "arcade-8546c.firebasestorage.app",
+        messagingSenderId: "864425246355",
+        appId: "1:864425246355:web:80e9bdd92a84d0320c9766",
+        measurementId: "G-YVGJFWT9S4"
     };
-});
 
-// INITIALISATION AU DÉMARRAGE
-App.Sim.init();
+    const fbApp = initializeApp(firebaseConfig);
+    const db = getDatabase(fbApp);
+
+    // =========================================================
+    // OBJET GLOBAL APP (Pour que l'HTML y ait accès)
+    // =========================================================
+    window.UI = {
+        modalCb: null,
+        showModal(title, desc, cb) {
+            document.getElementById('modal-title').innerHTML = title;
+            document.getElementById('modal-desc').innerHTML = desc;
+            this.modalCb = cb;
+            document.getElementById('modal-overlay').style.display = 'flex';
+        },
+        closeModal() {
+            document.getElementById('modal-overlay').style.display = 'none';
+            if(this.modalCb) this.modalCb();
+        },
+        switchScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(id !== 's-mine') clearInterval(window.App.Mine.timer);
+        }
+    };
+
+    window.App = {};
+
+    // --- 1. MORPION LOCAL ---
+    window.App.Sim = {
+        state: [], player: 'X',
+        init() {
+            const b = document.getElementById('ms-board'); b.innerHTML = '';
+            this.state = Array(9).fill(null); this.player = 'X';
+            for(let i=0; i<9; i++) {
+                let c = document.createElement('div'); c.className = 'ms-cell';
+                c.onclick = () => this.play(i, c);
+                b.appendChild(c);
+            }
+        },
+        play(i, el) {
+            if(this.state[i]) return;
+            this.state[i] = this.player; el.textContent = this.player;
+            el.style.color = this.player === 'X' ? 'var(--player-x)' : 'var(--player-o)';
+            el.classList.add('taken');
+            const win = this.checkWin(this.state);
+            if(win) {
+                win.forEach(idx => document.getElementById('ms-board').children[idx].classList.add('win'));
+                setTimeout(() => window.UI.showModal('Victoire !', `Le joueur ${this.player} a gagné en local.`, () => this.init()), 500);
+            } else if(!this.state.includes(null)) {
+                setTimeout(() => window.UI.showModal('Égalité', 'Match Nul.', () => this.init()), 200);
+            } else this.player = this.player === 'X' ? 'O' : 'X';
+        },
+        checkWin(g) {
+            const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            return w.find(l => g[l[0]] && g[l[0]] === g[l[1]] && g[l[0]] === g[l[2]]);
+        }
+    };
+
+    // --- 2. MORPION ULTIME ---
+    window.App.Ult = {
+        bGrid: [], sGrids: [], p: 'X', n: -1,
+        init() {
+            const b = document.getElementById('mu-board'); b.innerHTML = '';
+            this.bGrid = Array(9).fill(null); this.sGrids = Array(9).fill().map(()=>Array(9).fill(null));
+            this.p = 'X'; this.n = -1; this.ui();
+            for(let i=0; i<9; i++) {
+                let g = document.createElement('div'); g.className = 'mu-grid'; g.id = `mu-g-${i}`;
+                for(let j=0; j<9; j++) {
+                    let c = document.createElement('div'); c.className = 'mu-cell';
+                    c.onclick = () => this.play(i, j, c); g.appendChild(c);
+                }
+                b.appendChild(g);
+            }
+            this.hl();
+        },
+        play(bg, sg, el) {
+            if(this.sGrids[bg][sg] || this.bGrid[bg] || (this.n !== -1 && this.n !== bg)) return;
+            this.sGrids[bg][sg] = this.p; el.textContent = this.p; el.classList.add('taken');
+            el.style.color = this.p === 'X' ? 'var(--player-x)' : 'var(--player-o)';
+            if(window.App.Sim.checkWin(this.sGrids[bg])) {
+                this.bGrid[bg] = this.p;
+                let cov = document.createElement('div'); cov.className = 'mu-won'; cov.textContent = this.p;
+                cov.style.color = el.style.color; document.getElementById(`mu-g-${bg}`).appendChild(cov);
+            } else if(!this.sGrids[bg].includes(null)) this.bGrid[bg] = 'D';
+            
+            if(window.App.Sim.checkWin(this.bGrid.map(v=>v==='D'?null:v))) {
+                setTimeout(() => window.UI.showModal('Victoire Ultime', `Le joueur ${this.p} domine la carte !`, () => this.init()), 300);
+                this.n = 999;
+            } else {
+                this.n = (this.bGrid[sg]) ? -1 : sg; this.p = this.p === 'X' ? 'O' : 'X';
+                this.ui(); this.hl();
+            }
+        },
+        hl() { document.querySelectorAll('.mu-grid').forEach((g,i) => { g.classList.remove('mu-active'); if((this.n===-1||this.n===i) && !this.bGrid[i]) g.classList.add('mu-active'); }); },
+        ui() { document.getElementById('mu-status').innerHTML = `Tour de : <b style="color:${this.p==='X'?'var(--player-x)':'var(--player-o)'}">${this.p}</b>`; }
+    };
+
+    // --- 3. DÉMINEUR EXPERT ---
+    window.App.Mine = {
+        g: [], o: [], f: 60, t: 0, timer: null, first: true,
+        init() {
+            const b = document.getElementById('dm-board'); b.innerHTML = '';
+            this.g = Array(400).fill(0); this.o = Array(400).fill(false);
+            this.f = 60; this.t = 0; this.first = true; clearInterval(this.timer); this.ui();
+            for(let i=0; i<400; i++) {
+                let c = document.createElement('div'); c.className = 'dm-tile';
+                c.onmousedown = (e) => {
+                    if(e.button === 2) { e.preventDefault(); if(this.o[i]) return; if(c.textContent==='🚩'){c.textContent='';this.f++;}else if(this.f>0){c.textContent='🚩';this.f--;} this.ui(); }
+                    else { if(c.textContent==='🚩'||this.o[i]) return; if(this.first) this.gen(i); this.rev(i); }
+                };
+                c.oncontextmenu = e => e.preventDefault(); b.appendChild(c);
+            }
+        },
+        ui() { document.getElementById('dm-flags').textContent = this.f; document.getElementById('dm-time').textContent = this.t; },
+        adj(i) { let r=Math.floor(i/20), c=i%20, res=[]; for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++){let nr=r+x,nc=c+y;if(nr>=0&&nr<20&&nc>=0&&nc<20)res.push(nr*20+nc);} return res; },
+        gen(s) {
+            this.first = false; let m=0; const safe = [...this.adj(s), s];
+            while(m < 60) { let r=Math.floor(Math.random()*400); if(!safe.includes(r) && this.g[r]!=='M'){this.g[r]='M';m++;} }
+            for(let i=0;i<400;i++) if(this.g[i]!=='M') this.g[i] = this.adj(i).filter(n=>this.g[n]==='M').length;
+            this.timer = setInterval(()=>{this.t++; this.ui();}, 1000);
+        },
+        rev(i) {
+            if(this.o[i]) return; const t = document.getElementById('dm-board').children[i];
+            this.o[i] = true; t.classList.add('open');
+            if(this.g[i]==='M') { t.classList.add('mine'); t.textContent='💣'; clearInterval(this.timer); setTimeout(()=>window.UI.showModal('BOUM !','Mines déclenchées.',()=>this.init()), 300); }
+            else { if(this.g[i]>0) { t.textContent=this.g[i]; t.classList.add('dm-c'+this.g[i]); } else this.adj(i).forEach(n=>this.rev(n)); }
+            if(this.o.filter(v=>!v).length === 60) { clearInterval(this.timer); setTimeout(()=>window.UI.showModal('Déminage Réussi',`Temps: ${this.t}s`,()=>this.init()),300); }
+        }
+    };
+
+    // --- 4. YAMS ---
+    window.App.Yams = {
+        d: [1,1,1,1,1], k: [false,false,false,false,false], r: 3, p: 0, s: [{},{}],
+        init() {
+            this.s = [{},{}]; this.p=0; this.r=3; this.k.fill(false);
+            const c = document.getElementById('y-score-container'); c.innerHTML = '';
+            for(let i=0;i<2;i++) {
+                let t = `<table class="y-table" id="yt-${i}"><tr><th colspan="2">Joueur ${i+1}</th></tr>`;
+                ['1','2','3','4','5','6','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(cat => {
+                    t += `<tr><td>${cat}</td><td class="val" id="y-${i}-${cat.replace(/\s/g,'')}" onclick="window.App.Yams.lock('${cat}', ${i})">-</td></tr>`;
+                });
+                t += `<tr class="total-row"><td>TOTAL</td><td id="y-tot-${i}">0</td></tr></table>`;
+                c.innerHTML += t;
+            }
+            this.roll();
+        },
+        roll() { if(this.r<=0) return; this.d = this.d.map((v,i)=>this.k[i]?v:Math.floor(Math.random()*6)+1); this.r--; this.ui(); },
+        ui() {
+            const b = document.getElementById('y-dice'); b.innerHTML='';
+            this.d.forEach((v,i) => {
+                let el = document.createElement('div'); el.className = 'y-die'+(this.k[i]?' kept':'');
+                el.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][v-1];
+                el.onclick = () => { if(this.r<3){this.k[i]=!this.k[i]; this.ui();} }; b.appendChild(el);
+            });
+            document.getElementById('y-roll-btn').textContent = `Lancer (${this.r})`;
+            document.getElementById('y-turn').textContent = `Joueur ${this.p+1}`;
+            this.calc();
+        },
+        calc() {
+            const c={}; this.d.forEach(x=>c[x]=(c[x]||0)+1); const v=Object.values(c), set=new Set(this.d);
+            const seq = (l) => { let st=0,mx=0; for(let i=1;i<=6;i++){if(set.has(i))st++;else st=0;mx=Math.max(mx,st);} return mx>=l; };
+            ['1','2','3','4','5','6','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(cat => {
+                let id = cat.replace(/\s/g,''); const el = document.getElementById(`y-${this.p}-${id}`);
+                if(this.s[this.p][cat] !== undefined) return; let pts = 0;
+                if(!isNaN(cat)) pts=(c[cat]||0)*parseInt(cat);
+                else if(cat==='Brelan'&&v.some(x=>x>=3)) pts=this.d.reduce((a,b)=>a+b);
+                else if(cat==='Carré'&&v.some(x=>x>=4)) pts=this.d.reduce((a,b)=>a+b);
+                else if(cat==='Full'&&v.includes(3)&&v.includes(2)) pts=25;
+                else if(cat==='Petite Suite'&&seq(4)) pts=30;
+                else if(cat==='Grande Suite'&&seq(5)) pts=40;
+                else if(cat==='Yams'&&v.includes(5)) pts=50;
+                else if(cat==='Chance') pts=this.d.reduce((a,b)=>a+b);
+                el.textContent = pts; el.className = 'val pot';
+            });
+        },
+        lock(cat, pi) {
+            if(pi!==this.p || this.s[pi][cat]!==undefined) return;
+            let id = cat.replace(/\s/g,''); const el = document.getElementById(`y-${pi}-${id}`);
+            this.s[pi][cat] = parseInt(el.textContent); el.className='val locked';
+            let t = Object.values(this.s[pi]).reduce((a,b)=>a+b,0);
+            let sTop = ['1','2','3','4','5','6'].reduce((sm,k)=>sm+(this.s[pi][k]||0),0);
+            if(sTop>=63) t+=35; document.getElementById(`y-tot-${pi}`).textContent = t;
+            
+            this.p = (this.p+1)%2; this.r=3; this.k.fill(false);
+            document.querySelectorAll('.pot').forEach(e=>{e.textContent='-';e.classList.remove('pot');});
+            if(Object.keys(this.s[1]).length === 13) window.UI.showModal('Fin !', 'Partie terminée.', ()=>this.init());
+            else this.roll();
+        }
+    };
+
+    // --- 5. BELOTE ---
+    window.App.Belote = {
+        play: false,
+        init() {
+            const h = document.getElementById('bl-hand'); h.innerHTML='';
+            const s=[{s:'♠',c:'b'},{s:'♣',c:'b'},{s:'♥',c:'r'},{s:'♦',c:'r'}], r=['7','8','9','10','V','D','R','A'];
+            let a = s[Math.floor(Math.random()*4)];
+            document.getElementById('bl-atout').textContent = a.s; document.getElementById('bl-atout').style.color=a.c==='r'?'#f43f5e':'white';
+            document.querySelectorAll('.bl-slot').forEach(sl=>sl.innerHTML=''); this.play=false;
+            for(let i=0;i<8;i++) {
+                let su=s[Math.floor(Math.random()*4)], ra=r[Math.floor(Math.random()*8)];
+                let c = document.createElement('div'); c.className=`bl-card ${su.c==='r'?'red':''}`;
+                c.innerHTML=`<span>${ra}</span><span>${su.s}</span>`;
+                c.onclick = () => this.playC(c); h.appendChild(c);
+            }
+        },
+        playC(el) {
+            if(this.play) return; this.play = true; el.onclick=null;
+            let pC = el.cloneNode(true); pC.style.setProperty('--rand', Math.random()); pC.className+=' bl-played';
+            document.getElementById('bl-s-s').appendChild(pC); el.remove();
+            setTimeout(()=>{
+                ['n','e','w'].forEach((p,i) => setTimeout(()=>{
+                    let bc = document.createElement('div'); bc.className='bl-card bl-played'; bc.style.background='#e2e8f0'; bc.style.color='#0f172a';
+                    bc.innerHTML='🤖'; bc.style.setProperty('--rand',Math.random()); document.getElementById('bl-s-'+p).appendChild(bc);
+                }, i*300));
+                setTimeout(()=>{
+                    document.querySelectorAll('.bl-slot').forEach(sl=>sl.innerHTML=''); this.play=false;
+                    if(document.getElementById('bl-hand').children.length===0) window.UI.showModal('Donne finie','',()=>this.init());
+                }, 1800);
+            }, 400);
+        }
+    };
+
+    // =========================================================
+    // 6. LE MOTEUR RÉSEAU (FIREBASE)
+    // =========================================================
+    window.App.Network = {
+        room: null, myId: null, ref: null,
+        
+        gen() { let c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',r='';for(let i=0;i<4;i++)r+=c.charAt(Math.floor(Math.random()*c.length));return r; },
+        
+        async host() {
+            this.room = this.gen(); this.myId = 'X'; this.ref = ref(db, 'rooms/' + this.room);
+            await set(this.ref, { status: 'waiting', turn: 'X', board: Array(9).fill(null), winner: null });
+            document.getElementById('display-room-code').textContent = this.room;
+            window.UI.switchScreen('s-net-waiting');
+            this.listen();
+        },
+        
+        async join() {
+            const code = document.getElementById('input-room-code').value.toUpperCase().trim();
+            if(code.length !== 4) return window.UI.showModal('Erreur', 'Le code doit faire 4 lettres.', null);
+            const snap = await get(ref(db, 'rooms/' + code));
+            if(snap.exists() && snap.val().status === 'waiting') {
+                this.room = code; this.myId = 'O'; this.ref = ref(db, 'rooms/' + this.room);
+                await update(this.ref, { status: 'playing' });
+                this.listen();
+            } else window.UI.showModal('Erreur', 'Salon introuvable ou plein.', null);
+        },
+
+        listen() {
+            onValue(this.ref, (snap) => {
+                const data = snap.val();
+                if(!data) { window.UI.showModal('Fermé', 'L\'hôte a quitté le salon.', () => window.location.reload()); return; }
+                if(data.status === 'playing') {
+                    window.UI.switchScreen('s-net-game');
+                    this.render(data); this.status(data);
+                }
+            });
+        },
+
+        render(data) {
+            const b = document.getElementById('net-board'); b.innerHTML = '';
+            for(let i=0; i<9; i++) {
+                let c = document.createElement('div'); c.className = 'ms-cell' + (data.board[i] ? ' taken' : '');
+                c.textContent = data.board[i] || '';
+                if(data.board[i]) c.style.color = data.board[i] === 'X' ? 'var(--player-x)' : 'var(--player-o)';
+                c.onclick = () => { if(!data.board[i] && !data.winner && data.turn === this.myId) this.play(i, data); };
+                b.appendChild(c);
+            }
+        },
+
+        async play(i, data) {
+            let nb = [...data.board]; nb[i] = this.myId;
+            await update(this.ref, { board: nb, turn: (this.myId==='X'?'O':'X'), winner: window.App.Sim.checkWin(nb) ? this.myId : (nb.includes(null)?null:'Draw') });
+        },
+
+        status(data) {
+            const sb = document.getElementById('net-status-bar');
+            if(data.winner) {
+                if(data.winner === 'Draw') sb.innerHTML = "Égalité parfaite !";
+                else if(data.winner === this.myId) sb.innerHTML = "<span style='color:var(--accent)'>VICTOIRE ! 🎉</span>";
+                else sb.innerHTML = `<span style='color:${this.myId==='X'?'var(--player-o)':'var(--player-x)'}'>DÉFAITE...</span>`;
+                
+                if(this.myId === 'X') {
+                    sb.innerHTML += `<br><button class="btn" style="margin-top:15px;" id="btn-net-rep">Rejouer</button>`;
+                    document.getElementById('btn-net-rep').onclick = () => update(this.ref, { board: Array(9).fill(null), turn: 'X', winner: null });
+                } else sb.innerHTML += `<br><small style="font-weight:normal;color:var(--text-muted)">En attente de l'hôte...</small>`;
+            } else {
+                sb.innerHTML = data.turn === this.myId ? `<span style='color:var(--accent)'>À ton tour ! (${this.myId})</span>` : `Attente de l'adversaire...`;
+            }
+        },
+
+        leave() {
+            if(this.myId === 'X' && this.ref) remove(this.ref);
+            window.location.reload();
+        }
+    };
+
+    // Event Listeners Réseau
+    document.getElementById('btn-create-room').onclick = () => window.App.Network.host();
+    document.getElementById('btn-join-room').onclick = () => window.App.Network.join();
+    document.getElementById('btn-net-leave').onclick = () => window.App.Network.leave();
+
+    // Event Listeners Menu Principal
+    document.querySelectorAll('#nav-menu li').forEach(li => {
+        li.onclick = (e) => {
+            document.querySelectorAll('#nav-menu li').forEach(i => i.classList.remove('active'));
+            e.currentTarget.classList.add('active');
+            let t = e.currentTarget.dataset.target;
+            window.UI.switchScreen(t);
+            if(t==='s-sim') window.App.Sim.init();
+            if(t==='s-ult') window.App.Ult.init();
+            if(t==='s-mine') window.App.Mine.init();
+            if(t==='s-yams') window.App.Yams.init();
+            if(t==='s-belote') window.App.Belote.init();
+        };
+    });
+
+    // Démarrage initial
+    window.App.Sim.init();
 </script>
 </body>
 </html>
