@@ -1,18 +1,1 @@
-.big-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px; /* Espace entre les petits morpions */
-  background-color: #333; /* Couleur des lignes épaisses */
-}
 
-.small-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2px; /* Espace entre les petites cases */
-  background-color: white;
-}
-
-.active {
-  background-color: rgba(0, 255, 0, 0.1); /* Surligne la case où on doit jouer */
-  border: 2px solid green;
-}
