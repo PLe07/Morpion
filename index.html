@@ -2,78 +2,268 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Mon Hub de Jeux</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS Mega Arcade</title>
     <style>
-        body { font-family: sans-serif; background: #222; color: white; margin: 0; display: flex; }
+        :root { --bg: #121212; --panel: #1e1e1e; --accent: #00e676; --text: #e0e0e0; --p1: #ff5252; --p2: #448aff; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Menu latéral */
-        nav { width: 200px; background: #111; height: 100vh; padding: 20px; border-right: 2px solid #444; }
-        nav h2 { color: #4CAF50; font-size: 1.2rem; }
-        nav ul { list-style: none; padding: 0; }
-        nav li { padding: 10px; cursor: pointer; border-bottom: 1px solid #333; transition: 0.3s; }
-        nav li:hover { background: #333; color: #4CAF50; }
+        /* Sidebar */
+        nav { width: 240px; background: #000; padding: 20px; border-right: 1px solid #333; flex-shrink: 0; display: flex; flex-direction: column; }
+        nav h2 { color: var(--accent); font-size: 1.2rem; text-transform: uppercase; margin-bottom: 30px; border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
+        nav ul { list-style: none; padding: 0; flex-grow: 1; }
+        nav li { padding: 12px 15px; cursor: pointer; border-radius: 8px; margin-bottom: 8px; transition: 0.3s; background: #111; border: 1px solid #222; }
+        nav li:hover { background: #222; border-color: var(--accent); }
+        nav li.active { background: var(--accent); color: #000; font-weight: bold; }
 
-        /* Conteneur de jeu */
-        main { flex-grow: 1; padding: 20px; display: flex; justify-content: center; align-items: center; }
-        .game-section { display: none; width: 100%; text-align: center; }
-        .active { display: block; }
+        /* Main Content */
+        main { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; justify-content: center; }
+        .game-card { display: none; width: 100%; max-width: 900px; animation: fadeIn 0.4s; }
+        .game-card.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .placeholder-box { border: 2px dashed #666; padding: 50px; border-radius: 10px; }
+        h1 { text-align: center; color: var(--accent); }
+        .controls { margin: 20px 0; text-align: center; }
+        button { padding: 10px 20px; background: var(--accent); border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 5px; }
+        button:hover { filter: brightness(1.2); }
+
+        /* GRID STYLES */
+        .grid-center { display: flex; justify-content: center; margin: 20px 0; }
+
+        /* Morpion Ultime */
+        .ult-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: #444; padding: 10px; border-radius: 5px; }
+        .small-grid { display: grid; grid-template-columns: repeat(3, 45px); grid-template-rows: repeat(3, 45px); gap: 2px; background: #222; position: relative; }
+        .cell { background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+        .cell:hover:not(.taken) { background: #333; }
+        .active-area { outline: 3px solid var(--accent); z-index: 10; }
+        .won-X::after, .won-O::after { content: attr(data-winner); position: absolute; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; font-size: 3rem; font-weight: bold; }
+        .won-X::after { color: var(--p1); } .won-O::after { color: var(--p2); }
+
+        /* Démineur */
+        #mine-field { display: grid; grid-template-columns: repeat(10, 35px); gap: 2px; background: #555; padding: 2px; }
+        .mine-cell { width: 35px; height: 35px; background: #333; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; user-select: none; }
+        .mine-cell.open { background: #bbb; color: #000; }
+        .mine-cell.flag { background: #555; }
+
+        /* Yams */
+        .dice-row { display: flex; gap: 15px; justify-content: center; font-size: 3rem; margin: 20px; }
+        .die { cursor: pointer; border: 2px solid transparent; padding: 5px; border-radius: 10px; }
+        .die.keep { border-color: var(--accent); background: #2e2e2e; }
     </style>
 </head>
 <body>
 
 <nav>
-    <h2>Mes Jeux</h2>
+    <h2>Arcade 2026</h2>
     <ul>
-        <li onclick="showGame('ultimate-morpion')">Morpion Ultime</li>
-        <li onclick="showGame('simple-morpion')">Morpion Simple</li>
-        <li onclick="showGame('demineur')">Démineur</li>
-        <li onclick="showGame('belote')">Belote</li>
-        <li onclick="showGame('yams')">Yams</li>
+        <li onclick="openGame('g-ult')" class="active">Morpion Ultime</li>
+        <li onclick="openGame('g-sim')">Morpion Simple</li>
+        <li onclick="openGame('g-life')">Jeu de la Vie</li>
+        <li onclick="openGame('g-mine')">Démineur</li>
+        <li onclick="openGame('g-yams')">Yams</li>
+        <li onclick="openGame('g-belot')">Belote</li>
     </ul>
+    <div style="font-size: 0.8rem; color: #666;">Projet "Tout-en-un" - Gemini</div>
 </nav>
 
 <main>
-    <section id="ultimate-morpion" class="game-section">
-        <h2>Morpion Ultime</h2>
-        <div id="ultimate-container"></div>
+    <section id="g-ult" class="game-card active">
+        <h1>Morpion Ultime</h1>
+        <p id="ult-stat" style="text-align:center">Au tour de : <b style="color:var(--p1)">X</b></p>
+        <div class="grid-center"><div id="ult-board" class="ult-grid"></div></div>
     </section>
 
-    <section id="simple-morpion" class="game-section">
-        <h2>Morpion Classique</h2>
-        <div class="placeholder-box">Grille 3x3 simple en cours de développement...</div>
+    <section id="g-sim" class="game-card">
+        <h1>Morpion Simple</h1>
+        <div class="grid-center">
+            <div id="sim-board" style="display:grid; grid-template-columns:repeat(3, 100px); gap:5px; background:#444;"></div>
+        </div>
+        <div class="controls"><button onclick="initSim()">Reset</button></div>
     </section>
 
-    <section id="demineur" class="game-section">
-        <h2>Démineur</h2>
-        <div class="placeholder-box">Attention aux bombes !</div>
+    <section id="g-life" class="game-card">
+        <h1>Jeu de la Vie</h1>
+        <div class="grid-center"><canvas id="lifeCanvas" width="400" height="400"></canvas></div>
+        <div class="controls">
+            <button onclick="lifeRunning = !lifeRunning">Start / Stop</button>
+            <button onclick="initLife()">Randomize</button>
+        </div>
     </section>
 
-    <section id="belote" class="game-section">
-        <h2>Belote</h2>
-        <div class="placeholder-box">Jeu de cartes (Logique complexe)</div>
+    <section id="g-mine" class="game-card">
+        <h1>Démineur</h1>
+        <div class="grid-center"><div id="mine-field"></div></div>
+        <div class="controls"><button onclick="initMine()">Nouvelle Partie</button></div>
     </section>
 
-    <section id="yams" class="game-section">
-        <h2>Yams (Yahtzee)</h2>
-        <div class="placeholder-box">Lancez les dés !</div>
+    <section id="g-yams" class="game-card">
+        <h1>Yams</h1>
+        <div class="dice-row" id="yams-dice"></div>
+        <div class="controls">
+            <p id="yams-msg">Clique sur les dés pour les garder !</p>
+            <button id="roll-btn" onclick="rollYams()">Lancer (3 restants)</button>
+            <button onclick="initYams()">Reset</button>
+        </div>
+    </section>
+
+    <section id="g-belot" class="game-card">
+        <h1>Belote (Bêta)</h1>
+        <div id="belote-table" style="background:green; height:300px; border-radius:50%; margin:20px; display:flex; align-items:center; justify-content:center;">
+            <p>Espace de Jeu - Atout : <span id="atout-val">?</span></p>
+        </div>
+        <div id="player-hand" style="display:flex; gap:10px; justify-content:center;"></div>
+        <div class="controls"><button onclick="initBelote()">Distribuer</button></div>
     </section>
 </main>
 
 <script>
-    function showGame(gameId) {
-        // Cache toutes les sections
-        document.querySelectorAll('.game-section').forEach(section => {
-            section.classList.remove('active');
-        });
-        // Affiche la section demandée
-        document.getElementById(gameId).classList.add('active');
+    // --- NAVIGATION ---
+    function openGame(id) {
+        document.querySelectorAll('.game-card').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('nav li').forEach(l => l.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        event.currentTarget.classList.add('active');
     }
 
-    // Affiche le premier par défaut
-    showGame('ultimate-morpion');
-</script>
+    // --- MORPION ULTIME ---
+    let uTurn = "X", uNext = -1, uBig = Array(9).fill(null);
+    function initUlt() {
+        const board = document.getElementById('ult-board');
+        board.innerHTML = '';
+        for(let i=0; i<9; i++) {
+            const sg = document.createElement('div');
+            sg.className = 'small-grid'; sg.dataset.i = i;
+            for(let j=0; j<9; j++) {
+                const c = document.createElement('div');
+                c.className = 'cell';
+                c.onclick = () => {
+                    if(c.textContent || (uNext !== -1 && uNext !== i) || uBig[i]) return;
+                    c.textContent = uTurn; c.classList.add('taken');
+                    c.style.color = uTurn === 'X' ? 'var(--p1)' : 'var(--p2)';
+                    const cells = Array.from(sg.children).map(cc => cc.textContent);
+                    if(check3(cells)) { uBig[i] = uTurn; sg.classList.add('won-'+uTurn); sg.dataset.winner = uTurn; }
+                    uNext = (uBig[j] || cellsFull(Array.from(board.children[j].children))) ? -1 : j;
+                    if(check3(uBig)) alert("Gagné : "+uTurn);
+                    uTurn = uTurn === 'X' ? 'O' : 'X';
+                    document.getElementById('ult-stat').innerHTML = `Au tour de : <b style="color:var(--p${uTurn==='X'?1:2})">${uTurn}</b>`;
+                    updateUltUI();
+                };
+                sg.appendChild(c);
+            }
+            board.appendChild(sg);
+        }
+        updateUltUI();
+    }
+    function updateUltUI() {
+        document.querySelectorAll('.small-grid').forEach((g,i) => {
+            g.classList.remove('active-area');
+            if((uNext === -1 || uNext === i) && !uBig[i]) g.classList.add('active-area');
+        });
+    }
 
+    // --- MORPION SIMPLE ---
+    let sTurn = "X", sState = Array(9).fill(null);
+    function initSim() {
+        const b = document.getElementById('sim-board'); b.innerHTML = ''; sState.fill(null);
+        for(let i=0; i<9; i++) {
+            const c = document.createElement('div');
+            c.style = "width:100px; height:100px; background:var(--bg); display:flex; align-items:center; justify-content:center; font-size:3rem; cursor:pointer;";
+            c.onclick = () => {
+                if(sState[i]) return;
+                sState[i] = sTurn; c.textContent = sTurn;
+                if(check3(sState)) alert(sTurn + " Gagne !");
+                sTurn = sTurn === "X" ? "O" : "X";
+            };
+            b.appendChild(c);
+        }
+    }
+
+    // --- DÉMINEUR ---
+    let mField = [];
+    function initMine() {
+        const f = document.getElementById('mine-field'); f.innerHTML = '';
+        mField = Array(100).fill(0).map(() => Math.random() > 0.85 ? 'M' : 0);
+        for(let i=0; i<100; i++) {
+            const c = document.createElement('div'); c.className = 'mine-cell';
+            c.oncontextmenu = (e) => { e.preventDefault(); c.textContent = c.textContent === '🚩' ? '' : '🚩'; };
+            c.onclick = () => {
+                if(mField[i] === 'M') { alert("BOOM"); initMine(); }
+                else { c.classList.add('open'); c.textContent = countM(i); }
+            };
+            f.appendChild(c);
+        }
+    }
+    function countM(idx) {
+        let count = 0;
+        const neighbors = [-11,-10,-9,-1,1,9,10,11];
+        neighbors.forEach(n => { if(mField[idx+n] === 'M') count++; });
+        return count;
+    }
+
+    // --- JEU DE LA VIE ---
+    const canvas = document.getElementById('lifeCanvas'), ctx = canvas.getContext('2d');
+    let lGrid = Array(40).fill().map(() => Array(40).fill(0)), lifeRunning = false;
+    function initLife() { lGrid = lGrid.map(r => r.map(() => Math.random()>0.8?1:0)); }
+    function loopLife() {
+        if(lifeRunning) {
+            let next = lGrid.map(a => [...a]);
+            for(let x=0; x<40; x++) for(let y=0; y<40; y++) {
+                let nb = 0;
+                for(let i=-1; i<2; i++) for(let j=-1; j<2; j++) {
+                    if(!i && !j) continue;
+                    nb += lGrid[(x+i+40)%40][(y+j+40)%40];
+                }
+                if(lGrid[x][y] && (nb<2 || nb>3)) next[x][y] = 0;
+                else if(!lGrid[x][y] && nb===3) next[x][y] = 1;
+            }
+            lGrid = next;
+        }
+        ctx.fillStyle = '#000'; ctx.fillRect(0,0,400,400);
+        ctx.fillStyle = '#00e676';
+        for(let x=0; x<40; x++) for(let y=0; y<40; y++) if(lGrid[x][y]) ctx.fillRect(x*10, y*10, 9, 9);
+        setTimeout(loopLife, 100);
+    }
+
+    // --- YAMS ---
+    let dice = [1,1,1,1,1], keeps = [false,false,false,false,false], rolls = 3;
+    function initYams() { rolls = 3; keeps.fill(false); rollYams(); }
+    function rollYams() {
+        if(rolls <= 0) return;
+        const div = document.getElementById('yams-dice'); div.innerHTML = '';
+        dice = dice.map((d, i) => keeps[i] ? d : Math.floor(Math.random()*6)+1);
+        dice.forEach((d, i) => {
+            const el = document.createElement('div'); el.className = 'die ' + (keeps[i]?'keep':'');
+            el.innerHTML = ['⚀','⚁','⚂','⚃','⚄','⚅'][d-1];
+            el.onclick = () => { keeps[i] = !keeps[i]; el.classList.toggle('keep'); };
+            div.appendChild(el);
+        });
+        rolls--;
+        document.getElementById('roll-btn').textContent = `Lancer (${rolls} restants)`;
+    }
+
+    // --- BELOTE ---
+    function initBelote() {
+        const cards = ['7','8','9','10','V','D','R','A'];
+        const colors = ['♠','♣','♥','♦'];
+        const hand = document.getElementById('player-hand'); hand.innerHTML = '';
+        document.getElementById('atout-val').textContent = colors[Math.floor(Math.random()*4)];
+        for(let i=0; i<5; i++) {
+            const c = document.createElement('div');
+            c.style = "width:50px; height:70px; background:white; color:black; border-radius:5px; display:flex; align-items:center; justify-content:center; font-weight:bold";
+            c.textContent = cards[Math.floor(Math.random()*8)] + colors[Math.floor(Math.random()*4)];
+            hand.appendChild(c);
+        }
+    }
+
+    // --- HELPERS ---
+    function check3(g) {
+        const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        return wins.some(p => g[p[0]] && g[p[0]] === g[p[1]] && g[p[0]] === g[p[2]]);
+    }
+    function cellsFull(arr) { return arr.every(c => c.textContent !== ""); }
+
+    // LANCEMENT
+    initUlt(); initSim(); initLife(); loopLife(); initMine(); initYams(); initBelote();
+</script>
 </body>
 </html>
