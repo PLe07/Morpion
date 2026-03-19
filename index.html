@@ -2,173 +2,78 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Morpion Ultime</title>
+    <title>Mon Hub de Jeux</title>
     <style>
-        :root {
-            --bg: #1a1a1a;
-            --grid-line: #444;
-            --active-bg: rgba(76, 175, 80, 0.2);
-            --p1-color: #ff5252;
-            --p2-color: #448aff;
-        }
+        body { font-family: sans-serif; background: #222; color: white; margin: 0; display: flex; }
+        
+        /* Menu latéral */
+        nav { width: 200px; background: #111; height: 100vh; padding: 20px; border-right: 2px solid #444; }
+        nav h2 { color: #4CAF50; font-size: 1.2rem; }
+        nav ul { list-style: none; padding: 0; }
+        nav li { padding: 10px; cursor: pointer; border-bottom: 1px solid #333; transition: 0.3s; }
+        nav li:hover { background: #333; color: #4CAF50; }
 
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; display: flex; flex-direction: column; align-items: center; }
-        h1 { margin: 10px; }
-        #status { margin-bottom: 20px; font-size: 1.2rem; font-weight: bold; }
+        /* Conteneur de jeu */
+        main { flex-grow: 1; padding: 20px; display: flex; justify-content: center; align-items: center; }
+        .game-section { display: none; width: 100%; text-align: center; }
+        .active { display: block; }
 
-        /* La grande grille 3x3 */
-        .ultimate-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            background: var(--grid-line);
-            padding: 10px;
-            border-radius: 8px;
-        }
-
-        /* Chaque petit morpion 3x3 */
-        .small-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 35px);
-            grid-template-rows: repeat(3, 35px);
-            gap: 2px;
-            background: #333;
-            padding: 5px;
-            position: relative;
-        }
-
-        /* Style d'une case individuelle */
-        .cell {
-            background: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .cell:hover:not(.taken) { background: #333; }
-        .cell.taken { cursor: default; }
-        .cell[data-player="X"] { color: var(--p1-color); font-weight: bold; }
-        .cell[data-player="O"] { color: var(--p2-color); font-weight: bold; }
-
-        /* Mise en avant du petit morpion où il faut jouer */
-        .active-grid { background: var(--active-bg) !important; outline: 2px solid #4CAF50; }
-
-        /* Quand un petit morpion est gagné */
-        .small-grid.won-X::after, .small-grid.won-O::after {
-            content: attr(data-winner);
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 3rem; font-weight: bold; z-index: 10;
-        }
-        .small-grid.won-X::after { color: var(--p1-color); }
-        .small-grid.won-O::after { color: var(--p2-color); }
+        .placeholder-box { border: 2px dashed #666; padding: 50px; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <h1>Morpion Ultime</h1>
-    <div id="status">Au tour du joueur : <span style="color:var(--p1-color)">X</span></div>
+<nav>
+    <h2>Mes Jeux</h2>
+    <ul>
+        <li onclick="showGame('ultimate-morpion')">Morpion Ultime</li>
+        <li onclick="showGame('simple-morpion')">Morpion Simple</li>
+        <li onclick="showGame('demineur')">Démineur</li>
+        <li onclick="showGame('belote')">Belote</li>
+        <li onclick="showGame('yams')">Yams</li>
+    </ul>
+</nav>
 
-    <div class="ultimate-grid" id="mainGrid">
-        </div>
+<main>
+    <section id="ultimate-morpion" class="game-section">
+        <h2>Morpion Ultime</h2>
+        <div id="ultimate-container"></div>
+    </section>
+
+    <section id="simple-morpion" class="game-section">
+        <h2>Morpion Classique</h2>
+        <div class="placeholder-box">Grille 3x3 simple en cours de développement...</div>
+    </section>
+
+    <section id="demineur" class="game-section">
+        <h2>Démineur</h2>
+        <div class="placeholder-box">Attention aux bombes !</div>
+    </section>
+
+    <section id="belote" class="game-section">
+        <h2>Belote</h2>
+        <div class="placeholder-box">Jeu de cartes (Logique complexe)</div>
+    </section>
+
+    <section id="yams" class="game-section">
+        <h2>Yams (Yahtzee)</h2>
+        <div class="placeholder-box">Lancez les dés !</div>
+    </section>
+</main>
 
 <script>
-    const mainGrid = document.getElementById('mainGrid');
-    const statusDisplay = document.getElementById('status');
-    let currentPlayer = "X";
-    let nextBigSquare = -1; // -1 signifie qu'on peut jouer n'importe où
-    let bigGameState = Array(9).fill(null); // Gagnants des petits morpions
-
-    // Initialisation du jeu
-    function init() {
-        for (let i = 0; i < 9; i++) {
-            const smallGrid = document.createElement('div');
-            smallGrid.classList.add('small-grid');
-            smallGrid.dataset.gridIndex = i;
-            
-            for (let j = 0; j < 9; j++) {
-                const cell = document.createElement('div');
-                cell.classList.add('cell');
-                cell.dataset.cellIndex = j;
-                cell.addEventListener('click', () => handleMove(i, j, cell, smallGrid));
-                smallGrid.appendChild(cell);
-            }
-            mainGrid.appendChild(smallGrid);
-        }
-        updateHighlight();
-    }
-
-    function handleMove(bigIdx, smallIdx, cell, smallGridElement) {
-        // Vérifier si le coup est valide
-        if (cell.textContent !== "" || (nextBigSquare !== -1 && nextBigSquare !== bigIdx) || bigGameState[bigIdx] !== null) {
-            return;
-        }
-
-        // Jouer le coup
-        cell.textContent = currentPlayer;
-        cell.dataset.player = currentPlayer;
-        cell.classList.add('taken');
-
-        // 1. Vérifier si le petit morpion est gagné
-        const smallCells = Array.from(smallGridElement.querySelectorAll('.cell')).map(c => c.textContent);
-        if (checkWinner(smallCells)) {
-            bigGameState[bigIdx] = currentPlayer;
-            smallGridElement.classList.add(`won-${currentPlayer}`);
-            smallGridElement.dataset.winner = currentPlayer;
-        }
-
-        // 2. Déterminer le prochain carré autorisé
-        // Si le carré cible est déjà plein ou gagné, on libère le jeu (nextBigSquare = -1)
-        if (bigGameState[smallIdx] !== null || isGridFull(smallIdx)) {
-            nextBigSquare = -1;
-        } else {
-            nextBigSquare = smallIdx;
-        }
-
-        // 3. Vérifier si la grande grille est gagnée
-        if (checkWinner(bigGameState)) {
-            statusDisplay.innerHTML = `🏆 LE JOUEUR ${currentPlayer} A GAGNÉ LA PARTIE !`;
-            nextBigSquare = 999; // Bloque tout
-            return;
-        }
-
-        // 4. Changer de joueur
-        currentPlayer = currentPlayer === "X" ? "O" : "X";
-        statusDisplay.innerHTML = `Au tour du joueur : <span style="color:var(--p${currentPlayer === "X" ? 1 : 2}-color)">${currentPlayer}</span>`;
-        updateHighlight();
-    }
-
-    function checkWinner(grid) {
-        const wins = [
-            [0,1,2], [3,4,5], [6,7,8], // Lignes
-            [0,3,6], [1,4,7], [2,5,8], // Colonnes
-            [0,4,8], [2,4,6]           // Diagonales
-        ];
-        return wins.some(pattern => {
-            const [a, b, c] = pattern;
-            return grid[a] && grid[a] === grid[b] && grid[a] === grid[c];
+    function showGame(gameId) {
+        // Cache toutes les sections
+        document.querySelectorAll('.game-section').forEach(section => {
+            section.classList.remove('active');
         });
+        // Affiche la section demandée
+        document.getElementById(gameId).classList.add('active');
     }
 
-    function isGridFull(idx) {
-        const cells = mainGrid.children[idx].querySelectorAll('.cell');
-        return Array.from(cells).every(c => c.textContent !== "");
-    }
-
-    function updateHighlight() {
-        Array.from(mainGrid.children).forEach((grid, idx) => {
-            grid.classList.remove('active-grid');
-            if (nextBigSquare === -1 || nextBigSquare === idx) {
-                if (bigGameState[idx] === null) grid.classList.add('active-grid');
-            }
-        });
-    }
-
-    init();
+    // Affiche le premier par défaut
+    showGame('ultimate-morpion');
 </script>
+
 </body>
 </html>
