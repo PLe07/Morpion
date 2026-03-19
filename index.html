@@ -63,8 +63,17 @@
             max-width: 450px; 
         }
 
-        .modal-box h2 { font-size: 2.2rem; margin-bottom: 15px; }
-        .modal-box p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 30px; line-height: 1.5; }
+        .modal-box h2 { 
+            font-size: 2.2rem; 
+            margin-bottom: 15px; 
+        }
+
+        .modal-box p { 
+            font-size: 1.2rem; 
+            color: var(--text-muted); 
+            margin-bottom: 30px; 
+            line-height: 1.5; 
+        }
         
         @keyframes modalPop { 
             0% { transform: scale(0.7) translateY(30px); opacity: 0; } 
@@ -92,7 +101,11 @@
             margin-bottom: 30px; 
         }
 
-        nav ul { list-style: none; overflow-y: auto; }
+        nav ul { 
+            list-style: none; 
+            overflow-y: auto; 
+        }
+        
         nav li { 
             padding: 15px; 
             cursor: pointer; 
@@ -107,9 +120,24 @@
             border: 1px solid transparent; 
         }
 
-        nav li:hover { background: var(--panel-hover); transform: translateX(5px); }
-        nav li.active { background: var(--accent); color: #000; box-shadow: 0 0 20px var(--accent-glow); border-color: var(--accent); }
-        .nav-divider { height: 2px; background: #1e293b; margin: 15px 0; border-radius: 2px; }
+        nav li:hover { 
+            background: var(--panel-hover); 
+            transform: translateX(5px); 
+        }
+        
+        nav li.active { 
+            background: var(--accent); 
+            color: #000; 
+            box-shadow: 0 0 20px var(--accent-glow); 
+            border-color: var(--accent); 
+        }
+        
+        .nav-divider { 
+            height: 2px; 
+            background: #1e293b; 
+            margin: 15px 0; 
+            border-radius: 2px; 
+        }
 
         /* Écrans Principaux */
         main { 
@@ -123,46 +151,225 @@
             scroll-behavior: smooth; 
         }
 
-        .screen { display: none; width: 100%; max-width: 1100px; animation: screenFade 0.4s ease-out; }
-        .screen.active { display: block; }
+        .screen { 
+            display: none; 
+            width: 100%; 
+            max-width: 1100px; 
+            animation: screenFade 0.4s ease-out; 
+        }
+
+        .screen.active { 
+            display: block; 
+        }
         
         @keyframes screenFade { 
             from { opacity: 0; transform: translateY(15px); } 
             to { opacity: 1; transform: translateY(0); } 
         }
         
-        h1 { text-align: center; margin-bottom: 10px; font-size: 2.8rem; font-weight: 800; background: linear-gradient(to right, var(--accent), #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 40px; font-size: 1.1rem; }
+        h1 { 
+            text-align: center; 
+            margin-bottom: 10px; 
+            font-size: 2.8rem; 
+            font-weight: 800; 
+            background: linear-gradient(to right, var(--accent), #34d399); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
         
-        .btn { padding: 12px 28px; background: var(--accent); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; color: #000; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; margin: 5px; }
-        .btn:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--accent-glow); }
-        .btn:disabled { background: #334155; color: #94a3b8; cursor: not-allowed; box-shadow: none; transform: none; }
-        input[type="text"], select { padding: 15px; font-size: 1.2rem; border-radius: 8px; border: 2px solid #334155; background: #020617; color: white; text-align: center; margin: 10px; text-transform: uppercase; width: 250px; font-weight: bold; outline:none; }
-        select { cursor: pointer; text-transform: none; }
+        .subtitle { 
+            text-align: center; 
+            color: var(--text-muted); 
+            margin-bottom: 40px; 
+            font-size: 1.1rem; 
+        }
+        
+        .btn { 
+            padding: 12px 28px; 
+            background: var(--accent); 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 1.1rem; 
+            color: #000; 
+            transition: 0.2s; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            margin: 5px; 
+        }
+
+        .btn:hover { 
+            transform: scale(1.05); 
+            box-shadow: 0 0 15px var(--accent-glow); 
+        }
+
+        .btn:disabled { 
+            background: #334155; 
+            color: #94a3b8; 
+            cursor: not-allowed; 
+            box-shadow: none; 
+            transform: none; 
+        }
+
+        input[type="text"], select { 
+            padding: 15px; 
+            font-size: 1.2rem; 
+            border-radius: 8px; 
+            border: 2px solid #334155; 
+            background: #020617; 
+            color: white; 
+            text-align: center; 
+            margin: 10px; 
+            text-transform: uppercase; 
+            width: 250px; 
+            font-weight: bold; 
+            outline: none; 
+        }
+
+        select { 
+            cursor: pointer; 
+            text-transform: none; 
+        }
 
         /* =========================================
-           3. CSS DES JEUX : MORPIONS & DÉMINEUR & YAMS
+           3. CSS DES JEUX CLASSIQUES
            ========================================= */
-        .ms-grid { display: grid; grid-template-columns: repeat(3, 130px); gap: 12px; margin: 0 auto 40px auto; width: fit-content; }
-        .ms-cell { height: 130px; background: var(--panel-bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 5rem; cursor: pointer; font-weight: 900; transition: 0.2s; border: 2px solid #1e293b; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .ms-cell:hover:not(.taken) { background: var(--panel-hover); border-color: var(--accent); }
-        .ms-cell.win { animation: pulseWin 1s infinite alternate; background: rgba(16, 185, 129, 0.1); border-color: var(--accent); }
-        @keyframes pulseWin { from { transform: scale(1); box-shadow: 0 0 10px var(--accent-glow); } to { transform: scale(1.05); box-shadow: 0 0 30px var(--accent-glow); } }
+           
+        /* Morpion Simple */
+        .ms-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 130px); 
+            gap: 12px; 
+            margin: 0 auto 40px auto; 
+            width: fit-content; 
+        }
 
-        .mu-status { text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; }
-        .mu-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; background: #020617; padding: 20px; border-radius: 20px; margin: 0 auto 30px auto; width: fit-content; border: 3px solid #1e293b; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .mu-grid { display: grid; grid-template-columns: repeat(3, 50px); gap: 4px; background: var(--panel-bg); padding: 8px; border-radius: 10px; position: relative; transition: 0.3s; }
-        .mu-cell { height: 50px; background: var(--bg-color); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; cursor: pointer; }
-        .mu-cell:hover:not(.taken) { background: var(--panel-hover); }
-        .mu-active { outline: 4px solid var(--accent); background: #064e3b; box-shadow: 0 0 25px var(--accent-glow); animation: muPulse 2s infinite; z-index: 5; }
-        .mu-won { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.85); display: flex; align-items: center; justify-content: center; font-size: 6rem; font-weight: 900; border-radius: 10px; backdrop-filter: blur(3px); z-index: 10; animation: screenFade 0.3s ease-out; }
-        @keyframes muPulse { 0% { outline-color: var(--accent); } 50% { outline-color: #34d399; } 100% { outline-color: var(--accent); } }
+        .ms-cell { 
+            height: 130px; 
+            background: var(--panel-bg); 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 5rem; 
+            cursor: pointer; 
+            font-weight: 900; 
+            transition: 0.2s; 
+            border: 2px solid #1e293b; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); 
+        }
 
-        /* NOUVEAU DÉMINEUR 25x25 */
-        .dm-header { display: flex; justify-content: center; gap: 40px; margin-bottom: 30px; font-size: 1.4rem; font-weight: bold; background: #000; padding: 15px 30px; border-radius: 50px; border: 1px solid #1e293b; }
+        .ms-cell:hover:not(.taken) { 
+            background: var(--panel-hover); 
+            border-color: var(--accent); 
+        }
+
+        .ms-cell.win { 
+            animation: pulseWin 1s infinite alternate; 
+            background: rgba(16, 185, 129, 0.1); 
+            border-color: var(--accent); 
+        }
+
+        @keyframes pulseWin { 
+            from { transform: scale(1); box-shadow: 0 0 10px var(--accent-glow); } 
+            to { transform: scale(1.05); box-shadow: 0 0 30px var(--accent-glow); } 
+        }
+
+        /* Morpion Ultime */
+        .mu-status { 
+            text-align: center; 
+            font-size: 1.5rem; 
+            font-weight: bold; 
+            margin-bottom: 20px; 
+        }
+
+        .mu-container { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 15px; 
+            background: #020617; 
+            padding: 20px; 
+            border-radius: 20px; 
+            margin: 0 auto 30px auto; 
+            width: fit-content; 
+            border: 3px solid #1e293b; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+        }
+
+        .mu-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 50px); 
+            gap: 4px; 
+            background: var(--panel-bg); 
+            padding: 8px; 
+            border-radius: 10px; 
+            position: relative; 
+            transition: 0.3s; 
+        }
+
+        .mu-cell { 
+            height: 50px; 
+            background: var(--bg-color); 
+            border-radius: 5px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.8rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+
+        .mu-cell:hover:not(.taken) { 
+            background: var(--panel-hover); 
+        }
+
+        .mu-active { 
+            outline: 4px solid var(--accent); 
+            background: #064e3b; 
+            box-shadow: 0 0 25px var(--accent-glow); 
+            animation: muPulse 2s infinite; 
+            z-index: 5; 
+        }
+
+        .mu-won { 
+            position: absolute; 
+            inset: 0; 
+            background: rgba(2, 6, 23, 0.85); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 6rem; 
+            font-weight: 900; 
+            border-radius: 10px; 
+            backdrop-filter: blur(3px); 
+            z-index: 10; 
+            animation: screenFade 0.3s ease-out; 
+        }
+
+        @keyframes muPulse { 
+            0% { outline-color: var(--accent); } 
+            50% { outline-color: #34d399; } 
+            100% { outline-color: var(--accent); } 
+        }
+
+        /* Démineur Expert 25x25 */
+        .dm-header { 
+            display: flex; 
+            justify-content: center; 
+            gap: 40px; 
+            margin-bottom: 30px; 
+            font-size: 1.4rem; 
+            font-weight: bold; 
+            background: #000; 
+            padding: 15px 30px; 
+            border-radius: 50px; 
+            border: 1px solid #1e293b; 
+        }
+
         #dm-board { 
             display: grid; 
-            grid-template-columns: repeat(25, 25px); /* Grille de 25 */
+            grid-template-columns: repeat(25, 25px); 
             gap: 2px; 
             background: #334155; 
             padding: 3px; 
@@ -172,6 +379,7 @@
             border-radius: 8px; 
             box-shadow: 0 15px 40px rgba(0,0,0,0.6); 
         }
+
         .dm-tile { 
             width: 25px; 
             height: 25px; 
@@ -179,72 +387,225 @@
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            font-size: 0.9rem; /* Légèrement plus petit pour fit */
+            font-size: 0.9rem; 
             font-weight: 900; 
             cursor: pointer; 
             border-radius: 3px; 
             box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3); 
         }
-        .dm-tile:hover:not(.open) { background: var(--panel-hover); }
-        .dm-tile.open { background: #cbd5e1; box-shadow: inset 2px 2px 6px rgba(0,0,0,0.3); cursor: default; }
-        .dm-tile.mine { background: var(--player-x); font-size: 1rem; }
-        .dm-c1 { color: #2563eb; } .dm-c2 { color: #16a34a; } .dm-c3 { color: #dc2626; } .dm-c4 { color: #7c3aed; } .dm-c5 { color: #991b1b; } .dm-c6 { color: #0d9488; }
 
-        .yams-layout { display: flex; gap: 40px; justify-content: center; align-items: flex-start; margin-top: 20px; flex-wrap: wrap; }
-        .y-dice-area { background: var(--panel-bg); padding: 40px; border-radius: 20px; text-align: center; border: 2px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 400px; }
-        .y-dice-container { font-size: 4.5rem; display: flex; gap: 15px; margin-bottom: 30px; justify-content: center; min-height: 80px; }
-        .y-die { cursor: pointer; transition: 0.3s; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        .y-die.kept { color: var(--accent); transform: translateY(-15px) scale(1.1); text-shadow: 0 10px 20px var(--accent-glow); }
-        .y-tables { display: flex; gap: 15px; }
-        .y-table { border-collapse: collapse; background: var(--panel-bg); border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .y-table th { padding: 15px; background: #020617; color: var(--text-main); font-size: 1.2rem; border-bottom: 2px solid var(--accent); }
-        .y-table td { border: 1px solid #1e293b; padding: 12px 20px; cursor: pointer; font-size: 1.1rem; }
-        .y-table td:first-child { font-weight: 600; color: var(--text-muted); }
-        .y-table .pot { color: var(--accent); opacity: 0.4; font-style: italic; font-weight: bold; }
-        .y-table .locked { color: var(--accent); font-weight: 900; background: rgba(16,185,129,0.05); }
-        .y-table .total-row { background: #020617; color: var(--gold); font-weight: 900; font-size: 1.3rem; }
+        .dm-tile:hover:not(.open) { 
+            background: var(--panel-hover); 
+        }
+
+        .dm-tile.open { 
+            background: #cbd5e1; 
+            box-shadow: inset 2px 2px 6px rgba(0,0,0,0.3); 
+            cursor: default; 
+        }
+
+        .dm-tile.mine { 
+            background: var(--player-x); 
+            font-size: 1rem; 
+        }
+
+        .dm-c1 { color: #2563eb; } 
+        .dm-c2 { color: #16a34a; } 
+        .dm-c3 { color: #dc2626; } 
+        .dm-c4 { color: #7c3aed; } 
+        .dm-c5 { color: #991b1b; } 
+        .dm-c6 { color: #0d9488; }
+
+        /* Yams Championship */
+        .yams-layout { 
+            display: flex; 
+            gap: 40px; 
+            justify-content: center; 
+            align-items: flex-start; 
+            margin-top: 20px; 
+            flex-wrap: wrap; 
+        }
+
+        .y-dice-area { 
+            background: var(--panel-bg); 
+            padding: 40px; 
+            border-radius: 20px; 
+            text-align: center; 
+            border: 2px solid #1e293b; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            width: 400px; 
+        }
+
+        .y-dice-container { 
+            font-size: 4.5rem; 
+            display: flex; 
+            gap: 15px; 
+            margin-bottom: 30px; 
+            justify-content: center; 
+            min-height: 80px; 
+        }
+
+        .y-die { 
+            cursor: pointer; 
+            transition: 0.3s; 
+            text-shadow: 0 5px 15px rgba(0,0,0,0.5); 
+        }
+
+        .y-die.kept { 
+            color: var(--accent); 
+            transform: translateY(-15px) scale(1.1); 
+            text-shadow: 0 10px 20px var(--accent-glow); 
+        }
+
+        .y-tables { 
+            display: flex; 
+            gap: 15px; 
+        }
+
+        .y-table { 
+            border-collapse: collapse; 
+            background: var(--panel-bg); 
+            border-radius: 12px; 
+            overflow: hidden; 
+            border: 1px solid #1e293b; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+        }
+
+        .y-table th { 
+            padding: 15px; 
+            background: #020617; 
+            color: var(--text-main); 
+            font-size: 1.2rem; 
+            border-bottom: 2px solid var(--accent); 
+        }
+
+        .y-table td { 
+            border: 1px solid #1e293b; 
+            padding: 12px 20px; 
+            cursor: pointer; 
+            font-size: 1.1rem; 
+        }
+
+        .y-table td:first-child { 
+            font-weight: 600; 
+            color: var(--text-muted); 
+        }
+
+        .y-table .pot { 
+            color: var(--accent); 
+            opacity: 0.4; 
+            font-style: italic; 
+            font-weight: bold; 
+        }
+
+        .y-table .locked { 
+            color: var(--accent); 
+            font-weight: 900; 
+            background: rgba(16,185,129,0.05); 
+        }
+
+        .y-table .total-row { 
+            background: #020617; 
+            color: var(--gold); 
+            font-weight: 900; 
+            font-size: 1.3rem; 
+        }
 
         /* =========================================
            4. CSS DE LA VRAIE BELOTE PRO
            ========================================= */
         .bl-scoreboard { 
-            display: flex; justify-content: center; gap: 50px; background: #020617; 
-            padding: 15px 30px; border-radius: 15px; border: 2px solid #1e293b; 
-            margin-bottom: 20px; font-size: 1.5rem; font-weight: bold; 
+            display: flex; 
+            justify-content: center; 
+            gap: 50px; 
+            background: #020617; 
+            padding: 15px 30px; 
+            border-radius: 15px; 
+            border: 2px solid #1e293b; 
+            margin-bottom: 20px; 
+            font-size: 1.5rem; 
+            font-weight: bold; 
         }
 
         .bl-info { 
-            text-align: center; margin-bottom: 20px; font-size: 1.3rem; 
-            font-weight: bold; color: var(--gold); min-height: 30px; 
+            text-align: center; 
+            margin-bottom: 20px; 
+            font-size: 1.3rem; 
+            font-weight: bold; 
+            color: var(--gold); 
+            min-height: 30px; 
         }
 
-        /* Tapis Ovale parfait */
+        /* Tapis de Jeu de Belote */
         .bl-tapis { 
             background: radial-gradient(circle, #065f46 0%, #022c22 100%); 
-            width: 800px; height: 500px; border-radius: 250px; margin: 0 auto; 
-            border: 15px solid #451a03; position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 50px rgba(0,0,0,0.5); 
+            width: 800px; 
+            height: 500px; 
+            border-radius: 250px; 
+            margin: 0 auto; 
+            border: 15px solid #451a03; 
+            position: relative; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 50px rgba(0,0,0,0.5); 
         }
         
-        /* HUD Atout et Points Pli */
+        /* HUD Coin Supérieur Gauche */
         #bl-atout-corner {
-            position: absolute; top: 25px; left: 35px; background: rgba(0, 0, 0, 0.8);
-            padding: 10px 15px; border-radius: 8px; border: 1px solid var(--accent);
-            text-align: center; z-index: 10; display: none;
+            position: absolute; 
+            top: 25px; 
+            left: 35px; 
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 15px; 
+            border-radius: 8px; 
+            border: 1px solid var(--accent);
+            text-align: center; 
+            z-index: 10; 
+            display: none;
         }
-        #bl-taker-name { font-size: 0.85rem; color: #ccc; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
-        #bl-atout-suit { font-size: 2.2rem; line-height: 1; }
 
+        #bl-taker-name { 
+            font-size: 0.85rem; 
+            color: #ccc; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            margin-bottom: 5px; 
+        }
+
+        #bl-atout-suit { 
+            font-size: 2.2rem; 
+            line-height: 1; 
+        }
+
+        /* HUD Coin Supérieur Droit */
         #bl-trick-points {
-            position: absolute; top: 25px; right: 35px; background: rgba(0, 0, 0, 0.8);
-            padding: 10px 15px; border-radius: 8px; border: 1px solid var(--gold);
-            text-align: center; z-index: 10; display: none; color: var(--gold); font-weight: bold;
+            position: absolute; 
+            top: 25px; 
+            right: 35px; 
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 15px; 
+            border-radius: 8px; 
+            border: 1px solid var(--gold);
+            text-align: center; 
+            z-index: 10; 
+            display: none; 
+            color: var(--gold); 
+            font-weight: bold;
         }
 
-        /* Animation Belote/Rebelote */
+        /* Animation Belote/Rebelote Centrale */
         .bl-annonce {
-            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-            background: var(--gold); color: #000; padding: 10px 20px; border-radius: 10px;
-            font-size: 1.5rem; font-weight: 900; z-index: 50; opacity: 0; pointer-events: none;
+            position: absolute; 
+            top: 40%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            background: var(--gold); 
+            color: #000; 
+            padding: 10px 20px; 
+            border-radius: 10px;
+            font-size: 1.5rem; 
+            font-weight: 900; 
+            z-index: 50; 
+            opacity: 0; 
+            pointer-events: none;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
 
@@ -259,11 +620,18 @@
             100% { opacity: 0; transform: translate(-50%, -100%) scale(0.8); } 
         }
 
-        /* Noms des joueurs avec effet de tour actif */
+        /* Noms des joueurs à l'extérieur du tapis */
         .bl-name { 
-            position: absolute; color: #94a3b8; font-weight: bold; font-size: 1.1rem; 
-            text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.9); 
-            pointer-events: none; z-index: 5; transition: 0.3s;
+            position: absolute; 
+            color: #94a3b8; 
+            font-weight: bold; 
+            font-size: 1.1rem; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.9); 
+            pointer-events: none; 
+            z-index: 5; 
+            transition: 0.3s;
         }
 
         .bl-name.active-turn {
@@ -284,27 +652,28 @@
         #bl-n-w { left: -45px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
         #bl-n-w.active-turn { transform: translateY(-50%) rotate(-90deg) scale(1.1); }
 
-        /* --- BULLES DE DIALOGUE (SPEECH BUBBLES) --- */
+        /* Bulles de dialogue des Bots */
         .bl-speech {
-            position: absolute;
-            background: white;
-            color: black;
+            position: absolute; 
+            background: white; 
+            color: black; 
             padding: 5px 12px;
-            border-radius: 15px;
-            font-weight: bold;
-            font-size: 1rem;
+            border-radius: 15px; 
+            font-weight: bold; 
+            font-size: 1rem; 
             z-index: 60;
-            opacity: 0;
-            transition: 0.3s;
-            pointer-events: none;
+            opacity: 0; 
+            transition: 0.3s; 
+            pointer-events: none; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
-        #bl-speech-2 { top: -65px; left: 50%; transform: translateX(-50%); } /* Nord */
-        #bl-speech-0 { bottom: -65px; left: 50%; transform: translateX(-50%); } /* Sud */
-        #bl-speech-1 { right: -75px; top: 50%; transform: translateY(-50%); } /* Est */
-        #bl-speech-3 { left: -75px; top: 50%; transform: translateY(-50%); } /* Ouest */
 
-        /* Dos des cartes des bots - Correction des dimensions et positionnement */
+        #bl-speech-2 { top: -65px; left: 50%; transform: translateX(-50%); }
+        #bl-speech-0 { bottom: -65px; left: 50%; transform: translateX(-50%); }
+        #bl-speech-1 { right: -75px; top: 50%; transform: translateY(-50%); }
+        #bl-speech-3 { left: -75px; top: 50%; transform: translateY(-50%); }
+
+        /* Dos des cartes des bots (Fixé sur les bords) */
         .bl-bot-hand { 
             position: absolute; 
             display: flex; 
@@ -319,7 +688,7 @@
             flex-direction: row; 
             gap: -20px; 
         }
-        
+
         #bl-h-n .bl-card-back { 
             width: 45px; 
             height: 65px; 
@@ -333,22 +702,22 @@
             top: 50%; 
             transform: translateY(-50%); 
             flex-direction: column; 
-            gap: -35px; /* Empilement vertical */
+            gap: -35px; 
         }
-        
+
         #bl-h-e { right: 20px; }
         #bl-h-w { left: 20px; }
 
         #bl-h-e .bl-card-back, #bl-h-w .bl-card-back {
             width: 65px; 
-            height: 45px; /* Mode Paysage pour les côtés */
+            height: 45px; 
             background: repeating-linear-gradient(45deg, #1e293b, #1e293b 5px, #0f172a 5px, #0f172a 10px); 
             border: 2px solid #fff; 
             border-radius: 5px; 
             box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
         }
 
-        /* Le Jeton du donneur */
+        /* Jeton du donneur */
         .bl-dealer { 
             position: absolute; 
             background: var(--gold); 
@@ -366,7 +735,19 @@
             font-size: 1.2rem; 
         }
 
-        /* La Croix Centrale Parfaite */
+        /* Centre pour l'enchère */
+        #bl-center {
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            z-index: 10; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+        }
+
+        /* Croix centrale pour les cartes jouées */
         .bl-slot { 
             position: absolute; 
             width: 80px; 
@@ -383,18 +764,6 @@
         #bl-s-s { bottom: 70px; left: 50%; transform: translateX(-50%); }
         #bl-s-e { top: 50%; right: 200px; transform: translateY(-50%); } 
         #bl-s-w { top: 50%; left: 200px; transform: translateY(-50%); }
-        
-        /* Centre pour l'enchère */
-        #bl-center {
-            position: absolute; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%); 
-            z-index: 10; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-        }
         
         /* Design des cartes */
         .bl-card { 
@@ -422,7 +791,7 @@
             cursor: not-allowed; 
         }
         
-        /* Main du joueur Humain */
+        /* Main du joueur Humain (Sud) */
         .bl-hand { 
             display: flex; 
             gap: -20px; 
@@ -433,12 +802,17 @@
 
         .bl-hand .bl-card { margin-left: -30px; } 
         .bl-hand .bl-card:first-child { margin-left: 0; }
-        .bl-hand .bl-card:hover:not(.invalid) { transform: translateY(-20px); z-index: 50; border-color: var(--accent); }
+        
+        .bl-hand .bl-card:hover:not(.invalid) { 
+            transform: translateY(-20px); 
+            z-index: 50; 
+            border-color: var(--accent); 
+        }
         
         /* Animation fluide du jeu de la carte */
         .bl-played { 
             position: absolute; 
-            animation: playCard 0.5s ease-out forwards; 
+            animation: playCard 0.4s ease-out forwards; 
             pointer-events: none; 
             z-index: 8; 
         }
@@ -448,7 +822,7 @@
             to { transform: scale(1) translateY(0) rotate(calc(-5deg + 10deg * var(--rand))); opacity: 1; } 
         }
         
-        /* Boutons pour le Choix Couleur */
+        /* Boutons pour le Choix Couleur (Tour 2) */
         .bl-suit-btn { 
             font-size: 2rem; 
             padding: 10px 20px; 
@@ -471,9 +845,38 @@
         /* =========================================
            8. FIREBASE NETWORK LOBBY
            ========================================= */
-        .lobby-box { background: var(--panel-bg); padding: 40px; border-radius: 20px; border: 2px solid #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; max-width: 600px; margin: auto; }
-        .room-code-display { font-size: 4.5rem; letter-spacing: 10px; color: var(--accent); font-weight: 900; margin: 30px 0; background: #020617; padding: 20px; border-radius: 15px; }
-        .net-status-bar { background: #020617; padding: 20px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 30px; font-size: 1.4rem; font-weight: bold; text-align: center; }
+        .lobby-box { 
+            background: var(--panel-bg); 
+            padding: 40px; 
+            border-radius: 20px; 
+            border: 2px solid #334155; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            text-align: center; 
+            max-width: 600px; 
+            margin: auto; 
+        }
+
+        .room-code-display { 
+            font-size: 4.5rem; 
+            letter-spacing: 10px; 
+            color: var(--accent); 
+            font-weight: 900; 
+            margin: 30px 0; 
+            background: #020617; 
+            padding: 20px; 
+            border-radius: 15px; 
+        }
+
+        .net-status-bar { 
+            background: #020617; 
+            padding: 20px; 
+            border-radius: 10px; 
+            border: 1px solid #334155; 
+            margin-bottom: 30px; 
+            font-size: 1.4rem; 
+            font-weight: bold; 
+            text-align: center; 
+        }
     </style>
 </head>
 <body>
@@ -503,14 +906,18 @@
     <section id="s-sim" class="screen active">
         <h1>Tic-Tac-Toe</h1>
         <div id="ms-board" class="ms-grid"></div>
-        <div style="text-align: center;"><button class="btn" onclick="App.Sim.init()">Réinitialiser</button></div>
+        <div style="text-align: center;">
+            <button class="btn" onclick="App.Sim.init()">Réinitialiser</button>
+        </div>
     </section>
 
     <section id="s-ult" class="screen">
         <h1>Morpion Ultime</h1>
         <p class="subtitle mu-status" id="mu-status">Chargement...</p>
         <div id="mu-board" class="mu-container"></div>
-        <div style="text-align: center;"><button class="btn" onclick="App.Ult.init()">Recommencer</button></div>
+        <div style="text-align: center;">
+            <button class="btn" onclick="App.Ult.init()">Recommencer</button>
+        </div>
     </section>
 
     <section id="s-mine" class="screen">
@@ -520,7 +927,9 @@
             <span>⏱️ <span id="dm-time" style="color:var(--accent)">0</span>s</span>
         </div>
         <div id="dm-board"></div>
-        <div style="text-align: center;"><button class="btn" onclick="App.Mine.init()">Nouvelle Génération</button></div>
+        <div style="text-align: center;">
+            <button class="btn" onclick="App.Mine.init()">Nouvelle Génération</button>
+        </div>
     </section>
 
     <section id="s-yams" class="screen">
@@ -533,7 +942,9 @@
             </div>
             <div id="y-score-container" class="y-tables"></div>
         </div>
-        <div style="text-align: center; margin-top: 30px;"><button class="btn" onclick="App.Yams.init()">Remettre à zéro</button></div>
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" onclick="App.Yams.init()">Remettre à zéro</button>
+        </div>
     </section>
 
     <section id="s-belote" class="screen">
@@ -694,11 +1105,11 @@
             document.getElementById('modal-title').innerHTML = title;
             
             let titleColor = 'var(--player-x)';
-            if (title.includes('Victoire') || title.includes('Gagné') || title.includes('Terminée') || title.includes('Réussi') || title.includes('Rempli') || title.includes('Fin')) {
+            if (title.includes('Victoire') || title.includes('Gagné') || title.includes('Terminée') || title.includes('Réussi') || title.includes('Fin')) {
                 titleColor = 'var(--accent)';
             }
-            document.getElementById('modal-title').style.color = titleColor;
             
+            document.getElementById('modal-title').style.color = titleColor;
             document.getElementById('modal-desc').innerHTML = desc;
             this.modalCb = cb; 
             document.getElementById('modal-overlay').style.display = 'flex';
@@ -715,6 +1126,7 @@
             document.querySelectorAll('.screen').forEach(s => {
                 s.classList.remove('active');
             }); 
+            
             document.getElementById(id).classList.add('active');
             
             if (id !== 's-mine') {
@@ -726,7 +1138,7 @@
     window.App = {};
 
     // =========================================================
-    // MOTEUR : MORPION SIMPLE
+    // MOTEUR DE JEU : MORPION SIMPLE
     // =========================================================
     window.App.Sim = {
         state: [], 
@@ -747,7 +1159,9 @@
         },
         
         play(index, element) {
-            if (this.state[index] !== '') return; 
+            if (this.state[index] !== '') {
+                return; 
+            }
             
             this.state[index] = this.player; 
             element.textContent = this.player; 
@@ -757,13 +1171,17 @@
             const winLine = this.checkWin(this.state); 
             
             if (winLine) { 
-                winLine.forEach(idx => document.getElementById('ms-board').children[idx].classList.add('win')); 
+                winLine.forEach(idx => {
+                    document.getElementById('ms-board').children[idx].classList.add('win');
+                }); 
+                
                 setTimeout(() => {
                     window.UI.showModal('Victoire !', `Le joueur <b style="color:${element.style.color}">${this.player}</b> a gagné en local.`, () => this.init());
                 }, 600); 
+                
             } else if (!this.state.includes('')) {
                 setTimeout(() => {
-                    window.UI.showModal('Égalité', 'Match Nul.', () => this.init());
+                    window.UI.showModal('Égalité', 'Match Nul, la grille est pleine.', () => this.init());
                 }, 200); 
             } else {
                 this.player = this.player === 'X' ? 'O' : 'X'; 
@@ -771,17 +1189,18 @@
         },
         
         checkWin(grid) {
-            const w = [
+            const winConditions = [
                 [0, 1, 2], [3, 4, 5], [6, 7, 8], 
                 [0, 3, 6], [1, 4, 7], [2, 5, 8], 
                 [0, 4, 8], [2, 4, 6]             
             ]; 
-            return w.find(l => grid[l[0]] && grid[l[0]] === grid[line[1]] && grid[line[0]] === grid[line[2]]);
+            
+            return winConditions.find(line => grid[line[0]] && grid[line[0]] === grid[line[1]] && grid[line[0]] === grid[line[2]]);
         }
     };
 
     // =========================================================
-    // MOTEUR : MORPION ULTIME
+    // MOTEUR DE JEU : MORPION ULTIME
     // =========================================================
     window.App.Ult = {
         bGrid: [], 
@@ -839,7 +1258,7 @@
             
             if (window.App.Sim.checkWin(cleanBigGrid)) { 
                 setTimeout(() => {
-                    window.UI.showModal('Victoire Ultime', `Le stratège <b>${this.currentPlayer}</b> domine !`, () => this.init());
+                    window.UI.showModal('Victoire Ultime', `Le stratège <b style="color:${cellElement.style.color}">${this.currentPlayer}</b> domine la carte !`, () => this.init());
                 }, 300); 
                 this.nextActiveGrid = 999; 
             } else { 
@@ -861,12 +1280,12 @@
         
         updateStatusUI() {
             const color = this.currentPlayer === 'X' ? 'var(--player-x)' : 'var(--player-o)';
-            document.getElementById('mu-status').innerHTML = `Tour de : <b style="color:${color}">${this.currentPlayer}</b>`;
+            document.getElementById('mu-status').innerHTML = `C'est au tour de : <b style="color:${color}">${this.currentPlayer}</b>`;
         }
     };
 
     // =========================================================
-    // MOTEUR : DEMINEUR (25x25 - Expert)
+    // MOTEUR DE JEU : DÉMINEUR EXPERT (25x25)
     // =========================================================
     window.App.Mine = {
         grid: [], 
@@ -895,7 +1314,9 @@
                 tile.onmousedown = (e) => { 
                     if (e.button === 2) { 
                         e.preventDefault(); 
-                        if (this.opened[i]) return; 
+                        if (this.opened[i]) {
+                            return; 
+                        }
                         
                         if (tile.textContent === '🚩') { 
                             tile.textContent = ''; 
@@ -971,7 +1392,9 @@
         },
         
         reveal(index) {
-            if (this.opened[index]) return; 
+            if (this.opened[index]) {
+                return; 
+            }
             
             const tileElement = document.getElementById('dm-board').children[index]; 
             this.opened[index] = true; 
@@ -981,9 +1404,11 @@
                 tileElement.classList.add('mine'); 
                 tileElement.textContent = '💣'; 
                 clearInterval(this.timer); 
+                
                 setTimeout(() => {
                     window.UI.showModal('BOUM !', `Mines déclenchées à ${this.time} secondes.`, () => this.init());
                 }, 300); 
+                
             } else { 
                 if (this.grid[index] > 0) { 
                     tileElement.textContent = this.grid[index]; 
@@ -993,9 +1418,10 @@
                 }
             } 
             
-            // 625 cases - 99 mines = 526 cases sûres
+            // Si 625 cases - 99 mines = 526 cases ouvertes, c'est gagné
             if (this.opened.filter(val => val).length === 526) { 
                 clearInterval(this.timer); 
+                
                 setTimeout(() => {
                     window.UI.showModal('Déminage Réussi !', `Terrain sécurisé en ${this.time}s.`, () => this.init());
                 }, 300); 
@@ -1004,7 +1430,7 @@
     };
 
     // =========================================================
-    // MOTEUR : YAMS (3 vrais lancers manuels)
+    // MOTEUR DE JEU : YAMS CHAMPIONSHIP
     // =========================================================
     window.App.Yams = {
         dice: [1, 1, 1, 1, 1], 
@@ -1043,13 +1469,14 @@
                 container.innerHTML += tableHTML; 
             } 
             
-            // On ne lance PAS les dés automatiquement. Le joueur a ses 3 lancers à faire.
             this.dice = [1, 1, 1, 1, 1]; 
             this.ui();
         },
         
         roll() {
-            if (this.rollsLeft <= 0) return; 
+            if (this.rollsLeft <= 0) {
+                return; 
+            }
             
             this.dice = this.dice.map((val, index) => {
                 return this.kept[index] ? val : Math.floor(Math.random() * 6) + 1;
@@ -1060,129 +1487,133 @@
         },
         
         ui() {
-            const b = document.getElementById('y-dice'); 
-            b.innerHTML = ''; 
+            const diceBox = document.getElementById('y-dice'); 
+            diceBox.innerHTML = ''; 
             
             this.dice.forEach((val, index) => { 
-                let el = document.createElement('div'); 
-                el.className = 'y-die' + (this.kept[index] ? ' kept' : ''); 
+                let dieElement = document.createElement('div'); 
+                dieElement.className = 'y-die' + (this.kept[index] ? ' kept' : ''); 
                 
-                // Si c'est le tout début et aucun dé n'a été lancé (rolls=3), on peut griser un peu
-                if(this.rollsLeft === 3) el.style.opacity = '0.3';
+                if (this.rollsLeft === 3) {
+                    dieElement.style.opacity = '0.3';
+                }
                 
-                el.textContent = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'][val - 1]; 
+                dieElement.textContent = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'][val - 1]; 
                 
-                el.onclick = () => { 
-                    // On ne peut garder un dé qu'APRES avoir fait le premier lancer
+                dieElement.onclick = () => { 
                     if (this.rollsLeft < 3 && this.rollsLeft > 0) { 
                         this.kept[index] = !this.kept[index]; 
                         this.ui(); 
                     } 
                 }; 
                 
-                b.appendChild(el); 
+                diceBox.appendChild(dieElement); 
             }); 
             
             document.getElementById('y-roll-btn').textContent = `Lancer (${this.rollsLeft})`; 
             document.getElementById('y-turn').textContent = `C'est au tour du Joueur ${this.currentPlayer + 1}`; 
             
-            // Ne calcule les points potentiels que si au moins un lancer a été fait
-            if(this.rollsLeft < 3) {
-                this.calc();
+            if (this.rollsLeft < 3) {
+                this.calculatePotentials();
             }
         },
         
-        calc() {
-            const c = {}; 
-            this.dice.forEach(x => c[x] = (c[x] || 0) + 1); 
+        calculatePotentials() {
+            const counts = {}; 
+            this.dice.forEach(x => counts[x] = (counts[x] || 0) + 1); 
             
-            const v = Object.values(c);
-            const set = new Set(this.dice); 
+            const valuesCount = Object.values(counts);
+            const uniqueSet = new Set(this.dice); 
             
-            const seq = (l) => { 
-                let st = 0;
-                let mx = 0; 
+            const hasSequence = (lengthRequired) => { 
+                let currentStreak = 0;
+                let maxStreak = 0; 
                 for (let i = 1; i <= 6; i++) {
-                    if (set.has(i)) {
-                        st++; 
+                    if (uniqueSet.has(i)) {
+                        currentStreak++; 
                     } else {
-                        st = 0; 
+                        currentStreak = 0; 
                     }
-                    mx = Math.max(mx, st);
+                    maxStreak = Math.max(maxStreak, currentStreak);
                 } 
-                return mx >= l; 
+                return maxStreak >= lengthRequired; 
             }; 
             
             const categories = ['1', '2', '3', '4', '5', '6', 'Brelan', 'Carré', 'Full', 'Petite Suite', 'Grande Suite', 'Yams', 'Chance'];
             
             categories.forEach(cat => { 
                 let cleanID = cat.replace(/\s/g, ''); 
-                const el = document.getElementById(`y-${this.currentPlayer}-${cleanID}`); 
+                const cellElement = document.getElementById(`y-${this.currentPlayer}-${cleanID}`); 
                 
-                if (this.scores[this.currentPlayer][cat] !== undefined) return; 
-                
-                let pts = 0; 
-                
-                if (!isNaN(cat)) {
-                    pts = (c[cat] || 0) * parseInt(cat); 
-                } else if (cat === 'Brelan' && v.some(x => x >= 3)) {
-                    pts = this.dice.reduce((a,b) => a + b); 
-                } else if (cat === 'Carré' && v.some(x => x >= 4)) {
-                    pts = this.dice.reduce((a,b) => a + b); 
-                } else if (cat === 'Full' && v.includes(3) && v.includes(2)) {
-                    pts = 25; 
-                } else if (cat === 'Petite Suite' && seq(4)) {
-                    pts = 30; 
-                } else if (cat === 'Grande Suite' && seq(5)) {
-                    pts = 40; 
-                } else if (cat === 'Yams' && v.includes(5)) {
-                    pts = 50; 
-                } else if (cat === 'Chance') {
-                    pts = this.dice.reduce((a,b) => a + b); 
+                if (this.scores[this.currentPlayer][cat] !== undefined) {
+                    return; 
                 }
                 
-                el.textContent = pts; 
-                el.className = 'val pot'; 
+                let potentialPoints = 0; 
+                
+                if (!isNaN(cat)) {
+                    potentialPoints = (counts[cat] || 0) * parseInt(cat); 
+                } else if (cat === 'Brelan' && valuesCount.some(x => x >= 3)) {
+                    potentialPoints = this.dice.reduce((a,b) => a + b); 
+                } else if (cat === 'Carré' && valuesCount.some(x => x >= 4)) {
+                    potentialPoints = this.dice.reduce((a,b) => a + b); 
+                } else if (cat === 'Full' && valuesCount.includes(3) && valuesCount.includes(2)) {
+                    potentialPoints = 25; 
+                } else if (cat === 'Petite Suite' && hasSequence(4)) {
+                    potentialPoints = 30; 
+                } else if (cat === 'Grande Suite' && hasSequence(5)) {
+                    potentialPoints = 40; 
+                } else if (cat === 'Yams' && valuesCount.includes(5)) {
+                    potentialPoints = 50; 
+                } else if (cat === 'Chance') {
+                    potentialPoints = this.dice.reduce((a,b) => a + b); 
+                }
+                
+                cellElement.textContent = potentialPoints; 
+                cellElement.className = 'val pot'; 
             });
         },
         
-        lock(cat, pi) {
-            // Empêche de lock sans avoir lancé les dés
-            if (this.rollsLeft === 3) return;
-            if (pi !== this.currentPlayer || this.scores[pi][cat] !== undefined) return; 
+        lockCategory(category, playerIndex) {
+            if (this.rollsLeft === 3) {
+                return; 
+            }
+            if (playerIndex !== this.currentPlayer || this.scores[playerIndex][category] !== undefined) {
+                return; 
+            }
             
-            let cleanID = cat.replace(/\s/g, ''); 
-            const el = document.getElementById(`y-${pi}-${cleanID}`); 
+            let cleanID = category.replace(/\s/g, ''); 
+            const cellElement = document.getElementById(`y-${playerIndex}-${cleanID}`); 
             
-            this.scores[pi][cat] = parseInt(el.textContent); 
-            el.className = 'val locked'; 
+            this.scores[playerIndex][category] = parseInt(cellElement.textContent); 
+            cellElement.className = 'val locked'; 
             
-            let total = Object.values(this.scores[pi]).reduce((sum, val) => sum + val, 0); 
-            let sumTopSection = ['1', '2', '3', '4', '5', '6'].reduce((sum, key) => sum + (this.scores[pi][key] || 0), 0); 
+            let total = Object.values(this.scores[playerIndex]).reduce((sum, val) => sum + val, 0); 
+            let sumTopSection = ['1', '2', '3', '4', '5', '6'].reduce((sum, key) => sum + (this.scores[playerIndex][key] || 0), 0); 
             
             if (sumTopSection >= 63) { 
                 total += 35; 
-                document.getElementById(`y-${pi}-Bonus`).textContent = 35; 
+                document.getElementById(`y-${playerIndex}-Bonus`).textContent = 35; 
             } 
             
-            document.getElementById(`y-tot-${pi}`).textContent = total; 
+            document.getElementById(`y-tot-${playerIndex}`).textContent = total; 
             
             this.currentPlayer = (this.currentPlayer + 1) % 2; 
             this.rollsLeft = 3; 
             this.kept.fill(false); 
-            this.dice = [1,1,1,1,1]; // Remise visuelle
+            this.dice = [1, 1, 1, 1, 1]; 
             
-            document.querySelectorAll('.pot').forEach(e => { 
-                e.textContent = '-'; 
-                e.classList.remove('pot'); 
+            document.querySelectorAll('.pot').forEach(element => { 
+                element.textContent = '-'; 
+                element.classList.remove('pot'); 
             }); 
             
             if (Object.keys(this.scores[1]).length === 13) { 
-                let t0 = parseInt(document.getElementById(`y-tot-0`).textContent);
-                let t1 = parseInt(document.getElementById(`y-tot-1`).textContent); 
+                let totalPlayer1 = parseInt(document.getElementById(`y-tot-0`).textContent);
+                let totalPlayer2 = parseInt(document.getElementById(`y-tot-1`).textContent); 
                 
-                let winnerText = t0 > t1 ? 'Joueur 1' : (t1 > t0 ? 'Joueur 2' : 'Égalité parfaite');
-                let message = `Scores finaux :<br>J1 : ${t0}<br>J2 : ${t1}<br><br>Vainqueur : <b>${winnerText}</b>`;
+                let winnerText = totalPlayer1 > totalPlayer2 ? 'Joueur 1' : (totalPlayer2 > totalPlayer1 ? 'Joueur 2' : 'Égalité parfaite');
+                let message = `Scores finaux :<br>J1 : ${totalPlayer1}<br>J2 : ${totalPlayer2}<br><br>Vainqueur : <b>${winnerText}</b>`;
                 
                 window.UI.showModal('Fin du Championnat !', message, () => this.init()); 
             } else {
@@ -1192,7 +1623,7 @@
     };
 
     // =========================================================
-    // MOTEUR : LA VRAIE BELOTE IA INTELLIGENTE ET COMPLÈTE
+    // MOTEUR DE JEU : LA VRAIE BELOTE IA INTELLIGENTE ET COMPLÈTE
     // =========================================================
     window.App.Belote = {
         deck: [], 
@@ -1234,7 +1665,6 @@
             this.scores = { nous: 0, eux: 0 };
             this.litigePot = 0;
             
-            // Premier donneur aléatoire
             if (this.dealerIndex === -1) {
                 this.dealerIndex = Math.floor(Math.random() * 4);
             }
@@ -1244,7 +1674,7 @@
         },
 
         startDeal() {
-            // Nettoyage complet de l'UI
+            // Nettoyage de l'interface
             document.querySelectorAll('.bl-slot').forEach(slot => slot.innerHTML = '');
             document.getElementById('bl-center').innerHTML = '';
             document.getElementById('bl-hand').innerHTML = '';
@@ -1254,18 +1684,18 @@
             document.getElementById('bl-trick-points').style.display = 'none';
             document.getElementById('bl-atout-corner').style.display = 'none';
             
-            this.updatePlayerHighlight(-1); // Efface les highlights
+            this.updatePlayerHighlight(-1); 
 
-            // Le donneur tourne !
+            // Le donneur tourne
             this.dealerIndex = (this.dealerIndex + 1) % 4;
             this.firstPlayerIndex = (this.dealerIndex + 1) % 4;
             
-            // Position précise pour le tapis 800x500
+            // Jeton Donneur
             const positions = [
-                {x: 400, y: 470}, // Sud
-                {x: 770, y: 250}, // Est
-                {x: 400, y: 30},  // Nord
-                {x: 30, y: 250}   // Ouest
+                {x: 450, y: 420}, // Sud
+                {x: 680, y: 300}, // Est
+                {x: 450, y: 40},  // Nord
+                {x: 100, y: 300}  // Ouest
             ];
             
             const tokenElement = document.getElementById('bl-dealer-token');
@@ -1281,13 +1711,12 @@
                 }); 
             });
             
-            // Mélange Parfait (Fisher-Yates)
+            // Mélange Parfait 
             for (let i = this.deck.length - 1; i > 0; i--) { 
                 const j = Math.floor(Math.random() * (i + 1)); 
                 [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; 
             }
             
-            // Reset des variables de donne
             this.hands = [[], [], [], []]; 
             this.currentTrick = []; 
             this.dealPoints = { nous: 0, eux: 0 };
@@ -1319,6 +1748,7 @@
             const bubble = document.getElementById(`bl-speech-${playerIndex}`);
             bubble.textContent = textMsg;
             bubble.style.opacity = 1;
+            
             setTimeout(() => {
                 bubble.style.opacity = 0;
             }, 1200);
@@ -1356,7 +1786,11 @@
                 };
             } else {
                 document.getElementById('bl-actions-1').style.display = 'none';
-                let botName = this.currentTurnIndex === 1 ? 'Est' : (this.currentTurnIndex === 2 ? 'Nord' : 'Ouest');
+                let botName = '';
+                if (this.currentTurnIndex === 1) botName = 'Est';
+                if (this.currentTurnIndex === 2) botName = 'Nord';
+                if (this.currentTurnIndex === 3) botName = 'Ouest';
+                
                 this.updateStatus(`${botName} réfléchit...`);
                 
                 setTimeout(() => {
@@ -1366,18 +1800,27 @@
                     let suitCards = hand.filter(c => c.suit.s === suit);
                     
                     let shouldTake = false;
-                    if (rank === 'V' || rank === '9') shouldTake = true;
-                    else if (suitCards.length >= 2 && suitCards.some(c => c.rank === 'V' || c.rank === '9')) shouldTake = true;
-                    else if (suitCards.length >= 3) shouldTake = true;
+                    
+                    if (rank === 'V' || rank === '9') {
+                        shouldTake = true;
+                    } else if (suitCards.length >= 2 && suitCards.some(c => c.rank === 'V' || c.rank === '9')) {
+                        shouldTake = true;
+                    } else if (suitCards.length >= 3) {
+                        shouldTake = true;
+                    }
 
                     if (shouldTake || Math.random() < 0.05) {
                         this.showSpeech(this.currentTurnIndex, `Je prends ! (${this.centerCard.suit.s})`);
-                        setTimeout(() => this.take(this.currentTurnIndex, this.centerCard.suit), 800);
+                        setTimeout(() => {
+                            this.take(this.currentTurnIndex, this.centerCard.suit);
+                        }, 800);
                     } else {
                         this.showSpeech(this.currentTurnIndex, "Passe.");
-                        setTimeout(() => this.passBidding1(), 800);
+                        setTimeout(() => {
+                            this.passBidding1();
+                        }, 800);
                     }
-                }, 1000);
+                }, 1200);
             }
         },
 
@@ -1386,10 +1829,11 @@
             this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
             
             if (this.currentTurnIndex === this.firstPlayerIndex) {
-                // Fin du tour 1
                 this.phase = 'bidding_2';
                 this.updateStatus("TOUR 2 : Choix d'une autre couleur.");
-                setTimeout(() => this.processBidding2(), 500);
+                setTimeout(() => {
+                    this.processBidding2();
+                }, 500);
             } else {
                 this.processBidding1();
             }
@@ -1415,6 +1859,7 @@
                     let btn = document.createElement('button');
                     btn.className = `bl-suit-btn ${suitObj.color === 'r' ? 'red' : 'black'}`;
                     btn.textContent = suitObj.s;
+                    
                     btn.onclick = () => {
                         this.showSpeech(0, `Je prends ! (${suitObj.s})`);
                         document.getElementById('bl-actions-2').style.display = 'none';
@@ -1429,7 +1874,11 @@
                     this.passBidding2();
                 };
             } else {
-                let botName = this.currentTurnIndex === 1 ? 'Est' : (this.currentTurnIndex === 2 ? 'Nord' : 'Ouest');
+                let botName = '';
+                if (this.currentTurnIndex === 1) botName = 'Est';
+                if (this.currentTurnIndex === 2) botName = 'Nord';
+                if (this.currentTurnIndex === 3) botName = 'Ouest';
+                
                 this.updateStatus(`${botName} réfléchit (Tour 2)...`);
                 
                 setTimeout(() => {
@@ -1453,12 +1902,16 @@
 
                     if (bestScore >= 4 || (bestScore >= 3 && Math.random() < 0.2)) {
                         this.showSpeech(this.currentTurnIndex, `Je prends ! (${bestSuit.s})`);
-                        setTimeout(() => this.take(this.currentTurnIndex, bestSuit), 800);
+                        setTimeout(() => {
+                            this.take(this.currentTurnIndex, bestSuit);
+                        }, 800);
                     } else {
                         this.showSpeech(this.currentTurnIndex, "Passe.");
-                        setTimeout(() => this.passBidding2(), 800);
+                        setTimeout(() => {
+                            this.passBidding2();
+                        }, 800);
                     }
-                }, 1000);
+                }, 1200);
             }
         },
 
@@ -1467,7 +1920,9 @@
             
             if (this.currentTurnIndex === this.firstPlayerIndex) {
                 this.updateStatus("Tout le monde a passé. Redistribution générale !");
-                setTimeout(() => this.startDeal(), 1500);
+                setTimeout(() => {
+                    this.startDeal();
+                }, 1500);
             } else {
                 this.processBidding2();
             }
@@ -1493,7 +1948,9 @@
             
             this.updateStatus(`${nameDisplay} pris à <span style="color:${this.atoutSuit.color === 'r' ? '#f43f5e' : 'white'}; font-size:1.5rem;">${this.atoutSuit.s}</span> !`);
             
-            setTimeout(() => this.finishDeal(), 1500);
+            setTimeout(() => {
+                this.finishDeal();
+            }, 1500);
         },
 
         finishDeal() {
@@ -1505,17 +1962,14 @@
             if (this.takerIndex === 2) takerName = "Nord";
             if (this.takerIndex === 3) takerName = "Ouest";
             
-            // Affiche le HUD Coin Gauche
             document.getElementById('bl-atout-corner').style.display = 'block';
             document.getElementById('bl-taker-name').innerText = `Preneur : ${takerName}`;
             document.getElementById('bl-atout-suit').innerText = this.atoutSuit.s;
             document.getElementById('bl-atout-suit').style.color = this.atoutSuit.color === 'r' ? '#f43f5e' : 'white';
             
-            // Affiche le HUD Points
             document.getElementById('bl-trick-points').style.display = 'block';
             this.updateTrickPointsUI();
             
-            // Distribution du reste (le preneur a déjà pris la carte du milieu, il en reçoit 2)
             for (let p = 0; p < 4; p++) {
                 let targetPlayer = (this.firstPlayerIndex + p) % 4;
                 let numCardsToGive = (targetPlayer === this.takerIndex) ? 2 : 3;
@@ -1527,7 +1981,9 @@
         },
 
         updatePlayerHighlight(index) {
-            document.querySelectorAll('.bl-name').forEach(el => el.classList.remove('active-turn'));
+            document.querySelectorAll('.bl-name').forEach(el => {
+                el.classList.remove('active-turn');
+            });
             
             if (index === 0) document.getElementById('bl-n-s').classList.add('active-turn');
             if (index === 1) document.getElementById('bl-n-e').classList.add('active-turn');
@@ -1538,12 +1994,12 @@
         renderBotHands() {
             const mapId = ['none', 'bl-h-e', 'bl-h-n', 'bl-h-w'];
             
-            for(let i = 1; i <= 3; i++) {
+            for (let i = 1; i <= 3; i++) {
                 const container = document.getElementById(mapId[i]);
                 container.innerHTML = '';
                 
                 let nbCards = this.hands[i].length;
-                for(let c = 0; c < nbCards; c++) {
+                for (let c = 0; c < nbCards; c++) {
                     let back = document.createElement('div');
                     back.className = 'bl-card-back';
                     container.appendChild(back);
@@ -1553,7 +2009,7 @@
 
         processPlay() {
             if (this.tricksPlayedCount === 8) {
-                return; // Verrouille le jeu : la manche est finie
+                return; 
             }
 
             this.updatePlayerHighlight(this.currentTurnIndex);
@@ -1570,12 +2026,16 @@
                 
                 this.updateStatus(`${botName} joue...`);
                 
-                setTimeout(() => this.botPlay(), 1200);
+                setTimeout(() => {
+                    this.botPlay();
+                }, 600);
             }
         },
 
         getTrickWinner(trickArray) {
-            if (trickArray.length === 0) return null;
+            if (trickArray.length === 0) {
+                return null;
+            }
             
             let leadSuitChar = trickArray[0].card.suit.s;
             let highestCalculatedVal = -1;
@@ -1605,7 +2065,6 @@
         },
 
         getValidCards(handArray) {
-            // Premier à jouer : tout est possible
             if (this.currentTrick.length === 0) {
                 return handArray;
             }
@@ -1615,6 +2074,7 @@
             let trumpCardsInHand = handArray.filter(c => c.suit.s === this.atoutSuit.s);
 
             let highestTrumpRankInTrick = -1;
+            
             this.currentTrick.forEach(trickEntry => {
                 if (trickEntry.card.suit.s === this.atoutSuit.s) {
                     let val = 8 - this.ordAtout.indexOf(trickEntry.card.rank);
@@ -1624,9 +2084,7 @@
                 }
             });
 
-            // 1. Obligation de fournir la couleur demandée
             if (cardsOfRequestedSuit.length > 0) {
-                // Si la couleur demandée est l'atout, on doit monter (sur-couper) si possible
                 if (leadSuitChar === this.atoutSuit.s) {
                     let higherTrumpsToPlay = cardsOfRequestedSuit.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRankInTrick);
                     if (higherTrumpsToPlay.length > 0) {
@@ -1636,17 +2094,14 @@
                 return cardsOfRequestedSuit; 
             }
             
-            // 2. On n'a pas la couleur. Faut-il couper ?
             let currentWinnerData = this.getTrickWinner(this.currentTrick);
             let partnerIndex = (this.currentTurnIndex + 2) % 4;
             let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
 
             if (trumpCardsInHand.length > 0) {
                 if (isPartnerWinning) {
-                    // Partenaire maître : droit de se défausser (pisser)
                     return handArray; 
                 } else {
-                    // Adversaire maître : obligation de couper, et sur-couper si possible
                     let higherTrumpsToPlay = trumpCardsInHand.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRankInTrick);
                     if (higherTrumpsToPlay.length > 0) {
                         return higherTrumpsToPlay; 
@@ -1655,14 +2110,12 @@
                 }
             }
             
-            // 3. Ni couleur ni atout : on joue ce qu'on veut
             return handArray;
         },
 
         chooseBotCard(validCardsArray) {
-            // Entame de pli
             if (this.currentTrick.length === 0) {
-                validCardsArray.sort((a,b) => this.getCardValue(b) - this.getCardValue(a));
+                validCardsArray.sort((a, b) => this.getCardValue(b) - this.getCardValue(a));
                 return validCardsArray[0];
             }
 
@@ -1670,19 +2123,17 @@
             let partnerIndex = (this.currentTurnIndex + 2) % 4;
             let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
 
-            // Partenaire maître
             if (isPartnerWinning) {
-                validCardsArray.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
-                return validCardsArray[0]; // On donne une petite carte
+                validCardsArray.sort((a, b) => this.getCardValue(a) - this.getCardValue(b));
+                return validCardsArray[0];
             } else {
-                // Adversaire maître
                 let winningCard = currentWinnerData.card;
                 let winningVal = (winningCard.suit.s === this.atoutSuit.s) ? (8 - this.ordAtout.indexOf(winningCard.rank)) : (8 - this.ordNormal.indexOf(winningCard.rank));
                 
                 let cardsThatBeatWinner = validCardsArray.filter(c => {
-                    // Je coupe
-                    if (c.suit.s === this.atoutSuit.s && winningCard.suit.s !== this.atoutSuit.s) return true;
-                    // Je joue la couleur demandée et je bats la carte
+                    if (c.suit.s === this.atoutSuit.s && winningCard.suit.s !== this.atoutSuit.s) {
+                        return true;
+                    }
                     if (c.suit.s === winningCard.suit.s) {
                         let order = (c.suit.s === this.atoutSuit.s) ? this.ordAtout : this.ordNormal;
                         return (8 - order.indexOf(c.rank)) > winningVal;
@@ -1691,19 +2142,16 @@
                 });
 
                 if (cardsThatBeatWinner.length > 0) {
-                    // Joue la plus petite carte capable de gagner
-                    cardsThatBeatWinner.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
+                    cardsThatBeatWinner.sort((a, b) => this.getCardValue(a) - this.getCardValue(b));
                     return cardsThatBeatWinner[0];
                 } else {
-                    // Ne peut pas gagner, se défausse de la plus petite
-                    validCardsArray.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
+                    validCardsArray.sort((a, b) => this.getCardValue(a) - this.getCardValue(b));
                     return validCardsArray[0];
                 }
             }
         },
         
         checkBelote(cardObj, playerIndex) {
-            // Règle : Jouer le Roi ou la Dame d'atout
             if (cardObj.suit.s === this.atoutSuit.s && (cardObj.rank === 'R' || cardObj.rank === 'D')) {
                 let hand = this.hands[playerIndex];
                 let otherRankToFind = (cardObj.rank === 'R') ? 'D' : 'R';
@@ -1726,7 +2174,7 @@
             const annonceEl = document.getElementById('bl-annonce-msg');
             annonceEl.textContent = msg;
             annonceEl.classList.remove('active');
-            void annonceEl.offsetWidth; // Force le reflow de l'animation CSS
+            void annonceEl.offsetWidth; 
             annonceEl.classList.add('active');
         },
 
@@ -1734,7 +2182,6 @@
             const handContainer = document.getElementById('bl-hand'); 
             handContainer.innerHTML = '';
             
-            // Tri visuel : Atout en premier, puis les autres couleurs
             this.hands[0].sort((a, b) => {
                 if (a.suit.s === this.atoutSuit?.s) return -1; 
                 if (b.suit.s === this.atoutSuit?.s) return 1;
@@ -1752,7 +2199,6 @@
                 
                 if (isValid && this.phase === 'playing' && this.currentTurnIndex === 0) {
                     cardElement.onclick = () => {
-                        // Double sécurité
                         if (this.phase === 'playing' && this.currentTurnIndex === 0) {
                             this.playCard(index, cardElement);
                         }
@@ -1764,7 +2210,7 @@
         },
 
         playCard(cardIndex, cardElement) {
-            this.phase = 'resolving'; // Lock immédiat
+            this.phase = 'resolving'; 
             
             let playedCardObj = this.hands[0].splice(cardIndex, 1)[0]; 
             this.renderHand();
@@ -1800,12 +2246,13 @@
             visualCard.className = `bl-card bl-played ${playedCardObj.isRed ? 'red' : ''}`;
             visualCard.innerHTML = `<span>${playedCardObj.rank}</span><span>${playedCardObj.suit.s}</span>`;
             visualCard.style.setProperty('--rand', Math.random()); 
+            
             document.getElementById('bl-s-' + positionsMap[this.currentTurnIndex]).appendChild(visualCard);
 
             this.currentTrick.push({ player: this.currentTurnIndex, card: playedCardObj });
             this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
             
-            this.renderBotHands(); // Mise à jour visuelle des dos de cartes
+            this.renderBotHands(); 
             
             if (this.currentTrick.length === 4) {
                 this.resolveTrick(); 
@@ -1823,7 +2270,7 @@
         },
 
         resolveTrick() {
-            this.phase = 'resolving'; // Lock le jeu pendant l'animation
+            this.phase = 'resolving'; 
             this.updatePlayerHighlight(-1);
             
             let winnerObject = this.getTrickWinner(this.currentTrick);
@@ -1834,7 +2281,6 @@
             
             this.tricksPlayedCount++; 
 
-            // 10 de der
             if (this.tricksPlayedCount === 8) {
                 pointsInTrick += 10; 
             }
@@ -1851,9 +2297,10 @@
             
             this.updateStatus(`${winMessageName} le pli ! (+${pointsInTrick} pts)`);
 
-            // Pause de 2.5s pour que le joueur ait le temps de voir les 4 cartes jouées
             setTimeout(() => {
-                document.querySelectorAll('.bl-slot').forEach(slot => slot.innerHTML = '');
+                document.querySelectorAll('.bl-slot').forEach(slot => {
+                    slot.innerHTML = '';
+                });
                 
                 if (trickWinnerIndex === 0 || trickWinnerIndex === 2) {
                     this.scores.nous += pointsInTrick; 
@@ -1866,7 +2313,6 @@
                 this.currentTurnIndex = trickWinnerIndex; 
                 this.phase = 'playing';
                 
-                // Si les 8 plis sont passés, la manche est finie !
                 if (this.tricksPlayedCount === 8) {
                     this.endDeal();
                 } else {
@@ -1885,14 +2331,10 @@
         },
         
         endDeal() { 
-            // ==========================================
-            // CALCULS OFFICIELS : CONTRAT ET CAPOT
-            // ==========================================
             let ptsNous = this.dealPoints.nous;
             let ptsEux = this.dealPoints.eux;
             let msg = "";
 
-            // 1. CAPOT
             if (this.tricksWon.nous === 8) {
                 ptsNous = 250 + (this.beloteAnnouncedBy === 'nous' ? 20 : 0);
                 msg += "<b style='color:var(--accent); font-size:1.3em;'>CAPOT ! (250 pts)</b><br><br>";
@@ -1901,7 +2343,6 @@
                 msg += "<b style='color:var(--player-x); font-size:1.3em;'>CAPOT ADVERSE ! (250 pts)</b><br><br>";
             }
 
-            // 2. CONTRAT ET CHUTE
             let takerTeam = (this.takerIndex === 0 || this.takerIndex === 2) ? 'nous' : 'eux';
             
             if (takerTeam === 'nous' && this.tricksWon.nous !== 8) {
@@ -1944,7 +2385,6 @@
                     ptsEux = 0;
                 }
             } else if (this.tricksWon.nous === 8 || this.tricksWon.eux === 8) {
-                // Le capot est géré, on ajoute aux scores globaux
                 if (this.tricksWon.nous === 8) { 
                     this.scores.nous += ptsNous + this.litigePot; 
                     this.litigePot = 0; 
@@ -1957,7 +2397,6 @@
 
             msg += `<br>Scores de la donne :<br>Nous : ${ptsNous} pts<br>Eux : ${ptsEux} pts`;
             
-            // 3. VICTOIRE GLOBALE 1000 POINTS
             if (this.scores.nous >= 1000 || this.scores.eux >= 1000) {
                 let winnerTeamText = this.scores.nous >= 1000 ? "VOUS AVEZ" : "ILS ONT";
                 msg = `<span style="font-size:1.5em; color:var(--gold)">PARTIE TERMINÉE !</span><br><br>${winnerTeamText} ATTEINT 1000 POINTS !<br><br>Score Final : Nous ${this.scores.nous} - Eux ${this.scores.eux}`;
@@ -2367,7 +2806,6 @@
             let targetID = e.currentTarget.dataset.target; 
             window.UI.switchScreen(targetID); 
             
-            // Initialisation à l'ouverture de l'onglet
             if (targetID === 's-sim') window.App.Sim.init(); 
             if (targetID === 's-ult') window.App.Ult.init(); 
             if (targetID === 's-mine') window.App.Mine.init(); 
@@ -2376,7 +2814,7 @@
         }; 
     });
 
-    // Lancement par défaut
+    // Lancement initial
     window.App.Sim.init();
 </script>
 </body>
