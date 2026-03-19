@@ -3,212 +3,285 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcade Ultimate 2026 - Polish Edition</title>
+    <title>Arcade Ultimate 2026 - Masterpiece Edition</title>
     <style>
+        /* =========================================
+           1. VARIABLES ET BASE
+           ========================================= */
         :root {
-            --bg: #0b1120; --panel: #1e293b; --panel-hover: #334155;
+            --bg-color: #080c16; --panel-bg: #111827; --panel-hover: #1f2937;
             --accent: #10b981; --accent-glow: rgba(16, 185, 129, 0.4);
-            --text: #f8fafc; --text-muted: #94a3b8;
-            --p1: #f43f5e; --p2: #3b82f6;
+            --text-main: #f8fafc; --text-muted: #64748b;
+            --player-x: #f43f5e; --player-o: #3b82f6; --gold: #fbbf24;
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-color); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
-        /* --- NOTIFICATION MODAL --- */
-        #custom-modal {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000;
-            align-items: center; justify-content: center; backdrop-filter: blur(5px);
+        /* =========================================
+           2. SYSTÈME DE MODAL (POP-UP)
+           ========================================= */
+        #modal-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999;
+            align-items: center; justify-content: center; backdrop-filter: blur(8px);
         }
-        .modal-content { background: var(--panel); padding: 40px; border-radius: 15px; text-align: center; border: 2px solid var(--accent); box-shadow: 0 10px 40px var(--accent-glow); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .modal-content h2 { margin-top: 0; font-size: 2rem; }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-box {
+            background: var(--panel-bg); padding: 40px; border-radius: 20px; text-align: center;
+            border: 2px solid var(--accent); box-shadow: 0 15px 50px var(--accent-glow);
+            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-width: 400px;
+        }
+        .modal-box h2 { font-size: 2.2rem; margin-bottom: 15px; }
+        .modal-box p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 30px; line-height: 1.5; }
+        @keyframes modalPop { 0% { transform: scale(0.7) translateY(30px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
 
-        /* --- NAVIGATION --- */
-        nav { width: 250px; background: #020617; padding: 25px; border-right: 1px solid #1e293b; flex-shrink: 0; display: flex; flex-direction: column; }
-        nav h2 { color: var(--accent); text-transform: uppercase; letter-spacing: 2px; text-align: center; margin-bottom: 30px; font-size: 1.1rem; }
-        nav ul { list-style: none; padding: 0; margin: 0; }
-        nav li { padding: 15px; cursor: pointer; border-radius: 8px; margin-bottom: 10px; background: var(--panel); transition: 0.2s; font-weight: 600; }
+        /* =========================================
+           3. INTERFACE GLOBALE (NAV & MAIN)
+           ========================================= */
+        nav { width: 260px; background: #020617; padding: 30px 20px; border-right: 1px solid #1e293b; display: flex; flex-direction: column; z-index: 100; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+        nav h2 { color: var(--accent); text-transform: uppercase; letter-spacing: 3px; text-align: center; font-size: 1.1rem; margin-bottom: 40px; }
+        nav ul { list-style: none; }
+        nav li { padding: 16px; cursor: pointer; border-radius: 12px; margin-bottom: 12px; background: var(--panel-bg); transition: 0.3s; font-weight: 600; display: flex; align-items: center; gap: 15px; border: 1px solid transparent; }
         nav li:hover { background: var(--panel-hover); transform: translateX(5px); }
-        nav li.active { background: var(--accent); color: #000; box-shadow: 0 0 15px var(--accent-glow); }
+        nav li.active { background: var(--accent); color: #000; box-shadow: 0 0 20px var(--accent-glow); border-color: var(--accent); }
 
-        /* --- MAIN --- */
-        main { flex-grow: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; position: relative; }
-        .screen { display: none; width: 100%; max-width: 1000px; animation: fadeIn 0.3s ease; }
+        main { flex-grow: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; position: relative; scroll-behavior: smooth; }
+        .screen { display: none; width: 100%; max-width: 1000px; animation: screenFade 0.4s ease-out; }
         .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes screenFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
+        h1 { text-align: center; margin-bottom: 10px; font-size: 2.8rem; font-weight: 800; background: linear-gradient(to right, var(--accent), #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 40px; font-size: 1.1rem; }
+        .btn { padding: 12px 28px; background: var(--accent); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; color: #000; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--accent-glow); }
 
-        h1 { text-align: center; margin-bottom: 10px; font-size: 2.2rem; }
-        .btn { padding: 10px 20px; background: var(--accent); border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem; color: #000; transition: 0.2s; }
-        .btn:hover { transform: scale(1.05); }
+        /* =========================================
+           4. MORPION SIMPLE
+           ========================================= */
+        .ms-grid { display: grid; grid-template-columns: repeat(3, 130px); gap: 12px; margin: 0 auto 40px auto; width: fit-content; }
+        .ms-cell { height: 130px; background: var(--panel-bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 5rem; cursor: pointer; font-weight: 900; transition: 0.2s; border: 2px solid #1e293b; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .ms-cell:hover:not(.taken) { background: var(--panel-hover); border-color: var(--accent); }
+        .ms-cell.win { animation: pulseWin 1s infinite alternate; background: rgba(16, 185, 129, 0.1); border-color: var(--accent); }
+        @keyframes pulseWin { from { transform: scale(1); box-shadow: 0 0 10px var(--accent-glow); } to { transform: scale(1.05); box-shadow: 0 0 30px var(--accent-glow); } }
 
-        /* --- MORPION SIMPLE --- */
-        .ms-grid { display: grid; grid-template-columns: repeat(3, 120px); gap: 10px; margin: 30px auto; width: fit-content; }
-        .ms-cell { height: 120px; background: var(--panel); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 4rem; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .ms-cell:hover:not(.taken) { background: var(--panel-hover); }
-
-        /* --- MORPION ULTIME --- */
-        .mu-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; background: #0f172a; padding: 15px; border-radius: 15px; margin: 20px auto; width: fit-content; border: 2px solid #334155; }
-        .mu-grid { display: grid; grid-template-columns: repeat(3, 45px); gap: 3px; background: var(--panel); padding: 5px; border-radius: 8px; position: relative; transition: 0.3s; }
-        .mu-cell { height: 45px; background: var(--bg); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; cursor: pointer; }
+        /* =========================================
+           5. MORPION ULTIME
+           ========================================= */
+        #mu-status { text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; }
+        .mu-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; background: #020617; padding: 20px; border-radius: 20px; margin: 0 auto 30px auto; width: fit-content; border: 3px solid #1e293b; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .mu-grid { display: grid; grid-template-columns: repeat(3, 50px); gap: 4px; background: var(--panel-bg); padding: 8px; border-radius: 10px; position: relative; transition: 0.3s; }
+        .mu-cell { height: 50px; background: var(--bg-color); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; cursor: pointer; }
         .mu-cell:hover:not(.taken) { background: var(--panel-hover); }
-        .mu-active { outline: 3px solid var(--accent); background: #134e4a; box-shadow: 0 0 20px var(--accent-glow); animation: pulse 2s infinite; }
-        .mu-won { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.85); display: flex; align-items: center; justify-content: center; font-size: 5rem; font-weight: bold; border-radius: 8px; backdrop-filter: blur(2px); z-index: 10; }
-        @keyframes pulse { 0% { outline-color: var(--accent); } 50% { outline-color: #34d399; } 100% { outline-color: var(--accent); } }
+        .mu-active { outline: 4px solid var(--accent); background: #064e3b; box-shadow: 0 0 25px var(--accent-glow); animation: muPulse 2s infinite; z-index: 5; }
+        .mu-won { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.85); display: flex; align-items: center; justify-content: center; font-size: 6rem; font-weight: 900; border-radius: 10px; backdrop-filter: blur(3px); z-index: 10; animation: screenFade 0.3s ease-out; }
+        @keyframes muPulse { 0% { outline-color: var(--accent); } 50% { outline-color: #34d399; } 100% { outline-color: var(--accent); } }
 
-        /* --- DEMINEUR --- */
-        .dm-header { display: flex; justify-content: center; gap: 30px; margin-bottom: 20px; font-size: 1.2rem; font-weight: bold; }
-        #dm-board { display: grid; grid-template-columns: repeat(20, 26px); gap: 1px; background: #334155; padding: 2px; border: 3px solid #334155; margin: auto; width: fit-content; border-radius: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .dm-tile { width: 26px; height: 26px; background: var(--panel); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: bold; cursor: pointer; user-select: none; border-radius: 2px; }
+        /* =========================================
+           6. DÉMINEUR EXPERT
+           ========================================= */
+        .dm-header { display: flex; justify-content: center; gap: 40px; margin-bottom: 30px; font-size: 1.4rem; font-weight: bold; background: #000; padding: 15px 30px; border-radius: 50px; border: 1px solid #1e293b; }
+        #dm-board { display: grid; grid-template-columns: repeat(20, 30px); gap: 2px; background: #334155; padding: 3px; border: 4px solid #1e293b; margin: 0 auto 30px auto; width: fit-content; border-radius: 8px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
+        .dm-tile { width: 30px; height: 30px; background: var(--panel-bg); display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 900; cursor: pointer; user-select: none; border-radius: 3px; transition: background 0.1s; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3), inset 2px 2px 5px rgba(255,255,255,0.05); }
         .dm-tile:hover:not(.open) { background: var(--panel-hover); }
-        .dm-tile.open { background: #cbd5e1; color: #000; box-shadow: inset 1px 1px 3px rgba(0,0,0,0.2); cursor: default; }
-        .dm-tile.mine { background: var(--p1); font-size: 1.2rem; }
+        .dm-tile.open { background: #cbd5e1; box-shadow: inset 2px 2px 6px rgba(0,0,0,0.3); cursor: default; }
+        .dm-tile.mine { background: var(--player-x); font-size: 1.2rem; }
+        /* Couleurs Officielles du Démineur */
         .dm-c1 { color: #2563eb; } .dm-c2 { color: #16a34a; } .dm-c3 { color: #dc2626; } .dm-c4 { color: #7c3aed; }
         .dm-c5 { color: #991b1b; } .dm-c6 { color: #0d9488; } .dm-c7 { color: #000000; } .dm-c8 { color: #57534e; }
 
-        /* --- YAMS (Intouché) --- */
-        .yams-layout { display: flex; gap: 40px; justify-content: center; align-items: flex-start; margin-top: 20px; }
-        .dice-area { background: var(--panel); padding: 30px; border-radius: 20px; text-align: center; }
-        .dice-container { font-size: 4.5rem; display: flex; gap: 15px; margin-bottom: 20px; justify-content: center; }
-        .die { cursor: pointer; transition: 0.2s; user-select: none; }
-        .die.kept { color: var(--accent); transform: translateY(-10px); }
-        .yams-table { border-collapse: collapse; background: var(--panel); border-radius: 10px; overflow: hidden; }
-        .yams-table th { padding: 12px; background: #020617; color: var(--text); }
-        .yams-table td { border: 1px solid #334155; padding: 10px 15px; cursor: pointer; }
-        .yams-table .pot { color: var(--text-muted); font-style: italic; }
-        .yams-table .locked { color: var(--accent); font-weight: bold; background: rgba(16,185,129,0.1); }
+        /* =========================================
+           7. YAMS PRO MULTI-JOUEURS
+           ========================================= */
+        .yams-layout { display: flex; gap: 50px; justify-content: center; align-items: flex-start; margin-top: 20px; }
+        .y-dice-area { background: var(--panel-bg); padding: 40px; border-radius: 20px; text-align: center; border: 2px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 400px; }
+        .y-dice-container { font-size: 4.5rem; display: flex; gap: 15px; margin-bottom: 30px; justify-content: center; min-height: 80px; }
+        .y-die { cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .y-die.kept { color: var(--accent); transform: translateY(-15px) scale(1.1); text-shadow: 0 10px 20px var(--accent-glow); }
+        .y-tables { display: flex; gap: 15px; }
+        .y-table { border-collapse: collapse; background: var(--panel-bg); border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .y-table th { padding: 15px; background: #020617; color: var(--text-main); font-size: 1.2rem; border-bottom: 2px solid var(--accent); }
+        .y-table td { border: 1px solid #1e293b; padding: 12px 20px; cursor: pointer; font-size: 1.1rem; }
+        .y-table td:first-child { font-weight: 600; color: var(--text-muted); }
+        .y-table .pot { color: var(--accent); opacity: 0.4; font-style: italic; font-weight: bold; }
+        .y-table .locked { color: var(--accent); font-weight: 900; background: rgba(16,185,129,0.05); }
+        .y-table .total-row { background: #020617; color: var(--gold); font-weight: 900; font-size: 1.3rem; }
 
-        /* --- BELOTE (Placeholder) --- */
-        .tapis { background: #064e3b; width: 600px; height: 400px; border-radius: 200px; margin: 20px auto; border: 12px solid #451a03; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.3); font-size: 2rem; font-weight: bold; }
+        /* =========================================
+           8. BELOTE (LE MOTEUR DE PLI)
+           ========================================= */
+        .bl-info { text-align: center; margin-bottom: 20px; font-size: 1.3rem; font-weight: bold; }
+        .bl-atout { display: inline-block; padding: 5px 15px; background: #000; border-radius: 8px; border: 1px solid #333; margin-left: 10px; }
+        .bl-tapis { 
+            background: radial-gradient(circle, #065f46 0%, #022c22 100%); width: 700px; height: 450px; 
+            border-radius: 220px; margin: 0 auto; border: 15px solid #451a03; 
+            position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 50px rgba(0,0,0,0.6);
+        }
+        .bl-slot { position: absolute; width: 80px; height: 115px; border: 2px dashed rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        #bl-s-n { top: 25px; left: 295px; } #bl-s-s { bottom: 25px; left: 295px; }
+        #bl-s-e { right: 60px; top: 152px; } #bl-s-w { left: 60px; top: 152px; }
+        .bl-card { 
+            width: 80px; height: 115px; background: #fff; color: #000; border-radius: 8px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            font-weight: 900; font-size: 1.5rem; cursor: pointer; border: 1px solid #ccc; 
+            box-shadow: -2px 5px 15px rgba(0,0,0,0.4); transition: 0.3s; position: relative;
+        }
+        .bl-card.red { color: #ef4444; }
+        .bl-hand { display: flex; gap: -20px; justify-content: center; margin-top: 30px; height: 130px; }
+        .bl-hand .bl-card { margin-left: -30px; } /* Effet éventail */
+        .bl-hand .bl-card:first-child { margin-left: 0; }
+        .bl-hand .bl-card:hover { transform: translateY(-20px); z-index: 50; border-color: var(--accent); box-shadow: 0 10px 25px rgba(0,0,0,0.6); }
+        .bl-played { position: absolute; animation: playCard 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; pointer-events: none; }
+        @keyframes playCard { from { transform: scale(1.5) translateY(50px); opacity: 0; } to { transform: scale(1) translateY(0) rotate(calc(-5deg + 10deg * var(--rand))); opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div id="custom-modal">
-    <div class="modal-content">
+<div id="modal-overlay">
+    <div class="modal-box">
         <h2 id="modal-title">Titre</h2>
-        <p id="modal-text" style="font-size: 1.2rem; margin-bottom: 20px;">Texte</p>
-        <button class="btn" onclick="document.getElementById('custom-modal').style.display='none'; modalCallback();">Continuer</button>
+        <p id="modal-desc">Description du message ici.</p>
+        <button class="btn" onclick="UI.closeModal()">Continuer</button>
     </div>
 </div>
 
 <nav>
-    <h2>Arcade Hub</h2>
-    <ul id="menu-list">
-        <li data-target="t-sim" class="active">Morpion Simple</li>
-        <li data-target="t-ult">Morpion Ultime</li>
-        <li data-target="t-mine">Démineur Expert</li>
-        <li data-target="t-yams">Yams Multi</li>
-        <li data-target="t-belote">Belote (Bientôt)</li>
+    <h2>Arcade Pro</h2>
+    <ul id="nav-menu">
+        <li data-target="s-sim" class="active"><span>✖️</span> Morpion Simple</li>
+        <li data-target="s-ult"><span>🔥</span> Morpion Ultime</li>
+        <li data-target="s-mine"><span>💣</span> Démineur Expert</li>
+        <li data-target="s-yams"><span>🎲</span> Yams Complet</li>
+        <li data-target="s-belote"><span>🃏</span> Belote (Partie)</li>
     </ul>
 </nav>
 
 <main>
-    <section id="t-sim" class="screen active">
-        <h1>Morpion 3x3</h1>
-        <div id="sim-board" class="ms-grid"></div>
-        <button class="btn" onclick="MorpionSimple.init()">Nouvelle Partie</button>
+    <section id="s-sim" class="screen active">
+        <h1>Tic-Tac-Toe</h1>
+        <p class="subtitle">Le classique indémodable.</p>
+        <div id="ms-board" class="ms-grid"></div>
+        <div style="text-align: center;"><button class="btn" onclick="App.Sim.init()">Réinitialiser la grille</button></div>
     </section>
 
-    <section id="t-ult" class="screen">
+    <section id="s-ult" class="screen">
         <h1>Morpion Ultime</h1>
-        <p id="ult-info" style="font-size:1.2rem; font-weight:bold; margin-bottom:0;">Tour de : X</p>
-        <div id="ult-board" class="mu-container"></div>
-        <button class="btn" onclick="MorpionUltime.init()" style="margin-top:20px;">Recommencer</button>
+        <p class="subtitle" id="mu-status">Chargement...</p>
+        <div id="mu-board" class="mu-container"></div>
+        <div style="text-align: center;"><button class="btn" onclick="App.Ult.init()">Abandonner et recommencer</button></div>
     </section>
 
-    <section id="t-mine" class="screen">
-        <h1>Démineur (20x20)</h1>
+    <section id="s-mine" class="screen">
+        <h1>Démineur Expert</h1>
         <div class="dm-header">
-            <span>🚩 <span id="dm-flags">60</span></span>
-            <span>⏱️ <span id="dm-time">0</span>s</span>
+            <span>🚩 Drapeaux : <span id="dm-flags" style="color:var(--player-x)">60</span></span>
+            <span>⏱️ Temps : <span id="dm-time" style="color:var(--accent)">0</span>s</span>
         </div>
         <div id="dm-board"></div>
-        <button class="btn" onclick="Demineur.init()" style="margin-top:20px;">Nouvelle Grille</button>
+        <div style="text-align: center;"><button class="btn" onclick="App.Mine.init()">Nouvelle Génération</button></div>
     </section>
 
-    <section id="t-yams" class="screen">
-        <h1>Yams Multi-Joueurs</h1>
+    <section id="s-yams" class="screen">
+        <h1>Yams Championship</h1>
+        <p class="subtitle">Sélectionnez vos dés pour les garder entre deux lancers.</p>
         <div class="yams-layout">
-            <div class="dice-area">
-                <div id="y-dice" class="dice-container"></div>
-                <button id="y-roll-btn" class="btn" onclick="Yams.roll()">Lancer (3)</button>
-                <p id="y-turn" style="margin-top:15px; font-weight:bold;"></p>
+            <div class="y-dice-area">
+                <div id="y-dice" class="y-dice-container"></div>
+                <button id="y-roll-btn" class="btn" onclick="App.Yams.roll()">Lancer les dés (3)</button>
+                <p id="y-turn" style="margin-top:20px; font-size:1.3rem; font-weight:800; color:var(--accent);"></p>
             </div>
-            <div id="y-scores" style="display:flex; gap:15px;"></div>
+            <div id="y-score-container" class="y-tables"></div>
         </div>
+        <div style="text-align: center; margin-top: 30px;"><button class="btn" onclick="App.Yams.init()">Remettre à zéro le championnat</button></div>
     </section>
 
-    <section id="t-belote" class="screen">
-        <h1>Belote</h1>
-        <div class="tapis">En construction pour la V8...</div>
+    <section id="s-belote" class="screen">
+        <h1>Belote Interactive</h1>
+        <div class="bl-info">
+            Atout de la manche : <span id="bl-atout" class="bl-atout">-</span>
+        </div>
+        <div class="bl-tapis">
+            <div id="bl-s-n" class="bl-slot"></div>
+            <div id="bl-s-s" class="bl-slot"></div>
+            <div id="bl-s-e" class="bl-slot"></div>
+            <div id="bl-s-w" class="bl-slot"></div>
+        </div>
+        <div id="bl-hand" class="bl-hand"></div>
+        <div style="text-align: center; margin-top: 30px;"><button class="btn" onclick="App.Belote.init()">Distribuer une nouvelle main</button></div>
     </section>
 </main>
 
 <script>
-let modalCallback = () => {};
-function showModal(title, text, callback) {
-    document.getElementById('modal-title').textContent = title;
-    document.getElementById('modal-title').style.color = title.includes('Victoire') || title.includes('Gagné') ? 'var(--accent)' : 'var(--p1)';
-    document.getElementById('modal-text').textContent = text;
-    modalCallback = callback || (() => {});
-    document.getElementById('custom-modal').style.display = 'flex';
-}
-
-// --- NAVIGATION ---
-document.querySelectorAll('#menu-list li').forEach(li => {
-    li.onclick = () => {
-        document.querySelectorAll('#menu-list li').forEach(i => i.classList.remove('active'));
+/**
+ * CORE : Interface et Utilitaires globaux
+ */
+const UI = {
+    modalCallback: null,
+    showModal(title, desc, callback) {
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-title').style.color = (title.includes('Victoire') || title.includes('Gagné')) ? 'var(--accent)' : 'var(--player-x)';
+        document.getElementById('modal-desc').innerHTML = desc;
+        this.modalCallback = callback || (() => {});
+        document.getElementById('modal-overlay').style.display = 'flex';
+    },
+    closeModal() {
+        document.getElementById('modal-overlay').style.display = 'none';
+        if(this.modalCallback) this.modalCallback();
+    },
+    switchScreen(targetId) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        li.classList.add('active');
-        const t = li.dataset.target;
-        document.getElementById(t).classList.add('active');
-        if(t === 't-sim') MorpionSimple.init();
-        if(t === 't-ult') MorpionUltime.init();
-        if(t === 't-mine') Demineur.init();
-        if(t === 't-yams') Yams.init();
-    };
-});
+        document.getElementById(targetId).classList.add('active');
+        // Cleanups globaux (ex: stopper le chrono du démineur si on quitte)
+        if(targetId !== 's-mine') clearInterval(App.Mine.timer);
+    }
+};
 
-// --- MORPION SIMPLE ---
-const MorpionSimple = {
+/**
+ * MOTEUR 1 : Morpion Simple
+ */
+const App = {}; // Espace de nommage global
+
+App.Sim = {
     state: [], player: 'X',
     init() {
-        const b = document.getElementById('sim-board'); b.innerHTML = '';
+        const board = document.getElementById('ms-board'); board.innerHTML = '';
         this.state = Array(9).fill(null); this.player = 'X';
         for(let i=0; i<9; i++) {
             let c = document.createElement('div'); c.className = 'ms-cell';
             c.onclick = () => this.play(i, c);
-            b.appendChild(c);
+            board.appendChild(c);
         }
     },
-    play(i, el) {
-        if(this.state[i]) return;
-        this.state[i] = this.player; el.textContent = this.player;
-        el.style.color = this.player === 'X' ? 'var(--p1)' : 'var(--p2)';
+    play(idx, el) {
+        if(this.state[idx]) return;
+        this.state[idx] = this.player; el.textContent = this.player;
+        el.style.color = this.player === 'X' ? 'var(--player-x)' : 'var(--player-o)';
         el.classList.add('taken');
-        if(this.check(this.state)) {
-            setTimeout(() => showModal('Gagné !', `Le joueur ${this.player} a remporté la partie.`, () => this.init()), 100);
+        
+        const win = this.checkWin(this.state);
+        if(win) {
+            win.forEach(i => document.getElementById('ms-board').children[i].classList.add('win'));
+            setTimeout(() => UI.showModal('Gagné !', `Le joueur <b style="color:${el.style.color}">${this.player}</b> a remporté la manche.`, () => this.init()), 600);
         } else if(!this.state.includes(null)) {
-            setTimeout(() => showModal('Égalité', `Match nul, personne ne gagne.`, () => this.init()), 100);
+            setTimeout(() => UI.showModal('Égalité', `Personne ne gagne, la grille est pleine.`, () => this.init()), 200);
         } else {
             this.player = this.player === 'X' ? 'O' : 'X';
         }
     },
-    check(g) {
-        const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-        return w.some(l => g[l[0]] && g[l[0]] === g[l[1]] && g[l[0]] === g[l[2]]);
+    checkWin(g) {
+        const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        return lines.find(l => g[l[0]] && g[l[0]] === g[l[1]] && g[l[0]] === g[l[2]]);
     }
 };
 
-// --- MORPION ULTIME ---
-const MorpionUltime = {
-    bigGrid: [], smallGrids: [], player: 'X', next: -1,
+/**
+ * MOTEUR 2 : Morpion Ultime
+ */
+App.Ult = {
+    bGrid: [], sGrids: [], player: 'X', next: -1,
     init() {
-        const b = document.getElementById('ult-board'); b.innerHTML = '';
-        this.bigGrid = Array(9).fill(null);
-        this.smallGrids = Array(9).fill().map(() => Array(9).fill(null));
+        const board = document.getElementById('mu-board'); board.innerHTML = '';
+        this.bGrid = Array(9).fill(null);
+        this.sGrids = Array(9).fill().map(() => Array(9).fill(null));
         this.player = 'X'; this.next = -1;
-        this.updateInfo();
+        this.updateUI();
 
         for(let i=0; i<9; i++) {
             let g = document.createElement('div'); g.className = 'mu-grid'; g.id = `mu-g-${i}`;
@@ -217,57 +290,58 @@ const MorpionUltime = {
                 c.onclick = () => this.play(i, j, c);
                 g.appendChild(c);
             }
-            b.appendChild(g);
+            board.appendChild(g);
         }
         this.highlight();
     },
-    play(bgIdx, smIdx, el) {
-        if(this.smallGrids[bgIdx][smIdx] || this.bigGrid[bgIdx] || (this.next !== -1 && this.next !== bgIdx)) return;
+    play(bg, sg, el) {
+        if(this.sGrids[bg][sg] || this.bGrid[bg] || (this.next !== -1 && this.next !== bg)) return;
         
-        this.smallGrids[bgIdx][smIdx] = this.player;
-        el.textContent = this.player; el.classList.add('taken');
-        el.style.color = this.player === 'X' ? 'var(--p1)' : 'var(--p2)';
+        this.sGrids[bg][sg] = this.player; el.textContent = this.player; el.classList.add('taken');
+        el.style.color = this.player === 'X' ? 'var(--player-x)' : 'var(--player-o)';
 
-        if(MorpionSimple.check(this.smallGrids[bgIdx])) {
-            this.bigGrid[bgIdx] = this.player;
-            let over = document.createElement('div'); over.className = 'mu-won';
-            over.textContent = this.player; over.style.color = this.player === 'X' ? 'var(--p1)' : 'var(--p2)';
-            document.getElementById(`mu-g-${bgIdx}`).appendChild(over);
-        } else if(!this.smallGrids[bgIdx].includes(null)) {
-            this.bigGrid[bgIdx] = 'D'; // Draw
+        if(App.Sim.checkWin(this.sGrids[bg])) {
+            this.bGrid[bg] = this.player;
+            let cover = document.createElement('div'); cover.className = 'mu-won'; cover.textContent = this.player;
+            cover.style.color = el.style.color;
+            document.getElementById(`mu-g-${bg}`).appendChild(cover);
+        } else if(!this.sGrids[bg].includes(null)) {
+            this.bGrid[bg] = 'Draw';
         }
 
-        if(MorpionSimple.check(this.bigGrid.map(v => v === 'D' ? null : v))) {
-            setTimeout(() => showModal('Victoire Ultime !', `Le joueur ${this.player} a conquis la grille.`, () => this.init()), 200);
+        const cleanBigGrid = this.bGrid.map(v => v === 'Draw' ? null : v);
+        if(App.Sim.checkWin(cleanBigGrid)) {
+            setTimeout(() => UI.showModal('Victoire Ultime !', `Le stratège <b>${this.player}</b> domine la carte !`, () => this.init()), 300);
             this.next = 999;
         } else {
-            this.next = (this.bigGrid[smIdx]) ? -1 : smIdx;
+            this.next = (this.bGrid[sg]) ? -1 : sg;
             this.player = this.player === 'X' ? 'O' : 'X';
-            this.updateInfo(); this.highlight();
+            this.updateUI(); this.highlight();
         }
     },
     highlight() {
         document.querySelectorAll('.mu-grid').forEach((g, i) => {
             g.classList.remove('mu-active');
-            if((this.next === -1 || this.next === i) && !this.bigGrid[i]) g.classList.add('mu-active');
+            if((this.next === -1 || this.next === i) && !this.bGrid[i]) g.classList.add('mu-active');
         });
     },
-    updateInfo() {
-        const info = document.getElementById('ult-info');
-        info.innerHTML = `Tour de : <span style="color:${this.player==='X'?'var(--p1)':'var(--p2)'}">${this.player}</span>`;
+    updateUI() {
+        const pColor = this.player === 'X' ? 'var(--player-x)' : 'var(--player-o)';
+        document.getElementById('mu-status').innerHTML = `C'est au tour du joueur : <b style="color:${pColor}; font-size:1.8rem;">${this.player}</b>`;
     }
 };
 
-// --- DEMINEUR EXPERT ---
-const Demineur = {
-    grid: [], open: [], flags: 60, time: 0, timer: null, first: true, totalMines: 60,
+/**
+ * MOTEUR 3 : Démineur Expert "Perfect Start"
+ */
+App.Mine = {
+    grid: [], open: [], flags: 60, total: 60, time: 0, timer: null, first: true,
     init() {
-        const b = document.getElementById('dm-board'); b.innerHTML = '';
+        const board = document.getElementById('dm-board'); board.innerHTML = '';
         this.grid = Array(400).fill(0); this.open = Array(400).fill(false);
-        this.flags = this.totalMines; this.time = 0; this.first = true;
+        this.flags = this.total; this.time = 0; this.first = true;
         clearInterval(this.timer);
-        document.getElementById('dm-flags').textContent = this.flags;
-        document.getElementById('dm-time').textContent = this.time;
+        this.updateStats();
 
         for(let i=0; i<400; i++) {
             let t = document.createElement('div'); t.className = 'dm-tile';
@@ -277,36 +351,40 @@ const Demineur = {
                     if(this.open[i]) return;
                     if(t.textContent === '🚩') { t.textContent = ''; this.flags++; }
                     else if(this.flags > 0) { t.textContent = '🚩'; this.flags--; }
-                    document.getElementById('dm-flags').textContent = this.flags;
+                    this.updateStats();
                 } else {
-                    if(t.textContent === '🚩') return;
-                    if(this.first) this.start(i);
+                    if(t.textContent === '🚩' || this.open[i]) return;
+                    if(this.first) this.generate(i);
                     this.reveal(i);
                 }
             };
             t.oncontextmenu = e => e.preventDefault();
-            b.appendChild(t);
+            board.appendChild(t);
         }
     },
-    start(safeIdx) {
+    updateStats() {
+        document.getElementById('dm-flags').textContent = this.flags;
+        document.getElementById('dm-time').textContent = this.time;
+    },
+    getNeighbors(idx) {
+        let r=Math.floor(idx/20), c=idx%20, res=[];
+        for(let x=-1; x<=1; x++) for(let y=-1; y<=1; y++) {
+            let nr=r+x, nc=c+y; if(nr>=0&&nr<20&&nc>=0&&nc<20) res.push(nr*20+nc);
+        } return res;
+    },
+    generate(safeIdx) {
         this.first = false; let m = 0;
-        const getAdj = (idx) => {
-            let r=Math.floor(idx/20), c=idx%20, res=[];
-            for(let x=-1; x<=1; x++) for(let y=-1; y<=1; y++) {
-                let nr=r+x, nc=c+y; if(nr>=0&&nr<20&&nc>=0&&nc<20) res.push(nr*20+nc);
-            } return res;
-        };
-        const safeZone = [...getAdj(safeIdx), safeIdx];
+        const safeZone = [...this.getNeighbors(safeIdx), safeIdx]; // Protection absolue du premier clic
         
-        while(m < this.totalMines) {
+        while(m < this.total) {
             let r = Math.floor(Math.random()*400);
             if(!safeZone.includes(r) && this.grid[r] !== 'M') { this.grid[r] = 'M'; m++; }
         }
         for(let i=0; i<400; i++) {
-            if(this.grid[i]==='M') continue;
-            this.grid[i] = getAdj(i).filter(n => this.grid[n]==='M').length;
+            if(this.grid[i] === 'M') continue;
+            this.grid[i] = this.getNeighbors(i).filter(n => this.grid[n] === 'M').length;
         }
-        this.timer = setInterval(() => { this.time++; document.getElementById('dm-time').textContent = this.time; }, 1000);
+        this.timer = setInterval(() => { this.time++; this.updateStats(); }, 1000);
     },
     reveal(i) {
         if(this.open[i]) return;
@@ -315,34 +393,41 @@ const Demineur = {
         
         if(this.grid[i] === 'M') {
             t.classList.add('mine'); t.textContent = '💣'; clearInterval(this.timer);
-            setTimeout(() => showModal('💥 BOUM !', 'Vous avez sauté sur une mine.', () => this.init()), 200);
+            setTimeout(() => UI.showModal('💥 BOUM !', `Opération échouée à ${this.time} secondes. La zone est perdue.`, () => this.init()), 300);
         } else {
             if(this.grid[i] > 0) {
-                t.textContent = this.grid[i];
-                t.classList.add('dm-c' + this.grid[i]);
+                t.textContent = this.grid[i]; t.classList.add('dm-c' + this.grid[i]);
+            } else {
+                this.getNeighbors(i).forEach(n => this.reveal(n)); // Propagation Flood Fill
             }
-            if(this.grid[i] === 0) {
-                let r=Math.floor(i/20), c=i%20;
-                for(let x=-1; x<=1; x++) for(let y=-1; y<=1; y++) {
-                    let nr=r+x, nc=c+y; if(nr>=0&&nr<20&&nc>=0&&nc<20) this.reveal(nr*20+nc);
-                }
-            }
+            this.checkWin();
+        }
+    },
+    checkWin() {
+        const closed = this.open.filter(o => !o).length;
+        if(closed === this.total) {
+            clearInterval(this.timer);
+            setTimeout(() => UI.showModal('Déminage Réussi !', `Félicitations, grille sécurisée en ${this.time}s !`, () => this.init()), 300);
         }
     }
 };
 
-// --- YAMS (Totalement intouché selon ta demande) ---
-const Yams = {
+/**
+ * MOTEUR 4 : Yams Complet (L'algorithme exact)
+ */
+App.Yams = {
     dice: [1,1,1,1,1], kept: [false,false,false,false,false], rolls: 3, player: 0, scores: [{}, {}],
     init() {
         this.scores = [{}, {}]; this.player = 0; this.rolls = 3; this.kept.fill(false);
-        const container = document.getElementById('y-scores'); container.innerHTML = '';
+        const container = document.getElementById('y-score-container'); container.innerHTML = '';
+        
         for(let i=0; i<2; i++) {
-            let table = `<table class="yams-table" id="yt-${i}"><tr><th colspan="2">Joueur ${i+1}</th></tr>`;
-            ['1','2','3','4','5','6','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(c => {
-                table += `<tr><td>${c}</td><td class="val" id="y-${i}-${c.replace(/\s/g, '')}" onclick="Yams.lock('${c}', ${i})">-</td></tr>`;
+            let table = `<table class="y-table" id="yt-${i}"><tr><th colspan="2">Joueur ${i+1}</th></tr>`;
+            ['1','2','3','4','5','6','Bonus (si > 62)','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(c => {
+                if(c.includes('Bonus')) table += `<tr style="background:#020617"><td style="color:var(--gold)">${c}</td><td class="val" id="y-${i}-Bonus">0</td></tr>`;
+                else table += `<tr><td>${c}</td><td class="val" id="y-${i}-${c.replace(/\s/g, '')}" onclick="App.Yams.lock('${c}', ${i})">-</td></tr>`;
             });
-            table += `<tr><td style="font-weight:bold;color:var(--accent)">TOTAL</td><td style="font-weight:bold" id="y-tot-${i}">0</td></tr></table>`;
+            table += `<tr class="total-row"><td>TOTAL</td><td id="y-tot-${i}">0</td></tr></table>`;
             container.innerHTML += table;
         }
         this.roll();
@@ -350,27 +435,27 @@ const Yams = {
     roll() {
         if(this.rolls <= 0) return;
         this.dice = this.dice.map((d, i) => this.kept[i] ? d : Math.floor(Math.random()*6)+1);
-        this.rolls--; this.update();
+        this.rolls--; this.updateUI();
     },
-    update() {
+    updateUI() {
         const box = document.getElementById('y-dice'); box.innerHTML = '';
         this.dice.forEach((d, i) => {
-            let el = document.createElement('div'); el.className = 'die' + (this.kept[i]?' kept':'');
+            let el = document.createElement('div'); el.className = 'y-die' + (this.kept[i] ? ' kept' : '');
             el.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][d-1];
-            el.onclick = () => { this.kept[i] = !this.kept[i]; this.update(); };
+            el.onclick = () => { if(this.rolls < 3) { this.kept[i] = !this.kept[i]; this.updateUI(); } };
             box.appendChild(el);
         });
         document.getElementById('y-roll-btn').textContent = `Lancer (${this.rolls})`;
-        document.getElementById('y-turn').textContent = `Tour du Joueur ${this.player+1}`;
-        this.calc();
+        document.getElementById('y-turn').textContent = `C'est au tour du Joueur ${this.player+1}`;
+        this.calculatePotentials();
     },
-    calc() {
+    calculatePotentials() {
         const c = {}; this.dice.forEach(x => c[x] = (c[x]||0)+1);
         const vals = Object.values(c), s = new Set(this.dice);
         const hasSeq = (len) => { let st=0, mx=0; for(let i=1;i<=6;i++) { if(s.has(i)) st++; else st=0; mx=Math.max(mx,st); } return mx>=len; };
+        
         ['1','2','3','4','5','6','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(cat => {
-            let cid = cat.replace(/\s/g, '');
-            const el = document.getElementById(`y-${this.player}-${cid}`);
+            let cid = cat.replace(/\s/g, ''); const el = document.getElementById(`y-${this.player}-${cid}`);
             if(this.scores[this.player][cat] !== undefined) return;
             let p = 0;
             if(!isNaN(cat)) p = (c[cat]||0) * parseInt(cat);
@@ -386,19 +471,111 @@ const Yams = {
     },
     lock(cat, pIdx) {
         if(pIdx !== this.player || this.scores[pIdx][cat] !== undefined) return;
-        let cid = cat.replace(/\s/g, '');
-        const el = document.getElementById(`y-${pIdx}-${cid}`);
-        let p = parseInt(el.textContent);
-        this.scores[pIdx][cat] = p; el.className = 'val locked';
-        document.getElementById(`y-tot-${pIdx}`).textContent = Object.values(this.scores[pIdx]).reduce((a,b)=>a+b, 0);
+        let cid = cat.replace(/\s/g, ''); const el = document.getElementById(`y-${pIdx}-${cid}`);
+        let pts = parseInt(el.textContent);
+        this.scores[pIdx][cat] = pts; el.className = 'val locked';
+        
+        // Calcul du Bonus Supérieur
+        let sumTop = ['1','2','3','4','5','6'].reduce((sum, k) => sum + (this.scores[pIdx][k] || 0), 0);
+        if(sumTop >= 63) document.getElementById(`y-${pIdx}-Bonus`).textContent = 35;
+        
+        // Total
+        let tot = Object.values(this.scores[pIdx]).reduce((a,b)=>a+b, 0) + (sumTop >= 63 ? 35 : 0);
+        document.getElementById(`y-tot-${pIdx}`).textContent = tot;
+
+        // Reset pour le joueur suivant
         this.player = (this.player + 1) % 2; this.rolls = 3; this.kept.fill(false);
-        // Clean potentials for next player
-        document.querySelectorAll('.pot').forEach(e => { e.textContent='-'; e.classList.remove('pot'); });
-        this.roll();
+        document.querySelectorAll('.pot').forEach(e => { e.textContent = '-'; e.classList.remove('pot'); });
+        
+        // Fin de partie check
+        if(Object.keys(this.scores[1]).length === 13) {
+            let t0 = parseInt(document.getElementById(`y-tot-0`).textContent);
+            let t1 = parseInt(document.getElementById(`y-tot-1`).textContent);
+            let winner = t0 > t1 ? 'Joueur 1' : (t1 > t0 ? 'Joueur 2' : 'Égalité');
+            setTimeout(() => UI.showModal('Fin du Championnat', `Le vainqueur est : <b>${winner}</b> !<br>Scores : J1(${t0}) - J2(${t1})`, () => this.init()), 500);
+        } else {
+            this.roll();
+        }
     }
 };
 
-MorpionSimple.init();
+/**
+ * MOTEUR 5 : Belote (Système de pli réel)
+ */
+App.Belote = {
+    isPlaying: false,
+    init() {
+        const hand = document.getElementById('bl-hand'); hand.innerHTML = '';
+        const suits = [{s:'♠',c:'b'},{s:'♣',c:'b'},{s:'♥',c:'r'},{s:'♦',c:'r'}];
+        const ranks = ['7','8','9','10','V','D','R','A'];
+        
+        let atoutObj = suits[Math.floor(Math.random()*4)];
+        const atoutEl = document.getElementById('bl-atout');
+        atoutEl.textContent = atoutObj.s; atoutEl.style.color = atoutObj.c === 'r' ? '#f43f5e' : '#fff';
+        
+        document.querySelectorAll('.bl-slot').forEach(s => s.innerHTML = '');
+        this.isPlaying = false;
+
+        for(let i=0; i<8; i++) {
+            let su = suits[Math.floor(Math.random()*4)], ra = ranks[Math.floor(Math.random()*8)];
+            let c = document.createElement('div'); c.className = `bl-card ${su.c==='r'?'red':''}`;
+            c.innerHTML = `<span>${ra}</span><span>${su.s}</span>`;
+            c.onclick = () => this.playCard(c);
+            hand.appendChild(c);
+        }
+    },
+    playCard(el) {
+        if(this.isPlaying) return;
+        this.isPlaying = true;
+        el.onclick = null;
+        
+        // Placement de la carte du joueur au centre
+        const slotSud = document.getElementById('bl-s-s');
+        let playedCard = el.cloneNode(true);
+        playedCard.style.setProperty('--rand', Math.random());
+        playedCard.className = el.className + ' bl-played';
+        slotSud.appendChild(playedCard);
+        el.remove(); // Retire de la main
+        
+        // Simulation des robots
+        setTimeout(() => {
+            ['n','e','w'].forEach((p, idx) => {
+                setTimeout(() => {
+                    const bc = document.createElement('div'); bc.className = 'bl-card bl-played'; 
+                    bc.style.background = '#e2e8f0'; bc.style.color = '#0f172a';
+                    bc.innerHTML = '🤖'; bc.style.setProperty('--rand', Math.random());
+                    document.getElementById('bl-s-'+p).appendChild(bc);
+                }, idx * 300);
+            });
+            
+            // Ramassage du pli
+            setTimeout(() => {
+                document.querySelectorAll('.bl-slot').forEach(sl => sl.innerHTML = '');
+                this.isPlaying = false;
+                if(document.getElementById('bl-hand').children.length === 0) {
+                    UI.showModal('Donne Terminée', 'Toutes les cartes ont été jouées. Prêt pour la prochaine donne ?', () => this.init());
+                }
+            }, 1800);
+        }, 400);
+    }
+};
+
+// LANCEMENT GLOBAL VIA LA NAVIGATION
+document.querySelectorAll('#nav-menu li').forEach(li => {
+    li.onclick = (e) => {
+        document.querySelectorAll('#nav-menu li').forEach(i => i.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        UI.switchScreen(e.currentTarget.dataset.target);
+        if(e.currentTarget.dataset.target === 's-sim') App.Sim.init();
+        if(e.currentTarget.dataset.target === 's-ult') App.Ult.init();
+        if(e.currentTarget.dataset.target === 's-mine') App.Mine.init();
+        if(e.currentTarget.dataset.target === 's-yams') App.Yams.init();
+        if(e.currentTarget.dataset.target === 's-belote') App.Belote.init();
+    };
+});
+
+// INITIALISATION AU DÉMARRAGE
+App.Sim.init();
 </script>
 </body>
 </html>
