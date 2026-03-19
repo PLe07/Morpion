@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcade</title>
+    <title>Arcade Ultimate 2026 - Masterpiece Absolue</title>
     <style>
         /* =========================================
-           1. VARIABLES ET BASE
+           1. VARIABLES GLOBALES ET RESET
            ========================================= */
         :root {
             --bg-color: #080c16; 
@@ -39,13 +39,15 @@
         }
 
         /* =========================================
-           2. SYSTÈME DE MODAL ET UI
+           2. COMPOSANTS D'INTERFACE (UI)
            ========================================= */
+        
+        /* Modal System */
         #modal-overlay { 
             display: none; 
             position: fixed; 
             inset: 0; 
-            background: rgba(0,0,0,0.85); 
+            background: rgba(0, 0, 0, 0.85); 
             z-index: 9999; 
             align-items: center; 
             justify-content: center; 
@@ -80,7 +82,7 @@
             100% { transform: scale(1) translateY(0); opacity: 1; } 
         }
 
-        /* Navigation */
+        /* Barre de navigation latérale */
         nav { 
             width: 270px; 
             background: #020617; 
@@ -89,7 +91,7 @@
             display: flex; 
             flex-direction: column; 
             z-index: 100; 
-            box-shadow: 10px 0 30px rgba(0,0,0,0.5); 
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5); 
         }
 
         nav h2 { 
@@ -139,7 +141,7 @@
             border-radius: 2px; 
         }
 
-        /* Écrans Principaux */
+        /* Conteneur principal */
         main { 
             flex-grow: 1; 
             padding: 40px; 
@@ -184,7 +186,7 @@
             font-size: 1.1rem; 
         }
         
-        /* Boutons et Inputs */
+        /* Boutons et Formulaires */
         .btn { 
             padding: 12px 28px; 
             background: var(--accent); 
@@ -234,7 +236,7 @@
         }
 
         /* =========================================
-           3. MORPION SIMPLE
+           3. CSS DES JEUX : MORPIONS
            ========================================= */
         .ms-grid { 
             display: grid; 
@@ -270,14 +272,6 @@
             border-color: var(--accent); 
         }
         
-        @keyframes pulseWin { 
-            from { transform: scale(1); box-shadow: 0 0 10px var(--accent-glow); } 
-            to { transform: scale(1.05); box-shadow: 0 0 30px var(--accent-glow); } 
-        }
-
-        /* =========================================
-           4. MORPION ULTIME
-           ========================================= */
         .mu-status { 
             text-align: center; 
             font-size: 1.5rem; 
@@ -355,7 +349,7 @@
         }
 
         /* =========================================
-           5. DÉMINEUR EXPERT
+           4. CSS DES JEUX : DÉMINEUR
            ========================================= */
         .dm-header { 
             display: flex; 
@@ -418,11 +412,9 @@
         .dm-c4 { color: #7c3aed; } 
         .dm-c5 { color: #991b1b; } 
         .dm-c6 { color: #0d9488; }
-        .dm-c7 { color: #000; }
-        .dm-c8 { color: #fff; }
 
         /* =========================================
-           6. YAMS
+           5. CSS DES JEUX : YAMS
            ========================================= */
         .yams-layout { 
             display: flex; 
@@ -519,7 +511,7 @@
         }
 
         /* =========================================
-           7. LA VRAIE BELOTE
+           6. CSS DES JEUX : BELOTE EXPERTE
            ========================================= */
         .bl-scoreboard { 
             display: flex; 
@@ -606,6 +598,34 @@
             transition: 0.5s; 
             font-size: 1.2rem; 
         }
+
+        /* Notification Belote/Rebelote */
+        .bl-annonce {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--gold);
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1.5rem;
+            font-weight: 900;
+            z-index: 50;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .bl-annonce.active {
+            animation: annoncePop 2s ease-in-out forwards;
+        }
+
+        @keyframes annoncePop {
+            0% { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -100%) scale(0.8); }
+        }
         
         .bl-slot { 
             position: absolute; 
@@ -668,7 +688,7 @@
         }
         
         /* =========================================
-           8. FIREBASE NETWORK LOBBY
+           7. FIREBASE NETWORK LOBBY
            ========================================= */
         .lobby-box { 
             background: var(--panel-bg); 
@@ -720,8 +740,8 @@
         <li data-target="s-sim" class="active"><span>✖️</span> Morpion Local</li>
         <li data-target="s-ult"><span>🔥</span> Morpion Ultime</li>
         <li data-target="s-mine"><span>💣</span> Démineur Expert</li>
-        <li data-target="s-yams"><span>🎲</span> Yams </li>
-        <li data-target="s-belote"><span>🃏</span>  Belote</li>
+        <li data-target="s-yams"><span>🎲</span> Yams Complet</li>
+        <li data-target="s-belote"><span>🃏</span> Vraie Belote</li>
         <div class="nav-divider"></div>
         <li data-target="s-net-lobby" style="color:var(--accent); border-color:var(--accent);"><span>🌐</span> Salon Multijoueur</li>
     </ul>
@@ -778,7 +798,7 @@
             <span style="color: var(--accent);">Nous : <span id="bl-score-nous">0</span></span>
             <span style="color: var(--player-x);">Eux : <span id="bl-score-eux">0</span></span>
         </div>
-        <div class="bl-info" id="bl-status">Cliquez sur Nouvelle Manche pour commencer.</div>
+        <div class="bl-info" id="bl-status">Cliquez sur Nouvelle Partie pour commencer.</div>
         
         <div class="bl-tapis">
             <div id="bl-n-n" class="bl-name">Nord</div>
@@ -788,6 +808,8 @@
 
             <div id="bl-dealer-token" class="bl-dealer" style="display:none;">D</div>
             
+            <div id="bl-annonce-msg" class="bl-annonce">BELOTE !</div>
+
             <div id="bl-center" style="position:absolute; top:45%; left:50%; transform:translate(-50%, -50%); z-index:10; display:flex; flex-direction:column; align-items:center;"></div>
             
             <div id="bl-actions" style="position:absolute; top:70%; left:50%; transform:translate(-50%, 0); display:none; gap:10px; z-index:20;">
@@ -803,7 +825,7 @@
         
         <div id="bl-hand" class="bl-hand"></div>
         <div style="text-align: center; margin-top: 30px;">
-            <button class="btn" onclick="App.Belote.initGame()">Nouvelle Manche</button>
+            <button class="btn" onclick="App.Belote.initGame()">Nouvelle Partie</button>
         </div>
     </section>
 
@@ -839,7 +861,7 @@
 
     <section id="s-net-sim" class="screen">
         <h1>Morpion En Ligne</h1>
-        <div id="net-sim-status" class="net-status-bar">Sync...</div>
+        <div id="net-sim-status" class="net-status-bar">Synchronisation...</div>
         <div id="net-sim-board" class="ms-grid"></div>
         <div style="text-align: center;">
             <button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button>
@@ -848,7 +870,7 @@
 
     <section id="s-net-ult" class="screen">
         <h1>Morpion Ultime En Ligne</h1>
-        <div id="net-ult-status" class="net-status-bar">Sync...</div>
+        <div id="net-ult-status" class="net-status-bar">Synchronisation...</div>
         <div id="net-ult-board" class="mu-container"></div>
         <div style="text-align: center;">
             <button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button>
@@ -857,7 +879,7 @@
 
     <section id="s-net-yams" class="screen">
         <h1>Yams En Ligne</h1>
-        <div id="net-yams-status" class="net-status-bar">Sync...</div>
+        <div id="net-yams-status" class="net-status-bar">Synchronisation...</div>
         <div class="yams-layout">
             <div class="y-dice-area">
                 <div id="net-yams-dice" class="y-dice-container"></div>
@@ -872,11 +894,14 @@
 </main>
 
 <script type="module">
+    // =========================================================
+    // IMPORTATION DES MODULES FIREBASE (V 12.10.0)
+    // =========================================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getDatabase, ref, set, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
     // =========================================================
-    // CONFIGURATION FIREBASE
+    // CONFIGURATION DE LA BASE DE DONNÉES
     // =========================================================
     const firebaseConfig = {
         apiKey: "AIzaSyD5YeADpzCBrjhiYIgGjZU6ilRipK66NwY",
@@ -892,13 +917,16 @@
     const db = getDatabase(fbApp);
 
     // =========================================================
-    // UI GLOBALE
+    // OBJET GESTIONNAIRE D'INTERFACE (UI)
     // =========================================================
     window.UI = {
         modalCb: null,
+        
+        /** Affiche la boîte de dialogue (Modal) */
         showModal(title, desc, cb) {
             document.getElementById('modal-title').innerHTML = title;
             
+            // Logique de couleur du titre selon le contexte
             let titleColor = 'var(--player-x)';
             if (title.includes('Victoire') || title.includes('Gagné') || title.includes('Terminée') || title.includes('Réussi') || title.includes('Fin')) {
                 titleColor = 'var(--accent)';
@@ -909,553 +937,677 @@
             this.modalCb = cb; 
             document.getElementById('modal-overlay').style.display = 'flex';
         },
+        
+        /** Ferme la boîte de dialogue et exécute la fonction associée */
         closeModal() { 
             document.getElementById('modal-overlay').style.display = 'none'; 
-            if(this.modalCb) this.modalCb(); 
+            if (this.modalCb) {
+                this.modalCb(); 
+            }
         },
+        
+        /** Gère la navigation entre les différents jeux */
         switchScreen(id) {
             document.querySelectorAll('.screen').forEach(s => {
                 s.classList.remove('active');
             }); 
+            
             document.getElementById(id).classList.add('active');
             
-            if(id !== 's-mine') {
+            // Arrêt du chronomètre du démineur si on quitte l'écran
+            if (id !== 's-mine') {
                 clearInterval(window.App.Mine.timer);
             }
         }
     };
 
+    // Objet global de l'application
     window.App = {};
 
     // =========================================================
-    // MOTEUR : MORPION SIMPLE
+    // MOTEUR DE JEU : MORPION SIMPLE
     // =========================================================
     window.App.Sim = {
         state: [], 
         player: 'X',
+        
+        /** Initialise une nouvelle grille de Morpion */
         init() {
-            const b = document.getElementById('ms-board'); 
-            b.innerHTML = ''; 
+            const board = document.getElementById('ms-board'); 
+            board.innerHTML = ''; 
             this.state = Array(9).fill(''); 
             this.player = 'X'; 
-            for(let i = 0; i < 9; i++) { 
-                let c = document.createElement('div'); 
-                c.className = 'ms-cell'; 
-                c.onclick = () => this.play(i, c); 
-                b.appendChild(c); 
+            
+            for (let i = 0; i < 9; i++) { 
+                let cell = document.createElement('div'); 
+                cell.className = 'ms-cell'; 
+                cell.onclick = () => this.play(i, cell); 
+                board.appendChild(cell); 
             }
         },
-        play(i, el) {
-            if(this.state[i] !== '') return; 
+        
+        /** Logique de clic sur une case */
+        play(index, element) {
+            if (this.state[index] !== '') {
+                return; 
+            }
             
-            this.state[i] = this.player; 
-            el.textContent = this.player; 
-            el.style.color = this.player === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
-            el.classList.add('taken'); 
+            this.state[index] = this.player; 
+            element.textContent = this.player; 
+            element.style.color = this.player === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
+            element.classList.add('taken'); 
             
-            const win = this.checkWin(this.state); 
-            if(win) { 
-                win.forEach(idx => document.getElementById('ms-board').children[idx].classList.add('win')); 
+            const winLine = this.checkWin(this.state); 
+            
+            if (winLine) { 
+                winLine.forEach(idx => {
+                    document.getElementById('ms-board').children[idx].classList.add('win');
+                }); 
                 setTimeout(() => {
-                    window.UI.showModal('Victoire !', `Le joueur <b style="color:${el.style.color}">${this.player}</b> a gagné en local.`, () => this.init());
+                    window.UI.showModal('Victoire !', `Le joueur <b style="color:${element.style.color}">${this.player}</b> a gagné.`, () => this.init());
                 }, 600); 
-            } else if(!this.state.includes('')) {
+            } else if (!this.state.includes('')) {
                 setTimeout(() => {
-                    window.UI.showModal('Égalité', 'Match Nul.', () => this.init());
+                    window.UI.showModal('Égalité', 'Match Nul, la grille est pleine.', () => this.init());
                 }, 200); 
             } else {
                 this.player = this.player === 'X' ? 'O' : 'X'; 
             }
         },
-        checkWin(g) {
-            const w = [
-                [0,1,2], [3,4,5], [6,7,8], 
-                [0,3,6], [1,4,7], [2,5,8], 
-                [0,4,8], [2,4,6]
+        
+        /** Vérifie si une combinaison gagnante est atteinte */
+        checkWin(grid) {
+            const winConditions = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Lignes
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Colonnes
+                [0, 4, 8], [2, 4, 6]             // Diagonales
             ]; 
-            return w.find(l => g[l[0]] && g[l[0]] === g[l[1]] && g[l[0]] === g[l[2]]);
+            return winConditions.find(line => grid[line[0]] && grid[line[0]] === grid[line[1]] && grid[line[0]] === grid[line[2]]);
         }
     };
 
     // =========================================================
-    // MOTEUR : MORPION ULTIME
+    // MOTEUR DE JEU : MORPION ULTIME
     // =========================================================
     window.App.Ult = {
         bGrid: [], 
         sGrids: [], 
-        p: 'X', 
-        n: -1,
+        currentPlayer: 'X', 
+        nextActiveGrid: -1,
+        
+        /** Construit la grille 9x9 et ses sous-grilles */
         init() {
-            const b = document.getElementById('mu-board'); 
-            b.innerHTML = ''; 
+            const mainBoard = document.getElementById('mu-board'); 
+            mainBoard.innerHTML = ''; 
             this.bGrid = Array(9).fill(''); 
             this.sGrids = Array.from({length: 9}, () => Array(9).fill('')); 
-            this.p = 'X'; 
-            this.n = -1; 
-            this.ui(); 
+            this.currentPlayer = 'X'; 
+            this.nextActiveGrid = -1; 
+            this.updateStatusUI(); 
             
-            for(let i = 0; i < 9; i++) { 
-                let g = document.createElement('div'); 
-                g.className = 'mu-grid'; 
-                g.id = `mu-g-${i}`; 
+            for (let bgIndex = 0; bgIndex < 9; bgIndex++) { 
+                let subGrid = document.createElement('div'); 
+                subGrid.className = 'mu-grid'; 
+                subGrid.id = `mu-g-${bgIndex}`; 
                 
-                for(let j = 0; j < 9; j++) { 
-                    let c = document.createElement('div'); 
-                    c.className = 'mu-cell'; 
-                    c.onclick = () => this.play(i, j, c); 
-                    g.appendChild(c); 
+                for (let sgIndex = 0; sgIndex < 9; sgIndex++) { 
+                    let cell = document.createElement('div'); 
+                    cell.className = 'mu-cell'; 
+                    cell.onclick = () => this.play(bgIndex, sgIndex, cell); 
+                    subGrid.appendChild(cell); 
                 } 
-                b.appendChild(g); 
+                mainBoard.appendChild(subGrid); 
             } 
-            this.hl();
+            this.highlightActiveGrids();
         },
-        play(bg, sg, el) {
-            if(this.sGrids[bg][sg] !== '' || this.bGrid[bg] !== '' || (this.n !== -1 && this.n !== bg)) return; 
-            
-            this.sGrids[bg][sg] = this.p; 
-            el.textContent = this.p; 
-            el.classList.add('taken'); 
-            el.style.color = this.p === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
-            
-            if(window.App.Sim.checkWin(this.sGrids[bg])) { 
-                this.bGrid[bg] = this.p; 
-                let cov = document.createElement('div'); 
-                cov.className = 'mu-won'; 
-                cov.textContent = this.p; 
-                cov.style.color = el.style.color; 
-                document.getElementById(`mu-g-${bg}`).appendChild(cov); 
-            } else if(!this.sGrids[bg].includes('')) {
-                this.bGrid[bg] = 'D'; 
+        
+        /** Gestion du clic dans une sous-grille */
+        play(bgIndex, sgIndex, cellElement) {
+            if (this.sGrids[bgIndex][sgIndex] !== '' || this.bGrid[bgIndex] !== '' || (this.nextActiveGrid !== -1 && this.nextActiveGrid !== bgIndex)) {
+                return; 
             }
             
-            if(window.App.Sim.checkWin(this.bGrid.map(v => v === 'D' ? '' : v))) { 
+            this.sGrids[bgIndex][sgIndex] = this.currentPlayer; 
+            cellElement.textContent = this.currentPlayer; 
+            cellElement.classList.add('taken'); 
+            cellElement.style.color = this.currentPlayer === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
+            
+            // Vérifie si la sous-grille est gagnée
+            if (window.App.Sim.checkWin(this.sGrids[bgIndex])) { 
+                this.bGrid[bgIndex] = this.currentPlayer; 
+                let cover = document.createElement('div'); 
+                cover.className = 'mu-won'; 
+                cover.textContent = this.currentPlayer; 
+                cover.style.color = cellElement.style.color; 
+                document.getElementById(`mu-g-${bgIndex}`).appendChild(cover); 
+            } else if (!this.sGrids[bgIndex].includes('')) {
+                this.bGrid[bgIndex] = 'D'; // D pour Draw (Égalité)
+            }
+            
+            // Vérifie si le jeu global est gagné
+            const cleanBigGrid = this.bGrid.map(val => val === 'D' ? '' : val);
+            if (window.App.Sim.checkWin(cleanBigGrid)) { 
                 setTimeout(() => {
-                    window.UI.showModal('Victoire Ultime', `Le stratège <b>${this.p}</b> domine !`, () => this.init());
+                    window.UI.showModal('Victoire Ultime', `Le stratège <b style="color:${cellElement.style.color}">${this.currentPlayer}</b> domine la carte !`, () => this.init());
                 }, 300); 
-                this.n = 999; 
+                this.nextActiveGrid = 999; 
             } else { 
-                this.n = (this.bGrid[sg] !== '') ? -1 : sg; 
-                this.p = this.p === 'X' ? 'O' : 'X'; 
-                this.ui(); 
-                this.hl(); 
+                this.nextActiveGrid = (this.bGrid[sgIndex] !== '') ? -1 : sgIndex; 
+                this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X'; 
+                this.updateStatusUI(); 
+                this.highlightActiveGrids(); 
             }
         },
-        hl() {
-            document.querySelectorAll('.mu-grid').forEach((g, i) => { 
-                g.classList.remove('mu-active'); 
-                if((this.n === -1 || this.n === i) && this.bGrid[i] === '') {
-                    g.classList.add('mu-active');
+        
+        /** Illumine la ou les grilles jouables */
+        highlightActiveGrids() {
+            document.querySelectorAll('.mu-grid').forEach((gridElement, index) => { 
+                gridElement.classList.remove('mu-active'); 
+                if ((this.nextActiveGrid === -1 || this.nextActiveGrid === index) && this.bGrid[index] === '') {
+                    gridElement.classList.add('mu-active');
                 }
             });
         },
-        ui() {
-            document.getElementById('mu-status').innerHTML = `Tour de : <b style="color:${this.p === 'X' ? 'var(--player-x)' : 'var(--player-o)'}">${this.p}</b>`;
+        
+        /** Met à jour le texte du tour */
+        updateStatusUI() {
+            const color = this.currentPlayer === 'X' ? 'var(--player-x)' : 'var(--player-o)';
+            document.getElementById('mu-status').innerHTML = `C'est au tour de : <b style="color:${color}">${this.currentPlayer}</b>`;
         }
     };
 
     // =========================================================
-    // MOTEUR : DEMINEUR
+    // MOTEUR DE JEU : DÉMINEUR EXPERT
     // =========================================================
     window.App.Mine = {
-        g: [], 
-        o: [], 
-        f: 60, 
-        t: 0, 
+        grid: [], 
+        opened: [], 
+        flags: 60, 
+        time: 0, 
         timer: null, 
-        first: true,
+        isFirstClick: true,
+        
         init() {
-            const b = document.getElementById('dm-board'); 
-            b.innerHTML = ''; 
-            this.g = Array(400).fill(0); 
-            this.o = Array(400).fill(false); 
-            this.f = 60; 
-            this.t = 0; 
-            this.first = true; 
-            clearInterval(this.timer); 
-            this.ui(); 
+            const board = document.getElementById('dm-board'); 
+            board.innerHTML = ''; 
+            this.grid = Array(400).fill(0); 
+            this.opened = Array(400).fill(false); 
+            this.flags = 60; 
+            this.time = 0; 
+            this.isFirstClick = true; 
             
-            for(let i = 0; i < 400; i++) { 
-                let c = document.createElement('div'); 
-                c.className = 'dm-tile'; 
-                c.onmousedown = (e) => { 
-                    if(e.button === 2) { 
+            clearInterval(this.timer); 
+            this.updateUI(); 
+            
+            for (let i = 0; i < 400; i++) { 
+                let tile = document.createElement('div'); 
+                tile.className = 'dm-tile'; 
+                
+                tile.onmousedown = (e) => { 
+                    if (e.button === 2) { 
                         e.preventDefault(); 
-                        if(this.o[i]) return; 
+                        if (this.opened[i]) return; 
                         
-                        if(c.textContent === '🚩') { 
-                            c.textContent = ''; 
-                            this.f++; 
-                        } else if(this.f > 0) { 
-                            c.textContent = '🚩'; 
-                            this.f--; 
+                        if (tile.textContent === '🚩') { 
+                            tile.textContent = ''; 
+                            this.flags++; 
+                        } else if (this.flags > 0) { 
+                            tile.textContent = '🚩'; 
+                            this.flags--; 
                         } 
-                        this.ui(); 
+                        this.updateUI(); 
                     } else { 
-                        if(c.textContent === '🚩' || this.o[i]) return; 
-                        if(this.first) this.gen(i); 
-                        this.rev(i); 
+                        if (tile.textContent === '🚩' || this.opened[i]) {
+                            return; 
+                        }
+                        if (this.isFirstClick) {
+                            this.generateMines(i); 
+                        }
+                        this.reveal(i); 
                     } 
                 }; 
-                c.oncontextmenu = e => e.preventDefault(); 
-                b.appendChild(c); 
+                tile.oncontextmenu = e => e.preventDefault(); 
+                board.appendChild(tile); 
             }
         },
-        ui() {
-            document.getElementById('dm-flags').textContent = this.f; 
-            document.getElementById('dm-time').textContent = this.t;
+        
+        updateUI() {
+            document.getElementById('dm-flags').textContent = this.flags; 
+            document.getElementById('dm-time').textContent = this.time;
         },
-        adj(i) {
-            let r = Math.floor(i / 20);
-            let c = i % 20;
-            let res = []; 
-            for(let x = -1; x <= 1; x++) {
-                for(let y = -1; y <= 1; y++) {
-                    let nr = r + x;
-                    let nc = c + y;
-                    if(nr >= 0 && nr < 20 && nc >= 0 && nc < 20) {
-                        res.push(nr * 20 + nc);
+        
+        /** Trouve les 8 cases adjacentes à un index donné */
+        getNeighbors(index) {
+            let row = Math.floor(index / 20);
+            let col = index % 20;
+            let neighbors = []; 
+            
+            for (let x = -1; x <= 1; x++) {
+                for (let y = -1; y <= 1; y++) {
+                    let newRow = row + x;
+                    let newCol = col + y;
+                    if (newRow >= 0 && newRow < 20 && newCol >= 0 && newCol < 20) {
+                        neighbors.push(newRow * 20 + newCol);
                     }
                 }
             } 
-            return res;
+            return neighbors;
         },
-        gen(s) {
-            this.first = false; 
-            let m = 0; 
-            const safe = [...this.adj(s), s]; 
+        
+        /** Génère les mines de façon sécurisée (Perfect Start) */
+        generateMines(safeIndex) {
+            this.isFirstClick = false; 
+            let minesPlaced = 0; 
             
-            while(m < 60) { 
-                let r = Math.floor(Math.random() * 400); 
-                if(!safe.includes(r) && this.g[r] !== 'M') { 
-                    this.g[r] = 'M'; 
-                    m++; 
+            // On protège le clic et ses voisins directs
+            const safeZone = [...this.getNeighbors(safeIndex), safeIndex]; 
+            
+            while (minesPlaced < 60) { 
+                let randomIndex = Math.floor(Math.random() * 400); 
+                if (!safeZone.includes(randomIndex) && this.grid[randomIndex] !== 'M') { 
+                    this.grid[randomIndex] = 'M'; 
+                    minesPlaced++; 
                 } 
             } 
             
-            for(let i = 0; i < 400; i++) {
-                if(this.g[i] !== 'M') {
-                    this.g[i] = this.adj(i).filter(n => this.g[n] === 'M').length; 
+            // Calcule les chiffres
+            for (let i = 0; i < 400; i++) {
+                if (this.grid[i] !== 'M') {
+                    this.grid[i] = this.getNeighbors(i).filter(n => this.grid[n] === 'M').length; 
                 }
             }
+            
             this.timer = setInterval(() => { 
-                this.t++; 
-                this.ui(); 
+                this.time++; 
+                this.updateUI(); 
             }, 1000);
         },
-        rev(i) {
-            if(this.o[i]) return; 
-            const t = document.getElementById('dm-board').children[i]; 
-            this.o[i] = true; 
-            t.classList.add('open'); 
+        
+        /** Révèle une case et propage si c'est un zéro */
+        reveal(index) {
+            if (this.opened[index]) {
+                return; 
+            }
             
-            if(this.g[i] === 'M') { 
-                t.classList.add('mine'); 
-                t.textContent = '💣'; 
+            const tileElement = document.getElementById('dm-board').children[index]; 
+            this.opened[index] = true; 
+            tileElement.classList.add('open'); 
+            
+            if (this.grid[index] === 'M') { 
+                tileElement.classList.add('mine'); 
+                tileElement.textContent = '💣'; 
                 clearInterval(this.timer); 
                 setTimeout(() => {
-                    window.UI.showModal('BOUM !', `Échec à ${this.t} sec.`, () => this.init());
+                    window.UI.showModal('BOUM !', `Mines déclenchées à ${this.time} secondes.`, () => this.init());
                 }, 300); 
             } else { 
-                if(this.g[i] > 0) { 
-                    t.textContent = this.g[i]; 
-                    t.classList.add('dm-c' + this.g[i]); 
+                if (this.grid[index] > 0) { 
+                    tileElement.textContent = this.grid[index]; 
+                    tileElement.classList.add('dm-c' + this.grid[index]); 
                 } else {
-                    this.adj(i).forEach(n => this.rev(n)); 
+                    this.getNeighbors(index).forEach(n => this.reveal(n)); 
                 }
             } 
             
-            if(this.o.filter(v => !v).length === 340) { 
+            // Condition de victoire : 400 cases - 60 mines = 340 cases ouvertes
+            if (this.opened.filter(val => !val).length === 60) { 
                 clearInterval(this.timer); 
                 setTimeout(() => {
-                    window.UI.showModal('Déminage Réussi', `Temps: ${this.t}s`, () => this.init());
+                    window.UI.showModal('Déminage Réussi !', `Terrain sécurisé en ${this.time}s.`, () => this.init());
                 }, 300); 
             }
         }
     };
 
     // =========================================================
-    // MOTEUR : YAMS
+    // MOTEUR DE JEU : YAMS CHAMPIONSHIP
     // =========================================================
     window.App.Yams = {
-        d: [1,1,1,1,1], 
-        k: [false,false,false,false,false], 
-        r: 3, 
-        p: 0, 
-        s: [{},{}],
+        dice: [1, 1, 1, 1, 1], 
+        kept: [false, false, false, false, false], 
+        rollsLeft: 3, 
+        currentPlayer: 0, 
+        scores: [{}, {}],
+        
         init() {
-            this.s = [{},{}]; 
-            this.p = 0; 
-            this.r = 3; 
-            this.k.fill(false); 
+            this.scores = [{}, {}]; 
+            this.currentPlayer = 0; 
+            this.rollsLeft = 3; 
+            this.kept.fill(false); 
             
-            const c = document.getElementById('y-score-container'); 
-            c.innerHTML = ''; 
+            const container = document.getElementById('y-score-container'); 
+            container.innerHTML = ''; 
             
-            for(let i = 0; i < 2; i++) { 
-                let t = `<table class="y-table" id="yt-${i}"><tr><th colspan="2">Joueur ${i+1}</th></tr>`; 
-                let categories = ['1','2','3','4','5','6','Bonus (>62)','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'];
+            const categoriesList = [
+                '1', '2', '3', '4', '5', '6', 'Bonus (>62)', 
+                'Brelan', 'Carré', 'Full', 'Petite Suite', 'Grande Suite', 'Yams', 'Chance'
+            ];
+            
+            for (let i = 0; i < 2; i++) { 
+                let tableHTML = `<table class="y-table" id="yt-${i}"><tr><th colspan="2">Joueur ${i+1}</th></tr>`; 
                 
-                categories.forEach(cat => { 
-                    if(cat.includes('Bonus')) {
-                        t += `<tr style="background:#020617"><td style="color:var(--gold)">${cat}</td><td class="val" id="y-${i}-Bonus">0</td></tr>`; 
+                categoriesList.forEach(cat => { 
+                    if (cat.includes('Bonus')) {
+                        tableHTML += `<tr style="background:#020617"><td style="color:var(--gold)">${cat}</td><td class="val" id="y-${i}-Bonus">0</td></tr>`; 
                     } else {
-                        t += `<tr><td>${cat}</td><td class="val" id="y-${i}-${cat.replace(/\s/g,'')}" onclick="window.App.Yams.lock('${cat}', ${i})">-</td></tr>`; 
+                        let cleanID = cat.replace(/\s/g, '');
+                        tableHTML += `<tr><td>${cat}</td><td class="val" id="y-${i}-${cleanID}" onclick="window.App.Yams.lockCategory('${cat}', ${i})">-</td></tr>`; 
                     }
                 }); 
                 
-                t += `<tr class="total-row"><td>TOTAL</td><td id="y-tot-${i}">0</td></tr></table>`; 
-                c.innerHTML += t; 
+                tableHTML += `<tr class="total-row"><td>TOTAL</td><td id="y-tot-${i}">0</td></tr></table>`; 
+                container.innerHTML += tableHTML; 
             } 
-            this.roll();
-        },
-        roll() {
-            if(this.r <= 0) return; 
-            this.d = this.d.map((v, i) => this.k[i] ? v : Math.floor(Math.random() * 6) + 1); 
-            this.r--; 
-            this.ui();
-        },
-        ui() {
-            const b = document.getElementById('y-dice'); 
-            b.innerHTML = ''; 
             
-            this.d.forEach((v, i) => { 
-                let el = document.createElement('div'); 
-                el.className = 'y-die' + (this.k[i] ? ' kept' : ''); 
-                el.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][v - 1]; 
-                el.onclick = () => { 
-                    if(this.r < 3) { 
-                        this.k[i] = !this.k[i]; 
-                        this.ui(); 
+            this.rollDice();
+        },
+        
+        rollDice() {
+            if (this.rollsLeft <= 0) {
+                return; 
+            }
+            
+            this.dice = this.dice.map((val, index) => {
+                return this.kept[index] ? val : Math.floor(Math.random() * 6) + 1;
+            }); 
+            
+            this.rollsLeft--; 
+            this.updateDiceUI();
+        },
+        
+        updateDiceUI() {
+            const diceBox = document.getElementById('y-dice'); 
+            diceBox.innerHTML = ''; 
+            
+            this.dice.forEach((val, index) => { 
+                let dieElement = document.createElement('div'); 
+                dieElement.className = 'y-die' + (this.kept[index] ? ' kept' : ''); 
+                dieElement.textContent = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'][val - 1]; 
+                
+                dieElement.onclick = () => { 
+                    if (this.rollsLeft < 3) { 
+                        this.kept[index] = !this.kept[index]; 
+                        this.updateDiceUI(); 
                     } 
                 }; 
-                b.appendChild(el); 
+                diceBox.appendChild(dieElement); 
             }); 
             
-            document.getElementById('y-roll-btn').textContent = `Lancer (${this.r})`; 
-            document.getElementById('y-turn').textContent = `C'est au tour du Joueur ${this.p + 1}`; 
-            this.calc();
-        },
-        calc() {
-            const c = {}; 
-            this.d.forEach(x => c[x] = (c[x] || 0) + 1); 
-            const v = Object.values(c);
-            const set = new Set(this.d); 
+            document.getElementById('y-roll-btn').textContent = `Lancer (${this.rollsLeft})`; 
+            document.getElementById('y-turn').textContent = `C'est au tour du Joueur ${this.currentPlayer + 1}`; 
             
-            const seq = (l) => { 
-                let st = 0;
-                let mx = 0; 
-                for(let i = 1; i <= 6; i++) {
-                    if(set.has(i)) {
-                        st++; 
+            this.calculatePotentials();
+        },
+        
+        calculatePotentials() {
+            const counts = {}; 
+            this.dice.forEach(x => counts[x] = (counts[x] || 0) + 1); 
+            
+            const valuesCount = Object.values(counts);
+            const uniqueSet = new Set(this.dice); 
+            
+            // Fonction utilitaire pour trouver une suite
+            const hasSequence = (lengthRequired) => { 
+                let currentStreak = 0;
+                let maxStreak = 0; 
+                for (let i = 1; i <= 6; i++) {
+                    if (uniqueSet.has(i)) {
+                        currentStreak++; 
                     } else {
-                        st = 0; 
+                        currentStreak = 0; 
                     }
-                    mx = Math.max(mx, st);
+                    maxStreak = Math.max(maxStreak, currentStreak);
                 } 
-                return mx >= l; 
+                return maxStreak >= lengthRequired; 
             }; 
             
-            let categories = ['1','2','3','4','5','6','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'];
+            const categories = ['1', '2', '3', '4', '5', '6', 'Brelan', 'Carré', 'Full', 'Petite Suite', 'Grande Suite', 'Yams', 'Chance'];
             
             categories.forEach(cat => { 
-                let id = cat.replace(/\s/g,''); 
-                const el = document.getElementById(`y-${this.p}-${id}`); 
+                let cleanID = cat.replace(/\s/g, ''); 
+                const cellElement = document.getElementById(`y-${this.currentPlayer}-${cleanID}`); 
                 
-                if(this.s[this.p][cat] !== undefined) return; 
-                
-                let pts = 0; 
-                if(!isNaN(cat)) {
-                    pts = (c[cat] || 0) * parseInt(cat); 
-                } else if(cat === 'Brelan' && v.some(x => x >= 3)) {
-                    pts = this.d.reduce((a,b) => a + b); 
-                } else if(cat === 'Carré' && v.some(x => x >= 4)) {
-                    pts = this.d.reduce((a,b) => a + b); 
-                } else if(cat === 'Full' && v.includes(3) && v.includes(2)) {
-                    pts = 25; 
-                } else if(cat === 'Petite Suite' && seq(4)) {
-                    pts = 30; 
-                } else if(cat === 'Grande Suite' && seq(5)) {
-                    pts = 40; 
-                } else if(cat === 'Yams' && v.includes(5)) {
-                    pts = 50; 
-                } else if(cat === 'Chance') {
-                    pts = this.d.reduce((a,b) => a + b); 
+                if (this.scores[this.currentPlayer][cat] !== undefined) {
+                    return; // Déjà verrouillé
                 }
                 
-                el.textContent = pts; 
-                el.className = 'val pot'; 
+                let potentialPoints = 0; 
+                
+                if (!isNaN(cat)) {
+                    potentialPoints = (counts[cat] || 0) * parseInt(cat); 
+                } else if (cat === 'Brelan' && valuesCount.some(x => x >= 3)) {
+                    potentialPoints = this.dice.reduce((a,b) => a + b); 
+                } else if (cat === 'Carré' && valuesCount.some(x => x >= 4)) {
+                    potentialPoints = this.dice.reduce((a,b) => a + b); 
+                } else if (cat === 'Full' && valuesCount.includes(3) && valuesCount.includes(2)) {
+                    potentialPoints = 25; 
+                } else if (cat === 'Petite Suite' && hasSequence(4)) {
+                    potentialPoints = 30; 
+                } else if (cat === 'Grande Suite' && hasSequence(5)) {
+                    potentialPoints = 40; 
+                } else if (cat === 'Yams' && valuesCount.includes(5)) {
+                    potentialPoints = 50; 
+                } else if (cat === 'Chance') {
+                    potentialPoints = this.dice.reduce((a,b) => a + b); 
+                }
+                
+                cellElement.textContent = potentialPoints; 
+                cellElement.className = 'val pot'; 
             });
         },
-        lock(cat, pi) {
-            if(pi !== this.p || this.s[pi][cat] !== undefined) return; 
+        
+        lockCategory(category, playerIndex) {
+            if (playerIndex !== this.currentPlayer || this.scores[playerIndex][category] !== undefined) {
+                return; 
+            }
             
-            let id = cat.replace(/\s/g,''); 
-            const el = document.getElementById(`y-${pi}-${id}`); 
-            this.s[pi][cat] = parseInt(el.textContent); 
-            el.className = 'val locked'; 
+            let cleanID = category.replace(/\s/g, ''); 
+            const cellElement = document.getElementById(`y-${playerIndex}-${cleanID}`); 
             
-            let t = Object.values(this.s[pi]).reduce((a, b) => a + b, 0); 
-            let sTop = ['1','2','3','4','5','6'].reduce((sm, k) => sm + (this.s[pi][k] || 0), 0); 
+            // Verrouille le score
+            this.scores[playerIndex][category] = parseInt(cellElement.textContent); 
+            cellElement.className = 'val locked'; 
             
-            if(sTop >= 63) { 
-                t += 35; 
-                document.getElementById(`y-${pi}-Bonus`).textContent = 35; 
+            // Calcule le total
+            let total = Object.values(this.scores[playerIndex]).reduce((sum, val) => sum + val, 0); 
+            
+            // Calcule le bonus de la section haute
+            let sumTopSection = ['1', '2', '3', '4', '5', '6'].reduce((sum, key) => sum + (this.scores[playerIndex][key] || 0), 0); 
+            if (sumTopSection >= 63) { 
+                total += 35; 
+                document.getElementById(`y-${playerIndex}-Bonus`).textContent = 35; 
             } 
             
-            document.getElementById(`y-tot-${pi}`).textContent = t; 
+            document.getElementById(`y-tot-${playerIndex}`).textContent = total; 
             
-            this.p = (this.p + 1) % 2; 
-            this.r = 3; 
-            this.k.fill(false); 
+            // Passe au joueur suivant
+            this.currentPlayer = (this.currentPlayer + 1) % 2; 
+            this.rollsLeft = 3; 
+            this.kept.fill(false); 
             
-            document.querySelectorAll('.pot').forEach(e => { 
-                e.textContent = '-'; 
-                e.classList.remove('pot'); 
+            // Nettoie les potentiels non choisis
+            document.querySelectorAll('.pot').forEach(element => { 
+                element.textContent = '-'; 
+                element.classList.remove('pot'); 
             }); 
             
-            if(Object.keys(this.s[1]).length === 13) { 
-                let t0 = parseInt(document.getElementById(`y-tot-0`).textContent);
-                let t1 = parseInt(document.getElementById(`y-tot-1`).textContent); 
+            // Vérifie si la partie est terminée
+            if (Object.keys(this.scores[1]).length === 13) { 
+                let totalPlayer1 = parseInt(document.getElementById(`y-tot-0`).textContent);
+                let totalPlayer2 = parseInt(document.getElementById(`y-tot-1`).textContent); 
                 
-                let msg = `Vainqueur: ${t0 > t1 ? 'J1' : (t1 > t0 ? 'J2' : 'Égalité')}`;
-                window.UI.showModal('Fin !', msg, () => this.init()); 
+                let winnerText = totalPlayer1 > totalPlayer2 ? 'Joueur 1' : (totalPlayer2 > totalPlayer1 ? 'Joueur 2' : 'Égalité parfaite');
+                let message = `Scores finaux :<br>J1 : ${totalPlayer1}<br>J2 : ${totalPlayer2}<br><br>Vainqueur : <b>${winnerText}</b>`;
+                
+                window.UI.showModal('Fin du Championnat !', message, () => this.init()); 
             } else {
-                this.roll(); 
+                this.rollDice(); 
             }
         }
     };
 
     // =========================================================
-    // MOTEUR : LA VRAIE BELOTE IA INTELLIGENTE ET FLUIDE
+    // MOTEUR DE JEU : LA VRAIE BELOTE IA INTELLIGENTE ET FLUIDE
     // =========================================================
     window.App.Belote = {
         deck: [], 
-        hands: [[], [], [], []], // 0:Toi(Sud), 1:Est, 2:Nord, 3:Ouest
+        hands: [[], [], [], []], // Index 0:Toi(Sud), 1:Est, 2:Nord, 3:Ouest
         scores: { nous: 0, eux: 0 },
-        dealer: -1, 
-        firstPlayer: 0, 
-        currentTurn: 0,
+        dealerIndex: -1, 
+        firstPlayerIndex: 0, 
+        currentTurnIndex: 0,
         phase: 'init', 
         centerCard: null, 
-        atout: null, 
-        taker: -1,
-        trick: [], 
-        trickPoints: 0,
-        tricksPlayed: 0,
+        atoutSuit: null, 
+        takerIndex: -1,
+        currentTrick: [], 
+        currentTrickPoints: 0,
+        tricksPlayedCount: 0,
         
-        suits: [{s:'♠',c:'b'}, {s:'♣',c:'b'}, {s:'♥',c:'r'}, {s:'♦',c:'r'}],
-        ranks: ['7','8','9','10','V','D','R','A'],
+        beloteAnnouncedBy: null, // Mémorise l'équipe qui a annoncé Belote (0='nous', 1='eux')
         
+        suits: [
+            {s: '♠', color: 'b'}, 
+            {s: '♣', color: 'b'}, 
+            {s: '♥', color: 'r'}, 
+            {s: '♦', color: 'r'}
+        ],
+        ranks: ['7', '8', '9', '10', 'V', 'D', 'R', 'A'],
+        
+        // Hiérarchie Belote
         valAtout: { 'V':20, '9':14, 'A':11, '10':10, 'R':4, 'D':3, '8':0, '7':0 },
         valNormal: { 'A':11, '10':10, 'R':4, 'D':3, 'V':2, '9':0, '8':0, '7':0 },
-        ordAtout: ['V','9','A','10','R','D','8','7'],
-        ordNormal: ['A','10','R','D','V','9','8','7'],
+        ordAtout: ['V', '9', 'A', '10', 'R', 'D', '8', '7'],
+        ordNormal: ['A', '10', 'R', 'D', 'V', '9', '8', '7'],
 
         initGame() {
             this.scores = { nous: 0, eux: 0 };
-            if(this.dealer === -1) {
-                this.dealer = Math.floor(Math.random() * 4);
+            
+            if (this.dealerIndex === -1) {
+                this.dealerIndex = Math.floor(Math.random() * 4);
             }
+            
             this.updateScoreUI();
             this.startDeal();
         },
 
         startDeal() {
-            document.querySelectorAll('.bl-slot').forEach(sl => sl.innerHTML = '');
+            // Réinitialisation de l'interface du tapis
+            document.querySelectorAll('.bl-slot').forEach(slot => slot.innerHTML = '');
             document.getElementById('bl-center').innerHTML = '';
             document.getElementById('bl-hand').innerHTML = '';
             document.getElementById('bl-actions').style.display = 'none';
+            document.getElementById('bl-annonce-msg').classList.remove('active');
             
-            // Le donneur tourne
-            this.dealer = (this.dealer + 1) % 4;
-            this.firstPlayer = (this.dealer + 1) % 4;
+            // Rotation du donneur
+            this.dealerIndex = (this.dealerIndex + 1) % 4;
+            this.firstPlayerIndex = (this.dealerIndex + 1) % 4;
             
+            // Placement visuel du Jeton Donneur
             const positions = [
-                {x: 295, y: 400}, 
-                {x: 570, y: 152}, 
-                {x: 295, y: 10}, 
-                {x: 15, y: 152}
+                {x: 295, y: 400}, // 0: Sud
+                {x: 570, y: 152}, // 1: Est
+                {x: 295, y: 10},  // 2: Nord
+                {x: 15, y: 152}   // 3: Ouest
             ];
             
-            const tkn = document.getElementById('bl-dealer-token');
-            tkn.style.display = 'flex';
-            tkn.style.left = positions[this.dealer].x + 'px';
-            tkn.style.top = positions[this.dealer].y + 'px';
+            const tokenElement = document.getElementById('bl-dealer-token');
+            tokenElement.style.display = 'flex';
+            tokenElement.style.left = positions[this.dealerIndex].x + 'px';
+            tokenElement.style.top = positions[this.dealerIndex].y + 'px';
 
+            // Création du paquet de cartes
             this.deck = [];
-            this.suits.forEach(suit => { 
-                this.ranks.forEach(rank => { 
-                    this.deck.push({ suit: suit, rank: rank, isRed: suit.c === 'r' }); 
+            this.suits.forEach(suitObj => { 
+                this.ranks.forEach(rankStr => { 
+                    this.deck.push({ suit: suitObj, rank: rankStr, isRed: suitObj.color === 'r' }); 
                 }); 
             });
             
-            for(let i = this.deck.length - 1; i > 0; i--) { 
+            // Mélange de Fisher-Yates
+            for (let i = this.deck.length - 1; i > 0; i--) { 
                 const j = Math.floor(Math.random() * (i + 1)); 
                 [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; 
             }
             
+            // Réinitialisation des variables de manche
             this.hands = [[], [], [], []]; 
-            this.trick = []; 
-            this.tricksPlayed = 0;
-            this.atout = null; 
-            this.taker = -1;
+            this.currentTrick = []; 
+            this.tricksPlayedCount = 0;
+            this.atoutSuit = null; 
+            this.takerIndex = -1;
+            this.beloteAnnouncedBy = null;
             this.phase = 'bidding';
             
-            for(let p = 0; p < 4; p++) {
-                let target = (this.firstPlayer + p) % 4;
-                this.hands[target].push(...this.deck.splice(0, 3));
-                this.hands[target].push(...this.deck.splice(0, 2));
+            // Distribution de 5 cartes (paquets de 3, puis paquets de 2)
+            for (let p = 0; p < 4; p++) {
+                let targetPlayer = (this.firstPlayerIndex + p) % 4;
+                this.hands[targetPlayer].push(...this.deck.splice(0, 3));
+                this.hands[targetPlayer].push(...this.deck.splice(0, 2));
             }
             
+            // La carte au centre pour l'enchère
             this.centerCard = this.deck.shift();
             this.showCenterCard(); 
             this.renderHand();
             
-            this.currentTurn = this.firstPlayer;
+            this.currentTurnIndex = this.firstPlayerIndex;
             this.processBidding();
         },
 
         showCenterCard() {
-            const center = document.getElementById('bl-center');
-            const c = document.createElement('div');
-            c.className = `bl-card ${this.centerCard.isRed ? 'red' : ''}`;
-            c.innerHTML = `<span>${this.centerCard.rank}</span><span>${this.centerCard.suit.s}</span>`;
-            center.innerHTML = '';
-            center.appendChild(c);
+            const centerArea = document.getElementById('bl-center');
+            const cardElement = document.createElement('div');
+            
+            cardElement.className = `bl-card ${this.centerCard.isRed ? 'red' : ''}`;
+            cardElement.innerHTML = `<span>${this.centerCard.rank}</span><span>${this.centerCard.suit.s}</span>`;
+            
+            centerArea.innerHTML = '';
+            centerArea.appendChild(cardElement);
         },
 
         processBidding() {
-            if(this.currentTurn === 0) {
+            if (this.currentTurnIndex === 0) {
+                // C'est au joueur humain de décider
                 this.updateStatus("À vous de parler ! Voulez-vous prendre ?");
                 document.getElementById('bl-actions').style.display = 'flex';
                 document.getElementById('btn-prendre').onclick = () => this.take(0);
                 document.getElementById('btn-passer').onclick = () => this.pass();
             } else {
+                // Tour de l'IA (Bots)
                 document.getElementById('bl-actions').style.display = 'none';
-                let botName = this.currentTurn === 1 ? 'Est' : (this.currentTurn === 2 ? 'Nord' : 'Ouest');
+                
+                let botName = '';
+                if (this.currentTurnIndex === 1) botName = 'Est';
+                if (this.currentTurnIndex === 2) botName = 'Nord';
+                if (this.currentTurnIndex === 3) botName = 'Ouest';
+                
                 this.updateStatus(`${botName} réfléchit...`);
                 
                 setTimeout(() => {
-                    let suit = this.centerCard.suit.s;
-                    let rank = this.centerCard.rank;
-                    let hand = this.hands[this.currentTurn];
-                    let suitCards = hand.filter(c => c.suit.s === suit);
+                    let suitChar = this.centerCard.suit.s;
+                    let rankChar = this.centerCard.rank;
+                    let botHand = this.hands[this.currentTurnIndex];
+                    let suitCardsInHand = botHand.filter(c => c.suit.s === suitChar);
                     
                     let shouldTake = false;
-                    if (rank === 'V' || rank === '9') {
+                    
+                    // IA Logique de prise
+                    if (rankChar === 'V' || rankChar === '9') {
                         shouldTake = true;
-                    } else if (suitCards.length >= 2 && suitCards.some(c => c.rank === 'V' || c.rank === '9')) {
+                    } else if (suitCardsInHand.length >= 2 && suitCardsInHand.some(c => c.rank === 'V' || c.rank === '9')) {
                         shouldTake = true;
-                    } else if (suitCards.length >= 3) {
+                    } else if (suitCardsInHand.length >= 3) {
                         shouldTake = true;
                     }
 
-                    if(shouldTake || Math.random() < 0.05) {
-                        this.take(this.currentTurn);
+                    // On laisse une petite part de hasard
+                    if (shouldTake || Math.random() < 0.05) {
+                        this.take(this.currentTurnIndex);
                     } else {
                         this.pass();
                     }
-                }, 500);
+                }, 800);
             }
         },
 
@@ -1463,21 +1615,28 @@
             document.getElementById('bl-actions').style.display = 'none';
             document.getElementById('bl-center').innerHTML = ''; 
             
-            this.taker = playerIdx;
-            this.atout = this.centerCard.suit;
+            this.takerIndex = playerIdx;
+            this.atoutSuit = this.centerCard.suit;
             this.hands[playerIdx].push(this.centerCard); 
             
-            let name = playerIdx === 0 ? "Vous avez" : (playerIdx === 1 ? 'Est a' : (playerIdx === 2 ? 'Nord a' : 'Ouest a'));
-            this.updateStatus(`${name} pris à ${this.atout.s} !`);
+            let nameDisplay = '';
+            if (playerIdx === 0) nameDisplay = "Vous avez";
+            if (playerIdx === 1) nameDisplay = "Est a";
+            if (playerIdx === 2) nameDisplay = "Nord a";
+            if (playerIdx === 3) nameDisplay = "Ouest a";
             
-            setTimeout(() => this.finishDeal(), 800);
+            this.updateStatus(`${nameDisplay} pris à ${this.atoutSuit.s} !`);
+            
+            setTimeout(() => this.finishDeal(), 1000);
         },
 
         pass() {
-            this.currentTurn = (this.currentTurn + 1) % 4;
-            if(this.currentTurn === this.firstPlayer) {
+            this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
+            
+            if (this.currentTurnIndex === this.firstPlayerIndex) {
+                // Tour de table complet, personne n'a pris
                 this.updateStatus("Personne n'a pris. Redistribution !");
-                setTimeout(() => this.startDeal(), 1000);
+                setTimeout(() => this.startDeal(), 1500);
             } else {
                 this.processBidding();
             }
@@ -1485,182 +1644,265 @@
 
         finishDeal() {
             this.phase = 'playing';
-            let takerName = this.taker === 0 ? "Toi" : (this.taker === 1 ? 'Est' : (this.taker === 2 ? 'Nord' : 'Ouest'));
+            
+            let takerName = '';
+            if (this.takerIndex === 0) takerName = "Toi";
+            if (this.takerIndex === 1) takerName = "Est";
+            if (this.takerIndex === 2) takerName = "Nord";
+            if (this.takerIndex === 3) takerName = "Ouest";
             
             document.getElementById('bl-center').innerHTML = `
-                <div class="bl-atout-display" style="color:${this.atout.c==='r'?'#f43f5e':'white'};">
-                    ATOUT : ${this.atout.s} <br>
+                <div class="bl-atout-display" style="color:${this.atoutSuit.color === 'r' ? '#f43f5e' : 'white'};">
+                    ATOUT : ${this.atoutSuit.s} <br>
                     <span class="bl-taker-name">Preneur : ${takerName}</span>
                 </div>
             `;
             
-            for(let p = 0; p < 4; p++) {
-                let target = (this.firstPlayer + p) % 4;
-                let num = (target === this.taker) ? 2 : 3;
-                this.hands[target].push(...this.deck.splice(0, num));
+            // On distribue le reste (le preneur a déjà 6 cartes, il lui en faut 2. Les autres 3)
+            for (let p = 0; p < 4; p++) {
+                let targetPlayer = (this.firstPlayerIndex + p) % 4;
+                let numCardsToGive = (targetPlayer === this.takerIndex) ? 2 : 3;
+                this.hands[targetPlayer].push(...this.deck.splice(0, numCardsToGive));
             }
             
-            this.currentTurn = this.firstPlayer;
+            this.currentTurnIndex = this.firstPlayerIndex;
             this.trickPoints = 0;
             this.processPlay();
         },
 
         processPlay() {
-            if(this.tricksPlayed === 8) return;
+            if (this.tricksPlayedCount === 8) {
+                return;
+            }
 
-            if(this.currentTurn === 0) {
+            if (this.currentTurnIndex === 0) {
                 this.updateStatus("À vous de jouer !");
                 this.renderHand(); 
             } else {
-                let botName = this.currentTurn === 1 ? 'Est' : (this.currentTurn === 2 ? 'Nord' : 'Ouest');
+                let botName = '';
+                if (this.currentTurnIndex === 1) botName = "Est";
+                if (this.currentTurnIndex === 2) botName = "Nord";
+                if (this.currentTurnIndex === 3) botName = "Ouest";
+                
                 this.updateStatus(`${botName} joue...`);
-                setTimeout(() => this.botPlay(), 400);
+                
+                // Les bots jouent avec une vitesse fluide
+                setTimeout(() => this.botPlay(), 600);
             }
         },
 
-        getTrickWinner(currentTrick) {
-            if(currentTrick.length === 0) return null;
-            let leadSuit = currentTrick[0].card.suit.s;
-            let highestVal = -1;
-            let winnerIndex = 0;
-            let atoutPlayed = currentTrick.some(t => t.card.suit.s === this.atout.s);
+        getTrickWinner(trickArray) {
+            if (trickArray.length === 0) {
+                return null;
+            }
+            
+            let leadSuitChar = trickArray[0].card.suit.s;
+            let highestCalculatedVal = -1;
+            let winnerIndexInTrick = 0;
+            
+            let isAtoutPlayedInTrick = trickArray.some(trickCard => trickCard.card.suit.s === this.atoutSuit.s);
 
-            for(let i = 0; i < currentTrick.length; i++) {
-                let c = currentTrick[i].card;
-                let order = (c.suit.s === this.atout.s) ? this.ordAtout : this.ordNormal;
-                let valForCompare = 8 - order.indexOf(c.rank); 
+            for (let i = 0; i < trickArray.length; i++) {
+                let currentCard = trickArray[i].card;
+                let orderArray = (currentCard.suit.s === this.atoutSuit.s) ? this.ordAtout : this.ordNormal;
+                let valForComparison = 8 - orderArray.indexOf(currentCard.rank); 
                 
-                if(atoutPlayed) { 
-                    if(c.suit.s === this.atout.s && valForCompare > highestVal) { 
-                        highestVal = valForCompare; 
-                        winnerIndex = i; 
+                if (isAtoutPlayedInTrick) { 
+                    if (currentCard.suit.s === this.atoutSuit.s && valForComparison > highestCalculatedVal) { 
+                        highestCalculatedVal = valForComparison; 
+                        winnerIndexInTrick = i; 
                     } 
                 } else { 
-                    if(c.suit.s === leadSuit && valForCompare > highestVal) { 
-                        highestVal = valForCompare; 
-                        winnerIndex = i; 
+                    if (currentCard.suit.s === leadSuitChar && valForComparison > highestCalculatedVal) { 
+                        highestCalculatedVal = valForComparison; 
+                        winnerIndexInTrick = i; 
                     } 
                 }
             }
-            return currentTrick[winnerIndex];
+            
+            return trickArray[winnerIndexInTrick];
         },
 
-        getValidCards(hand) {
-            if(this.trick.length === 0) return hand;
+        getValidCards(handArray) {
+            // Si on est le premier à jouer le pli, toutes les cartes sont valides
+            if (this.currentTrick.length === 0) {
+                return handArray;
+            }
             
-            let leadSuit = this.trick[0].card.suit.s;
-            let sameSuit = hand.filter(c => c.suit.s === leadSuit);
-            let trumps = hand.filter(c => c.suit.s === this.atout.s);
+            let leadSuitChar = this.currentTrick[0].card.suit.s;
+            let cardsOfRequestedSuit = handArray.filter(c => c.suit.s === leadSuitChar);
+            let trumpCardsInHand = handArray.filter(c => c.suit.s === this.atoutSuit.s);
 
-            let highestTrumpRank = -1;
-            this.trick.forEach(t => {
-                if (t.card.suit.s === this.atout.s) {
-                    let val = 8 - this.ordAtout.indexOf(t.card.rank);
-                    if (val > highestTrumpRank) highestTrumpRank = val;
+            let highestTrumpRankInTrick = -1;
+            this.currentTrick.forEach(trickEntry => {
+                if (trickEntry.card.suit.s === this.atoutSuit.s) {
+                    let val = 8 - this.ordAtout.indexOf(trickEntry.card.rank);
+                    if (val > highestTrumpRankInTrick) {
+                        highestTrumpRankInTrick = val;
+                    }
                 }
             });
 
-            // 1. Fournir
-            if(sameSuit.length > 0) {
-                if(leadSuit === this.atout.s) {
-                    let higherTrumps = sameSuit.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRank);
-                    if(higherTrumps.length > 0) return higherTrumps;
+            // Règle 1 : Obligation de fournir à la couleur
+            if (cardsOfRequestedSuit.length > 0) {
+                // Si la couleur demandée est l'atout, obligation de monter si possible
+                if (leadSuitChar === this.atoutSuit.s) {
+                    let higherTrumpsToPlay = cardsOfRequestedSuit.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRankInTrick);
+                    if (higherTrumpsToPlay.length > 0) {
+                        return higherTrumpsToPlay;
+                    }
                 }
-                return sameSuit; 
+                return cardsOfRequestedSuit; 
             }
             
-            // 2. Couper / Pisser
-            let currentWinner = this.getTrickWinner(this.trick);
-            let partnerIdx = (this.currentTurn + 2) % 4;
-            let isPartnerWinning = (currentWinner && currentWinner.player === partnerIdx);
+            // Règle 2 : On n'a pas la couleur demandée. Faut-il couper ?
+            let currentWinnerData = this.getTrickWinner(this.currentTrick);
+            let partnerIndex = (this.currentTurnIndex + 2) % 4;
+            let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
 
-            if(trumps.length > 0) {
-                if(isPartnerWinning) {
-                    return hand; // Partenaire maître = on pisse
+            if (trumpCardsInHand.length > 0) {
+                if (isPartnerWinning) {
+                    // Partenaire maître, on a le droit de "pisser" (jouer autre chose qu'atout)
+                    return handArray; 
                 } else {
-                    let higherTrumps = trumps.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRank);
-                    if(higherTrumps.length > 0) return higherTrumps; 
-                    return trumps; 
+                    // L'adversaire est maître, obligation de couper et sur-couper si on peut
+                    let higherTrumpsToPlay = trumpCardsInHand.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRankInTrick);
+                    if (higherTrumpsToPlay.length > 0) {
+                        return higherTrumpsToPlay; 
+                    }
+                    // On ne peut pas sur-couper, mais on est obligé de jouer l'atout quand même
+                    return trumpCardsInHand; 
                 }
             }
             
-            return hand;
+            // On a ni la couleur, ni atout : on peut se défausser de n'importe quelle carte
+            return handArray;
         },
 
-        chooseBotCard(validCards) {
-            if(this.trick.length === 0) {
-                validCards.sort((a,b) => this.getCardValue(b) - this.getCardValue(a));
-                return validCards[0];
+        chooseBotCard(validCardsArray) {
+            // Si le bot commence
+            if (this.currentTrick.length === 0) {
+                validCardsArray.sort((a,b) => this.getCardValue(b) - this.getCardValue(a));
+                return validCardsArray[0];
             }
 
-            let currentWinner = this.getTrickWinner(this.trick);
-            let partnerIdx = (this.currentTurn + 2) % 4;
-            let isPartnerWinning = (currentWinner && currentWinner.player === partnerIdx);
+            let currentWinnerData = this.getTrickWinner(this.currentTrick);
+            let partnerIndex = (this.currentTurnIndex + 2) % 4;
+            let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
 
-            if(isPartnerWinning) {
-                validCards.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
-                return validCards[0];
+            // Partenaire maître
+            if (isPartnerWinning) {
+                // On se débarrasse d'une petite carte
+                validCardsArray.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
+                return validCardsArray[0];
             } else {
-                let winningCard = currentWinner.card;
-                let winningVal = (winningCard.suit.s === this.atout.s) ? (8 - this.ordAtout.indexOf(winningCard.rank)) : (8 - this.ordNormal.indexOf(winningCard.rank));
+                // Adversaire maître : On essaye de gagner
+                let winningCard = currentWinnerData.card;
+                let winningVal = (winningCard.suit.s === this.atoutSuit.s) ? (8 - this.ordAtout.indexOf(winningCard.rank)) : (8 - this.ordNormal.indexOf(winningCard.rank));
                 
-                let cardsThatBeat = validCards.filter(c => {
-                    if(c.suit.s === this.atout.s && winningCard.suit.s !== this.atout.s) return true;
-                    if(c.suit.s === winningCard.suit.s) {
-                        let order = (c.suit.s === this.atout.s) ? this.ordAtout : this.ordNormal;
+                let cardsThatBeatWinner = validCardsArray.filter(c => {
+                    // Coupe simple
+                    if (c.suit.s === this.atoutSuit.s && winningCard.suit.s !== this.atoutSuit.s) {
+                        return true;
+                    }
+                    // Bat dans la même couleur
+                    if (c.suit.s === winningCard.suit.s) {
+                        let order = (c.suit.s === this.atoutSuit.s) ? this.ordAtout : this.ordNormal;
                         return (8 - order.indexOf(c.rank)) > winningVal;
                     }
                     return false;
                 });
 
-                if(cardsThatBeat.length > 0) {
-                    cardsThatBeat.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
-                    return cardsThatBeat[0];
+                if (cardsThatBeatWinner.length > 0) {
+                    // On joue la carte la moins forte possible qui permet de gagner
+                    cardsThatBeatWinner.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
+                    return cardsThatBeatWinner[0];
                 } else {
-                    validCards.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
-                    return validCards[0];
+                    // Impossible de gagner, on se défausse de la carte la moins forte
+                    validCardsArray.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
+                    return validCardsArray[0];
                 }
             }
         },
+        
+        /** Vérifie si une annonce Belote/Rebelote doit être faite */
+        checkBelote(cardObj, playerIndex) {
+            // Il faut jouer le Roi ou la Dame d'atout
+            if (cardObj.suit.s === this.atoutSuit.s && (cardObj.rank === 'R' || cardObj.rank === 'D')) {
+                let hand = this.hands[playerIndex];
+                let otherRankToFind = (cardObj.rank === 'R') ? 'D' : 'R';
+                
+                // Est-ce que le joueur a l'autre carte en main ? Ou est-ce que c'est la Rebelote ?
+                // On simplifie la détection : si on joue une des deux, et qu'on a l'autre OU qu'on a déjà eu la Belote pour notre équipe
+                let teamIdentity = (playerIndex === 0 || playerIndex === 2) ? 'nous' : 'eux';
+                
+                let hasOtherInHand = hand.some(c => c.suit.s === this.atoutSuit.s && c.rank === 'otherRankToFind');
+                
+                // Si l'équipe a déjà annoncé, c'est la Rebelote
+                if (this.beloteAnnouncedBy === teamIdentity) {
+                    this.showAnnonce("REBELOTE ! (+20)");
+                    this.scores[teamIdentity] += 20; // Ajoute les points tout de suite
+                    this.updateScoreUI();
+                } else if (hasOtherInHand || hand.some(c => c.suit.s === this.atoutSuit.s && c.rank === otherRankToFind)) {
+                    // C'est la première carte (Belote)
+                    this.beloteAnnouncedBy = teamIdentity;
+                    this.showAnnonce("BELOTE !");
+                }
+            }
+        },
+        
+        showAnnonce(msg) {
+            const annonceEl = document.getElementById('bl-annonce-msg');
+            annonceEl.textContent = msg;
+            annonceEl.classList.remove('active');
+            // Force reflow
+            void annonceEl.offsetWidth;
+            annonceEl.classList.add('active');
+        },
 
         renderHand() {
-            const h = document.getElementById('bl-hand'); 
-            h.innerHTML = '';
+            const handContainer = document.getElementById('bl-hand'); 
+            handContainer.innerHTML = '';
             
-            this.hands[0].sort((a,b) => {
-                if(a.suit.s === this.atout?.s) return -1; 
-                if(b.suit.s === this.atout?.s) return 1;
+            this.hands[0].sort((a, b) => {
+                if (a.suit.s === this.atoutSuit?.s) return -1; 
+                if (b.suit.s === this.atoutSuit?.s) return 1;
                 return a.suit.s.localeCompare(b.suit.s);
             });
             
-            let validCards = (this.phase === 'playing' && this.currentTurn === 0) ? this.getValidCards(this.hands[0]) : [];
+            let validCardsArray = (this.phase === 'playing' && this.currentTurnIndex === 0) ? this.getValidCards(this.hands[0]) : [];
 
             this.hands[0].forEach((card, index) => {
-                let c = document.createElement('div');
-                let isValid = validCards.includes(card) || this.phase !== 'playing';
-                c.className = `bl-card ${card.isRed ? 'red' : ''} ${!isValid && this.phase === 'playing' ? 'invalid' : ''}`;
-                c.innerHTML = `<span>${card.rank}</span><span>${card.suit.s}</span>`;
+                let cardElement = document.createElement('div');
+                let isValid = validCardsArray.includes(card) || this.phase !== 'playing';
                 
-                if(isValid && this.phase === 'playing' && this.currentTurn === 0) {
-                    c.onclick = () => this.playCard(index, c);
+                cardElement.className = `bl-card ${card.isRed ? 'red' : ''} ${!isValid && this.phase === 'playing' ? 'invalid' : ''}`;
+                cardElement.innerHTML = `<span>${card.rank}</span><span>${card.suit.s}</span>`;
+                
+                if (isValid && this.phase === 'playing' && this.currentTurnIndex === 0) {
+                    cardElement.onclick = () => this.playCard(index, cardElement);
                 }
-                h.appendChild(c);
+                
+                handContainer.appendChild(cardElement);
             });
         },
 
-        playCard(cardIndex, el) {
-            let playedCard = this.hands[0].splice(cardIndex, 1)[0]; 
+        playCard(cardIndex, cardElement) {
+            let playedCardObj = this.hands[0].splice(cardIndex, 1)[0]; 
             this.renderHand();
             
-            let pC = el.cloneNode(true); 
-            pC.style.setProperty('--rand', Math.random()); 
-            pC.className += ' bl-played';
-            document.getElementById('bl-s-s').appendChild(pC);
+            // Vérification de la Belote !
+            this.checkBelote(playedCardObj, 0);
             
-            this.trick.push({ player: 0, card: playedCard }); 
-            this.currentTurn = 1; 
+            let visualCard = cardElement.cloneNode(true); 
+            visualCard.style.setProperty('--rand', Math.random()); 
+            visualCard.className += ' bl-played';
+            document.getElementById('bl-s-s').appendChild(visualCard);
             
-            if(this.trick.length === 4) {
+            this.currentTrick.push({ player: 0, card: playedCardObj }); 
+            this.currentTurnIndex = 1; 
+            
+            if (this.currentTrick.length === 4) {
                 this.resolveTrick(); 
             } else {
                 this.processPlay();
@@ -1668,65 +1910,80 @@
         },
 
         botPlay() {
-            let validCards = this.getValidCards(this.hands[this.currentTurn]);
-            let playedCard = this.chooseBotCard(validCards); 
+            let validCardsArray = this.getValidCards(this.hands[this.currentTurnIndex]);
+            let playedCardObj = this.chooseBotCard(validCardsArray); 
             
-            this.hands[this.currentTurn] = this.hands[this.currentTurn].filter(c => c !== playedCard);
+            // Retrait de la carte de la main du bot
+            this.hands[this.currentTurnIndex] = this.hands[this.currentTurnIndex].filter(c => c !== playedCardObj);
             
-            const positions = ['s', 'e', 'n', 'w'];
-            let bc = document.createElement('div'); 
-            bc.className = `bl-card bl-played ${playedCard.isRed ? 'red' : ''}`;
-            bc.innerHTML = `<span>${playedCard.rank}</span><span>${playedCard.suit.s}</span>`;
-            bc.style.setProperty('--rand', Math.random()); 
-            document.getElementById('bl-s-' + positions[this.currentTurn]).appendChild(bc);
+            // Vérification Belote/Rebelote Bot
+            this.checkBelote(playedCardObj, this.currentTurnIndex);
+            
+            const positionsMap = ['s', 'e', 'n', 'w'];
+            let visualCard = document.createElement('div'); 
+            visualCard.className = `bl-card bl-played ${playedCardObj.isRed ? 'red' : ''}`;
+            visualCard.innerHTML = `<span>${playedCardObj.rank}</span><span>${playedCardObj.suit.s}</span>`;
+            visualCard.style.setProperty('--rand', Math.random()); 
+            document.getElementById('bl-s-' + positionsMap[this.currentTurnIndex]).appendChild(visualCard);
 
-            this.trick.push({ player: this.currentTurn, card: playedCard });
-            this.currentTurn = (this.currentTurn + 1) % 4;
+            this.currentTrick.push({ player: this.currentTurnIndex, card: playedCardObj });
+            this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
             
-            if(this.trick.length === 4) {
+            if (this.currentTrick.length === 4) {
                 this.resolveTrick(); 
             } else {
                 this.processPlay();
             }
         },
 
-        getCardValue(card) { 
-            return card.suit.s === this.atout.s ? this.valAtout[card.rank] : this.valNormal[card.rank]; 
+        getCardValue(cardObj) { 
+            if (cardObj.suit.s === this.atoutSuit.s) {
+                return this.valAtout[cardObj.rank];
+            } else {
+                return this.valNormal[cardObj.rank]; 
+            }
         },
 
         resolveTrick() {
-            this.phase = 'resolving';
+            this.phase = 'resolving'; // Empêche les clics
             
-            let winnerObj = this.getTrickWinner(this.trick);
-            let trickPts = this.trick.reduce((sum, t) => sum + this.getCardValue(t.card), 0);
-            let winnerPlayer = winnerObj.player;
+            let winnerObject = this.getTrickWinner(this.currentTrick);
+            let trickPointsCalculated = this.currentTrick.reduce((sum, trickEntry) => sum + this.getCardValue(trickEntry.card), 0);
             
-            this.tricksPlayed++; 
+            let trickWinnerIndex = winnerObject.player;
+            
+            this.tricksPlayedCount++; 
 
-            if(this.tricksPlayed === 8) {
-                trickPts += 10; // 10 de der
+            if (this.tricksPlayedCount === 8) {
+                trickPointsCalculated += 10; // Le 10 de der
             }
             
-            this.trickPoints += trickPts;
+            this.trickPoints += trickPointsCalculated;
             
-            let winName = winnerPlayer === 0 ? "Vous remportez" : (winnerPlayer === 1 ? 'Est remporte' : (winnerPlayer === 2 ? 'Nord remporte' : 'Ouest remporte'));
-            this.updateStatus(`${winName} le pli ! (+${trickPts} pts)`);
+            let winMessageName = "";
+            if (trickWinnerIndex === 0) winMessageName = "Vous remportez";
+            if (trickWinnerIndex === 1) winMessageName = "Est remporte";
+            if (trickWinnerIndex === 2) winMessageName = "Nord remporte";
+            if (trickWinnerIndex === 3) winMessageName = "Ouest remporte";
+            
+            this.updateStatus(`${winMessageName} le pli ! (+${trickPointsCalculated} pts)`);
 
+            // Rythme fluide (1200ms) pour ramasser le pli
             setTimeout(() => {
-                document.querySelectorAll('.bl-slot').forEach(sl => sl.innerHTML = '');
+                document.querySelectorAll('.bl-slot').forEach(slot => slot.innerHTML = '');
                 
-                if(winnerPlayer === 0 || winnerPlayer === 2) {
-                    this.scores.nous += trickPts; 
+                if (trickWinnerIndex === 0 || trickWinnerIndex === 2) {
+                    this.scores.nous += trickPointsCalculated; 
                 } else {
-                    this.scores.eux += trickPts;
+                    this.scores.eux += trickPointsCalculated;
                 }
                 
                 this.updateScoreUI(); 
-                this.trick = []; 
-                this.currentTurn = winnerPlayer; 
+                this.currentTrick = []; 
+                this.currentTurnIndex = trickWinnerIndex; 
                 this.phase = 'playing';
                 
-                if(this.tricksPlayed === 8) {
+                if (this.tricksPlayedCount === 8) {
                     this.endDeal();
                 } else {
                     this.processPlay();
@@ -1743,21 +2000,22 @@
             let msg = `Score de la manche :<br><br><b style="color:var(--accent);">Nous : ${this.scores.nous}</b><br><b style="color:var(--player-x);">Eux : ${this.scores.eux}</b>`;
             
             if (this.scores.nous >= 1000 || this.scores.eux >= 1000) {
-                let winnerText = this.scores.nous >= 1000 ? "VOUS AVEZ" : "ILS ONT";
-                msg = `<span style="font-size:1.5em; color:var(--gold)">PARTIE TERMINÉE !</span><br><br>${winnerText} ATTEINT 1000 POINTS !<br><br>` + msg;
+                let winnerTeamText = this.scores.nous >= 1000 ? "VOUS AVEZ" : "ILS ONT";
+                msg = `<span style="font-size:1.5em; color:var(--gold)">PARTIE TERMINÉE !</span><br><br>${winnerTeamText} ATTEINT 1000 POINTS !<br><br>` + msg;
                 window.UI.showModal('Fin de la Partie', msg, () => this.initGame());
             } else {
-                window.UI.showModal('Manche Terminée !', msg, () => this.startDeal());
+                this.updateStatus("Manche terminée. Redistribution...");
+                setTimeout(() => this.startDeal(), 2000); 
             }
         },
         
-        updateStatus(msg) { 
-            document.getElementById('bl-status').innerHTML = msg; 
+        updateStatus(msgText) { 
+            document.getElementById('bl-status').innerHTML = msgText; 
         }
     };
 
     // =========================================================
-    // MOTEUR: RÉSEAU FIREBASE
+    // MOTEUR : RÉSEAU FIREBASE MULTIJOUEUR
     // =========================================================
     window.App.Network = {
         room: null, 
@@ -1765,32 +2023,41 @@
         ref: null, 
         gameType: null,
         
+        /** Génère un code alphanumérique de 4 caractères */
         gen() { 
-            let c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-            let r = '';
+            let characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let result = '';
             for(let i = 0; i < 4; i++) {
-                r += c.charAt(Math.floor(Math.random() * c.length));
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
             }
-            return r; 
+            return result; 
         },
         
+        /** Héberger un nouveau salon */
         async host() {
             this.gameType = document.getElementById('net-game-select').value;
             this.room = this.gen(); 
             this.myId = 'X'; 
             this.ref = ref(db, 'rooms/' + this.room);
             
-            let initData = { status: 'waiting', type: this.gameType, turn: 'X', winner: '' };
+            let initData = { 
+                status: 'waiting', 
+                type: this.gameType, 
+                turn: 'X', 
+                winner: '' 
+            };
             
-            if(this.gameType === 'sim') { 
+            if (this.gameType === 'sim') { 
                 initData.board = Array(9).fill(''); 
             }
-            if(this.gameType === 'ult') { 
+            
+            if (this.gameType === 'ult') { 
                 initData.bGrid = Array(9).fill(''); 
-                initData.sGrids = Array.from({length:9}, () => Array(9).fill('')); 
+                initData.sGrids = Array.from({length: 9}, () => Array(9).fill('')); 
                 initData.next = -1; 
             }
-            if(this.gameType === 'yams') { 
+            
+            if (this.gameType === 'yams') { 
                 initData.dice = [1,1,1,1,1]; 
                 initData.kept = [false,false,false,false,false]; 
                 initData.rolls = 3; 
@@ -1803,43 +2070,49 @@
             this.listen();
         },
         
+        /** Rejoindre un salon existant */
         async join() {
-            const code = document.getElementById('input-room-code').value.toUpperCase().trim();
-            if(code.length !== 4) {
-                return window.UI.showModal('Erreur', 'Code invalide.', null);
+            const codeInput = document.getElementById('input-room-code').value.toUpperCase().trim();
+            
+            if (codeInput.length !== 4) {
+                return window.UI.showModal('Erreur', 'Code invalide. Le code doit comporter 4 caractères.', null);
             }
             
-            const snap = await get(ref(db, 'rooms/' + code));
-            if(snap.exists() && snap.val().status === 'waiting') {
-                this.room = code; 
+            const snapshot = await get(ref(db, 'rooms/' + codeInput));
+            
+            if (snapshot.exists() && snapshot.val().status === 'waiting') {
+                this.room = codeInput; 
                 this.myId = 'O'; 
                 this.ref = ref(db, 'rooms/' + this.room);
-                this.gameType = snap.val().type; 
+                this.gameType = snapshot.val().type; 
                 
                 await update(this.ref, { status: 'playing' }); 
                 this.listen();
             } else {
-                window.UI.showModal('Erreur', 'Salon introuvable ou plein.', null);
+                window.UI.showModal('Erreur', 'Salon introuvable, déjà plein, ou terminé.', null);
             }
         },
 
+        /** Écoute les changements de la base de données en temps réel */
         listen() {
-            onValue(this.ref, (snap) => {
-                const data = snap.val();
-                if(!data) { 
-                    window.UI.showModal('Fermé', 'Le salon a été fermé.', () => window.location.reload()); 
+            onValue(this.ref, (snapshot) => {
+                const data = snapshot.val();
+                
+                if (!data) { 
+                    window.UI.showModal('Fermé', 'Le salon a été fermé par l\'hôte.', () => window.location.reload()); 
                     return; 
                 }
-                if(data.status === 'playing') {
-                    if(this.gameType === 'sim') { 
+                
+                if (data.status === 'playing') {
+                    if (this.gameType === 'sim') { 
                         window.UI.switchScreen('s-net-sim'); 
                         this.renderSim(data); 
                     }
-                    if(this.gameType === 'ult') { 
+                    if (this.gameType === 'ult') { 
                         window.UI.switchScreen('s-net-ult'); 
                         this.renderUlt(data); 
                     }
-                    if(this.gameType === 'yams') { 
+                    if (this.gameType === 'yams') { 
                         window.UI.switchScreen('s-net-yams'); 
                         this.renderYams(data); 
                     }
@@ -1847,232 +2120,242 @@
             });
         },
 
+        /** Rendu du Morpion Simple en Ligne */
         renderSim(data) {
-            const b = document.getElementById('net-sim-board'); 
-            b.innerHTML = ''; 
-            const cBoard = data.board || Array(9).fill('');
+            const boardContainer = document.getElementById('net-sim-board'); 
+            boardContainer.innerHTML = ''; 
+            const currentBoard = data.board || Array(9).fill('');
             
-            for(let i = 0; i < 9; i++) { 
-                let c = document.createElement('div'); 
-                c.className = 'ms-cell' + (cBoard[i] !== '' ? ' taken' : ''); 
-                c.textContent = cBoard[i] || ''; 
+            for (let i = 0; i < 9; i++) { 
+                let cell = document.createElement('div'); 
+                cell.className = 'ms-cell' + (currentBoard[i] !== '' ? ' taken' : ''); 
+                cell.textContent = currentBoard[i] || ''; 
                 
-                if(cBoard[i]) {
-                    c.style.color = cBoard[i] === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
+                if (currentBoard[i]) {
+                    cell.style.color = currentBoard[i] === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
                 }
                 
-                c.onclick = async () => { 
-                    if(cBoard[i] === '' && data.winner === '' && data.turn === this.myId) { 
-                        let nb = [...cBoard]; 
-                        nb[i] = this.myId; 
-                        let win = window.App.Sim.checkWin(nb); 
+                cell.onclick = async () => { 
+                    if (currentBoard[i] === '' && data.winner === '' && data.turn === this.myId) { 
+                        let newBoard = [...currentBoard]; 
+                        newBoard[i] = this.myId; 
+                        let winPlayer = window.App.Sim.checkWin(newBoard); 
                         
                         await update(this.ref, { 
-                            board: nb, 
+                            board: newBoard, 
                             turn: (this.myId === 'X' ? 'O' : 'X'), 
-                            winner: win ? this.myId : (!nb.includes('') ? 'Draw' : '') 
+                            winner: winPlayer ? this.myId : (!newBoard.includes('') ? 'Draw' : '') 
                         }); 
                     } 
                 }; 
-                b.appendChild(c); 
+                boardContainer.appendChild(cell); 
             }
             
             this.statusUI('net-sim-status', data, () => update(this.ref, { board: Array(9).fill(''), turn: 'X', winner: '' }));
         },
 
+        /** Rendu du Morpion Ultime en Ligne */
         renderUlt(data) {
-            const b = document.getElementById('net-ult-board'); 
-            b.innerHTML = '';
+            const boardContainer = document.getElementById('net-ult-board'); 
+            boardContainer.innerHTML = '';
             
-            for(let i = 0; i < 9; i++) { 
-                let g = document.createElement('div'); 
-                g.className = 'mu-grid'; 
+            for (let i = 0; i < 9; i++) { 
+                let subGrid = document.createElement('div'); 
+                subGrid.className = 'mu-grid'; 
                 
-                if((data.next === -1 || data.next === i) && data.bGrid[i] === '') {
-                    g.classList.add('mu-active'); 
+                if ((data.next === -1 || data.next === i) && data.bGrid[i] === '') {
+                    subGrid.classList.add('mu-active'); 
                 }
                 
-                for(let j = 0; j < 9; j++) { 
-                    let c = document.createElement('div'); 
-                    c.className = 'mu-cell' + (data.sGrids[i][j] !== '' ? ' taken' : ''); 
-                    c.textContent = data.sGrids[i][j]; 
+                for (let j = 0; j < 9; j++) { 
+                    let cell = document.createElement('div'); 
+                    cell.className = 'mu-cell' + (data.sGrids[i][j] !== '' ? ' taken' : ''); 
+                    cell.textContent = data.sGrids[i][j]; 
                     
-                    if(data.sGrids[i][j]) {
-                        c.style.color = data.sGrids[i][j] === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
+                    if (data.sGrids[i][j]) {
+                        cell.style.color = data.sGrids[i][j] === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
                     }
                     
-                    c.onclick = async () => { 
-                        if(data.sGrids[i][j] === '' && data.bGrid[i] === '' && data.winner === '' && data.turn === this.myId && (data.next === -1 || data.next === i)) { 
-                            let sg = JSON.parse(JSON.stringify(data.sGrids)); 
-                            let bg = [...data.bGrid]; 
-                            sg[i][j] = this.myId; 
+                    cell.onclick = async () => { 
+                        if (data.sGrids[i][j] === '' && data.bGrid[i] === '' && data.winner === '' && data.turn === this.myId && (data.next === -1 || data.next === i)) { 
+                            let newSGrids = JSON.parse(JSON.stringify(data.sGrids)); 
+                            let newBGrid = [...data.bGrid]; 
+                            newSGrids[i][j] = this.myId; 
                             
-                            if(window.App.Sim.checkWin(sg[i])) {
-                                bg[i] = this.myId; 
-                            } else if(!sg[i].includes('')) {
-                                bg[i] = 'D'; 
+                            if (window.App.Sim.checkWin(newSGrids[i])) {
+                                newBGrid[i] = this.myId; 
+                            } else if (!newSGrids[i].includes('')) {
+                                newBGrid[i] = 'D'; 
                             }
                             
-                            let win = window.App.Sim.checkWin(bg.map(v => v === 'D' ? '' : v)) ? this.myId : (!bg.includes('') ? 'Draw' : ''); 
+                            let winPlayer = window.App.Sim.checkWin(newBGrid.map(v => v === 'D' ? '' : v)) ? this.myId : (!newBGrid.includes('') ? 'Draw' : ''); 
                             
                             await update(this.ref, { 
-                                sGrids: sg, 
-                                bGrid: bg, 
-                                next: (bg[j] !== '' ? -1 : j), 
+                                sGrids: newSGrids, 
+                                bGrid: newBGrid, 
+                                next: (newBGrid[j] !== '' ? -1 : j), 
                                 turn: (this.myId === 'X' ? 'O' : 'X'), 
-                                winner: win 
+                                winner: winPlayer 
                             }); 
                         } 
                     }; 
-                    g.appendChild(c); 
+                    subGrid.appendChild(cell); 
                 } 
                 
-                if(data.bGrid[i] !== '' && data.bGrid[i] !== 'D') { 
-                    let cov = document.createElement('div'); 
-                    cov.className = 'mu-won'; 
-                    cov.textContent = data.bGrid[i]; 
-                    cov.style.color = data.bGrid[i] === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
-                    g.appendChild(cov); 
+                if (data.bGrid[i] !== '' && data.bGrid[i] !== 'D') { 
+                    let cover = document.createElement('div'); 
+                    cover.className = 'mu-won'; 
+                    cover.textContent = data.bGrid[i]; 
+                    cover.style.color = data.bGrid[i] === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
+                    subGrid.appendChild(cover); 
                 } 
-                b.appendChild(g); 
+                boardContainer.appendChild(subGrid); 
             }
             
             this.statusUI('net-ult-status', data, () => update(this.ref, { 
                 bGrid: Array(9).fill(''), 
-                sGrids: Array.from({length:9}, () => Array(9).fill('')), 
+                sGrids: Array.from({length: 9}, () => Array(9).fill('')), 
                 next: -1, 
                 turn: 'X', 
                 winner: '' 
             }));
         },
 
+        /** Rendu du Yams en Ligne */
         renderYams(data) {
-            const box = document.getElementById('net-yams-dice'); 
-            box.innerHTML = ''; 
+            const diceBox = document.getElementById('net-yams-dice'); 
+            diceBox.innerHTML = ''; 
             
-            data.dice.forEach((d, i) => { 
-                let el = document.createElement('div'); 
-                el.className = 'y-die' + (data.kept[i] ? ' kept' : ''); 
-                el.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][d - 1]; 
+            data.dice.forEach((dieVal, index) => { 
+                let dieElement = document.createElement('div'); 
+                dieElement.className = 'y-die' + (data.kept[index] ? ' kept' : ''); 
+                dieElement.textContent = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'][dieVal - 1]; 
                 
-                el.onclick = async () => { 
-                    if(data.turn === this.myId && data.rolls < 3 && data.winner === '') { 
-                        let nk = [...data.kept]; 
-                        nk[i] = !nk[i]; 
-                        await update(this.ref, { kept: nk }); 
+                dieElement.onclick = async () => { 
+                    if (data.turn === this.myId && data.rolls < 3 && data.winner === '') { 
+                        let newKept = [...data.kept]; 
+                        newKept[index] = !newKept[index]; 
+                        await update(this.ref, { kept: newKept }); 
                     }
                 }; 
-                box.appendChild(el); 
+                diceBox.appendChild(dieElement); 
             });
             
-            let btn = document.getElementById('net-yams-roll-btn'); 
-            btn.textContent = `Lancer (${data.rolls})`; 
+            let rollBtn = document.getElementById('net-yams-roll-btn'); 
+            rollBtn.textContent = `Lancer (${data.rolls})`; 
             
-            btn.onclick = async () => { 
-                if(data.turn === this.myId && data.rolls > 0 && data.winner === '') { 
-                    let nd = data.dice.map((v, i) => data.kept[i] ? v : Math.floor(Math.random() * 6) + 1); 
-                    await update(this.ref, { dice: nd, rolls: data.rolls - 1 }); 
+            rollBtn.onclick = async () => { 
+                if (data.turn === this.myId && data.rolls > 0 && data.winner === '') { 
+                    let newDice = data.dice.map((v, i) => data.kept[i] ? v : Math.floor(Math.random() * 6) + 1); 
+                    await update(this.ref, { dice: newDice, rolls: data.rolls - 1 }); 
                 } 
             }; 
-            btn.disabled = (data.turn !== this.myId || data.rolls === 0);
             
-            const c = document.getElementById('net-yams-scores'); 
-            c.innerHTML = ''; 
-            const count = {}; 
-            data.dice.forEach(x => count[x] = (count[x] || 0) + 1); 
+            rollBtn.disabled = (data.turn !== this.myId || data.rolls === 0);
             
-            const v = Object.values(count); 
-            const set = new Set(data.dice); 
+            const scoresContainer = document.getElementById('net-yams-scores'); 
+            scoresContainer.innerHTML = ''; 
             
-            const seq = (l) => { 
+            const countObj = {}; 
+            data.dice.forEach(x => countObj[x] = (countObj[x] || 0) + 1); 
+            const valuesCount = Object.values(countObj); 
+            const uniqueSet = new Set(data.dice); 
+            
+            const hasSequence = (lengthRequired) => { 
                 let st = 0;
                 let mx = 0; 
-                for(let i = 1; i <= 6; i++) { 
-                    if(set.has(i)) {
+                for (let i = 1; i <= 6; i++) { 
+                    if (uniqueSet.has(i)) {
                         st++; 
                     } else {
                         st = 0; 
                     }
                     mx = Math.max(mx, st); 
                 } 
-                return mx >= l; 
+                return mx >= lengthRequired; 
             };
             
-            ['X','O'].forEach((pid, idx) => { 
-                let t = `<table class="y-table"><tr><th colspan="2">Joueur ${idx+1} (${pid})</th></tr>`; 
-                let categories = ['1','2','3','4','5','6','Bonus (>62)','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'];
+            ['X', 'O'].forEach((playerID, idx) => { 
+                let tableHTML = `<table class="y-table"><tr><th colspan="2">Joueur ${idx+1} (${playerID})</th></tr>`; 
+                let categories = ['1', '2', '3', '4', '5', '6', 'Bonus (>62)', 'Brelan', 'Carré', 'Full', 'Petite Suite', 'Grande Suite', 'Yams', 'Chance'];
                 
                 categories.forEach(cat => { 
-                    let val = data.scores[pid][cat] !== undefined ? data.scores[pid][cat] : '-'; 
-                    let isPot = false; 
+                    let val = data.scores[playerID][cat] !== undefined ? data.scores[playerID][cat] : '-'; 
+                    let isPotential = false; 
                     
-                    if(data.turn === this.myId && pid === this.myId && val === '-' && data.rolls < 3 && !cat.includes('Bonus')) { 
-                        isPot = true; 
-                        if(!isNaN(cat)) {
-                            val = (count[cat] || 0) * parseInt(cat); 
-                        } else if(cat === 'Brelan' && v.some(x => x >= 3)) {
+                    if (data.turn === this.myId && playerID === this.myId && val === '-' && data.rolls < 3 && !cat.includes('Bonus')) { 
+                        isPotential = true; 
+                        
+                        if (!isNaN(cat)) {
+                            val = (countObj[cat] || 0) * parseInt(cat); 
+                        } else if (cat === 'Brelan' && valuesCount.some(x => x >= 3)) {
                             val = data.dice.reduce((a,b) => a + b); 
-                        } else if(cat === 'Carré' && v.some(x => x >= 4)) {
+                        } else if (cat === 'Carré' && valuesCount.some(x => x >= 4)) {
                             val = data.dice.reduce((a,b) => a + b); 
-                        } else if(cat === 'Full' && v.includes(3) && v.includes(2)) {
+                        } else if (cat === 'Full' && valuesCount.includes(3) && valuesCount.includes(2)) {
                             val = 25; 
-                        } else if(cat === 'Petite Suite' && seq(4)) {
+                        } else if (cat === 'Petite Suite' && hasSequence(4)) {
                             val = 30; 
-                        } else if(cat === 'Grande Suite' && seq(5)) {
+                        } else if (cat === 'Grande Suite' && hasSequence(5)) {
                             val = 40; 
-                        } else if(cat === 'Yams' && v.includes(5)) {
+                        } else if (cat === 'Yams' && valuesCount.includes(5)) {
                             val = 50; 
-                        } else if(cat === 'Chance') {
+                        } else if (cat === 'Chance') {
                             val = data.dice.reduce((a,b) => a + b); 
                         } else {
                             val = 0; 
                         }
                     } 
                     
-                    if(cat.includes('Bonus')) {
-                        t += `<tr style="background:#020617"><td style="color:var(--gold)">${cat}</td><td class="val">${val}</td></tr>`; 
+                    if (cat.includes('Bonus')) {
+                        tableHTML += `<tr style="background:#020617"><td style="color:var(--gold)">${cat}</td><td class="val">${val}</td></tr>`; 
                     } else {
-                        t += `<tr><td>${cat}</td><td class="val ${val !== '-' && !isPot ? 'locked' : ''} ${isPot ? 'pot' : ''}" ${isPot ? `data-action="${cat}" data-pts="${val}"` : ''}>${val}</td></tr>`; 
+                        tableHTML += `<tr><td>${cat}</td><td class="val ${val !== '-' && !isPotential ? 'locked' : ''} ${isPotential ? 'pot' : ''}" ${isPotential ? `data-action="${cat}" data-pts="${val}"` : ''}>${val}</td></tr>`; 
                     }
                 }); 
                 
-                let sumTop = ['1','2','3','4','5','6'].reduce((sm, k) => sm + (data.scores[pid][k] || 0), 0); 
-                let tot = Object.values(data.scores[pid]).reduce((a, b) => typeof b === 'number' ? a + b : a, 0); 
-                if(sumTop >= 63) {
-                    tot += 35; 
+                let sumTopSection = ['1', '2', '3', '4', '5', '6'].reduce((sm, k) => sm + (data.scores[playerID][k] || 0), 0); 
+                let totalPoints = Object.values(data.scores[playerID]).reduce((a, b) => typeof b === 'number' ? a + b : a, 0); 
+                
+                if (sumTopSection >= 63) {
+                    totalPoints += 35; 
                 }
                 
-                t += `<tr class="total-row"><td>TOTAL</td><td>${tot}</td></tr></table>`; 
-                c.innerHTML += t; 
+                tableHTML += `<tr class="total-row"><td>TOTAL</td><td>${totalPoints}</td></tr></table>`; 
+                scoresContainer.innerHTML += tableHTML; 
             });
 
-            document.querySelectorAll('.pot').forEach(el => { 
-                el.onclick = async () => { 
-                    let cat = el.dataset.action; 
-                    let pts = parseInt(el.dataset.pts); 
-                    let ns = JSON.parse(JSON.stringify(data.scores)); 
-                    ns[this.myId][cat] = pts; 
-                    let win = ''; 
+            document.querySelectorAll('.pot').forEach(element => { 
+                element.onclick = async () => { 
+                    let categoryChosen = element.dataset.action; 
+                    let pointsEarned = parseInt(element.dataset.pts); 
                     
-                    if(Object.keys(ns['X']).length === 14 && Object.keys(ns['O']).length === 14) { 
-                        let tx = Object.values(ns['X']).reduce((a,b) => typeof b === 'number' ? a + b : a, 0) + (['1','2','3','4','5','6'].reduce((s,k) => s + (ns['X'][k] || 0), 0) >= 63 ? 35 : 0); 
-                        let to = Object.values(ns['O']).reduce((a,b) => typeof b === 'number' ? a + b : a, 0) + (['1','2','3','4','5','6'].reduce((s,k) => s + (ns['O'][k] || 0), 0) >= 63 ? 35 : 0); 
-                        win = tx > to ? 'X' : (to > tx ? 'O' : 'Draw'); 
+                    let newScores = JSON.parse(JSON.stringify(data.scores)); 
+                    newScores[this.myId][categoryChosen] = pointsEarned; 
+                    
+                    let winPlayer = ''; 
+                    
+                    // Fin de partie Yams
+                    if (Object.keys(newScores['X']).length === 14 && Object.keys(newScores['O']).length === 14) { 
+                        let totalX = Object.values(newScores['X']).reduce((a,b) => typeof b === 'number' ? a + b : a, 0) + (['1','2','3','4','5','6'].reduce((s,k) => s + (newScores['X'][k] || 0), 0) >= 63 ? 35 : 0); 
+                        let totalO = Object.values(newScores['O']).reduce((a,b) => typeof b === 'number' ? a + b : a, 0) + (['1','2','3','4','5','6'].reduce((s,k) => s + (newScores['O'][k] || 0), 0) >= 63 ? 35 : 0); 
+                        
+                        winPlayer = totalX > totalO ? 'X' : (totalO > totalX ? 'O' : 'Draw'); 
                     } 
                     
                     await update(this.ref, { 
-                        scores: ns, 
+                        scores: newScores, 
                         turn: (this.myId === 'X' ? 'O' : 'X'), 
                         rolls: 3, 
                         kept: [false,false,false,false,false], 
                         dice: data.dice.map(() => Math.floor(Math.random() * 6) + 1), 
-                        winner: win 
+                        winner: winPlayer 
                     }); 
                 }; 
             });
 
             this.statusUI('net-yams-status', data, () => update(this.ref, { 
-                scores: {X:{init:true}, O:{init:true}}, 
+                scores: { X: {init: true}, O: {init: true} }, 
                 turn: 'X', 
                 winner: '', 
                 rolls: 3, 
@@ -2081,29 +2364,30 @@
         },
 
         statusUI(id, data, replayCb) { 
-            const sb = document.getElementById(id); 
-            if(data.winner !== '') { 
-                if(data.winner === 'Draw') {
-                    sb.innerHTML = "Égalité !"; 
-                } else if(data.winner === this.myId) {
-                    sb.innerHTML = "<span style='color:var(--accent)'>VICTOIRE ! 🎉</span>"; 
+            const statusBar = document.getElementById(id); 
+            
+            if (data.winner !== '') { 
+                if (data.winner === 'Draw') {
+                    statusBar.innerHTML = "Égalité !"; 
+                } else if (data.winner === this.myId) {
+                    statusBar.innerHTML = "<span style='color:var(--accent)'>VICTOIRE ! 🎉</span>"; 
                 } else {
-                    sb.innerHTML = `<span style='color:${this.myId === 'X' ? 'var(--player-o)' : 'var(--player-x)'}'>DÉFAITE...</span>`; 
+                    statusBar.innerHTML = `<span style='color:${this.myId === 'X' ? 'var(--player-o)' : 'var(--player-x)'}'>DÉFAITE...</span>`; 
                 }
                 
-                if(this.myId === 'X') { 
-                    sb.innerHTML += `<br><button class="btn" style="margin-top:10px;" id="br-${id}">Rejouer</button>`; 
+                if (this.myId === 'X') { 
+                    statusBar.innerHTML += `<br><button class="btn" style="margin-top:10px;" id="br-${id}">Rejouer</button>`; 
                     document.getElementById(`br-${id}`).onclick = replayCb; 
                 } else {
-                    sb.innerHTML += `<br><small style="color:var(--text-muted)">Attente de l'hôte...</small>`; 
+                    statusBar.innerHTML += `<br><small style="color:var(--text-muted)">Attente de l'hôte...</small>`; 
                 }
             } else {
-                sb.innerHTML = data.turn === this.myId ? `<span style='color:var(--accent)'>À ton tour ! (${this.myId})</span>` : `Tour de l'adversaire...`; 
+                statusBar.innerHTML = data.turn === this.myId ? `<span style='color:var(--accent)'>À ton tour ! (${this.myId})</span>` : `Tour de l'adversaire...`; 
             }
         },
         
         leave() { 
-            if(this.myId === 'X' && this.ref) {
+            if (this.myId === 'X' && this.ref) {
                 remove(this.ref); 
             }
             window.location.reload(); 
@@ -2111,28 +2395,32 @@
     };
 
     // =========================================================
-    // INITIALISATION GLOBALE
+    // ÉCOUTEURS D'ÉVÉNEMENTS INITIAUX
     // =========================================================
+    
+    // Boutons de gestion des salons
     document.getElementById('btn-create-room').onclick = () => window.App.Network.host(); 
     document.getElementById('btn-join-room').onclick = () => window.App.Network.join();
     
+    // Menu de navigation
     document.querySelectorAll('#nav-menu li').forEach(li => { 
         li.onclick = (e) => { 
             document.querySelectorAll('#nav-menu li').forEach(i => i.classList.remove('active')); 
             e.currentTarget.classList.add('active'); 
             
-            let t = e.currentTarget.dataset.target; 
-            window.UI.switchScreen(t); 
+            let targetID = e.currentTarget.dataset.target; 
+            window.UI.switchScreen(targetID); 
             
-            if(t === 's-sim') window.App.Sim.init(); 
-            if(t === 's-ult') window.App.Ult.init(); 
-            if(t === 's-mine') window.App.Mine.init(); 
-            if(t === 's-yams') window.App.Yams.init(); 
-            if(t === 's-belote') window.App.Belote.initGame(); 
+            // Lancement du jeu sélectionné
+            if (targetID === 's-sim') window.App.Sim.init(); 
+            if (targetID === 's-ult') window.App.Ult.init(); 
+            if (targetID === 's-mine') window.App.Mine.init(); 
+            if (targetID === 's-yams') window.App.Yams.init(); 
+            if (targetID === 's-belote') window.App.Belote.initGame(); 
         }; 
     });
 
-    // Lancement par défaut
+    // Lancement de l'écran par défaut au démarrage de la page
     window.App.Sim.init();
 </script>
 </body>
