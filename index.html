@@ -2,137 +2,137 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Arcade Master Finale</title>
+    <title>Arcade Master Pro v6</title>
     <style>
         :root { --accent: #00ff88; --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Navigation latérale */
+        /* Nav */
         nav { width: 220px; background: #020617; padding: 20px; border-right: 2px solid var(--accent); flex-shrink: 0; }
-        nav h2 { color: var(--accent); text-transform: uppercase; font-size: 1.2rem; margin-bottom: 30px; }
+        nav h2 { color: var(--accent); text-transform: uppercase; font-size: 1.1rem; margin-bottom: 20px; }
         nav ul { list-style: none; padding: 0; }
-        nav li { padding: 12px; cursor: pointer; border-radius: 8px; margin-bottom: 10px; background: #1e293b; transition: 0.2s; border: 1px solid transparent; }
-        nav li:hover { border-color: var(--accent); background: #334155; }
+        nav li { padding: 12px; cursor: pointer; border-radius: 8px; margin-bottom: 8px; background: #1e293b; transition: 0.2s; border: 1px solid transparent; }
+        nav li:hover { border-color: var(--accent); }
         nav li.active { background: var(--accent); color: #020617; font-weight: bold; }
 
-        /* Conteneur principal */
+        /* Main */
         main { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
         .screen { display: none; width: 100%; max-width: 900px; text-align: center; }
         .screen.active { display: block; }
 
-        /* GRILLES GÉNÉRALES */
-        .grid-box { display: inline-grid; gap: 5px; background: #334155; padding: 10px; border-radius: 8px; }
-        .cell { width: 60px; height: 60px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; font-weight: bold; border-radius: 4px; }
-        
         /* MORPION ULTIME */
-        .u-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: #475569; padding: 10px; }
-        .s-grid { display: grid; grid-template-columns: repeat(3, 40px); gap: 2px; position: relative; padding: 5px; background: #1e293b; }
-        .u-cell { width: 40px; height: 40px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; }
-        .active-zone { outline: 3px solid var(--accent); box-shadow: 0 0 15px var(--accent); }
+        .u-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: #444; padding: 10px; }
+        .s-grid { display: grid; grid-template-columns: repeat(3, 40px); gap: 2px; position: relative; background: #222; }
+        .cell { width: 40px; height: 40px; background: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; }
+        .active-zone { outline: 3px solid var(--accent); z-index: 10; }
 
         /* DÉMINEUR XXL */
         #m-board { display: grid; grid-template-columns: repeat(20, 25px); gap: 1px; background: #444; margin: auto; }
-        .m-tile { width: 25px; height: 25px; background: #1e293b; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; cursor: pointer; }
+        .m-tile { width: 25px; height: 25px; background: #1e293b; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; cursor: pointer; border-radius: 1px; }
         .m-tile.open { background: #cbd5e1; color: #020617; }
         .m-tile.mine { background: #ef4444; }
 
+        /* YAMS */
+        .yams-layout { display: flex; gap: 30px; justify-content: center; align-items: flex-start; }
+        .yams-score-table { border-collapse: collapse; background: #1e293b; }
+        .yams-score-table td { border: 1px solid #334155; padding: 8px 15px; cursor: pointer; }
+        .yams-score-table td.taken { color: var(--accent); font-weight: bold; cursor: default; }
+
         /* BELOTE */
         .tapis { background: #065f46; width: 500px; height: 350px; border-radius: 100px; margin: 20px auto; position: relative; border: 10px solid #451a03; }
-        .slot { position: absolute; width: 60px; height: 85px; border: 2px dashed rgba(255,255,255,0.2); border-radius: 5px; }
-        #s-nord { top: 20px; left: 220px; } #s-sud { bottom: 20px; left: 220px; }
-        #s-ouest { left: 40px; top: 130px; } #s-est { right: 40px; top: 130px; }
-        .card { width: 60px; height: 85px; background: white; color: black; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
+        .slot { position: absolute; width: 65px; height: 95px; border: 2px dashed rgba(255,255,255,0.2); border-radius: 5px; }
+        #sl-n { top: 15px; left: 215px; } #sl-s { bottom: 15px; left: 215px; }
+        #sl-w { left: 35px; top: 125px; } #sl-e { right: 35px; top: 125px; }
+        .card { width: 65px; height: 95px; background: white; color: black; border-radius: 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; border: 1px solid #999; }
         .red { color: #ef4444; }
     </style>
 </head>
 <body>
 
 <nav>
-    <h2>Arcade v5</h2>
-    <ul id="menu">
-        <li onclick="changeTab('tab-sim')" class="active">Morpion Simple</li>
-        <li onclick="changeTab('tab-ult')">Morpion Ultime</li>
-        <li onclick="changeTab('tab-mine')">Démineur XXL</li>
-        <li onclick="changeTab('tab-yams')">Yams</li>
-        <li onclick="changeTab('tab-belo')">La Belote</li>
+    <h2>Arcade v6</h2>
+    <ul>
+        <li onclick="tab('t-sim', initSim)" class="active">Morpion Simple</li>
+        <li onclick="tab('t-ult', initUlt)">Morpion Ultime</li>
+        <li onclick="tab('t-mine', initMine)">Démineur XXL</li>
+        <li onclick="tab('t-yams', initYams)">Yams</li>
+        <li onclick="tab('t-belo', initB)">La Belote</li>
     </ul>
 </nav>
 
 <main>
-    <section id="tab-sim" class="screen active">
-        <h1>Morpion Classique</h1>
-        <div id="sim-board" class="grid-box" style="grid-template-columns: repeat(3, 60px);"></div>
-        <br><button onclick="initSim()" style="margin-top:20px; padding:10px;">Reset</button>
+    <section id="t-sim" class="screen active">
+        <h1>Morpion 3x3</h1>
+        <div id="sim-b" style="display:grid; grid-template-columns:repeat(3,80px); gap:5px; background:#444; margin:auto; width:fit-content;"></div>
+        <br><button onclick="initSim()">Reset</button>
     </section>
 
-    <section id="tab-ult" class="screen">
+    <section id="t-ult" class="screen">
         <h1>Morpion Ultime</h1>
-        <div id="ult-board" class="u-grid" style="margin: auto; width: fit-content;"></div>
+        <p id="u-info">Tour : X</p>
+        <div id="ult-b" class="u-grid" style="margin:auto; width:fit-content;"></div>
     </section>
 
-    <section id="tab-mine" class="screen">
-        <h1>Démineur (Expert 20x20)</h1>
+    <section id="t-mine" class="screen">
+        <h1>Démineur Expert (20x20)</h1>
         <div id="m-board"></div>
-        <p>Clic droit pour les drapeaux 🚩</p>
+        <p>Premier clic sécurisé | Clic droit = Drapeau 🚩</p>
     </section>
 
-    <section id="tab-yams" class="screen">
-        <h1>Yams (Multi-Score)</h1>
-        <div id="y-dice" style="font-size: 4rem; margin: 20px;">🎲🎲🎲🎲🎲</div>
-        <button onclick="rollDice()" id="roll-btn">Lancer (3)</button>
-        <div id="y-scores" style="display:flex; gap:20px; justify-content:center; margin-top:20px;"></div>
-    </section>
-
-    <section id="tab-belo" class="screen">
-        <h1>Belote (Table de Jeu)</h1>
-        <div class="tapis">
-            <div id="s-nord" class="slot"></div><div id="s-sud" class="slot"></div>
-            <div id="s-est" class="slot"></div><div id="s-ouest" class="slot"></div>
+    <section id="t-yams" class="screen">
+        <h1>Yams Pro</h1>
+        <div class="yams-layout">
+            <div>
+                <div id="y-dice" style="font-size:4rem; margin-bottom:15px;">🎲🎲🎲🎲🎲</div>
+                <button id="y-roll-btn" onclick="rollY()">Lancer (3)</button>
+            </div>
+            <table class="yams-score-table" id="y-table"></table>
         </div>
-        <div id="p-hand" style="display:flex; gap:8px; justify-content:center; margin-top:20px;"></div>
-        <button onclick="initB()" style="margin-top:10px;">Nouvelle Donne</button>
+    </section>
+
+    <section id="t-belo" class="screen">
+        <h1>Belote (Pli par Pli)</h1>
+        <div class="tapis">
+            <div id="sl-n" class="slot"></div><div id="sl-s" class="slot"></div>
+            <div id="sl-e" class="slot"></div><div id="sl-w" class="slot"></div>
+        </div>
+        <div id="b-hand" style="display:flex; gap:8px; justify-content:center; margin-top:20px;"></div>
     </section>
 </main>
 
 <script>
-    // --- NAVIGATION ---
-    function changeTab(id) {
+    function tab(id, cb) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('nav li').forEach(l => l.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         event.currentTarget.classList.add('active');
-        // Initialiseurs spécifiques
-        if(id === 'tab-sim') initSim();
-        if(id === 'tab-ult') initUlt();
-        if(id === 'tab-mine') initMine();
-        if(id === 'tab-yams') initYams();
-        if(id === 'tab-belo') initB();
+        if(cb) cb();
     }
 
     // --- MORPION SIMPLE ---
-    let sTurn = "X", sState = Array(9).fill(null);
+    let sT = "X", sS = Array(9).fill(null);
     function initSim() {
-        const b = document.getElementById('sim-board'); b.innerHTML = ''; sState.fill(null);
-        for(let i=0; i<9; i++) {
-            const c = document.createElement('div'); c.className = 'cell';
-            c.onclick = () => { if(sState[i]) return; sState[i]=sTurn; c.textContent=sTurn; sTurn=sTurn==="X"?"O":"X"; };
+        const b = document.getElementById('sim-b'); b.innerHTML = ''; sS.fill(null);
+        for(let i=0; i<9; i++){
+            let c = document.createElement('div'); c.className = 'cell'; c.style.width='80px'; c.style.height='80px';
+            c.onclick = () => { if(!sS[i]){ sS[i]=sT; c.textContent=sT; sT=sT==='X'?'O':'X'; } };
             b.appendChild(c);
         }
     }
 
     // --- MORPION ULTIME ---
-    let uP = "X", uNext = -1, uBig = Array(9).fill(null);
+    let uT = "X", uN = -1, uW = Array(9).fill(null);
     function initUlt() {
-        const b = document.getElementById('ult-board'); b.innerHTML = ''; uBig.fill(null); uP="X"; uNext=-1;
+        const b = document.getElementById('ult-b'); b.innerHTML = ''; uW.fill(null); uT="X"; uN=-1;
         for(let i=0; i<9; i++) {
-            const sg = document.createElement('div'); sg.className = 's-grid';
+            let sg = document.createElement('div'); sg.className = 's-grid';
             for(let j=0; j<9; j++) {
-                const c = document.createElement('div'); c.className = 'u-cell';
+                let c = document.createElement('div'); c.className = 'cell';
                 c.onclick = () => {
-                    if(c.textContent || (uNext !== -1 && uNext !== i) || uBig[i]) return;
-                    c.textContent = uP; c.style.color = uP==="X"?"#f43f5e":"#3b82f6";
-                    uNext = j; uP = uP==="X"?"O":"X";
-                    document.querySelectorAll('.s-grid').forEach((g,idx) => g.classList.toggle('active-zone', uNext === idx || uNext === -1));
+                    if(c.textContent || (uN!==-1 && uN!==i) || uW[i]) return;
+                    c.textContent = uT; c.style.color = uT==='X'?'#ff4444':'#4444ff';
+                    uN = j; uT = uT==='X'?'O':'X';
+                    document.querySelectorAll('.s-grid').forEach((g,idx)=>g.classList.toggle('active-zone', (uN===idx || uN===-1) && !uW[idx]));
                 };
                 sg.appendChild(c);
             }
@@ -140,90 +140,105 @@
         }
     }
 
-    // --- DÉMINEUR XXL (20x20) ---
-    let mGrid = [], firstClick = true;
+    // --- DÉMINEUR XXL ---
+    let mG = [], mO = [], mF = true;
     function initMine() {
-        const b = document.getElementById('m-board'); b.innerHTML = ''; mGrid = Array(400).fill(0); firstClick = true;
+        const b = document.getElementById('m-board'); b.innerHTML = ''; mG = Array(400).fill(0); mO = Array(400).fill(false); mF = true;
         for(let i=0; i<400; i++) {
-            const t = document.createElement('div'); t.className = 'm-tile';
-            t.onclick = () => {
-                if(firstClick) { generateMines(i); firstClick = false; }
-                revealTile(i);
-            };
+            let t = document.createElement('div'); t.className = 'm-tile';
+            t.onclick = () => { if(mF){ placeM(i); mF=false; } revealM(i); };
             t.oncontextmenu = (e) => { e.preventDefault(); t.textContent = t.textContent==='🚩'?'':'🚩'; };
             b.appendChild(t);
         }
     }
-    function generateMines(safe) {
-        let m = 0; while(m < 60) {
-            let r = Math.floor(Math.random()*400);
-            if(r !== safe && mGrid[r] !== 'M') { mGrid[r] = 'M'; m++; }
-        }
+    function placeM(s) {
+        let c = 0; while(c < 60) { let r = Math.floor(Math.random()*400); if(r!==s && mG[r]!=='M'){ mG[r]='M'; c++; } }
         for(let i=0; i<400; i++) {
-            if(mGrid[i]==='M') continue;
-            let count=0, r=Math.floor(i/20), c=i%20;
+            if(mG[i]==='M') continue;
+            let n=0, r=Math.floor(i/20), col=i%20;
             for(let x=-1; x<=1; x++) for(let y=-1; y<=1; y++) {
-                let nr=r+x, nc=c+y;
-                if(nr>=0 && nr<20 && nc>=0 && nc<20 && mGrid[nr*20+nc]==='M') count++;
+                let nr=r+x, nc=col+y; if(nr>=0&&nr<20&&nc>=0&&nc<20&&mG[nr*20+nc]==='M') n++;
             }
-            mGrid[i] = count;
+            mG[i] = n;
         }
     }
-    function revealTile(i) {
-        let tiles = document.getElementById('m-board').children;
-        if(tiles[i].classList.contains('open')) return;
-        tiles[i].classList.add('open');
-        if(mGrid[i] === 'M') { tiles[i].classList.add('mine'); tiles[i].textContent='💣'; alert('BOOM'); initMine(); }
+    function revealM(i) {
+        let t = document.getElementById('m-board').children; if(mO[i]) return;
+        mO[i]=true; t[i].classList.add('open');
+        if(mG[i]==='M'){ t[i].classList.add('mine'); t[i].textContent='💣'; alert('BOOM'); initMine(); }
         else {
-            tiles[i].textContent = mGrid[i] || '';
-            if(mGrid[i] === 0) {
+            t[i].textContent = mG[i] || '';
+            if(mG[i]===0) {
                 let r=Math.floor(i/20), c=i%20;
                 for(let x=-1; x<=1; x++) for(let y=-1; y<=1; y++) {
-                    let nr=r+x, nc=c+y; if(nr>=0 && nr<20 && nc>=0 && nc<20) revealTile(nr*20+nc);
+                    let nr=r+x, nc=c+y; if(nr>=0&&nr<20&&nc>=0&&nc<20) revealM(nr*20+nc);
                 }
             }
         }
     }
 
-    // --- YAMS ---
-    let dice = [1,1,1,1,1], rolls = 3;
+    // --- YAMS PRO ---
+    let yD = [1,1,1,1,1], yR = 3, yK = [false,false,false,false,false], yS = {};
     function initYams() {
-        rolls = 3; document.getElementById('y-scores').innerHTML = 'Tableau prêt. Lancez !';
+        yS = {}; yR = 3; yK.fill(false);
+        const t = document.getElementById('y-table'); t.innerHTML = '';
+        ['1','2','3','4','5','6','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(cat => {
+            let r = t.insertRow(); r.insertCell().textContent = cat;
+            let v = r.insertCell(); v.id = 'y-'+cat; v.textContent = '-';
+            v.onclick = () => lockY(cat, v);
+        });
+        updateY();
     }
-    function rollDice() {
-        if(rolls <= 0) return;
-        dice = dice.map(() => Math.floor(Math.random()*6)+1);
-        rolls--;
-        document.getElementById('y-dice').textContent = dice.map(d => ['⚀','⚁','⚂','⚃','⚄','⚅'][d-1]).join(' ');
-        document.getElementById('roll-btn').textContent = `Lancer (${rolls})`;
-        // Simule les points potentiels
-        document.getElementById('y-scores').innerHTML = `Brelan : ${dice[0]*3} | Full : 25 | Yams : 50`;
+    function rollY() {
+        if(yR<=0) return;
+        yD = yD.map((d,i) => yK[i] ? d : Math.floor(Math.random()*6)+1);
+        yR--; updateY();
     }
+    function updateY() {
+        const d = document.getElementById('y-dice'); d.innerHTML = '';
+        yD.forEach((v,i) => {
+            let s = document.createElement('span'); s.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][v-1];
+            s.style.cursor='pointer'; s.style.color=yK[i]?var(--accent):'white';
+            s.onclick=()=>{yK[i]=!yK[i]; updateY();}; d.appendChild(s);
+        });
+        document.getElementById('y-roll-btn').textContent = `Lancer (${yR})`;
+        calcY();
+    }
+    function calcY() {
+        const counts = {}; yD.forEach(x => counts[x] = (counts[x]||0)+1);
+        const vals = Object.values(counts);
+        ['1','2','3','4','5','6'].forEach(n => {
+            if(!yS[n]) document.getElementById('y-'+n).textContent = (counts[n]||0)*n;
+        });
+        if(!yS['Brelan']) document.getElementById('y-Brelan').textContent = vals.some(v=>v>=3) ? yD.reduce((a,b)=>a+b) : 0;
+        if(!yS['Full']) document.getElementById('y-Full').textContent = (vals.includes(3)&&vals.includes(2)) ? 25 : 0;
+        if(!yS['Yams']) document.getElementById('y-Yams').textContent = vals.includes(5) ? 50 : 0;
+    }
+    function lockY(c, el) { if(!yS[c]) { yS[c]=el.textContent; el.className='taken'; yR=3; yK.fill(false); rollY(); } }
 
     // --- BELOTE ---
     function initB() {
-        const hand = document.getElementById('p-hand'); hand.innerHTML = '';
-        const suits = ['♠','♣','♥','♦']; const ranks = ['7','8','9','10','V','D','R','A'];
-        document.querySelectorAll('.slot').forEach(s => s.innerHTML = '');
+        const h = document.getElementById('b-hand'); h.innerHTML = '';
+        const suits = [{s:'♠',c:'b'},{s:'♣',c:'b'},{s:'♥',c:'r'},{s:'♦',c:'r'}];
+        const ranks = ['7','8','9','10','V','D','R','A'];
         for(let i=0; i<8; i++) {
-            let s = suits[Math.floor(Math.random()*4)];
-            let c = document.createElement('div'); c.className = `card ${s==='♥'||s==='♦'?'red':''}`;
-            c.innerHTML = ranks[Math.floor(Math.random()*8)] + '<br>' + s;
+            let su = suits[Math.floor(Math.random()*4)], ra = ranks[Math.floor(Math.random()*8)];
+            let c = document.createElement('div'); c.className = `card ${su.c==='r'?'red':''}`;
+            c.innerHTML = `<span>${ra}</span><span>${su.s}</span>`;
             c.onclick = () => {
-                document.getElementById('s-sud').appendChild(c);
+                document.getElementById('sl-s').appendChild(c);
                 setTimeout(() => {
-                    ['nord','est','ouest'].forEach(pos => {
-                        let bc = document.createElement('div'); bc.className = 'card'; bc.style.background = '#444';
-                        document.getElementById('s-'+pos).appendChild(bc);
+                    ['n','e','w'].forEach(p => {
+                        let bc = document.createElement('div'); bc.className='card'; bc.style.background='#444';
+                        document.getElementById('sl-'+p).innerHTML = ''; document.getElementById('sl-'+p).appendChild(bc);
                     });
-                    setTimeout(() => document.querySelectorAll('.slot').forEach(s => s.innerHTML=''), 1500);
-                }, 500);
+                    setTimeout(() => document.querySelectorAll('.slot').forEach(s => s.innerHTML=''), 1200);
+                }, 400);
             };
-            hand.appendChild(c);
+            h.appendChild(c);
         }
     }
 
-    // Lancer par défaut
     initSim();
 </script>
 </body>
