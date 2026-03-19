@@ -2,107 +2,120 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Arcade Master v4</title>
+    <title>Arcade Master Finale</title>
     <style>
-        :root { --accent: #00ff88; --bg: #0a0a0c; --card: #16161a; --text: #e0e0e0; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; }
+        :root { --accent: #00ff88; --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Menu latéral */
-        nav { width: 220px; background: #000; padding: 20px; border-right: 2px solid var(--accent); flex-shrink: 0; }
-        nav h2 { color: var(--accent); font-size: 1.1rem; text-transform: uppercase; margin-bottom: 20px; }
-        nav li { padding: 12px; cursor: pointer; border-radius: 6px; margin-bottom: 8px; background: #111; transition: 0.2s; list-style: none; border: 1px solid #222; }
-        nav li:hover { border-color: var(--accent); background: #1a1a1a; }
-        nav li.active { background: var(--accent); color: #000; font-weight: bold; }
+        /* Navigation latérale */
+        nav { width: 220px; background: #020617; padding: 20px; border-right: 2px solid var(--accent); flex-shrink: 0; }
+        nav h2 { color: var(--accent); text-transform: uppercase; font-size: 1.2rem; margin-bottom: 30px; }
+        nav ul { list-style: none; padding: 0; }
+        nav li { padding: 12px; cursor: pointer; border-radius: 8px; margin-bottom: 10px; background: #1e293b; transition: 0.2s; border: 1px solid transparent; }
+        nav li:hover { border-color: var(--accent); background: #334155; }
+        nav li.active { background: var(--accent); color: #020617; font-weight: bold; }
 
+        /* Conteneur principal */
         main { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
-        .screen { display: none; width: 100%; max-width: 1000px; animation: fadeIn 0.3s; }
+        .screen { display: none; width: 100%; max-width: 900px; text-align: center; }
         .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- MORPIONS --- */
-        .simple-grid { display: grid; grid-template-columns: repeat(3, 100px); gap: 5px; margin: auto; }
-        .u-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: #333; padding: 10px; }
-        .s-grid { display: grid; grid-template-columns: repeat(3, 40px); gap: 2px; position: relative; }
-        .cell { background: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.5rem; height: 40px; }
-        .big-cell { height: 100px; font-size: 3rem; background: #111; border: 1px solid #333; }
+        /* GRILLES GÉNÉRALES */
+        .grid-box { display: inline-grid; gap: 5px; background: #334155; padding: 10px; border-radius: 8px; }
+        .cell { width: 60px; height: 60px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; font-weight: bold; border-radius: 4px; }
+        
+        /* MORPION ULTIME */
+        .u-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: #475569; padding: 10px; }
+        .s-grid { display: grid; grid-template-columns: repeat(3, 40px); gap: 2px; position: relative; padding: 5px; background: #1e293b; }
+        .u-cell { width: 40px; height: 40px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; }
         .active-zone { outline: 3px solid var(--accent); box-shadow: 0 0 15px var(--accent); }
 
-        /* --- BELOTE --- */
-        .belote-table { background: #006400; width: 700px; height: 450px; border-radius: 150px; margin: 20px auto; position: relative; border: 10px solid #3e2723; box-shadow: inset 0 0 50px rgba(0,0,0,0.5); }
-        .slot { position: absolute; width: 70px; height: 100px; border: 2px dashed rgba(255,255,255,0.2); border-radius: 5px; display: flex; align-items: center; justify-content: center; }
-        #slot-nord { top: 20px; left: 315px; } #slot-sud { bottom: 20px; left: 315px; }
-        #slot-ouest { left: 50px; top: 175px; } #slot-est { right: 50px; top: 175px; }
-        .card { width: 70px; height: 100px; background: white; color: black; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); font-size: 1.2rem; }
-        .card.red { color: #d32f2f; }
-        .hand { display: flex; gap: 8px; justify-content: center; margin-top: 20px; min-height: 110px; }
+        /* DÉMINEUR XXL */
+        #m-board { display: grid; grid-template-columns: repeat(20, 25px); gap: 1px; background: #444; margin: auto; }
+        .m-tile { width: 25px; height: 25px; background: #1e293b; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; cursor: pointer; }
+        .m-tile.open { background: #cbd5e1; color: #020617; }
+        .m-tile.mine { background: #ef4444; }
+
+        /* BELOTE */
+        .tapis { background: #065f46; width: 500px; height: 350px; border-radius: 100px; margin: 20px auto; position: relative; border: 10px solid #451a03; }
+        .slot { position: absolute; width: 60px; height: 85px; border: 2px dashed rgba(255,255,255,0.2); border-radius: 5px; }
+        #s-nord { top: 20px; left: 220px; } #s-sud { bottom: 20px; left: 220px; }
+        #s-ouest { left: 40px; top: 130px; } #s-est { right: 40px; top: 130px; }
+        .card { width: 60px; height: 85px; background: white; color: black; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
+        .red { color: #ef4444; }
     </style>
 </head>
 <body>
 
 <nav>
-    <h2>Mega Arcade v4</h2>
-    <ul style="padding:0">
-        <li onclick="tab('s-ult')" class="active">Morpion Ultime</li>
-        <li onclick="tab('s-sim')">Morpion Simple</li>
-        <li onclick="tab('s-mine')">Démineur Expert</li>
-        <li onclick="tab('s-yams')">Yams Multi</li>
-        <li onclick="tab('s-belo')">La Belote</li>
+    <h2>Arcade v5</h2>
+    <ul id="menu">
+        <li onclick="changeTab('tab-sim')" class="active">Morpion Simple</li>
+        <li onclick="changeTab('tab-ult')">Morpion Ultime</li>
+        <li onclick="changeTab('tab-mine')">Démineur XXL</li>
+        <li onclick="changeTab('tab-yams')">Yams</li>
+        <li onclick="changeTab('tab-belo')">La Belote</li>
     </ul>
 </nav>
 
 <main>
-    <section id="s-ult" class="screen active">
+    <section id="tab-sim" class="screen active">
+        <h1>Morpion Classique</h1>
+        <div id="sim-board" class="grid-box" style="grid-template-columns: repeat(3, 60px);"></div>
+        <br><button onclick="initSim()" style="margin-top:20px; padding:10px;">Reset</button>
+    </section>
+
+    <section id="tab-ult" class="screen">
         <h1>Morpion Ultime</h1>
-        <div id="ult-board" class="u-grid" style="width:fit-content; margin:auto;"></div>
+        <div id="ult-board" class="u-grid" style="margin: auto; width: fit-content;"></div>
     </section>
 
-    <section id="s-sim" class="screen">
-        <h1>Morpion Simple</h1>
-        <div id="sim-board" class="simple-grid"></div>
-        <div style="text-align:center; margin-top:20px;"><button onclick="initSim()">Reset</button></div>
+    <section id="tab-mine" class="screen">
+        <h1>Démineur (Expert 20x20)</h1>
+        <div id="m-board"></div>
+        <p>Clic droit pour les drapeaux 🚩</p>
     </section>
 
-    <section id="s-mine" class="screen">
-        <h1>Démineur Expert</h1>
-        <div id="m-board" style="display:grid; grid-template-columns:repeat(20, 25px); gap:2px; background:#444; width:fit-content; margin:auto;"></div>
+    <section id="tab-yams" class="screen">
+        <h1>Yams (Multi-Score)</h1>
+        <div id="y-dice" style="font-size: 4rem; margin: 20px;">🎲🎲🎲🎲🎲</div>
+        <button onclick="rollDice()" id="roll-btn">Lancer (3)</button>
+        <div id="y-scores" style="display:flex; gap:20px; justify-content:center; margin-top:20px;"></div>
     </section>
 
-    <section id="s-yams" class="screen">
-        <h1>Yams Multi</h1>
-        <div id="y-dice" style="font-size:4rem; margin:20px; text-align:center;"></div>
-        <div style="text-align:center;"><button id="y-roll-btn" onclick="rollY()">Lancer (3)</button></div>
-        <div id="y-tables" style="display:flex; gap:20px; justify-content:center; margin-top:20px;"></div>
-    </section>
-
-    <section id="s-belo" class="screen">
-        <h1>Belote (Pli par Pli)</h1>
-        <div class="belote-table">
-            <div id="slot-nord" class="slot"></div>
-            <div id="slot-sud" class="slot"></div>
-            <div id="slot-est" class="slot"></div>
-            <div id="slot-ouest" class="slot"></div>
+    <section id="tab-belo" class="screen">
+        <h1>Belote (Table de Jeu)</h1>
+        <div class="tapis">
+            <div id="s-nord" class="slot"></div><div id="s-sud" class="slot"></div>
+            <div id="s-est" class="slot"></div><div id="s-ouest" class="slot"></div>
         </div>
-        <div id="atout-info" style="text-align:center; font-weight:bold;">Atout : <span id="val-atout">-</span></div>
-        <div class="hand" id="p-hand"></div>
-        <div style="text-align:center; margin-top:10px;"><button onclick="initBelote()">Nouvelle Donne</button></div>
+        <div id="p-hand" style="display:flex; gap:8px; justify-content:center; margin-top:20px;"></div>
+        <button onclick="initB()" style="margin-top:10px;">Nouvelle Donne</button>
     </section>
 </main>
 
 <script>
-    function tab(id) {
+    // --- NAVIGATION ---
+    function changeTab(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('nav li').forEach(l => l.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         event.currentTarget.classList.add('active');
+        // Initialiseurs spécifiques
+        if(id === 'tab-sim') initSim();
+        if(id === 'tab-ult') initUlt();
+        if(id === 'tab-mine') initMine();
+        if(id === 'tab-yams') initYams();
+        if(id === 'tab-belo') initB();
     }
 
     // --- MORPION SIMPLE ---
-    let sP = "X", sState = Array(9).fill(null);
+    let sTurn = "X", sState = Array(9).fill(null);
     function initSim() {
         const b = document.getElementById('sim-board'); b.innerHTML = ''; sState.fill(null);
         for(let i=0; i<9; i++) {
-            const c = document.createElement('div'); c.className = 'cell big-cell';
-            c.onclick = () => { if(sState[i]) return; sState[i]=sP; c.textContent=sP; sP=sP==="X"?"O":"X"; };
+            const c = document.createElement('div'); c.className = 'cell';
+            c.onclick = () => { if(sState[i]) return; sState[i]=sTurn; c.textContent=sTurn; sTurn=sTurn==="X"?"O":"X"; };
             b.appendChild(c);
         }
     }
@@ -110,14 +123,14 @@
     // --- MORPION ULTIME ---
     let uP = "X", uNext = -1, uBig = Array(9).fill(null);
     function initUlt() {
-        const b = document.getElementById('ult-board'); b.innerHTML = ''; uBig.fill(null);
+        const b = document.getElementById('ult-board'); b.innerHTML = ''; uBig.fill(null); uP="X"; uNext=-1;
         for(let i=0; i<9; i++) {
             const sg = document.createElement('div'); sg.className = 's-grid';
             for(let j=0; j<9; j++) {
-                const c = document.createElement('div'); c.className = 'cell';
+                const c = document.createElement('div'); c.className = 'u-cell';
                 c.onclick = () => {
                     if(c.textContent || (uNext !== -1 && uNext !== i) || uBig[i]) return;
-                    c.textContent = uP; c.style.color = uP==="X"?"#ff4444":"#4444ff";
+                    c.textContent = uP; c.style.color = uP==="X"?"#f43f5e":"#3b82f6";
                     uNext = j; uP = uP==="X"?"O":"X";
                     document.querySelectorAll('.s-grid').forEach((g,idx) => g.classList.toggle('active-zone', uNext === idx || uNext === -1));
                 };
@@ -127,64 +140,91 @@
         }
     }
 
-    // --- BELOTE (Logique de jeu) ---
-    let atout = "";
-    function initBelote() {
-        const suits = [{s:'♠',c:'b'},{s:'♣',c:'b'},{s:'♥',c:'r'},{s:'♦',c:'r'}];
-        const ranks = ['7','8','9','10','V','D','R','A'];
-        atout = suits[Math.floor(Math.random()*4)];
-        document.getElementById('val-atout').textContent = atout.s;
-        document.getElementById('val-atout').style.color = atout.c==='r'?'red':'white';
-        
-        const handDiv = document.getElementById('p-hand'); handDiv.innerHTML = '';
-        document.querySelectorAll('.slot').forEach(s => s.innerHTML = '');
-
-        for(let i=0; i<8; i++) {
-            let card = { r: ranks[Math.floor(Math.random()*8)], s: suits[Math.floor(Math.random()*4)] };
-            let el = document.createElement('div');
-            el.className = `card ${card.s.c==='r'?'red':''}`;
-            el.innerHTML = `<span>${card.r}</span><span>${card.s.s}</span>`;
-            el.onclick = () => {
-                document.getElementById('slot-sud').appendChild(el);
-                setTimeout(botPlay, 500);
+    // --- DÉMINEUR XXL (20x20) ---
+    let mGrid = [], firstClick = true;
+    function initMine() {
+        const b = document.getElementById('m-board'); b.innerHTML = ''; mGrid = Array(400).fill(0); firstClick = true;
+        for(let i=0; i<400; i++) {
+            const t = document.createElement('div'); t.className = 'm-tile';
+            t.onclick = () => {
+                if(firstClick) { generateMines(i); firstClick = false; }
+                revealTile(i);
             };
-            handDiv.appendChild(el);
+            t.oncontextmenu = (e) => { e.preventDefault(); t.textContent = t.textContent==='🚩'?'':'🚩'; };
+            b.appendChild(t);
         }
     }
-    function botPlay() {
-        const slots = ['nord','est','ouest'];
-        slots.forEach(s => {
-            let el = document.createElement('div'); el.className = 'card'; el.style.background = "#222";
-            document.getElementById('slot-'+s).innerHTML = '';
-            document.getElementById('slot-'+s).appendChild(el);
-        });
+    function generateMines(safe) {
+        let m = 0; while(m < 60) {
+            let r = Math.floor(Math.random()*400);
+            if(r !== safe && mGrid[r] !== 'M') { mGrid[r] = 'M'; m++; }
+        }
+        for(let i=0; i<400; i++) {
+            if(mGrid[i]==='M') continue;
+            let count=0, r=Math.floor(i/20), c=i%20;
+            for(let x=-1; x<=1; x++) for(let y=-1; y<=1; y++) {
+                let nr=r+x, nc=c+y;
+                if(nr>=0 && nr<20 && nc>=0 && nc<20 && mGrid[nr*20+nc]==='M') count++;
+            }
+            mGrid[i] = count;
+        }
+    }
+    function revealTile(i) {
+        let tiles = document.getElementById('m-board').children;
+        if(tiles[i].classList.contains('open')) return;
+        tiles[i].classList.add('open');
+        if(mGrid[i] === 'M') { tiles[i].classList.add('mine'); tiles[i].textContent='💣'; alert('BOOM'); initMine(); }
+        else {
+            tiles[i].textContent = mGrid[i] || '';
+            if(mGrid[i] === 0) {
+                let r=Math.floor(i/20), c=i%20;
+                for(let x=-1; x<=1; x++) for(let y=-1; y<=1; y++) {
+                    let nr=r+x, nc=c+y; if(nr>=0 && nr<20 && nc>=0 && nc<20) revealTile(nr*20+nc);
+                }
+            }
+        }
     }
 
     // --- YAMS ---
-    let yD = [1,1,1,1,1], yK = [false,false,false,false,false], yR = 3;
-    function initY() {
-        const cont = document.getElementById('y-tables'); cont.innerHTML = '';
-        for(let p=1; p<=2; p++) {
-            let t = `<table style="background:#222; border-collapse:collapse;"><tr><th>P${p}</th></tr>`;
-            ['1','2','3','4','5','6','Brelan','Full','Carré','Yams'].forEach(c => t += `<tr><td style="border:1px solid #444; padding:5px;" onclick="this.textContent=evalY('${c}')">${c} (-)</td></tr>`);
-            cont.innerHTML += t + `</table>`;
-        }
-        updateYD();
+    let dice = [1,1,1,1,1], rolls = 3;
+    function initYams() {
+        rolls = 3; document.getElementById('y-scores').innerHTML = 'Tableau prêt. Lancez !';
     }
-    function rollY() { if(yR>0) { yD = yD.map((d,i)=>yK[i]?d:Math.floor(Math.random()*6)+1); yR--; updateYD(); } }
-    function updateYD() {
-        const div = document.getElementById('y-dice'); div.innerHTML = '';
-        yD.forEach((d,i) => {
-            let s = document.createElement('span'); s.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][d-1];
-            s.style.color = yK[i]?var(--accent):'white'; s.onclick=()=>{yK[i]=!yK[i]; updateYD();};
-            div.appendChild(s);
-        });
-        document.getElementById('y-roll-btn').textContent = `Lancer (${yR})`;
+    function rollDice() {
+        if(rolls <= 0) return;
+        dice = dice.map(() => Math.floor(Math.random()*6)+1);
+        rolls--;
+        document.getElementById('y-dice').textContent = dice.map(d => ['⚀','⚁','⚂','⚃','⚄','⚅'][d-1]).join(' ');
+        document.getElementById('roll-btn').textContent = `Lancer (${rolls})`;
+        // Simule les points potentiels
+        document.getElementById('y-scores').innerHTML = `Brelan : ${dice[0]*3} | Full : 25 | Yams : 50`;
     }
-    function evalY(c) { yR=3; yK.fill(false); return "OK"; }
 
-    // Init au chargement
-    initSim(); initUlt(); initBelote(); initY();
+    // --- BELOTE ---
+    function initB() {
+        const hand = document.getElementById('p-hand'); hand.innerHTML = '';
+        const suits = ['♠','♣','♥','♦']; const ranks = ['7','8','9','10','V','D','R','A'];
+        document.querySelectorAll('.slot').forEach(s => s.innerHTML = '');
+        for(let i=0; i<8; i++) {
+            let s = suits[Math.floor(Math.random()*4)];
+            let c = document.createElement('div'); c.className = `card ${s==='♥'||s==='♦'?'red':''}`;
+            c.innerHTML = ranks[Math.floor(Math.random()*8)] + '<br>' + s;
+            c.onclick = () => {
+                document.getElementById('s-sud').appendChild(c);
+                setTimeout(() => {
+                    ['nord','est','ouest'].forEach(pos => {
+                        let bc = document.createElement('div'); bc.className = 'card'; bc.style.background = '#444';
+                        document.getElementById('s-'+pos).appendChild(bc);
+                    });
+                    setTimeout(() => document.querySelectorAll('.slot').forEach(s => s.innerHTML=''), 1500);
+                }, 500);
+            };
+            hand.appendChild(c);
+        }
+    }
+
+    // Lancer par défaut
+    initSim();
 </script>
 </body>
 </html>
