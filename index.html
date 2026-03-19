@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcade Ultimate 2026 - Édition Studio Pro</title>
+    <title>Arcade Ultimate 2026 - Édition Studio Network</title>
     <style>
         /* =========================================
            1. VARIABLES GLOBALES ET RESET
@@ -124,14 +124,14 @@
             background: var(--panel-hover); 
             transform: translateX(5px); 
         }
-        
+
         nav li.active { 
             background: var(--accent); 
             color: #000; 
             box-shadow: 0 0 20px var(--accent-glow); 
             border-color: var(--accent); 
         }
-        
+
         .nav-divider { 
             height: 2px; 
             background: #1e293b; 
@@ -176,7 +176,7 @@
             -webkit-background-clip: text; 
             -webkit-text-fill-color: transparent; 
         }
-        
+
         .subtitle { 
             text-align: center; 
             color: var(--text-muted); 
@@ -184,6 +184,7 @@
             font-size: 1.1rem; 
         }
         
+        /* Boutons et Formulaires */
         .btn { 
             padding: 12px 28px; 
             background: var(--accent); 
@@ -230,13 +231,12 @@
         select { 
             cursor: pointer; 
             text-transform: none; 
+            width: 350px;
         }
 
         /* =========================================
-           3. CSS DES JEUX CLASSIQUES
+           3. CSS DES JEUX : MORPIONS
            ========================================= */
-           
-        /* Morpion Simple */
         .ms-grid { 
             display: grid; 
             grid-template-columns: repeat(3, 130px); 
@@ -270,13 +270,12 @@
             background: rgba(16, 185, 129, 0.1); 
             border-color: var(--accent); 
         }
-
+        
         @keyframes pulseWin { 
             from { transform: scale(1); box-shadow: 0 0 10px var(--accent-glow); } 
             to { transform: scale(1.05); box-shadow: 0 0 30px var(--accent-glow); } 
         }
 
-        /* Morpion Ultime */
         .mu-status { 
             text-align: center; 
             font-size: 1.5rem; 
@@ -346,14 +345,16 @@
             z-index: 10; 
             animation: screenFade 0.3s ease-out; 
         }
-
+        
         @keyframes muPulse { 
             0% { outline-color: var(--accent); } 
             50% { outline-color: #34d399; } 
             100% { outline-color: var(--accent); } 
         }
 
-        /* Démineur Expert 25x25 */
+        /* =========================================
+           4. CSS DES JEUX : DÉMINEUR EXPERT (25x25)
+           ========================================= */
         .dm-header { 
             display: flex; 
             justify-content: center; 
@@ -416,7 +417,9 @@
         .dm-c5 { color: #991b1b; } 
         .dm-c6 { color: #0d9488; }
 
-        /* Yams Championship */
+        /* =========================================
+           5. CSS DES JEUX : YAMS
+           ========================================= */
         .yams-layout { 
             display: flex; 
             gap: 40px; 
@@ -512,7 +515,7 @@
         }
 
         /* =========================================
-           4. CSS DE LA VRAIE BELOTE PRO
+           6. CSS DE LA VRAIE BELOTE MULTIJOUEUR (Design Pro)
            ========================================= */
         .bl-scoreboard { 
             display: flex; 
@@ -536,7 +539,7 @@
             min-height: 30px; 
         }
 
-        /* Tapis de Jeu de Belote */
+        /* Le Tapis Vert - Fixe et Absolu */
         .bl-tapis { 
             background: radial-gradient(circle, #065f46 0%, #022c22 100%); 
             width: 800px; 
@@ -548,11 +551,11 @@
             box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 50px rgba(0,0,0,0.5); 
         }
         
-        /* HUD Coin Supérieur Gauche */
-        #bl-atout-corner {
+        /* HUD Coin Supérieur Gauche : Atout & Preneur */
+        .bl-atout-corner {
             position: absolute; 
-            top: 25px; 
-            left: 35px; 
+            top: 20px; 
+            left: 30px; 
             background: rgba(0, 0, 0, 0.8);
             padding: 10px 15px; 
             border-radius: 8px; 
@@ -562,7 +565,7 @@
             display: none;
         }
 
-        #bl-taker-name { 
+        .bl-taker-name { 
             font-size: 0.85rem; 
             color: #ccc; 
             text-transform: uppercase; 
@@ -570,16 +573,16 @@
             margin-bottom: 5px; 
         }
 
-        #bl-atout-suit { 
+        .bl-atout-suit { 
             font-size: 2.2rem; 
             line-height: 1; 
         }
 
-        /* HUD Coin Supérieur Droit */
-        #bl-trick-points {
+        /* HUD Coin Supérieur Droit : Points Pli en cours */
+        .bl-trick-points {
             position: absolute; 
-            top: 25px; 
-            right: 35px; 
+            top: 20px; 
+            right: 30px; 
             background: rgba(0, 0, 0, 0.8);
             padding: 10px 15px; 
             border-radius: 8px; 
@@ -591,7 +594,7 @@
             font-weight: bold;
         }
 
-        /* Animation Belote/Rebelote Centrale */
+        /* Animation Belote/Rebelote */
         .bl-annonce {
             position: absolute; 
             top: 40%; 
@@ -613,14 +616,7 @@
             animation: annoncePop 2s ease-in-out forwards; 
         }
 
-        @keyframes annoncePop { 
-            0% { opacity: 0; transform: translate(-50%, 0) scale(0.5); } 
-            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); } 
-            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 
-            100% { opacity: 0; transform: translate(-50%, -100%) scale(0.8); } 
-        }
-
-        /* Noms des joueurs à l'extérieur du tapis */
+        /* Noms des joueurs */
         .bl-name { 
             position: absolute; 
             color: #94a3b8; 
@@ -640,19 +636,19 @@
             transform: scale(1.1);
         }
 
-        #bl-n-n { top: -35px; left: 50%; transform: translateX(-50%); }
-        #bl-n-n.active-turn { transform: translateX(-50%) scale(1.1); }
+        .bl-n-n { top: -35px; left: 50%; transform: translateX(-50%); }
+        .bl-n-n.active-turn { transform: translateX(-50%) scale(1.1); }
         
-        #bl-n-s { bottom: -35px; left: 50%; transform: translateX(-50%); }
-        #bl-n-s.active-turn { transform: translateX(-50%) scale(1.1); }
+        .bl-n-s { bottom: -35px; left: 50%; transform: translateX(-50%); }
+        .bl-n-s.active-turn { transform: translateX(-50%) scale(1.1); }
         
-        #bl-n-e { right: -40px; top: 50%; transform: translateY(-50%) rotate(90deg); }
-        #bl-n-e.active-turn { transform: translateY(-50%) rotate(90deg) scale(1.1); }
+        .bl-n-e { right: -40px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+        .bl-n-e.active-turn { transform: translateY(-50%) rotate(90deg) scale(1.1); }
         
-        #bl-n-w { left: -45px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
-        #bl-n-w.active-turn { transform: translateY(-50%) rotate(-90deg) scale(1.1); }
+        .bl-n-w { left: -45px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+        .bl-n-w.active-turn { transform: translateY(-50%) rotate(-90deg) scale(1.1); }
 
-        /* Bulles de dialogue des Bots */
+        /* Bulles de dialogue des joueurs */
         .bl-speech {
             position: absolute; 
             background: white; 
@@ -668,12 +664,12 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
-        #bl-speech-2 { top: -65px; left: 50%; transform: translateX(-50%); }
-        #bl-speech-0 { bottom: -65px; left: 50%; transform: translateX(-50%); }
-        #bl-speech-1 { right: -75px; top: 50%; transform: translateY(-50%); }
-        #bl-speech-3 { left: -75px; top: 50%; transform: translateY(-50%); }
+        .bl-speech-n { top: -65px; left: 50%; transform: translateX(-50%); }
+        .bl-speech-s { bottom: -65px; left: 50%; transform: translateX(-50%); }
+        .bl-speech-e { right: -75px; top: 50%; transform: translateY(-50%); }
+        .bl-speech-w { left: -75px; top: 50%; transform: translateY(-50%); }
 
-        /* Dos des cartes des bots (Fixé sur les bords) */
+        /* Dos des cartes des autres joueurs (Fixé fermement sur les bords extérieurs) */
         .bl-bot-hand { 
             position: absolute; 
             display: flex; 
@@ -681,15 +677,16 @@
             z-index: 4; 
         }
 
-        #bl-h-n { 
+        /* Joueur Nord (En haut, horizontal) */
+        .bl-h-n { 
             top: 20px; 
             left: 50%; 
             transform: translateX(-50%); 
             flex-direction: row; 
             gap: -20px; 
         }
-
-        #bl-h-n .bl-card-back { 
+        
+        .bl-h-n .bl-card-back { 
             width: 45px; 
             height: 65px; 
             background: repeating-linear-gradient(45deg, #1e293b, #1e293b 5px, #0f172a 5px, #0f172a 10px); 
@@ -698,17 +695,19 @@
             box-shadow: 2px 2px 5px rgba(0,0,0,0.5); 
         }
 
-        #bl-h-e, #bl-h-w {
+        /* Joueurs Est et Ouest (Sur les côtés, empilés verticalement) */
+        .bl-h-e, .bl-h-w {
             top: 50%; 
             transform: translateY(-50%); 
             flex-direction: column; 
-            gap: -35px; 
+            gap: -35px; /* Empilement propre sur la verticale */
         }
+        
+        .bl-h-e { right: 20px; }
+        .bl-h-w { left: 20px; }
 
-        #bl-h-e { right: 20px; }
-        #bl-h-w { left: 20px; }
-
-        #bl-h-e .bl-card-back, #bl-h-w .bl-card-back {
+        /* Leurs cartes ont des dimensions inversées (paysage) */
+        .bl-h-e .bl-card-back, .bl-h-w .bl-card-back {
             width: 65px; 
             height: 45px; 
             background: repeating-linear-gradient(45deg, #1e293b, #1e293b 5px, #0f172a 5px, #0f172a 10px); 
@@ -717,37 +716,25 @@
             box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
         }
 
-        /* Jeton du donneur */
+        /* Le Jeton du donneur */
         .bl-dealer { 
             position: absolute; 
             background: var(--gold); 
             color: #000; 
-            width: 32px; 
-            height: 32px; 
+            width: 30px; 
+            height: 30px; 
             border-radius: 50%; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             font-weight: bold; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.8); 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5); 
             z-index: 10; 
             transition: 0.5s; 
             font-size: 1.2rem; 
         }
 
-        /* Centre pour l'enchère */
-        #bl-center {
-            position: absolute; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%); 
-            z-index: 10; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-        }
-
-        /* Croix centrale pour les cartes jouées */
+        /* La Croix Centrale Parfaite (Slots où les cartes sont jouées) */
         .bl-slot { 
             position: absolute; 
             width: 80px; 
@@ -760,10 +747,23 @@
             z-index: 6;
         }
 
-        #bl-s-n { top: 70px; left: 50%; transform: translateX(-50%); } 
-        #bl-s-s { bottom: 70px; left: 50%; transform: translateX(-50%); }
-        #bl-s-e { top: 50%; right: 200px; transform: translateY(-50%); } 
-        #bl-s-w { top: 50%; left: 200px; transform: translateY(-50%); }
+        /* Calcul exact depuis le centre (400, 250) */
+        .bl-s-n { top: 70px; left: 50%; transform: translateX(-50%); } 
+        .bl-s-s { bottom: 70px; left: 50%; transform: translateX(-50%); }
+        .bl-s-e { top: 50%; right: 200px; transform: translateY(-50%); } 
+        .bl-s-w { top: 50%; left: 200px; transform: translateY(-50%); }
+
+        /* Le centre pour la carte des enchères */
+        .bl-center {
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            z-index: 10; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+        }
         
         /* Design des cartes */
         .bl-card { 
@@ -791,7 +791,7 @@
             cursor: not-allowed; 
         }
         
-        /* Main du joueur Humain (Sud) */
+        /* Main du joueur local (Toujours en bas/Sud) */
         .bl-hand { 
             display: flex; 
             gap: -20px; 
@@ -809,7 +809,7 @@
             border-color: var(--accent); 
         }
         
-        /* Animation fluide du jeu de la carte */
+        /* Animation de la carte jouée */
         .bl-played { 
             position: absolute; 
             animation: playCard 0.4s ease-out forwards; 
@@ -817,12 +817,19 @@
             z-index: 8; 
         }
 
-        @keyframes playCard { 
-            from { transform: scale(1.5) translateY(100px); opacity: 0; } 
-            to { transform: scale(1) translateY(0) rotate(calc(-5deg + 10deg * var(--rand))); opacity: 1; } 
+        /* Les actions d'enchères au centre */
+        .bl-actions {
+            position: absolute; 
+            top: 75%; 
+            left: 50%; 
+            transform: translate(-50%, 0); 
+            display: none; 
+            gap: 10px; 
+            z-index: 20; 
+            align-items: center;
         }
-        
-        /* Boutons pour le Choix Couleur (Tour 2) */
+
+        /* Boutons de Choix de Couleur (Tour 2 d'enchères) */
         .bl-suit-btn { 
             font-size: 2rem; 
             padding: 10px 20px; 
@@ -843,7 +850,7 @@
         .bl-suit-btn.black { color: #fff; }
 
         /* =========================================
-           8. FIREBASE NETWORK LOBBY
+           7. FIREBASE NETWORK LOBBY
            ========================================= */
         .lobby-box { 
             background: var(--panel-bg); 
@@ -896,7 +903,7 @@
         <li data-target="s-ult"><span>🔥</span> Morpion Ultime</li>
         <li data-target="s-mine"><span>💣</span> Démineur Expert</li>
         <li data-target="s-yams"><span>🎲</span> Yams Complet</li>
-        <li data-target="s-belote"><span>🃏</span> Belote Pro</li>
+        <li data-target="s-belote"><span>🃏</span> Belote Locale</li>
         <div class="nav-divider"></div>
         <li data-target="s-net-lobby" style="color:var(--accent); border-color:var(--accent);"><span>🌐</span> Salon Multijoueur</li>
     </ul>
@@ -948,60 +955,60 @@
     </section>
 
     <section id="s-belote" class="screen">
-        <h1>Belote Officielle (1000 Pts)</h1>
+        <h1>Belote Contre l'IA (1000 Pts)</h1>
         
         <div class="bl-scoreboard">
-            <span style="color: var(--accent);">Nous : <span id="bl-score-nous">0</span></span>
-            <span style="color: var(--player-x);">Eux : <span id="bl-score-eux">0</span></span>
+            <span style="color: var(--accent);">Nous : <span id="loc-bl-score-nous">0</span></span>
+            <span style="color: var(--player-x);">Eux : <span id="loc-bl-score-eux">0</span></span>
         </div>
         
-        <div class="bl-info" id="bl-status">Cliquez sur Nouvelle Partie pour commencer.</div>
+        <div class="bl-info" id="loc-bl-status">Cliquez sur Nouvelle Partie pour commencer.</div>
         
         <div class="bl-tapis">
-            <div id="bl-n-n" class="bl-name">Nord</div>
-            <div id="bl-n-s" class="bl-name">Toi</div>
-            <div id="bl-n-w" class="bl-name">Ouest</div>
-            <div id="bl-n-e" class="bl-name">Est</div>
+            <div id="loc-bl-n-n" class="bl-name bl-n-n">Nord (IA)</div>
+            <div id="loc-bl-n-s" class="bl-name bl-n-s">Toi</div>
+            <div id="loc-bl-n-w" class="bl-name bl-n-w">Ouest (IA)</div>
+            <div id="loc-bl-n-e" class="bl-name bl-n-e">Est (IA)</div>
 
-            <div id="bl-speech-0" class="bl-speech"></div>
-            <div id="bl-speech-1" class="bl-speech"></div>
-            <div id="bl-speech-2" class="bl-speech"></div>
-            <div id="bl-speech-3" class="bl-speech"></div>
+            <div id="loc-bl-speech-n" class="bl-speech bl-speech-n"></div>
+            <div id="loc-bl-speech-s" class="bl-speech bl-speech-s"></div>
+            <div id="loc-bl-speech-e" class="bl-speech bl-speech-e"></div>
+            <div id="loc-bl-speech-w" class="bl-speech bl-speech-w"></div>
 
-            <div id="bl-h-n" class="bl-bot-hand"></div>
-            <div id="bl-h-e" class="bl-bot-hand"></div>
-            <div id="bl-h-w" class="bl-bot-hand"></div>
+            <div id="loc-bl-h-n" class="bl-bot-hand bl-h-n"></div>
+            <div id="loc-bl-h-e" class="bl-bot-hand bl-h-e"></div>
+            <div id="loc-bl-h-w" class="bl-bot-hand bl-h-w"></div>
 
-            <div id="bl-dealer-token" class="bl-dealer" style="display:none;">D</div>
+            <div id="loc-bl-dealer-token" class="bl-dealer" style="display:none;">D</div>
             
-            <div id="bl-atout-corner">
-                <div id="bl-taker-name"></div>
-                <div id="bl-atout-suit"></div>
+            <div id="loc-bl-atout-corner" class="bl-atout-corner">
+                <div id="loc-bl-taker-name" class="bl-taker-name"></div>
+                <div id="loc-bl-atout-suit" class="bl-atout-suit"></div>
             </div>
 
-            <div id="bl-trick-points">Manche : <span id="bl-trick-pts-val">0</span> pts</div>
+            <div id="loc-bl-trick-points" class="bl-trick-points">Manche : <span id="loc-bl-trick-pts-val">0</span> pts</div>
 
-            <div id="bl-annonce-msg" class="bl-annonce">BELOTE !</div>
+            <div id="loc-bl-annonce-msg" class="bl-annonce">BELOTE !</div>
 
-            <div id="bl-center"></div>
+            <div id="loc-bl-center" class="bl-center"></div>
             
-            <div id="bl-actions-1" style="position:absolute; top:75%; left:50%; transform:translate(-50%, 0); display:none; gap:10px; z-index:20;">
-                <button class="btn" id="btn-prendre-1" style="background:var(--accent);">Prendre</button>
-                <button class="btn" id="btn-passer-1" style="background:var(--player-x); color:white;">Passer</button>
+            <div id="loc-bl-actions-1" class="bl-actions">
+                <button class="btn" id="loc-btn-prendre-1" style="background:var(--accent);">Prendre</button>
+                <button class="btn" id="loc-btn-passer-1" style="background:var(--player-x); color:white;">Passer</button>
             </div>
 
-            <div id="bl-actions-2" style="position:absolute; top:75%; left:50%; transform:translate(-50%, 0); display:none; gap:15px; z-index:20; align-items: center;">
-                <div id="bl-suits-container" style="display:flex; gap:10px;"></div>
-                <button class="btn" id="btn-passer-2" style="background:var(--player-x); color:white;">Passer</button>
+            <div id="loc-bl-actions-2" class="bl-actions">
+                <div id="loc-bl-suits-container" style="display:flex; gap:10px;"></div>
+                <button class="btn" id="loc-btn-passer-2" style="background:var(--player-x); color:white;">Passer</button>
             </div>
 
-            <div id="bl-s-n" class="bl-slot"></div>
-            <div id="bl-s-s" class="bl-slot"></div>
-            <div id="bl-s-e" class="bl-slot"></div>
-            <div id="bl-s-w" class="bl-slot"></div>
+            <div id="loc-bl-s-n" class="bl-slot bl-s-n"></div>
+            <div id="loc-bl-s-s" class="bl-slot bl-s-s"></div>
+            <div id="loc-bl-s-e" class="bl-slot bl-s-e"></div>
+            <div id="loc-bl-s-w" class="bl-slot bl-s-w"></div>
         </div>
         
-        <div id="bl-hand" class="bl-hand"></div>
+        <div id="loc-bl-hand" class="bl-hand"></div>
         
         <div style="text-align: center; margin-top: 30px;">
             <button class="btn" onclick="App.Belote.initGame()">Nouvelle Partie</button>
@@ -1011,20 +1018,24 @@
     <section id="s-net-lobby" class="screen">
         <div class="lobby-box">
             <h1>Arcade Réseau</h1>
-            <p class="subtitle">Jouez avec un ami sur deux appareils distincts.</p>
+            <p class="subtitle">Créez ou rejoignez un salon avec vos amis.</p>
+            
             <div style="margin: 40px 0; border-bottom: 2px solid #1e293b; padding-bottom: 40px;">
                 <h3 style="margin-bottom: 15px;">1. Créer une partie</h3>
                 <select id="net-game-select">
                     <option value="sim">Morpion Simple</option>
                     <option value="ult">Morpion Ultime</option>
                     <option value="yams">Yams</option>
+                    <option value="belote_2p">Belote (2 Joueurs vs 2 Bots IA)</option>
+                    <option value="belote_4p">Belote (4 Joueurs Réels)</option>
                 </select><br>
                 <button class="btn" id="btn-create-room" style="margin-top:15px;">Héberger le Salon</button>
             </div>
+            
             <div>
                 <h3 style="margin-bottom: 15px;">2. Rejoindre une partie</h3>
                 <input type="text" id="input-room-code" placeholder="Code Secret" maxlength="4"><br>
-                <button class="btn" id="btn-join-room" style="background:var(--player-o); color:white;">Rejoindre l'Ami</button>
+                <button class="btn" id="btn-join-room" style="background:var(--player-o); color:white;">Rejoindre le Salon</button>
             </div>
         </div>
     </section>
@@ -1033,7 +1044,7 @@
         <div class="lobby-box">
             <h2>Code du Salon :</h2>
             <div class="room-code-display" id="display-room-code">----</div>
-            <p>Donnez ce code à votre adversaire. Le jeu démarrera automatiquement.</p>
+            <p id="waiting-status-msg">Donnez ce code à vos amis. Le jeu démarrera automatiquement.</p>
             <button class="btn" style="background:var(--player-x); color:white; margin-top:20px;" onclick="window.location.reload()">Annuler</button>
         </div>
     </section>
@@ -1070,18 +1081,77 @@
             <button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button>
         </div>
     </section>
+
+    <section id="s-net-belote" class="screen">
+        <h1>Belote En Ligne (1000 Pts)</h1>
+        
+        <div class="bl-scoreboard">
+            <span style="color: var(--accent);">Nous : <span id="net-bl-score-nous">0</span></span>
+            <span style="color: var(--player-x);">Eux : <span id="net-bl-score-eux">0</span></span>
+        </div>
+        
+        <div class="bl-info" id="net-bl-status">En attente des joueurs...</div>
+        
+        <div class="bl-tapis">
+            <div id="net-bl-n-n" class="bl-name bl-n-n">Nord</div>
+            <div id="net-bl-n-s" class="bl-name bl-n-s">Toi</div>
+            <div id="net-bl-n-w" class="bl-name bl-n-w">Ouest</div>
+            <div id="net-bl-n-e" class="bl-name bl-n-e">Est</div>
+
+            <div id="net-bl-speech-n" class="bl-speech bl-speech-n"></div>
+            <div id="net-bl-speech-s" class="bl-speech bl-speech-s"></div>
+            <div id="net-bl-speech-e" class="bl-speech bl-speech-e"></div>
+            <div id="net-bl-speech-w" class="bl-speech bl-speech-w"></div>
+
+            <div id="net-bl-h-n" class="bl-bot-hand bl-h-n"></div>
+            <div id="net-bl-h-e" class="bl-bot-hand bl-h-e"></div>
+            <div id="net-bl-h-w" class="bl-bot-hand bl-h-w"></div>
+
+            <div id="net-bl-dealer-token" class="bl-dealer" style="display:none;">D</div>
+            
+            <div id="net-bl-atout-corner" class="bl-atout-corner">
+                <div id="net-bl-taker-name" class="bl-taker-name"></div>
+                <div id="net-bl-atout-suit" class="bl-atout-suit"></div>
+            </div>
+
+            <div id="net-bl-trick-points" class="bl-trick-points">Manche : <span id="net-bl-trick-pts-val">0</span> pts</div>
+
+            <div id="net-bl-annonce-msg" class="bl-annonce">BELOTE !</div>
+
+            <div id="net-bl-center" class="bl-center"></div>
+            
+            <div id="net-bl-actions-1" class="bl-actions">
+                <button class="btn" id="net-btn-prendre-1" style="background:var(--accent);">Prendre</button>
+                <button class="btn" id="net-btn-passer-1" style="background:var(--player-x); color:white;">Passer</button>
+            </div>
+
+            <div id="net-bl-actions-2" class="bl-actions">
+                <div id="net-bl-suits-container" style="display:flex; gap:10px;"></div>
+                <button class="btn" id="net-btn-passer-2" style="background:var(--player-x); color:white;">Passer</button>
+            </div>
+
+            <div id="net-bl-s-n" class="bl-slot bl-s-n"></div>
+            <div id="net-bl-s-s" class="bl-slot bl-s-s"></div>
+            <div id="net-bl-s-e" class="bl-slot bl-s-e"></div>
+            <div id="net-bl-s-w" class="bl-slot bl-s-w"></div>
+        </div>
+        
+        <div id="net-bl-hand" class="bl-hand"></div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter la partie</button>
+        </div>
+    </section>
+
 </main>
 
 <script type="module">
-    // =========================================================
-    // IMPORTATION DES MODULES FIREBASE (V 12.10.0)
-    // =========================================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getDatabase, ref, set, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-    // =========================================================
-    // CONFIGURATION DE LA BASE DE DONNÉES
-    // =========================================================
+    // ---------------------------------------------------------
+    // FIREBASE CONFIGURATION
+    // ---------------------------------------------------------
     const firebaseConfig = {
         apiKey: "AIzaSyD5YeADpzCBrjhiYIgGjZU6ilRipK66NwY",
         authDomain: "arcade-8546c.firebaseapp.com",
@@ -1095,21 +1165,22 @@
     const fbApp = initializeApp(firebaseConfig);
     const db = getDatabase(fbApp);
 
-    // =========================================================
-    // OBJET GESTIONNAIRE D'INTERFACE (UI)
-    // =========================================================
+    // ---------------------------------------------------------
+    // INTERFACE ET GESTIONNAIRE DE VUES (UI)
+    // ---------------------------------------------------------
     window.UI = {
         modalCb: null,
         
         showModal(title, desc, cb) {
             document.getElementById('modal-title').innerHTML = title;
             
+            // Logique de couleur dynamique
             let titleColor = 'var(--player-x)';
             if (title.includes('Victoire') || title.includes('Gagné') || title.includes('Terminée') || title.includes('Réussi') || title.includes('Fin')) {
                 titleColor = 'var(--accent)';
             }
-            
             document.getElementById('modal-title').style.color = titleColor;
+            
             document.getElementById('modal-desc').innerHTML = desc;
             this.modalCb = cb; 
             document.getElementById('modal-overlay').style.display = 'flex';
@@ -1129,6 +1200,7 @@
             
             document.getElementById(id).classList.add('active');
             
+            // Arrêt du chronomètre du démineur si on quitte l'écran
             if (id !== 's-mine') {
                 clearInterval(window.App.Mine.timer);
             }
@@ -1137,9 +1209,9 @@
 
     window.App = {};
 
-    // =========================================================
-    // MOTEUR DE JEU : MORPION SIMPLE
-    // =========================================================
+    // ---------------------------------------------------------
+    // JEU 1 : MORPION SIMPLE
+    // ---------------------------------------------------------
     window.App.Sim = {
         state: [], 
         player: 'X',
@@ -1174,11 +1246,9 @@
                 winLine.forEach(idx => {
                     document.getElementById('ms-board').children[idx].classList.add('win');
                 }); 
-                
                 setTimeout(() => {
                     window.UI.showModal('Victoire !', `Le joueur <b style="color:${element.style.color}">${this.player}</b> a gagné en local.`, () => this.init());
                 }, 600); 
-                
             } else if (!this.state.includes('')) {
                 setTimeout(() => {
                     window.UI.showModal('Égalité', 'Match Nul, la grille est pleine.', () => this.init());
@@ -1194,14 +1264,13 @@
                 [0, 3, 6], [1, 4, 7], [2, 5, 8], 
                 [0, 4, 8], [2, 4, 6]             
             ]; 
-            
             return winConditions.find(line => grid[line[0]] && grid[line[0]] === grid[line[1]] && grid[line[0]] === grid[line[2]]);
         }
     };
 
-    // =========================================================
-    // MOTEUR DE JEU : MORPION ULTIME
-    // =========================================================
+    // ---------------------------------------------------------
+    // JEU 2 : MORPION ULTIME
+    // ---------------------------------------------------------
     window.App.Ult = {
         bGrid: [], 
         sGrids: [], 
@@ -1243,6 +1312,7 @@
             cellElement.classList.add('taken'); 
             cellElement.style.color = this.currentPlayer === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
             
+            // Vérifie si la sous-grille est gagnée
             if (window.App.Sim.checkWin(this.sGrids[bgIndex])) { 
                 this.bGrid[bgIndex] = this.currentPlayer; 
                 let cover = document.createElement('div'); 
@@ -1251,11 +1321,11 @@
                 cover.style.color = cellElement.style.color; 
                 document.getElementById(`mu-g-${bgIndex}`).appendChild(cover); 
             } else if (!this.sGrids[bgIndex].includes('')) {
-                this.bGrid[bgIndex] = 'D'; 
+                this.bGrid[bgIndex] = 'D'; // D pour Draw (Égalité)
             }
             
+            // Vérifie si le jeu global est gagné
             const cleanBigGrid = this.bGrid.map(val => val === 'D' ? '' : val);
-            
             if (window.App.Sim.checkWin(cleanBigGrid)) { 
                 setTimeout(() => {
                     window.UI.showModal('Victoire Ultime', `Le stratège <b style="color:${cellElement.style.color}">${this.currentPlayer}</b> domine la carte !`, () => this.init());
@@ -1284,9 +1354,9 @@
         }
     };
 
-    // =========================================================
-    // MOTEUR DE JEU : DÉMINEUR EXPERT (25x25)
-    // =========================================================
+    // ---------------------------------------------------------
+    // JEU 3 : DÉMINEUR EXPERT
+    // ---------------------------------------------------------
     window.App.Mine = {
         grid: [], 
         opened: [], 
@@ -1314,9 +1384,7 @@
                 tile.onmousedown = (e) => { 
                     if (e.button === 2) { 
                         e.preventDefault(); 
-                        if (this.opened[i]) {
-                            return; 
-                        }
+                        if (this.opened[i]) return; 
                         
                         if (tile.textContent === '🚩') { 
                             tile.textContent = ''; 
@@ -1336,7 +1404,6 @@
                         this.reveal(i); 
                     } 
                 }; 
-                
                 tile.oncontextmenu = e => e.preventDefault(); 
                 board.appendChild(tile); 
             }
@@ -1356,7 +1423,6 @@
                 for (let y = -1; y <= 1; y++) {
                     let newRow = row + x;
                     let newCol = col + y;
-                    
                     if (newRow >= 0 && newRow < 25 && newCol >= 0 && newCol < 25) {
                         neighbors.push(newRow * 25 + newCol);
                     }
@@ -1368,11 +1434,11 @@
         generateMines(safeIndex) {
             this.isFirstClick = false; 
             let minesPlaced = 0; 
+            
             const safeZone = [...this.getNeighbors(safeIndex), safeIndex]; 
             
             while (minesPlaced < 99) { 
                 let randomIndex = Math.floor(Math.random() * 625); 
-                
                 if (!safeZone.includes(randomIndex) && this.grid[randomIndex] !== 'M') { 
                     this.grid[randomIndex] = 'M'; 
                     minesPlaced++; 
@@ -1404,11 +1470,9 @@
                 tileElement.classList.add('mine'); 
                 tileElement.textContent = '💣'; 
                 clearInterval(this.timer); 
-                
                 setTimeout(() => {
                     window.UI.showModal('BOUM !', `Mines déclenchées à ${this.time} secondes.`, () => this.init());
                 }, 300); 
-                
             } else { 
                 if (this.grid[index] > 0) { 
                     tileElement.textContent = this.grid[index]; 
@@ -1418,10 +1482,8 @@
                 }
             } 
             
-            // Si 625 cases - 99 mines = 526 cases ouvertes, c'est gagné
-            if (this.opened.filter(val => val).length === 526) { 
+            if (this.opened.filter(val => !val).length === 526) { 
                 clearInterval(this.timer); 
-                
                 setTimeout(() => {
                     window.UI.showModal('Déminage Réussi !', `Terrain sécurisé en ${this.time}s.`, () => this.init());
                 }, 300); 
@@ -1429,9 +1491,9 @@
         }
     };
 
-    // =========================================================
-    // MOTEUR DE JEU : YAMS CHAMPIONSHIP
-    // =========================================================
+    // ---------------------------------------------------------
+    // JEU 4 : YAMS CHAMPIONSHIP
+    // ---------------------------------------------------------
     window.App.Yams = {
         dice: [1, 1, 1, 1, 1], 
         kept: [false, false, false, false, false], 
@@ -1506,7 +1568,6 @@
                         this.ui(); 
                     } 
                 }; 
-                
                 diceBox.appendChild(dieElement); 
             }); 
             
@@ -1578,6 +1639,7 @@
             if (this.rollsLeft === 3) {
                 return; 
             }
+            
             if (playerIndex !== this.currentPlayer || this.scores[playerIndex][category] !== undefined) {
                 return; 
             }
@@ -1622,12 +1684,16 @@
         }
     };
 
-    // =========================================================
-    // MOTEUR DE JEU : LA VRAIE BELOTE IA INTELLIGENTE ET COMPLÈTE
-    // =========================================================
+    // ---------------------------------------------------------
+    // JEU 5 : LA VRAIE BELOTE IA (LOCALE)
+    // ---------------------------------------------------------
+    
+    // Pour simplifier l'accès au DOM en local
+    const getEl = (id) => document.getElementById(id);
+
     window.App.Belote = {
         deck: [], 
-        hands: [[], [], [], []], // Index 0:Toi(Sud), 1:Est, 2:Nord, 3:Ouest
+        hands: [[], [], [], []], // 0:Sud(Toi), 1:Est, 2:Nord, 3:Ouest
         scores: { nous: 0, eux: 0 },
         litigePot: 0,
         
@@ -1655,7 +1721,6 @@
         ],
         ranks: ['7', '8', '9', '10', 'V', 'D', 'R', 'A'],
         
-        // Hiérarchie Belote
         valAtout: { 'V':20, '9':14, 'A':11, '10':10, 'R':4, 'D':3, '8':0, '7':0 },
         valNormal: { 'A':11, '10':10, 'R':4, 'D':3, 'V':2, '9':0, '8':0, '7':0 },
         ordAtout: ['V', '9', 'A', '10', 'R', 'D', '8', '7'],
@@ -1674,36 +1739,32 @@
         },
 
         startDeal() {
-            // Nettoyage de l'interface
             document.querySelectorAll('.bl-slot').forEach(slot => slot.innerHTML = '');
-            document.getElementById('bl-center').innerHTML = '';
-            document.getElementById('bl-hand').innerHTML = '';
-            document.getElementById('bl-actions-1').style.display = 'none';
-            document.getElementById('bl-actions-2').style.display = 'none';
-            document.getElementById('bl-annonce-msg').classList.remove('active');
-            document.getElementById('bl-trick-points').style.display = 'none';
-            document.getElementById('bl-atout-corner').style.display = 'none';
+            getEl('loc-bl-center').innerHTML = '';
+            getEl('loc-bl-hand').innerHTML = '';
+            getEl('loc-bl-actions-1').style.display = 'none';
+            getEl('loc-bl-actions-2').style.display = 'none';
+            getEl('loc-bl-annonce-msg').classList.remove('active');
+            getEl('loc-bl-trick-points').style.display = 'none';
+            getEl('loc-bl-atout-corner').style.display = 'none';
             
-            this.updatePlayerHighlight(-1); 
+            this.updatePlayerHighlight(-1);
 
-            // Le donneur tourne
             this.dealerIndex = (this.dealerIndex + 1) % 4;
             this.firstPlayerIndex = (this.dealerIndex + 1) % 4;
             
-            // Jeton Donneur
             const positions = [
-                {x: 450, y: 420}, // Sud
-                {x: 680, y: 300}, // Est
-                {x: 450, y: 40},  // Nord
-                {x: 100, y: 300}  // Ouest
+                {x: 450, y: 420}, 
+                {x: 680, y: 300}, 
+                {x: 450, y: 40},  
+                {x: 100, y: 300}  
             ];
             
-            const tokenElement = document.getElementById('bl-dealer-token');
-            tokenElement.style.display = 'flex';
-            tokenElement.style.left = positions[this.dealerIndex].x + 'px';
-            tokenElement.style.top = positions[this.dealerIndex].y + 'px';
+            const tkn = getEl('loc-bl-dealer-token');
+            tkn.style.display = 'flex';
+            tkn.style.left = positions[this.dealerIndex].x + 'px';
+            tkn.style.top = positions[this.dealerIndex].y + 'px';
 
-            // Création du paquet de cartes
             this.deck = [];
             this.suits.forEach(suitObj => { 
                 this.ranks.forEach(rankStr => { 
@@ -1711,7 +1772,6 @@
                 }); 
             });
             
-            // Mélange Parfait 
             for (let i = this.deck.length - 1; i > 0; i--) { 
                 const j = Math.floor(Math.random() * (i + 1)); 
                 [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; 
@@ -1728,7 +1788,6 @@
             this.beloteAnnouncedBy = null;
             this.phase = 'bidding_1';
             
-            // Distribution : 3 cartes, puis 2 cartes
             for (let p = 0; p < 4; p++) {
                 let targetPlayer = (this.firstPlayerIndex + p) % 4;
                 this.hands[targetPlayer].push(...this.deck.splice(0, 3));
@@ -1744,8 +1803,19 @@
             this.processBidding1();
         },
 
+        getUIPosition(playerIndex) {
+            // Local game : you are always 0 (Sud)
+            if (playerIndex === 0) return 's';
+            if (playerIndex === 1) return 'e';
+            if (playerIndex === 2) return 'n';
+            if (playerIndex === 3) return 'w';
+        },
+
         showSpeech(playerIndex, textMsg) {
-            const bubble = document.getElementById(`bl-speech-${playerIndex}`);
+            const pos = this.getUIPosition(playerIndex);
+            const bubble = getEl(`loc-bl-speech-${pos}`);
+            if(!bubble) return;
+            
             bubble.textContent = textMsg;
             bubble.style.opacity = 1;
             
@@ -1755,7 +1825,7 @@
         },
 
         showCenterCard() {
-            const centerArea = document.getElementById('bl-center');
+            const centerArea = getEl('loc-bl-center');
             const cardElement = document.createElement('div');
             
             cardElement.className = `bl-card ${this.centerCard.isRed ? 'red' : ''}`;
@@ -1765,27 +1835,25 @@
             centerArea.appendChild(cardElement);
         },
 
-        // ==========================================
-        // ENCHÈRES : TOUR 1
-        // ==========================================
         processBidding1() {
             this.updatePlayerHighlight(this.currentTurnIndex);
             
             if (this.currentTurnIndex === 0) {
                 this.updateStatus("TOUR 1 : Voulez-vous prendre cette couleur ?");
-                document.getElementById('bl-actions-1').style.display = 'flex';
+                getEl('loc-bl-actions-1').style.display = 'flex';
                 
-                document.getElementById('btn-prendre-1').onclick = () => {
+                getEl('loc-btn-prendre-1').onclick = () => {
                     this.showSpeech(0, "Je prends !");
                     this.take(0, this.centerCard.suit);
                 };
                 
-                document.getElementById('btn-passer-1').onclick = () => {
+                getEl('loc-btn-passer-1').onclick = () => {
                     this.showSpeech(0, "Passe.");
                     this.passBidding1();
                 };
             } else {
-                document.getElementById('bl-actions-1').style.display = 'none';
+                getEl('loc-bl-actions-1').style.display = 'none';
+                
                 let botName = '';
                 if (this.currentTurnIndex === 1) botName = 'Est';
                 if (this.currentTurnIndex === 2) botName = 'Nord';
@@ -1825,7 +1893,7 @@
         },
 
         passBidding1() {
-            document.getElementById('bl-actions-1').style.display = 'none';
+            getEl('loc-bl-actions-1').style.display = 'none';
             this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
             
             if (this.currentTurnIndex === this.firstPlayerIndex) {
@@ -1839,9 +1907,6 @@
             }
         },
 
-        // ==========================================
-        // ENCHÈRES : TOUR 2
-        // ==========================================
         processBidding2() {
             this.updatePlayerHighlight(this.currentTurnIndex);
             
@@ -1850,9 +1915,9 @@
 
             if (this.currentTurnIndex === 0) {
                 this.updateStatus("TOUR 2 : Choisissez une couleur ou passez.");
-                document.getElementById('bl-actions-2').style.display = 'flex';
+                getEl('loc-bl-actions-2').style.display = 'flex';
                 
-                const suitsContainer = document.getElementById('bl-suits-container');
+                const suitsContainer = getEl('loc-bl-suits-container');
                 suitsContainer.innerHTML = '';
                 
                 availableSuits.forEach(suitObj => {
@@ -1862,15 +1927,15 @@
                     
                     btn.onclick = () => {
                         this.showSpeech(0, `Je prends ! (${suitObj.s})`);
-                        document.getElementById('bl-actions-2').style.display = 'none';
+                        getEl('loc-bl-actions-2').style.display = 'none';
                         this.take(0, suitObj);
                     };
                     suitsContainer.appendChild(btn);
                 });
 
-                document.getElementById('btn-passer-2').onclick = () => {
+                getEl('loc-btn-passer-2').onclick = () => {
                     this.showSpeech(0, "Passe.");
-                    document.getElementById('bl-actions-2').style.display = 'none';
+                    getEl('loc-bl-actions-2').style.display = 'none';
                     this.passBidding2();
                 };
             } else {
@@ -1928,13 +1993,10 @@
             }
         },
 
-        // ==========================================
-        // VALIDATION DE LA PRISE
-        // ==========================================
         take(playerIdx, selectedSuit) {
-            document.getElementById('bl-actions-1').style.display = 'none';
-            document.getElementById('bl-actions-2').style.display = 'none';
-            document.getElementById('bl-center').innerHTML = ''; 
+            getEl('loc-bl-actions-1').style.display = 'none';
+            getEl('loc-bl-actions-2').style.display = 'none';
+            getEl('loc-bl-center').innerHTML = ''; 
             
             this.takerIndex = playerIdx;
             this.atoutSuit = selectedSuit;
@@ -1962,12 +2024,12 @@
             if (this.takerIndex === 2) takerName = "Nord";
             if (this.takerIndex === 3) takerName = "Ouest";
             
-            document.getElementById('bl-atout-corner').style.display = 'block';
-            document.getElementById('bl-taker-name').innerText = `Preneur : ${takerName}`;
-            document.getElementById('bl-atout-suit').innerText = this.atoutSuit.s;
-            document.getElementById('bl-atout-suit').style.color = this.atoutSuit.color === 'r' ? '#f43f5e' : 'white';
+            getEl('loc-bl-atout-corner').style.display = 'block';
+            getEl('loc-bl-taker-name').innerText = `Preneur : ${takerName}`;
+            getEl('loc-bl-atout-suit').innerText = this.atoutSuit.s;
+            getEl('loc-bl-atout-suit').style.color = this.atoutSuit.color === 'r' ? '#f43f5e' : 'white';
             
-            document.getElementById('bl-trick-points').style.display = 'block';
+            getEl('loc-bl-trick-points').style.display = 'block';
             this.updateTrickPointsUI();
             
             for (let p = 0; p < 4; p++) {
@@ -1985,17 +2047,17 @@
                 el.classList.remove('active-turn');
             });
             
-            if (index === 0) document.getElementById('bl-n-s').classList.add('active-turn');
-            if (index === 1) document.getElementById('bl-n-e').classList.add('active-turn');
-            if (index === 2) document.getElementById('bl-n-n').classList.add('active-turn');
-            if (index === 3) document.getElementById('bl-n-w').classList.add('active-turn');
+            if (index === 0) getEl('loc-bl-n-s').classList.add('active-turn');
+            if (index === 1) getEl('loc-bl-n-e').classList.add('active-turn');
+            if (index === 2) getEl('loc-bl-n-n').classList.add('active-turn');
+            if (index === 3) getEl('loc-bl-n-w').classList.add('active-turn');
         },
 
         renderBotHands() {
-            const mapId = ['none', 'bl-h-e', 'bl-h-n', 'bl-h-w'];
+            const mapId = ['none', 'loc-bl-h-e', 'loc-bl-h-n', 'loc-bl-h-w'];
             
             for (let i = 1; i <= 3; i++) {
-                const container = document.getElementById(mapId[i]);
+                const container = getEl(mapId[i]);
                 container.innerHTML = '';
                 
                 let nbCards = this.hands[i].length;
@@ -2171,7 +2233,7 @@
         },
         
         showAnnonce(msg) {
-            const annonceEl = document.getElementById('bl-annonce-msg');
+            const annonceEl = getEl('loc-bl-annonce-msg');
             annonceEl.textContent = msg;
             annonceEl.classList.remove('active');
             void annonceEl.offsetWidth; 
@@ -2179,7 +2241,7 @@
         },
 
         renderHand() {
-            const handContainer = document.getElementById('bl-hand'); 
+            const handContainer = getEl('loc-bl-hand'); 
             handContainer.innerHTML = '';
             
             this.hands[0].sort((a, b) => {
@@ -2220,7 +2282,7 @@
             let visualCard = cardElement.cloneNode(true); 
             visualCard.style.setProperty('--rand', Math.random()); 
             visualCard.className += ' bl-played';
-            document.getElementById('bl-s-s').appendChild(visualCard);
+            getEl('loc-bl-s-s').appendChild(visualCard);
             
             this.currentTrick.push({ player: 0, card: playedCardObj }); 
             this.currentTurnIndex = 1; 
@@ -2242,12 +2304,14 @@
             this.checkBelote(playedCardObj, this.currentTurnIndex);
             
             const positionsMap = ['s', 'e', 'n', 'w'];
+            let posChar = positionsMap[this.currentTurnIndex];
+            
             let visualCard = document.createElement('div'); 
             visualCard.className = `bl-card bl-played ${playedCardObj.isRed ? 'red' : ''}`;
             visualCard.innerHTML = `<span>${playedCardObj.rank}</span><span>${playedCardObj.suit.s}</span>`;
             visualCard.style.setProperty('--rand', Math.random()); 
             
-            document.getElementById('bl-s-' + positionsMap[this.currentTurnIndex]).appendChild(visualCard);
+            getEl(`loc-bl-s-${posChar}`).appendChild(visualCard);
 
             this.currentTrick.push({ player: this.currentTurnIndex, card: playedCardObj });
             this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
@@ -2318,16 +2382,16 @@
                 } else {
                     this.processPlay();
                 }
-            }, 2500);
+            }, 2500); // Temps pour voir le pli
         },
 
         updateTrickPointsUI() {
-            document.getElementById('bl-trick-pts-val').textContent = this.dealPoints.nous;
+            getEl('loc-bl-trick-pts-val').textContent = this.dealPoints.nous;
         },
 
         updateScoreUI() { 
-            document.getElementById('bl-score-nous').textContent = this.scores.nous; 
-            document.getElementById('bl-score-eux').textContent = this.scores.eux; 
+            getEl('loc-bl-score-nous').textContent = this.scores.nous; 
+            getEl('loc-bl-score-eux').textContent = this.scores.eux; 
         },
         
         endDeal() { 
@@ -2408,7 +2472,7 @@
         },
         
         updateStatus(msgText) { 
-            document.getElementById('bl-status').innerHTML = msgText; 
+            getEl('loc-bl-status').innerHTML = msgText; 
         }
     };
 
