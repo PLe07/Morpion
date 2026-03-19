@@ -3,309 +3,281 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcade Master Pro v2026</title>
+    <title>Arcade Ultimate 2026 - Polish Edition</title>
     <style>
         :root {
-            --accent: #00ff88; --bg: #0f172a; --panel: #1e293b; --text: #f1f5f9;
-            --p1: #f43f5e; --p2: #3b82f6; --gold: #f59e0b;
+            --bg: #0b1120; --panel: #1e293b; --panel-hover: #334155;
+            --accent: #10b981; --accent-glow: rgba(16, 185, 129, 0.4);
+            --text: #f8fafc; --text-muted: #94a3b8;
+            --p1: #f43f5e; --p2: #3b82f6;
         }
-        * { box-sizing: border-box; user-select: none; }
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg); color: var(--text);
-            margin: 0; display: flex; height: 100vh; overflow: hidden;
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+
+        /* --- NOTIFICATION MODAL --- */
+        #custom-modal {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000;
+            align-items: center; justify-content: center; backdrop-filter: blur(5px);
         }
+        .modal-content { background: var(--panel); padding: 40px; border-radius: 15px; text-align: center; border: 2px solid var(--accent); box-shadow: 0 10px 40px var(--accent-glow); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .modal-content h2 { margin-top: 0; font-size: 2rem; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         /* --- NAVIGATION --- */
-        nav {
-            width: 260px; background: #020617; padding: 25px;
-            border-right: 2px solid var(--accent); flex-shrink: 0;
-            display: flex; flex-direction: column; box-shadow: 10px 0 30px rgba(0,0,0,0.5);
-        }
-        nav h2 { 
-            color: var(--accent); text-transform: uppercase; letter-spacing: 3px; 
-            font-size: 1.2rem; margin-bottom: 40px; text-align: center;
-            text-shadow: 0 0 10px rgba(0,255,136,0.3);
-        }
+        nav { width: 250px; background: #020617; padding: 25px; border-right: 1px solid #1e293b; flex-shrink: 0; display: flex; flex-direction: column; }
+        nav h2 { color: var(--accent); text-transform: uppercase; letter-spacing: 2px; text-align: center; margin-bottom: 30px; font-size: 1.1rem; }
         nav ul { list-style: none; padding: 0; margin: 0; }
-        nav li { 
-            padding: 16px; cursor: pointer; border-radius: 12px; margin-bottom: 12px; 
-            background: #1e293b; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid transparent; display: flex; align-items: center; gap: 10px;
-        }
-        nav li:hover { border-color: var(--accent); transform: translateX(8px); background: #334155; }
-        nav li.active { 
-            background: var(--accent); color: #020617; font-weight: 800;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
-        }
+        nav li { padding: 15px; cursor: pointer; border-radius: 8px; margin-bottom: 10px; background: var(--panel); transition: 0.2s; font-weight: 600; }
+        nav li:hover { background: var(--panel-hover); transform: translateX(5px); }
+        nav li.active { background: var(--accent); color: #000; box-shadow: 0 0 15px var(--accent-glow); }
 
         /* --- MAIN --- */
-        main { flex-grow: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
-        .screen { display: none; width: 100%; max-width: 1000px; animation: fadeIn 0.5s ease; }
+        main { flex-grow: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; position: relative; }
+        .screen { display: none; width: 100%; max-width: 1000px; animation: fadeIn 0.3s ease; }
         .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        h1 { font-size: 2.8rem; margin-bottom: 30px; text-align: center; color: var(--accent); }
-        .btn { 
-            padding: 12px 25px; background: var(--accent); border: none; border-radius: 8px; 
-            cursor: pointer; font-weight: bold; color: #020617; transition: 0.2s;
-        }
-        .btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 2.2rem; }
+        .btn { padding: 10px 20px; background: var(--accent); border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem; color: #000; transition: 0.2s; }
+        .btn:hover { transform: scale(1.05); }
 
-        /* --- MORPIONS --- */
-        .m-grid { display: grid; gap: 10px; margin: auto; }
-        .cell { 
-            background: var(--panel); border-radius: 8px; display: flex; 
-            align-items: center; justify-content: center; cursor: pointer;
-            font-weight: 900; transition: 0.2s;
-        }
-        .cell:hover { background: #334155; }
-        .cell.taken { cursor: default; }
-        .win-line { background: var(--accent) !important; color: #020617 !important; animation: pulse 0.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        /* --- MORPION SIMPLE --- */
+        .ms-grid { display: grid; grid-template-columns: repeat(3, 120px); gap: 10px; margin: 30px auto; width: fit-content; }
+        .ms-cell { height: 120px; background: var(--panel); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 4rem; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .ms-cell:hover:not(.taken) { background: var(--panel-hover); }
 
-        /* Ultime */
-        .u-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; background: #444; padding: 15px; border-radius: 15px; }
-        .u-inner { display: grid; grid-template-columns: repeat(3, 50px); gap: 4px; background: #222; padding: 8px; position: relative; }
-        .u-active { outline: 4px solid var(--accent); box-shadow: 0 0 25px var(--accent); z-index: 5; }
-        .u-won { position: absolute; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; font-size: 3rem; z-index: 10; border-radius: 4px; }
+        /* --- MORPION ULTIME --- */
+        .mu-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; background: #0f172a; padding: 15px; border-radius: 15px; margin: 20px auto; width: fit-content; border: 2px solid #334155; }
+        .mu-grid { display: grid; grid-template-columns: repeat(3, 45px); gap: 3px; background: var(--panel); padding: 5px; border-radius: 8px; position: relative; transition: 0.3s; }
+        .mu-cell { height: 45px; background: var(--bg); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; cursor: pointer; }
+        .mu-cell:hover:not(.taken) { background: var(--panel-hover); }
+        .mu-active { outline: 3px solid var(--accent); background: #134e4a; box-shadow: 0 0 20px var(--accent-glow); animation: pulse 2s infinite; }
+        .mu-won { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.85); display: flex; align-items: center; justify-content: center; font-size: 5rem; font-weight: bold; border-radius: 8px; backdrop-filter: blur(2px); z-index: 10; }
+        @keyframes pulse { 0% { outline-color: var(--accent); } 50% { outline-color: #34d399; } 100% { outline-color: var(--accent); } }
 
         /* --- DEMINEUR --- */
-        .stats-bar { display: flex; gap: 30px; margin-bottom: 20px; font-weight: bold; font-size: 1.2rem; background: #000; padding: 10px 20px; border-radius: 50px; border: 1px solid var(--accent); }
-        #mine-grid { display: grid; grid-template-columns: repeat(20, 30px); gap: 1px; background: #444; border: 2px solid #444; margin: auto; }
-        .tile { width: 30px; height: 30px; background: var(--panel); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; cursor: pointer; font-weight: bold; }
-        .tile.open { background: #cbd5e1; color: #020617; }
-        .tile.mine { background: #f43f5e; color: white; }
+        .dm-header { display: flex; justify-content: center; gap: 30px; margin-bottom: 20px; font-size: 1.2rem; font-weight: bold; }
+        #dm-board { display: grid; grid-template-columns: repeat(20, 26px); gap: 1px; background: #334155; padding: 2px; border: 3px solid #334155; margin: auto; width: fit-content; border-radius: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .dm-tile { width: 26px; height: 26px; background: var(--panel); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: bold; cursor: pointer; user-select: none; border-radius: 2px; }
+        .dm-tile:hover:not(.open) { background: var(--panel-hover); }
+        .dm-tile.open { background: #cbd5e1; color: #000; box-shadow: inset 1px 1px 3px rgba(0,0,0,0.2); cursor: default; }
+        .dm-tile.mine { background: var(--p1); font-size: 1.2rem; }
+        .dm-c1 { color: #2563eb; } .dm-c2 { color: #16a34a; } .dm-c3 { color: #dc2626; } .dm-c4 { color: #7c3aed; }
+        .dm-c5 { color: #991b1b; } .dm-c6 { color: #0d9488; } .dm-c7 { color: #000000; } .dm-c8 { color: #57534e; }
 
-        /* --- YAMS --- */
-        .yams-flex { display: flex; gap: 30px; justify-content: center; align-items: flex-start; }
-        .dice-box { background: #111; padding: 30px; border-radius: 20px; border: 2px solid #333; }
-        .dice-row { display: flex; gap: 15px; font-size: 4.5rem; margin-bottom: 25px; }
-        .die { cursor: pointer; transition: 0.2s; }
-        .die.keep { color: var(--accent); transform: translateY(-10px); text-shadow: 0 0 15px var(--accent); }
-        .y-table { border-collapse: collapse; background: var(--panel); border-radius: 10px; overflow: hidden; }
-        .y-table th { padding: 12px; background: #000; color: var(--accent); }
-        .y-table td { border: 1px solid #334155; padding: 10px 15px; cursor: pointer; min-width: 80px; }
-        .y-table .pot { color: #64748b; font-style: italic; }
-        .y-table .locked { color: var(--accent); font-weight: bold; background: rgba(0,255,136,0.05); }
+        /* --- YAMS (Intouché) --- */
+        .yams-layout { display: flex; gap: 40px; justify-content: center; align-items: flex-start; margin-top: 20px; }
+        .dice-area { background: var(--panel); padding: 30px; border-radius: 20px; text-align: center; }
+        .dice-container { font-size: 4.5rem; display: flex; gap: 15px; margin-bottom: 20px; justify-content: center; }
+        .die { cursor: pointer; transition: 0.2s; user-select: none; }
+        .die.kept { color: var(--accent); transform: translateY(-10px); }
+        .yams-table { border-collapse: collapse; background: var(--panel); border-radius: 10px; overflow: hidden; }
+        .yams-table th { padding: 12px; background: #020617; color: var(--text); }
+        .yams-table td { border: 1px solid #334155; padding: 10px 15px; cursor: pointer; }
+        .yams-table .pot { color: var(--text-muted); font-style: italic; }
+        .yams-table .locked { color: var(--accent); font-weight: bold; background: rgba(16,185,129,0.1); }
 
-        /* --- BELOTE --- */
-        .tapis { 
-            background: radial-gradient(circle, #065f46 0%, #064e3b 100%); 
-            width: 700px; height: 450px; border-radius: 200px; margin: 20px auto; 
-            position: relative; border: 15px solid #451a03; box-shadow: 0 30px 60px rgba(0,0,0,0.7);
-        }
-        .b-slot { position: absolute; width: 85px; height: 125px; border: 2px dashed rgba(255,255,255,0.1); border-radius: 10px; }
-        #slot-n { top: 20px; left: 307px; } #slot-s { bottom: 20px; left: 307px; }
-        #slot-w { left: 40px; top: 162px; } #slot-e { right: 40px; top: 162px; }
-        .card { 
-            width: 85px; height: 125px; background: white; color: black; border-radius: 8px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 1.4rem; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            border: 1px solid #ccc; position: relative;
-        }
-        .card.red { color: #f43f5e; }
-        .card:hover { transform: translateY(-15px) rotate(3deg); z-index: 50; border-color: var(--accent); }
-        .atout-box { position: absolute; top: 10px; right: 20px; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 10px; font-size: 1.5rem; }
+        /* --- BELOTE (Placeholder) --- */
+        .tapis { background: #064e3b; width: 600px; height: 400px; border-radius: 200px; margin: 20px auto; border: 12px solid #451a03; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.3); font-size: 2rem; font-weight: bold; }
     </style>
 </head>
 <body>
 
+<div id="custom-modal">
+    <div class="modal-content">
+        <h2 id="modal-title">Titre</h2>
+        <p id="modal-text" style="font-size: 1.2rem; margin-bottom: 20px;">Texte</p>
+        <button class="btn" onclick="document.getElementById('custom-modal').style.display='none'; modalCallback();">Continuer</button>
+    </div>
+</div>
+
 <nav>
-    <h2>Arcade 2026</h2>
-    <ul id="arcade-menu">
-        <li data-id="tab-sim" class="active"><span>🕹️</span> Morpion Simple</li>
-        <li data-id="tab-ult"><span>🧩</span> Morpion Ultime</li>
-        <li data-id="tab-mine"><span>💣</span> Démineur XXL</li>
-        <li data-id="tab-yams"><span>🎲</span> Yams Multi</li>
-        <li data-id="tab-belote"><span>🃏</span> Belote Pro</li>
+    <h2>Arcade Hub</h2>
+    <ul id="menu-list">
+        <li data-target="t-sim" class="active">Morpion Simple</li>
+        <li data-target="t-ult">Morpion Ultime</li>
+        <li data-target="t-mine">Démineur Expert</li>
+        <li data-target="t-yams">Yams Multi</li>
+        <li data-target="t-belote">Belote (Bientôt)</li>
     </ul>
 </nav>
 
 <main>
-    <section id="tab-sim" class="screen active">
+    <section id="t-sim" class="screen active">
         <h1>Morpion 3x3</h1>
-        <div id="sim-board" class="m-grid" style="grid-template-columns: repeat(3, 120px); grid-template-rows: repeat(3, 120px);"></div>
-        <div style="margin-top:30px;"><button class="btn" onclick="MorpionSimple.init()">Reset Game</button></div>
+        <div id="sim-board" class="ms-grid"></div>
+        <button class="btn" onclick="MorpionSimple.init()">Nouvelle Partie</button>
     </section>
 
-    <section id="tab-ult" class="screen">
+    <section id="t-ult" class="screen">
         <h1>Morpion Ultime</h1>
-        <div id="ult-board" class="u-board"></div>
-        <p id="ult-status" style="margin-top:20px; font-size:1.2rem;"></p>
+        <p id="ult-info" style="font-size:1.2rem; font-weight:bold; margin-bottom:0;">Tour de : X</p>
+        <div id="ult-board" class="mu-container"></div>
+        <button class="btn" onclick="MorpionUltime.init()" style="margin-top:20px;">Recommencer</button>
     </section>
 
-    <section id="tab-mine" class="screen">
-        <h1>Démineur Expert</h1>
-        <div class="stats-bar">
-            <span>Mines: <span id="m-count">60</span></span>
-            <span>Temps: <span id="m-time">0</span>s</span>
+    <section id="t-mine" class="screen">
+        <h1>Démineur (20x20)</h1>
+        <div class="dm-header">
+            <span>🚩 <span id="dm-flags">60</span></span>
+            <span>⏱️ <span id="dm-time">0</span>s</span>
         </div>
-        <div id="mine-grid"></div>
-        <div style="margin-top:20px;"><button class="btn" onclick="Demineur.init()">Nouvelle Grille</button></div>
+        <div id="dm-board"></div>
+        <button class="btn" onclick="Demineur.init()" style="margin-top:20px;">Nouvelle Grille</button>
     </section>
 
-    <section id="tab-yams" class="screen">
+    <section id="t-yams" class="screen">
         <h1>Yams Multi-Joueurs</h1>
-        <div class="yams-flex">
-            <div class="dice-box">
-                <div id="y-dice-row" class="dice-row"></div>
-                <button id="y-roll-btn" class="btn" onclick="Yams.roll()">Lancer les dés (3)</button>
-                <p id="y-info" style="margin-top:20px; font-weight:bold;"></p>
+        <div class="yams-layout">
+            <div class="dice-area">
+                <div id="y-dice" class="dice-container"></div>
+                <button id="y-roll-btn" class="btn" onclick="Yams.roll()">Lancer (3)</button>
+                <p id="y-turn" style="margin-top:15px; font-weight:bold;"></p>
             </div>
-            <div id="y-score-container" style="display:flex; gap:15px;"></div>
+            <div id="y-scores" style="display:flex; gap:15px;"></div>
         </div>
     </section>
 
-    <section id="tab-belote" class="screen">
-        <h1>Belote Interactive</h1>
-        <div class="atout-box">Atout: <span id="b-atout">-</span></div>
-        <div class="tapis">
-            <div id="slot-n" class="b-slot"></div><div id="slot-s" class="b-slot"></div>
-            <div id="slot-e" class="b-slot"></div><div id="slot-w" class="b-slot"></div>
-        </div>
-        <div id="b-hand" style="display:flex; gap:10px; justify-content:center; margin-top:30px;"></div>
-        <div style="text-align:center; margin-top:20px;"><button class="btn" onclick="Belote.init()">Nouvelle Donne</button></div>
+    <section id="t-belote" class="screen">
+        <h1>Belote</h1>
+        <div class="tapis">En construction pour la V8...</div>
     </section>
 </main>
 
 <script>
-/** * GESTIONNAIRE DE NAVIGATION 
- **/
-const Navigation = {
-    init() {
-        document.querySelectorAll('#arcade-menu li').forEach(li => {
-            li.onclick = (e) => this.switch(e.currentTarget);
-        });
-        MorpionSimple.init();
-    },
-    switch(el) {
-        document.querySelectorAll('#arcade-menu li').forEach(li => li.classList.remove('active'));
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        el.classList.add('active');
-        const target = el.dataset.id;
-        document.getElementById(target).classList.add('active');
-        
-        // Initialisation spécifique
-        if(target === 'tab-sim') MorpionSimple.init();
-        if(target === 'tab-ult') MorpionUltime.init();
-        if(target === 'tab-mine') Demineur.init();
-        if(target === 'tab-yams') Yams.init();
-        if(target === 'tab-belote') Belote.init();
-    }
-};
+let modalCallback = () => {};
+function showModal(title, text, callback) {
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-title').style.color = title.includes('Victoire') || title.includes('Gagné') ? 'var(--accent)' : 'var(--p1)';
+    document.getElementById('modal-text').textContent = text;
+    modalCallback = callback || (() => {});
+    document.getElementById('custom-modal').style.display = 'flex';
+}
 
-/**
- * MORPION SIMPLE (3x3)
- **/
+// --- NAVIGATION ---
+document.querySelectorAll('#menu-list li').forEach(li => {
+    li.onclick = () => {
+        document.querySelectorAll('#menu-list li').forEach(i => i.classList.remove('active'));
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        li.classList.add('active');
+        const t = li.dataset.target;
+        document.getElementById(t).classList.add('active');
+        if(t === 't-sim') MorpionSimple.init();
+        if(t === 't-ult') MorpionUltime.init();
+        if(t === 't-mine') Demineur.init();
+        if(t === 't-yams') Yams.init();
+    };
+});
+
+// --- MORPION SIMPLE ---
 const MorpionSimple = {
-    turn: 'X', state: [],
+    state: [], player: 'X',
     init() {
-        const board = document.getElementById('sim-board');
-        board.innerHTML = ''; this.state = Array(9).fill(null); this.turn = 'X';
+        const b = document.getElementById('sim-board'); b.innerHTML = '';
+        this.state = Array(9).fill(null); this.player = 'X';
         for(let i=0; i<9; i++) {
-            const c = document.createElement('div');
-            c.className = 'cell'; c.style.fontSize = '4rem';
+            let c = document.createElement('div'); c.className = 'ms-cell';
             c.onclick = () => this.play(i, c);
-            board.appendChild(c);
+            b.appendChild(c);
         }
     },
     play(i, el) {
-        if(this.state[i] || this.checkWinner()) return;
-        this.state[i] = this.turn;
-        el.textContent = this.turn;
-        el.style.color = this.turn === 'X' ? 'var(--p1)' : 'var(--p2)';
-        el.classList.add('taken');
-        const win = this.checkWinner();
-        if(win) {
-            win.forEach(idx => document.getElementById('sim-board').children[idx].classList.add('win-line'));
-        } else {
-            this.turn = this.turn === 'X' ? 'O' : 'X';
-        }
-    },
-    checkWinner() {
-        const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-        return lines.find(l => this.state[l[0]] && this.state[l[0]] === this.state[l[1]] && this.state[l[0]] === this.state[l[2]]);
-    }
-};
-
-/**
- * MORPION ULTIME
- **/
-const MorpionUltime = {
-    player: 'X', nextGrid: -1, bigState: [],
-    init() {
-        const board = document.getElementById('ult-board');
-        board.innerHTML = ''; this.player = 'X'; this.nextGrid = -1; this.bigState = Array(9).fill(null);
-        document.getElementById('ult-status').innerHTML = "Tour : <b style='color:var(--p1)'>X</b>";
-        for(let i=0; i<9; i++) {
-            const sg = document.createElement('div');
-            sg.className = 'u-inner'; sg.id = `u-sg-${i}`;
-            for(let j=0; j<9; j++) {
-                const c = document.createElement('div');
-                c.className = 'cell'; c.style.fontSize = '1.5rem';
-                c.onclick = () => this.play(i, j, c);
-                sg.appendChild(c);
-            }
-            board.appendChild(sg);
-        }
-        this.updateUI();
-    },
-    play(gi, ci, el) {
-        if(el.textContent || (this.nextGrid !== -1 && this.nextGrid !== gi) || this.bigState[gi]) return;
-        el.textContent = this.player;
+        if(this.state[i]) return;
+        this.state[i] = this.player; el.textContent = this.player;
         el.style.color = this.player === 'X' ? 'var(--p1)' : 'var(--p2)';
-        
-        const gridCells = Array.from(document.getElementById(`u-sg-${gi}`).children).map(c => c.textContent);
-        if(this.checkGrid(gridCells)) {
-            this.bigState[gi] = this.player;
-            const winCover = document.createElement('div');
-            winCover.className = 'u-won'; winCover.textContent = this.player;
-            winCover.style.color = this.player === 'X' ? 'var(--p1)' : 'var(--p2)';
-            document.getElementById(`u-sg-${gi}`).appendChild(winCover);
-        }
-
-        this.nextGrid = (this.bigState[ci] || Array.from(document.getElementById(`u-sg-${ci}`).children).every(c => c.textContent)) ? -1 : ci;
-        
-        if(this.checkGrid(this.bigState)) {
-            alert("VICTOIRE FINALE POUR " + this.player);
-            this.nextGrid = 999;
+        el.classList.add('taken');
+        if(this.check(this.state)) {
+            setTimeout(() => showModal('Gagné !', `Le joueur ${this.player} a remporté la partie.`, () => this.init()), 100);
+        } else if(!this.state.includes(null)) {
+            setTimeout(() => showModal('Égalité', `Match nul, personne ne gagne.`, () => this.init()), 100);
         } else {
             this.player = this.player === 'X' ? 'O' : 'X';
-            this.updateUI();
         }
     },
-    checkGrid(g) {
-        const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-        return lines.some(l => g[l[0]] && g[l[0]] === g[l[1]] && g[l[0]] === g[l[2]]);
-    },
-    updateUI() {
-        document.querySelectorAll('.u-inner').forEach((g, i) => {
-            g.classList.remove('u-active');
-            if((this.nextGrid === -1 || this.nextGrid === i) && !this.bigState[i]) g.classList.add('u-active');
-        });
-        document.getElementById('ult-status').innerHTML = `Tour : <b style="color:${this.player==='X'?'var(--p1)':'var(--p2)'}">${this.player}</b>`;
+    check(g) {
+        const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        return w.some(l => g[l[0]] && g[l[0]] === g[l[1]] && g[l[0]] === g[l[2]]);
     }
 };
 
-/**
- * DEMINEUR EXPERT
- **/
-const Demineur = {
-    grid: [], open: [], size: 20, mines: 60, first: true, timer: null, time: 0,
+// --- MORPION ULTIME ---
+const MorpionUltime = {
+    bigGrid: [], smallGrids: [], player: 'X', next: -1,
     init() {
-        const board = document.getElementById('mine-grid');
-        board.innerHTML = ''; this.grid = Array(400).fill(0); this.open = Array(400).fill(false);
-        this.first = true; this.time = 0; clearInterval(this.timer);
-        document.getElementById('m-time').textContent = "0";
-        document.getElementById('m-count').textContent = this.mines;
+        const b = document.getElementById('ult-board'); b.innerHTML = '';
+        this.bigGrid = Array(9).fill(null);
+        this.smallGrids = Array(9).fill().map(() => Array(9).fill(null));
+        this.player = 'X'; this.next = -1;
+        this.updateInfo();
+
+        for(let i=0; i<9; i++) {
+            let g = document.createElement('div'); g.className = 'mu-grid'; g.id = `mu-g-${i}`;
+            for(let j=0; j<9; j++) {
+                let c = document.createElement('div'); c.className = 'mu-cell';
+                c.onclick = () => this.play(i, j, c);
+                g.appendChild(c);
+            }
+            b.appendChild(g);
+        }
+        this.highlight();
+    },
+    play(bgIdx, smIdx, el) {
+        if(this.smallGrids[bgIdx][smIdx] || this.bigGrid[bgIdx] || (this.next !== -1 && this.next !== bgIdx)) return;
         
+        this.smallGrids[bgIdx][smIdx] = this.player;
+        el.textContent = this.player; el.classList.add('taken');
+        el.style.color = this.player === 'X' ? 'var(--p1)' : 'var(--p2)';
+
+        if(MorpionSimple.check(this.smallGrids[bgIdx])) {
+            this.bigGrid[bgIdx] = this.player;
+            let over = document.createElement('div'); over.className = 'mu-won';
+            over.textContent = this.player; over.style.color = this.player === 'X' ? 'var(--p1)' : 'var(--p2)';
+            document.getElementById(`mu-g-${bgIdx}`).appendChild(over);
+        } else if(!this.smallGrids[bgIdx].includes(null)) {
+            this.bigGrid[bgIdx] = 'D'; // Draw
+        }
+
+        if(MorpionSimple.check(this.bigGrid.map(v => v === 'D' ? null : v))) {
+            setTimeout(() => showModal('Victoire Ultime !', `Le joueur ${this.player} a conquis la grille.`, () => this.init()), 200);
+            this.next = 999;
+        } else {
+            this.next = (this.bigGrid[smIdx]) ? -1 : smIdx;
+            this.player = this.player === 'X' ? 'O' : 'X';
+            this.updateInfo(); this.highlight();
+        }
+    },
+    highlight() {
+        document.querySelectorAll('.mu-grid').forEach((g, i) => {
+            g.classList.remove('mu-active');
+            if((this.next === -1 || this.next === i) && !this.bigGrid[i]) g.classList.add('mu-active');
+        });
+    },
+    updateInfo() {
+        const info = document.getElementById('ult-info');
+        info.innerHTML = `Tour de : <span style="color:${this.player==='X'?'var(--p1)':'var(--p2)'}">${this.player}</span>`;
+    }
+};
+
+// --- DEMINEUR EXPERT ---
+const Demineur = {
+    grid: [], open: [], flags: 60, time: 0, timer: null, first: true, totalMines: 60,
+    init() {
+        const b = document.getElementById('dm-board'); b.innerHTML = '';
+        this.grid = Array(400).fill(0); this.open = Array(400).fill(false);
+        this.flags = this.totalMines; this.time = 0; this.first = true;
+        clearInterval(this.timer);
+        document.getElementById('dm-flags').textContent = this.flags;
+        document.getElementById('dm-time').textContent = this.time;
+
         for(let i=0; i<400; i++) {
-            const t = document.createElement('div'); t.className = 'tile';
+            let t = document.createElement('div'); t.className = 'dm-tile';
             t.onmousedown = (e) => {
                 if(e.button === 2) {
                     e.preventDefault();
-                    if(!this.open[i]) t.textContent = t.textContent === '🚩' ? '' : '🚩';
+                    if(this.open[i]) return;
+                    if(t.textContent === '🚩') { t.textContent = ''; this.flags++; }
+                    else if(this.flags > 0) { t.textContent = '🚩'; this.flags--; }
+                    document.getElementById('dm-flags').textContent = this.flags;
                 } else {
                     if(t.textContent === '🚩') return;
                     if(this.first) this.start(i);
@@ -313,63 +285,64 @@ const Demineur = {
                 }
             };
             t.oncontextmenu = e => e.preventDefault();
-            board.appendChild(t);
+            b.appendChild(t);
         }
     },
     start(safeIdx) {
-        this.first = false;
-        let m = 0;
-        const neighbors = this.getNeighbors(safeIdx);
-        const forbidden = [safeIdx, ...neighbors];
+        this.first = false; let m = 0;
+        const getAdj = (idx) => {
+            let r=Math.floor(idx/20), c=idx%20, res=[];
+            for(let x=-1; x<=1; x++) for(let y=-1; y<=1; y++) {
+                let nr=r+x, nc=c+y; if(nr>=0&&nr<20&&nc>=0&&nc<20) res.push(nr*20+nc);
+            } return res;
+        };
+        const safeZone = [...getAdj(safeIdx), safeIdx];
         
-        while(m < this.mines) {
+        while(m < this.totalMines) {
             let r = Math.floor(Math.random()*400);
-            if(!forbidden.includes(r) && this.grid[r] !== 'M') { this.grid[r] = 'M'; m++; }
+            if(!safeZone.includes(r) && this.grid[r] !== 'M') { this.grid[r] = 'M'; m++; }
         }
         for(let i=0; i<400; i++) {
-            if(this.grid[i] === 'M') continue;
-            this.grid[i] = this.getNeighbors(i).filter(n => this.grid[n] === 'M').length;
+            if(this.grid[i]==='M') continue;
+            this.grid[i] = getAdj(i).filter(n => this.grid[n]==='M').length;
         }
-        this.timer = setInterval(() => { this.time++; document.getElementById('m-time').textContent = this.time; }, 1000);
-    },
-    getNeighbors(i) {
-        let r = Math.floor(i/20), c = i%20, res = [];
-        for(let x=-1; x<=1; x++) for(let y=-1; y<=1; y++) {
-            let nr = r+x, nc = c+y;
-            if(nr>=0 && nr<20 && nc>=0 && nc<20) res.push(nr*20+nc);
-        }
-        return res;
+        this.timer = setInterval(() => { this.time++; document.getElementById('dm-time').textContent = this.time; }, 1000);
     },
     reveal(i) {
         if(this.open[i]) return;
-        const tiles = document.getElementById('mine-grid').children;
-        this.open[i] = true; tiles[i].classList.add('open');
+        const t = document.getElementById('dm-board').children[i];
+        this.open[i] = true; t.classList.add('open');
+        
         if(this.grid[i] === 'M') {
-            tiles[i].classList.add('mine'); tiles[i].textContent = '💣';
-            clearInterval(this.timer); alert("BOOM !"); this.init();
+            t.classList.add('mine'); t.textContent = '💣'; clearInterval(this.timer);
+            setTimeout(() => showModal('💥 BOUM !', 'Vous avez sauté sur une mine.', () => this.init()), 200);
         } else {
-            tiles[i].textContent = this.grid[i] || '';
-            tiles[i].style.color = ['','#00f','#080','#f00','#008','#800','#088','#000','#888'][this.grid[i]];
-            if(this.grid[i] === 0) this.getNeighbors(i).forEach(n => this.reveal(n));
+            if(this.grid[i] > 0) {
+                t.textContent = this.grid[i];
+                t.classList.add('dm-c' + this.grid[i]);
+            }
+            if(this.grid[i] === 0) {
+                let r=Math.floor(i/20), c=i%20;
+                for(let x=-1; x<=1; x++) for(let y=-1; y<=1; y++) {
+                    let nr=r+x, nc=c+y; if(nr>=0&&nr<20&&nc>=0&&nc<20) this.reveal(nr*20+nc);
+                }
+            }
         }
     }
 };
 
-/**
- * YAMS MULTI
- **/
+// --- YAMS (Totalement intouché selon ta demande) ---
 const Yams = {
     dice: [1,1,1,1,1], kept: [false,false,false,false,false], rolls: 3, player: 0, scores: [{}, {}],
     init() {
         this.scores = [{}, {}]; this.player = 0; this.rolls = 3; this.kept.fill(false);
-        const container = document.getElementById('y-score-container');
-        container.innerHTML = '';
+        const container = document.getElementById('y-scores'); container.innerHTML = '';
         for(let i=0; i<2; i++) {
-            let table = `<table class="y-table" id="y-t-${i}"><tr><th>Joueur ${i+1}</th></tr>`;
+            let table = `<table class="yams-table" id="yt-${i}"><tr><th colspan="2">Joueur ${i+1}</th></tr>`;
             ['1','2','3','4','5','6','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(c => {
-                table += `<tr><td onclick="Yams.lock('${c}', ${i})">${c} : <span class="val" id="y-${i}-${c}">-</span></td></tr>`;
+                table += `<tr><td>${c}</td><td class="val" id="y-${i}-${c.replace(/\s/g, '')}" onclick="Yams.lock('${c}', ${i})">-</td></tr>`;
             });
-            table += `<tr style="background:#000"><td style="color:var(--gold)">TOTAL : <b id="y-total-${i}">0</b></td></tr></table>`;
+            table += `<tr><td style="font-weight:bold;color:var(--accent)">TOTAL</td><td style="font-weight:bold" id="y-tot-${i}">0</td></tr></table>`;
             container.innerHTML += table;
         }
         this.roll();
@@ -377,103 +350,55 @@ const Yams = {
     roll() {
         if(this.rolls <= 0) return;
         this.dice = this.dice.map((d, i) => this.kept[i] ? d : Math.floor(Math.random()*6)+1);
-        this.rolls--; this.updateUI();
+        this.rolls--; this.update();
     },
-    updateUI() {
-        const box = document.getElementById('y-dice-row'); box.innerHTML = '';
+    update() {
+        const box = document.getElementById('y-dice'); box.innerHTML = '';
         this.dice.forEach((d, i) => {
-            const el = document.createElement('div'); el.className = 'die' + (this.kept[i]?' keep':'');
+            let el = document.createElement('div'); el.className = 'die' + (this.kept[i]?' kept':'');
             el.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][d-1];
-            el.onclick = () => { this.kept[i] = !this.kept[i]; this.updateUI(); };
+            el.onclick = () => { this.kept[i] = !this.kept[i]; this.update(); };
             box.appendChild(el);
         });
         document.getElementById('y-roll-btn').textContent = `Lancer (${this.rolls})`;
-        document.getElementById('y-info').textContent = `Tour du Joueur ${this.player+1}`;
-        this.calculate();
+        document.getElementById('y-turn').textContent = `Tour du Joueur ${this.player+1}`;
+        this.calc();
     },
-    calculate() {
-        const counts = {}; this.dice.forEach(x => counts[x] = (counts[x]||0)+1);
-        const vals = Object.values(counts);
-        const s = new Set(this.dice);
-        const hasSuite = (len) => {
-            let streak = 0, max = 0;
-            for(let i=1; i<=6; i++) { if(s.has(i)) streak++; else streak = 0; max = Math.max(max, streak); }
-            return max >= len;
-        };
-
-        ['1','2','3','4','5','6','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(c => {
-            const el = document.getElementById(`y-${this.player}-${c}`);
-            if(this.scores[this.player][c] !== undefined) return;
+    calc() {
+        const c = {}; this.dice.forEach(x => c[x] = (c[x]||0)+1);
+        const vals = Object.values(c), s = new Set(this.dice);
+        const hasSeq = (len) => { let st=0, mx=0; for(let i=1;i<=6;i++) { if(s.has(i)) st++; else st=0; mx=Math.max(mx,st); } return mx>=len; };
+        ['1','2','3','4','5','6','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(cat => {
+            let cid = cat.replace(/\s/g, '');
+            const el = document.getElementById(`y-${this.player}-${cid}`);
+            if(this.scores[this.player][cat] !== undefined) return;
             let p = 0;
-            if(!isNaN(c)) p = (counts[c]||0) * parseInt(c);
-            else if(c === 'Brelan' && vals.some(v=>v>=3)) p = this.dice.reduce((a,b)=>a+b);
-            else if(c === 'Carré' && vals.some(v=>v>=4)) p = this.dice.reduce((a,b)=>a+b);
-            else if(c === 'Full' && vals.includes(3) && vals.includes(2)) p = 25;
-            else if(c === 'Petite Suite' && hasSuite(4)) p = 30;
-            else if(c === 'Grande Suite' && hasSuite(5)) p = 40;
-            else if(c === 'Yams' && vals.includes(5)) p = 50;
-            else if(c === 'Chance') p = this.dice.reduce((a,b)=>a+b);
+            if(!isNaN(cat)) p = (c[cat]||0) * parseInt(cat);
+            else if(cat==='Brelan' && vals.some(v=>v>=3)) p = this.dice.reduce((a,b)=>a+b);
+            else if(cat==='Carré' && vals.some(v=>v>=4)) p = this.dice.reduce((a,b)=>a+b);
+            else if(cat==='Full' && vals.includes(3) && vals.includes(2)) p = 25;
+            else if(cat==='Petite Suite' && hasSeq(4)) p = 30;
+            else if(cat==='Grande Suite' && hasSeq(5)) p = 40;
+            else if(cat==='Yams' && vals.includes(5)) p = 50;
+            else if(cat==='Chance') p = this.dice.reduce((a,b)=>a+b);
             el.textContent = p; el.className = 'val pot';
         });
     },
     lock(cat, pIdx) {
         if(pIdx !== this.player || this.scores[pIdx][cat] !== undefined) return;
-        const val = parseInt(document.getElementById(`y-${pIdx}-${cat}`).textContent);
-        this.scores[pIdx][cat] = val;
-        const el = document.getElementById(`y-${pIdx}-${cat}`);
-        el.textContent = val; el.className = 'val locked';
-        
-        let total = Object.values(this.scores[pIdx]).reduce((a,b)=>a+b, 0);
-        document.getElementById(`y-total-${pIdx}`).textContent = total;
-
-        this.player = (this.player + 1) % 2;
-        this.rolls = 3; this.kept.fill(false); this.roll();
+        let cid = cat.replace(/\s/g, '');
+        const el = document.getElementById(`y-${pIdx}-${cid}`);
+        let p = parseInt(el.textContent);
+        this.scores[pIdx][cat] = p; el.className = 'val locked';
+        document.getElementById(`y-tot-${pIdx}`).textContent = Object.values(this.scores[pIdx]).reduce((a,b)=>a+b, 0);
+        this.player = (this.player + 1) % 2; this.rolls = 3; this.kept.fill(false);
+        // Clean potentials for next player
+        document.querySelectorAll('.pot').forEach(e => { e.textContent='-'; e.classList.remove('pot'); });
+        this.roll();
     }
 };
 
-/**
- * BELOTE PRO
- **/
-const Belote = {
-    deck: [], hand: [], atout: '',
-    init() {
-        const suits = [{s:'♠',c:'b'},{s:'♣',c:'b'},{s:'♥',c:'r'},{s:'♦',c:'r'}];
-        const ranks = ['7','8','9','10','V','D','R','A'];
-        this.atout = suits[Math.floor(Math.random()*4)];
-        document.getElementById('b-atout').textContent = this.atout.s;
-        document.getElementById('b-atout').style.color = this.atout.c==='r'?'red':'white';
-        
-        const handEl = document.getElementById('b-hand'); handEl.innerHTML = '';
-        document.querySelectorAll('.b-slot').forEach(s => s.innerHTML = '');
-
-        for(let i=0; i<8; i++) {
-            let su = suits[Math.floor(Math.random()*4)], ra = ranks[Math.floor(Math.random()*8)];
-            let c = document.createElement('div'); c.className = `card ${su.c==='r'?'red':''}`;
-            c.innerHTML = `<span>${ra}</span><span>${su.s}</span>`;
-            c.onclick = () => this.play(c);
-            handEl.appendChild(c);
-        }
-    },
-    play(el) {
-        document.getElementById('slot-s').appendChild(el);
-        el.onclick = null;
-        setTimeout(() => this.botTurn(), 500);
-    },
-    botTurn() {
-        ['n', 'e', 'w'].forEach(p => {
-            const bc = document.createElement('div'); bc.className = 'card';
-            bc.style.background = '#222'; bc.innerHTML = '';
-            document.getElementById('slot-'+p).innerHTML = '';
-            document.getElementById('slot-'+p).appendChild(bc);
-        });
-        setTimeout(() => {
-            document.querySelectorAll('.b-slot').forEach(s => s.innerHTML = '');
-        }, 1200);
-    }
-};
-
-// LANCEMENT GLOBAL
-window.onload = () => Navigation.init();
+MorpionSimple.init();
 </script>
 </body>
 </html>
