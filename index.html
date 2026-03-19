@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcade Ultimate 2026 - Masterpiece & Network</title>
+    <title>Arcade Ultimate 2026 - Full Network</title>
     <style>
         /* =========================================
            1. VARIABLES ET BASE
@@ -20,15 +20,8 @@
         /* =========================================
            2. SYSTÈME DE MODAL (POP-UP)
            ========================================= */
-        #modal-overlay {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999;
-            align-items: center; justify-content: center; backdrop-filter: blur(8px);
-        }
-        .modal-box {
-            background: var(--panel-bg); padding: 40px; border-radius: 20px; text-align: center;
-            border: 2px solid var(--accent); box-shadow: 0 15px 50px var(--accent-glow);
-            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-width: 450px;
-        }
+        #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .modal-box { background: var(--panel-bg); padding: 40px; border-radius: 20px; text-align: center; border: 2px solid var(--accent); box-shadow: 0 15px 50px var(--accent-glow); animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-width: 450px; }
         .modal-box h2 { font-size: 2.2rem; margin-bottom: 15px; }
         .modal-box p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 30px; line-height: 1.5; }
         @keyframes modalPop { 0% { transform: scale(0.7) translateY(30px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
@@ -36,7 +29,7 @@
         /* =========================================
            3. INTERFACE GLOBALE
            ========================================= */
-        nav { width: 270px; background: #020617; padding: 30px 20px; border-right: 1px solid #1e293b; display: flex; flex-direction: column; z-index: 100; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+        nav { width: 280px; background: #020617; padding: 30px 20px; border-right: 1px solid #1e293b; display: flex; flex-direction: column; z-index: 100; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
         nav h2 { color: var(--accent); text-transform: uppercase; letter-spacing: 3px; text-align: center; font-size: 1.1rem; margin-bottom: 30px; }
         nav ul { list-style: none; overflow-y: auto; }
         nav li { padding: 15px; cursor: pointer; border-radius: 12px; margin-bottom: 10px; background: var(--panel-bg); transition: 0.3s; font-weight: 600; display: flex; align-items: center; gap: 15px; border: 1px solid transparent; }
@@ -45,7 +38,7 @@
         .nav-divider { height: 2px; background: #1e293b; margin: 15px 0; border-radius: 2px; }
 
         main { flex-grow: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; position: relative; scroll-behavior: smooth; }
-        .screen { display: none; width: 100%; max-width: 1000px; animation: screenFade 0.4s ease-out; }
+        .screen { display: none; width: 100%; max-width: 1100px; animation: screenFade 0.4s ease-out; }
         .screen.active { display: block; }
         @keyframes screenFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
@@ -53,10 +46,12 @@
         .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 40px; font-size: 1.1rem; }
         .btn { padding: 12px 28px; background: var(--accent); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; color: #000; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; margin: 5px; }
         .btn:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--accent-glow); }
-        input[type="text"] { padding: 15px; font-size: 1.5rem; border-radius: 8px; border: 2px solid #334155; background: #020617; color: white; text-align: center; margin: 10px; text-transform: uppercase; width: 250px; font-weight: bold; }
+        .btn:disabled { background: #334155; color: #94a3b8; cursor: not-allowed; box-shadow: none; transform: none; }
+        input[type="text"], select { padding: 15px; font-size: 1.2rem; border-radius: 8px; border: 2px solid #334155; background: #020617; color: white; text-align: center; margin: 10px; font-weight: bold; outline: none; }
+        select { width: 300px; cursor: pointer; }
 
         /* =========================================
-           4. MORPIONS (Local & Réseau)
+           4. MORPIONS (Design Partagé)
            ========================================= */
         .ms-grid { display: grid; grid-template-columns: repeat(3, 130px); gap: 12px; margin: 0 auto 40px auto; width: fit-content; }
         .ms-cell { height: 130px; background: var(--panel-bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 5rem; cursor: pointer; font-weight: 900; transition: 0.2s; border: 2px solid #1e293b; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
@@ -64,7 +59,7 @@
         .ms-cell.win { animation: pulseWin 1s infinite alternate; background: rgba(16, 185, 129, 0.1); border-color: var(--accent); }
         @keyframes pulseWin { from { transform: scale(1); box-shadow: 0 0 10px var(--accent-glow); } to { transform: scale(1.05); box-shadow: 0 0 30px var(--accent-glow); } }
 
-        #mu-status { text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; }
+        .mu-status { text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; }
         .mu-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; background: #020617; padding: 20px; border-radius: 20px; margin: 0 auto 30px auto; width: fit-content; border: 3px solid #1e293b; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .mu-grid { display: grid; grid-template-columns: repeat(3, 50px); gap: 4px; background: var(--panel-bg); padding: 8px; border-radius: 10px; position: relative; transition: 0.3s; }
         .mu-cell { height: 50px; background: var(--bg-color); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; cursor: pointer; }
@@ -78,20 +73,19 @@
            ========================================= */
         .dm-header { display: flex; justify-content: center; gap: 40px; margin-bottom: 30px; font-size: 1.4rem; font-weight: bold; background: #000; padding: 15px 30px; border-radius: 50px; border: 1px solid #1e293b; }
         #dm-board { display: grid; grid-template-columns: repeat(20, 30px); gap: 2px; background: #334155; padding: 3px; border: 4px solid #1e293b; margin: 0 auto 30px auto; width: fit-content; border-radius: 8px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
-        .dm-tile { width: 30px; height: 30px; background: var(--panel-bg); display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 900; cursor: pointer; user-select: none; border-radius: 3px; transition: background 0.1s; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3), inset 2px 2px 5px rgba(255,255,255,0.05); }
+        .dm-tile { width: 30px; height: 30px; background: var(--panel-bg); display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 900; cursor: pointer; border-radius: 3px; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3); }
         .dm-tile:hover:not(.open) { background: var(--panel-hover); }
         .dm-tile.open { background: #cbd5e1; box-shadow: inset 2px 2px 6px rgba(0,0,0,0.3); cursor: default; }
         .dm-tile.mine { background: var(--player-x); font-size: 1.2rem; }
         .dm-c1 { color: #2563eb; } .dm-c2 { color: #16a34a; } .dm-c3 { color: #dc2626; } .dm-c4 { color: #7c3aed; }
-        .dm-c5 { color: #991b1b; } .dm-c6 { color: #0d9488; } .dm-c7 { color: #000000; } .dm-c8 { color: #57534e; }
 
         /* =========================================
-           6. YAMS PRO MULTI-JOUEURS
+           6. YAMS (Design Partagé)
            ========================================= */
-        .yams-layout { display: flex; gap: 50px; justify-content: center; align-items: flex-start; margin-top: 20px; flex-wrap: wrap; }
+        .yams-layout { display: flex; gap: 40px; justify-content: center; align-items: flex-start; margin-top: 20px; flex-wrap: wrap; }
         .y-dice-area { background: var(--panel-bg); padding: 40px; border-radius: 20px; text-align: center; border: 2px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 400px; }
         .y-dice-container { font-size: 4.5rem; display: flex; gap: 15px; margin-bottom: 30px; justify-content: center; min-height: 80px; }
-        .y-die { cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .y-die { cursor: pointer; transition: 0.3s; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .y-die.kept { color: var(--accent); transform: translateY(-15px) scale(1.1); text-shadow: 0 10px 20px var(--accent-glow); }
         .y-tables { display: flex; gap: 15px; }
         .y-table { border-collapse: collapse; background: var(--panel-bg); border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
@@ -103,38 +97,28 @@
         .y-table .total-row { background: #020617; color: var(--gold); font-weight: 900; font-size: 1.3rem; }
 
         /* =========================================
-           7. BELOTE (LE MOTEUR DE PLI)
+           7. BELOTE
            ========================================= */
         .bl-info { text-align: center; margin-bottom: 20px; font-size: 1.3rem; font-weight: bold; }
         .bl-atout { display: inline-block; padding: 5px 15px; background: #000; border-radius: 8px; border: 1px solid #333; margin-left: 10px; }
-        .bl-tapis { 
-            background: radial-gradient(circle, #065f46 0%, #022c22 100%); width: 700px; height: 450px; 
-            border-radius: 220px; margin: 0 auto; border: 15px solid #451a03; 
-            position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 50px rgba(0,0,0,0.6);
-        }
-        .bl-slot { position: absolute; width: 80px; height: 115px; border: 2px dashed rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .bl-tapis { background: radial-gradient(circle, #065f46 0%, #022c22 100%); width: 700px; height: 450px; border-radius: 220px; margin: 0 auto; border: 15px solid #451a03; position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.8); }
+        .bl-slot { position: absolute; width: 80px; height: 115px; border: 2px dashed rgba(255,255,255,0.15); border-radius: 8px; }
         #bl-s-n { top: 25px; left: 295px; } #bl-s-s { bottom: 25px; left: 295px; }
         #bl-s-e { right: 60px; top: 152px; } #bl-s-w { left: 60px; top: 152px; }
-        .bl-card { 
-            width: 80px; height: 115px; background: #fff; color: #000; border-radius: 8px; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            font-weight: 900; font-size: 1.5rem; cursor: pointer; border: 1px solid #ccc; 
-            box-shadow: -2px 5px 15px rgba(0,0,0,0.4); transition: 0.3s; position: relative;
-        }
+        .bl-card { width: 80px; height: 115px; background: #fff; color: #000; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5rem; cursor: pointer; box-shadow: -2px 5px 15px rgba(0,0,0,0.4); position: relative; transition: 0.3s; }
         .bl-card.red { color: #ef4444; }
         .bl-hand { display: flex; gap: -20px; justify-content: center; margin-top: 30px; height: 130px; }
-        .bl-hand .bl-card { margin-left: -30px; }
-        .bl-hand .bl-card:first-child { margin-left: 0; }
-        .bl-hand .bl-card:hover { transform: translateY(-20px); z-index: 50; border-color: var(--accent); box-shadow: 0 10px 25px rgba(0,0,0,0.6); }
-        .bl-played { position: absolute; animation: playCard 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; pointer-events: none; }
+        .bl-hand .bl-card { margin-left: -30px; } .bl-hand .bl-card:first-child { margin-left: 0; }
+        .bl-hand .bl-card:hover { transform: translateY(-20px); z-index: 50; border-color: var(--accent); }
+        .bl-played { position: absolute; animation: playCard 0.4s forwards; pointer-events: none; }
         @keyframes playCard { from { transform: scale(1.5) translateY(50px); opacity: 0; } to { transform: scale(1) translateY(0) rotate(calc(-5deg + 10deg * var(--rand))); opacity: 1; } }
 
         /* =========================================
            8. FIREBASE NETWORK LOBBY
            ========================================= */
-        .lobby-box { background: var(--panel-bg); padding: 40px; border-radius: 20px; border: 2px solid #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
-        .room-code-display { font-size: 4rem; letter-spacing: 10px; color: var(--accent); font-weight: 900; margin: 30px 0; background: #020617; padding: 20px; border-radius: 15px; }
-        #net-status-bar { background: #020617; padding: 20px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 30px; font-size: 1.4rem; font-weight: bold; }
+        .lobby-box { background: var(--panel-bg); padding: 40px; border-radius: 20px; border: 2px solid #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; max-width: 600px; margin: auto; }
+        .room-code-display { font-size: 4.5rem; letter-spacing: 10px; color: var(--accent); font-weight: 900; margin: 30px 0; background: #020617; padding: 20px; border-radius: 15px; }
+        .net-status-bar { background: #020617; padding: 20px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 30px; font-size: 1.4rem; font-weight: bold; text-align: center; }
     </style>
 </head>
 <body>
@@ -156,73 +140,68 @@
         <li data-target="s-yams"><span>🎲</span> Yams Complet</li>
         <li data-target="s-belote"><span>🃏</span> Belote (Partie)</li>
         <div class="nav-divider"></div>
-        <li data-target="s-net-lobby" style="color:var(--accent); border-color:var(--accent);"><span>🌐</span> Morpion en Ligne</li>
+        <li data-target="s-net-lobby" style="color:var(--accent); border-color:var(--accent);"><span>🌐</span> Salon Multijoueur</li>
     </ul>
 </nav>
 
 <main>
     <section id="s-sim" class="screen active">
-        <h1>Tic-Tac-Toe</h1>
-        <p class="subtitle">Mode Local (Même écran)</p>
+        <h1>Tic-Tac-Toe</h1><p class="subtitle">Mode Local</p>
         <div id="ms-board" class="ms-grid"></div>
-        <div style="text-align: center;"><button class="btn" onclick="App.Sim.init()">Réinitialiser la grille</button></div>
+        <div style="text-align: center;"><button class="btn" onclick="App.Sim.init()">Réinitialiser</button></div>
     </section>
 
     <section id="s-ult" class="screen">
-        <h1>Morpion Ultime</h1>
-        <p class="subtitle" id="mu-status">Chargement...</p>
+        <h1>Morpion Ultime</h1><p class="subtitle mu-status" id="mu-status">Chargement...</p>
         <div id="mu-board" class="mu-container"></div>
-        <div style="text-align: center;"><button class="btn" onclick="App.Ult.init()">Abandonner et recommencer</button></div>
+        <div style="text-align: center;"><button class="btn" onclick="App.Ult.init()">Recommencer</button></div>
     </section>
 
     <section id="s-mine" class="screen">
         <h1>Démineur Expert</h1>
-        <div class="dm-header">
-            <span>🚩 Drapeaux : <span id="dm-flags" style="color:var(--player-x)">60</span></span>
-            <span>⏱️ Temps : <span id="dm-time" style="color:var(--accent)">0</span>s</span>
-        </div>
+        <div class="dm-header"><span>🚩 <span id="dm-flags" style="color:var(--player-x)">60</span></span><span>⏱️ <span id="dm-time" style="color:var(--accent)">0</span>s</span></div>
         <div id="dm-board"></div>
         <div style="text-align: center;"><button class="btn" onclick="App.Mine.init()">Nouvelle Génération</button></div>
     </section>
 
     <section id="s-yams" class="screen">
-        <h1>Yams Championship</h1>
-        <p class="subtitle">Sélectionnez vos dés pour les garder entre deux lancers.</p>
+        <h1>Yams Championship</h1><p class="subtitle">Mode Local</p>
         <div class="yams-layout">
             <div class="y-dice-area">
                 <div id="y-dice" class="y-dice-container"></div>
-                <button id="y-roll-btn" class="btn" onclick="App.Yams.roll()">Lancer les dés (3)</button>
+                <button id="y-roll-btn" class="btn" onclick="App.Yams.roll()">Lancer les dés</button>
                 <p id="y-turn" style="margin-top:20px; font-size:1.3rem; font-weight:800; color:var(--accent);"></p>
             </div>
             <div id="y-score-container" class="y-tables"></div>
         </div>
-        <div style="text-align: center; margin-top: 30px;"><button class="btn" onclick="App.Yams.init()">Remettre à zéro le championnat</button></div>
+        <div style="text-align: center; margin-top: 30px;"><button class="btn" onclick="App.Yams.init()">Remettre à zéro</button></div>
     </section>
 
     <section id="s-belote" class="screen">
-        <h1>Belote Interactive</h1>
-        <div class="bl-info">
-            Atout de la manche : <span id="bl-atout" class="bl-atout">-</span>
-        </div>
-        <div class="bl-tapis">
-            <div id="bl-s-n" class="bl-slot"></div>
-            <div id="bl-s-s" class="bl-slot"></div>
-            <div id="bl-s-e" class="bl-slot"></div>
-            <div id="bl-s-w" class="bl-slot"></div>
-        </div>
+        <h1>Belote Interactive</h1><div class="bl-info">Atout : <span id="bl-atout" class="bl-atout">-</span></div>
+        <div class="bl-tapis"><div id="bl-s-n" class="bl-slot"></div><div id="bl-s-s" class="bl-slot"></div><div id="bl-s-e" class="bl-slot"></div><div id="bl-s-w" class="bl-slot"></div></div>
         <div id="bl-hand" class="bl-hand"></div>
-        <div style="text-align: center; margin-top: 30px;"><button class="btn" onclick="App.Belote.init()">Distribuer une nouvelle main</button></div>
+        <div style="text-align: center; margin-top: 30px;"><button class="btn" onclick="App.Belote.init()">Nouvelle Donne</button></div>
     </section>
 
     <section id="s-net-lobby" class="screen">
         <div class="lobby-box">
             <h1>Arcade Réseau</h1>
-            <p class="subtitle">Jouez sur deux téléphones distincts avec Firebase.</p>
+            <p class="subtitle">Jouez avec un ami sur deux appareils distincts.</p>
+            
             <div style="margin: 40px 0; border-bottom: 2px solid #1e293b; padding-bottom: 40px;">
-                <button class="btn" id="btn-create-room">Héberger un Salon</button>
+                <h3 style="margin-bottom: 15px;">1. Créer une partie</h3>
+                <select id="net-game-select">
+                    <option value="sim">Morpion Simple</option>
+                    <option value="ult">Morpion Ultime</option>
+                    <option value="yams">Yams</option>
+                </select><br>
+                <button class="btn" id="btn-create-room" style="margin-top:15px;">Héberger le Salon</button>
             </div>
+
             <div>
-                <input type="text" id="input-room-code" placeholder="Entrez le code" maxlength="4"><br>
+                <h3 style="margin-bottom: 15px;">2. Rejoindre une partie</h3>
+                <input type="text" id="input-room-code" placeholder="Code Secret" maxlength="4"><br>
                 <button class="btn" id="btn-join-room" style="background:var(--player-o); color:white;">Rejoindre l'Ami</button>
             </div>
         </div>
@@ -230,20 +209,35 @@
 
     <section id="s-net-waiting" class="screen">
         <div class="lobby-box">
-            <h2>Votre Code Secret :</h2>
+            <h2>Code du Salon :</h2>
             <div class="room-code-display" id="display-room-code">----</div>
-            <p>Donnez ce code à votre adversaire. La partie se lancera automatiquement.</p>
+            <p>Donnez ce code à votre adversaire. Le jeu démarrera automatiquement.</p>
             <button class="btn" style="background:var(--player-x); color:white; margin-top:20px;" onclick="window.location.reload()">Annuler</button>
         </div>
     </section>
 
-    <section id="s-net-game" class="screen">
-        <h1>Morpion En Ligne</h1>
-        <div id="net-status-bar">Synchronisation...</div>
-        <div id="net-board" class="ms-grid"></div>
-        <div style="text-align: center; margin-top: 20px;">
-            <button class="btn" id="btn-net-leave" style="background:var(--player-x); color:white;">Quitter le Salon</button>
+    <section id="s-net-sim" class="screen">
+        <h1>Morpion En Ligne</h1><div id="net-sim-status" class="net-status-bar">Sync...</div>
+        <div id="net-sim-board" class="ms-grid"></div>
+        <div style="text-align: center;"><button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button></div>
+    </section>
+
+    <section id="s-net-ult" class="screen">
+        <h1>Morpion Ultime En Ligne</h1><div id="net-ult-status" class="net-status-bar">Sync...</div>
+        <div id="net-ult-board" class="mu-container"></div>
+        <div style="text-align: center;"><button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button></div>
+    </section>
+
+    <section id="s-net-yams" class="screen">
+        <h1>Yams En Ligne</h1><div id="net-yams-status" class="net-status-bar">Sync...</div>
+        <div class="yams-layout">
+            <div class="y-dice-area">
+                <div id="net-yams-dice" class="y-dice-container"></div>
+                <button id="net-yams-roll-btn" class="btn">Lancer les dés</button>
+            </div>
+            <div id="net-yams-scores" class="y-tables"></div>
         </div>
+        <div style="text-align: center; margin-top:30px;"><button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button></div>
     </section>
 </main>
 
@@ -259,15 +253,14 @@
         projectId: "arcade-8546c",
         storageBucket: "arcade-8546c.firebasestorage.app",
         messagingSenderId: "864425246355",
-        appId: "1:864425246355:web:80e9bdd92a84d0320c9766",
-        measurementId: "G-YVGJFWT9S4"
+        appId: "1:864425246355:web:80e9bdd92a84d0320c9766"
     };
 
     const fbApp = initializeApp(firebaseConfig);
     const db = getDatabase(fbApp);
 
     // =========================================================
-    // OBJET GLOBAL APP (Pour que l'HTML y ait accès)
+    // UI & APP GLOBALE
     // =========================================================
     window.UI = {
         modalCb: null,
@@ -275,13 +268,9 @@
             document.getElementById('modal-title').innerHTML = title;
             document.getElementById('modal-title').style.color = (title.includes('Victoire') || title.includes('Gagné')) ? 'var(--accent)' : 'var(--player-x)';
             document.getElementById('modal-desc').innerHTML = desc;
-            this.modalCb = cb;
-            document.getElementById('modal-overlay').style.display = 'flex';
+            this.modalCb = cb; document.getElementById('modal-overlay').style.display = 'flex';
         },
-        closeModal() {
-            document.getElementById('modal-overlay').style.display = 'none';
-            if(this.modalCb) this.modalCb();
-        },
+        closeModal() { document.getElementById('modal-overlay').style.display = 'none'; if(this.modalCb) this.modalCb(); },
         switchScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
@@ -291,77 +280,58 @@
 
     window.App = {};
 
-    // --- 1. MORPION LOCAL ---
+    // =========================================================
+    // JEUX LOCAUX (Bases intactes)
+    // =========================================================
+    
     window.App.Sim = {
         state: [], player: 'X',
         init() {
             const b = document.getElementById('ms-board'); b.innerHTML = '';
             this.state = Array(9).fill(''); this.player = 'X';
             for(let i=0; i<9; i++) {
-                let c = document.createElement('div'); c.className = 'ms-cell';
-                c.onclick = () => this.play(i, c);
-                b.appendChild(c);
+                let c = document.createElement('div'); c.className = 'ms-cell'; c.onclick = () => this.play(i, c); b.appendChild(c);
             }
         },
         play(i, el) {
             if(this.state[i] !== '') return;
-            this.state[i] = this.player; el.textContent = this.player;
-            el.style.color = this.player === 'X' ? 'var(--player-x)' : 'var(--player-o)';
-            el.classList.add('taken');
+            this.state[i] = this.player; el.textContent = this.player; el.style.color = this.player === 'X' ? 'var(--player-x)' : 'var(--player-o)'; el.classList.add('taken');
             const win = this.checkWin(this.state);
-            if(win) {
-                win.forEach(idx => document.getElementById('ms-board').children[idx].classList.add('win'));
-                setTimeout(() => window.UI.showModal('Victoire !', `Le joueur <b style="color:${el.style.color}">${this.player}</b> a gagné en local.`, () => this.init()), 600);
-            } else if(!this.state.includes('')) {
-                setTimeout(() => window.UI.showModal('Égalité', 'Match Nul.', () => this.init()), 200);
-            } else this.player = this.player === 'X' ? 'O' : 'X';
+            if(win) { win.forEach(idx => document.getElementById('ms-board').children[idx].classList.add('win')); setTimeout(() => window.UI.showModal('Victoire !', `Le joueur <b style="color:${el.style.color}">${this.player}</b> a gagné en local.`, () => this.init()), 600); }
+            else if(!this.state.includes('')) setTimeout(() => window.UI.showModal('Égalité', 'Match Nul.', () => this.init()), 200);
+            else this.player = this.player === 'X' ? 'O' : 'X';
         },
-        checkWin(g) {
-            const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-            return w.find(l => g[l[0]] && g[l[0]] === g[l[1]] && g[l[0]] === g[l[2]]);
-        }
+        checkWin(g) { const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]; return w.find(l => g[l[0]] && g[l[0]] === g[l[1]] && g[l[0]] === g[l[2]]); }
     };
 
-    // --- 2. MORPION ULTIME ---
     window.App.Ult = {
         bGrid: [], sGrids: [], p: 'X', n: -1,
         init() {
             const b = document.getElementById('mu-board'); b.innerHTML = '';
-            this.bGrid = Array(9).fill(''); this.sGrids = Array(9).fill().map(()=>Array(9).fill(''));
+            this.bGrid = Array(9).fill(''); this.sGrids = Array.from({length: 9}, () => Array(9).fill(''));
             this.p = 'X'; this.n = -1; this.ui();
             for(let i=0; i<9; i++) {
                 let g = document.createElement('div'); g.className = 'mu-grid'; g.id = `mu-g-${i}`;
-                for(let j=0; j<9; j++) {
-                    let c = document.createElement('div'); c.className = 'mu-cell';
-                    c.onclick = () => this.play(i, j, c); g.appendChild(c);
-                }
+                for(let j=0; j<9; j++) { let c = document.createElement('div'); c.className = 'mu-cell'; c.onclick = () => this.play(i, j, c); g.appendChild(c); }
                 b.appendChild(g);
             }
             this.hl();
         },
         play(bg, sg, el) {
             if(this.sGrids[bg][sg] !== '' || this.bGrid[bg] !== '' || (this.n !== -1 && this.n !== bg)) return;
-            this.sGrids[bg][sg] = this.p; el.textContent = this.p; el.classList.add('taken');
-            el.style.color = this.p === 'X' ? 'var(--player-x)' : 'var(--player-o)';
+            this.sGrids[bg][sg] = this.p; el.textContent = this.p; el.classList.add('taken'); el.style.color = this.p === 'X' ? 'var(--player-x)' : 'var(--player-o)';
             if(window.App.Sim.checkWin(this.sGrids[bg])) {
-                this.bGrid[bg] = this.p;
-                let cov = document.createElement('div'); cov.className = 'mu-won'; cov.textContent = this.p;
+                this.bGrid[bg] = this.p; let cov = document.createElement('div'); cov.className = 'mu-won'; cov.textContent = this.p;
                 cov.style.color = el.style.color; document.getElementById(`mu-g-${bg}`).appendChild(cov);
             } else if(!this.sGrids[bg].includes('')) this.bGrid[bg] = 'D';
             
-            if(window.App.Sim.checkWin(this.bGrid.map(v=>v==='D'?'':v))) {
-                setTimeout(() => window.UI.showModal('Victoire Ultime', `Le stratège <b>${this.p}</b> domine la carte !`, () => this.init()), 300);
-                this.n = 999;
-            } else {
-                this.n = (this.bGrid[sg] !== '') ? -1 : sg; this.p = this.p === 'X' ? 'O' : 'X';
-                this.ui(); this.hl();
-            }
+            if(window.App.Sim.checkWin(this.bGrid.map(v=>v==='D'?'':v))) { setTimeout(() => window.UI.showModal('Victoire Ultime', `Le stratège <b>${this.p}</b> domine !`, () => this.init()), 300); this.n = 999; }
+            else { this.n = (this.bGrid[sg] !== '') ? -1 : sg; this.p = this.p === 'X' ? 'O' : 'X'; this.ui(); this.hl(); }
         },
         hl() { document.querySelectorAll('.mu-grid').forEach((g,i) => { g.classList.remove('mu-active'); if((this.n===-1||this.n===i) && this.bGrid[i]==='') g.classList.add('mu-active'); }); },
         ui() { document.getElementById('mu-status').innerHTML = `Tour de : <b style="color:${this.p==='X'?'var(--player-x)':'var(--player-o)'}">${this.p}</b>`; }
     };
 
-    // --- 3. DÉMINEUR EXPERT ---
     window.App.Mine = {
         g: [], o: [], f: 60, t: 0, timer: null, first: true,
         init() {
@@ -388,13 +358,12 @@
         rev(i) {
             if(this.o[i]) return; const t = document.getElementById('dm-board').children[i];
             this.o[i] = true; t.classList.add('open');
-            if(this.g[i]==='M') { t.classList.add('mine'); t.textContent='💣'; clearInterval(this.timer); setTimeout(()=>window.UI.showModal('BOUM !',`Opération échouée à ${this.t} secondes.`,()=>this.init()), 300); }
+            if(this.g[i]==='M') { t.classList.add('mine'); t.textContent='💣'; clearInterval(this.timer); setTimeout(()=>window.UI.showModal('BOUM !',`Échec à ${this.t} sec.`,()=>this.init()), 300); }
             else { if(this.g[i]>0) { t.textContent=this.g[i]; t.classList.add('dm-c'+this.g[i]); } else this.adj(i).forEach(n=>this.rev(n)); }
-            if(this.o.filter(v=>!v).length === 340) { clearInterval(this.timer); setTimeout(()=>window.UI.showModal('Déminage Réussi',`Temps: ${this.t}s`,()=>this.init()),300); }
+            if(this.o.filter(v=>!v).length === 60) { clearInterval(this.timer); setTimeout(()=>window.UI.showModal('Déminage Réussi',`Temps: ${this.t}s`,()=>this.init()),300); }
         }
     };
 
-    // --- 4. YAMS ---
     window.App.Yams = {
         d: [1,1,1,1,1], k: [false,false,false,false,false], r: 3, p: 0, s: [{},{}],
         init() {
@@ -402,7 +371,7 @@
             const c = document.getElementById('y-score-container'); c.innerHTML = '';
             for(let i=0;i<2;i++) {
                 let t = `<table class="y-table" id="yt-${i}"><tr><th colspan="2">Joueur ${i+1}</th></tr>`;
-                ['1','2','3','4','5','6','Bonus (si > 62)','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(cat => {
+                ['1','2','3','4','5','6','Bonus (>62)','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(cat => {
                     if(cat.includes('Bonus')) t += `<tr style="background:#020617"><td style="color:var(--gold)">${cat}</td><td class="val" id="y-${i}-Bonus">0</td></tr>`;
                     else t += `<tr><td>${cat}</td><td class="val" id="y-${i}-${cat.replace(/\s/g,'')}" onclick="window.App.Yams.lock('${cat}', ${i})">-</td></tr>`;
                 });
@@ -420,7 +389,7 @@
                 el.onclick = () => { if(this.r<3){this.k[i]=!this.k[i]; this.ui();} }; b.appendChild(el);
             });
             document.getElementById('y-roll-btn').textContent = `Lancer (${this.r})`;
-            document.getElementById('y-turn').textContent = `C'est au tour du Joueur ${this.p+1}`;
+            document.getElementById('y-turn').textContent = `Joueur ${this.p+1}`;
             this.calc();
         },
         calc() {
@@ -453,12 +422,11 @@
             document.querySelectorAll('.pot').forEach(e=>{e.textContent='-';e.classList.remove('pot');});
             if(Object.keys(this.s[1]).length === 13) {
                 let t0 = parseInt(document.getElementById(`y-tot-0`).textContent), t1 = parseInt(document.getElementById(`y-tot-1`).textContent);
-                window.UI.showModal('Fin du Championnat', `Le vainqueur est : <b>${t0>t1?'Joueur 1':(t1>t0?'Joueur 2':'Égalité')}</b> !<br>Scores : J1(${t0}) - J2(${t1})`, ()=>this.init());
+                window.UI.showModal('Fin !', `Vainqueur: ${t0>t1?'J1':(t1>t0?'J2':'Égalité')}`, ()=>this.init());
             } else this.roll();
         }
     };
 
-    // --- 5. BELOTE ---
     window.App.Belote = {
         play: false,
         init() {
@@ -485,23 +453,30 @@
                 }, i*300));
                 setTimeout(()=>{
                     document.querySelectorAll('.bl-slot').forEach(sl=>sl.innerHTML=''); this.play=false;
-                    if(document.getElementById('bl-hand').children.length===0) window.UI.showModal('Donne Terminée', 'Toutes les cartes ont été jouées.', ()=>this.init());
+                    if(document.getElementById('bl-hand').children.length===0) window.UI.showModal('Fin','',()=>this.init());
                 }, 1800);
             }, 400);
         }
     };
 
     // =========================================================
-    // 6. LE MOTEUR RÉSEAU (FIREBASE)
+    // 7. LE MOTEUR RÉSEAU COMPLET (FIREBASE)
     // =========================================================
     window.App.Network = {
-        room: null, myId: null, ref: null,
+        room: null, myId: null, ref: null, gameType: null,
         
         gen() { let c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',r='';for(let i=0;i<4;i++)r+=c.charAt(Math.floor(Math.random()*c.length));return r; },
         
         async host() {
+            this.gameType = document.getElementById('net-game-select').value;
             this.room = this.gen(); this.myId = 'X'; this.ref = ref(db, 'rooms/' + this.room);
-            await set(this.ref, { status: 'waiting', turn: 'X', board: Array(9).fill(''), winner: '' });
+            
+            let initData = { status: 'waiting', type: this.gameType, turn: 'X', winner: '' };
+            if(this.gameType === 'sim') { initData.board = Array(9).fill(''); }
+            if(this.gameType === 'ult') { initData.bGrid = Array(9).fill(''); initData.sGrids = Array.from({length:9},()=>Array(9).fill('')); initData.next = -1; }
+            if(this.gameType === 'yams') { initData.dice = [1,1,1,1,1]; initData.kept = [false,false,false,false,false]; initData.rolls = 3; initData.scores = { X:{init:true}, O:{init:true} }; }
+
+            await set(this.ref, initData);
             document.getElementById('display-room-code').textContent = this.room;
             window.UI.switchScreen('s-net-waiting');
             this.listen();
@@ -509,88 +484,173 @@
         
         async join() {
             const code = document.getElementById('input-room-code').value.toUpperCase().trim();
-            if(code.length !== 4) return window.UI.showModal('Erreur', 'Le code doit faire 4 caractères.', null);
+            if(code.length !== 4) return window.UI.showModal('Erreur', 'Code invalide.', null);
             const snap = await get(ref(db, 'rooms/' + code));
             if(snap.exists() && snap.val().status === 'waiting') {
                 this.room = code; this.myId = 'O'; this.ref = ref(db, 'rooms/' + this.room);
+                this.gameType = snap.val().type;
                 await update(this.ref, { status: 'playing' });
                 this.listen();
-            } else window.UI.showModal('Erreur', 'Salon introuvable ou déjà plein.', null);
+            } else window.UI.showModal('Erreur', 'Salon introuvable ou plein.', null);
         },
 
         listen() {
             onValue(this.ref, (snap) => {
                 const data = snap.val();
-                if(!data) { window.UI.showModal('Fermé', 'L\'hôte a quitté le salon.', () => window.location.reload()); return; }
+                if(!data) { window.UI.showModal('Fermé', 'Le salon a été fermé.', () => window.location.reload()); return; }
                 if(data.status === 'playing') {
-                    window.UI.switchScreen('s-net-game');
-                    this.render(data); this.status(data);
+                    if(this.gameType === 'sim') { window.UI.switchScreen('s-net-sim'); this.renderSim(data); }
+                    if(this.gameType === 'ult') { window.UI.switchScreen('s-net-ult'); this.renderUlt(data); }
+                    if(this.gameType === 'yams') { window.UI.switchScreen('s-net-yams'); this.renderYams(data); }
                 }
             });
         },
 
-        render(data) {
-            const b = document.getElementById('net-board'); b.innerHTML = '';
-            const currentBoard = data.board || Array(9).fill('');
+        // --- NET: MORPION SIMPLE ---
+        renderSim(data) {
+            const b = document.getElementById('net-sim-board'); b.innerHTML = '';
+            const cBoard = data.board || Array(9).fill('');
             for(let i=0; i<9; i++) {
-                let c = document.createElement('div'); c.className = 'ms-cell' + (currentBoard[i] !== '' ? ' taken' : '');
-                c.textContent = currentBoard[i] || '';
-                if(currentBoard[i]) c.style.color = currentBoard[i] === 'X' ? 'var(--player-x)' : 'var(--player-o)';
-                c.onclick = () => { if(currentBoard[i] === '' && data.winner === '' && data.turn === this.myId) this.play(i, currentBoard); };
-                b.appendChild(c);
+                let c = document.createElement('div'); c.className = 'ms-cell' + (cBoard[i] !== '' ? ' taken' : '');
+                c.textContent = cBoard[i] || ''; if(cBoard[i]) c.style.color = cBoard[i] === 'X' ? 'var(--player-x)' : 'var(--player-o)';
+                c.onclick = async () => {
+                    if(cBoard[i] === '' && data.winner === '' && data.turn === this.myId) {
+                        let nb = [...cBoard]; nb[i] = this.myId; let win = window.App.Sim.checkWin(nb);
+                        await update(this.ref, { board: nb, turn: (this.myId==='X'?'O':'X'), winner: win ? this.myId : (!nb.includes('')?'Draw':'') });
+                    }
+                }; b.appendChild(c);
             }
+            this.statusUI('net-sim-status', data, () => update(this.ref, { board: Array(9).fill(''), turn: 'X', winner: '' }));
         },
 
-        async play(i, currentBoard) {
-            let nb = [...currentBoard]; nb[i] = this.myId;
-            let win = window.App.Sim.checkWin(nb);
-            let draw = !nb.includes('');
-            await update(this.ref, { board: nb, turn: (this.myId==='X'?'O':'X'), winner: win ? this.myId : (draw?'Draw':'') });
+        // --- NET: MORPION ULTIME ---
+        renderUlt(data) {
+            const b = document.getElementById('net-ult-board'); b.innerHTML = '';
+            for(let i=0; i<9; i++) {
+                let g = document.createElement('div'); g.className = 'mu-grid'; 
+                if((data.next === -1 || data.next === i) && data.bGrid[i] === '') g.classList.add('mu-active');
+                for(let j=0; j<9; j++) {
+                    let c = document.createElement('div'); c.className = 'mu-cell' + (data.sGrids[i][j]!==''?' taken':'');
+                    c.textContent = data.sGrids[i][j]; if(data.sGrids[i][j]) c.style.color = data.sGrids[i][j] === 'X' ? 'var(--player-x)' : 'var(--player-o)';
+                    c.onclick = async () => {
+                        if(data.sGrids[i][j]==='' && data.bGrid[i]==='' && data.winner==='' && data.turn===this.myId && (data.next===-1 || data.next===i)) {
+                            let sg = JSON.parse(JSON.stringify(data.sGrids)); let bg = [...data.bGrid]; sg[i][j] = this.myId;
+                            if(window.App.Sim.checkWin(sg[i])) bg[i] = this.myId; else if(!sg[i].includes('')) bg[i] = 'D';
+                            let win = window.App.Sim.checkWin(bg.map(v=>v==='D'?'':v)) ? this.myId : (!bg.includes('')?'Draw':'');
+                            await update(this.ref, { sGrids: sg, bGrid: bg, next: (bg[j]!=='' ? -1 : j), turn: (this.myId==='X'?'O':'X'), winner: win });
+                        }
+                    }; g.appendChild(c);
+                }
+                if(data.bGrid[i] !== '' && data.bGrid[i] !== 'D') {
+                    let cov = document.createElement('div'); cov.className = 'mu-won'; cov.textContent = data.bGrid[i];
+                    cov.style.color = data.bGrid[i] === 'X' ? 'var(--player-x)' : 'var(--player-o)'; g.appendChild(cov);
+                }
+                b.appendChild(g);
+            }
+            this.statusUI('net-ult-status', data, () => update(this.ref, { bGrid: Array(9).fill(''), sGrids: Array.from({length:9},()=>Array(9).fill('')), next: -1, turn: 'X', winner: '' }));
         },
 
-        status(data) {
-            const sb = document.getElementById('net-status-bar');
+        // --- NET: YAMS ---
+        renderYams(data) {
+            // Dice
+            const box = document.getElementById('net-yams-dice'); box.innerHTML = '';
+            data.dice.forEach((d, i) => {
+                let el = document.createElement('div'); el.className = 'y-die' + (data.kept[i]?' kept':'');
+                el.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][d-1];
+                el.onclick = async () => { if(data.turn === this.myId && data.rolls < 3 && data.winner === '') { let nk = [...data.kept]; nk[i] = !nk[i]; await update(this.ref, { kept: nk }); }};
+                box.appendChild(el);
+            });
+            
+            let btn = document.getElementById('net-yams-roll-btn');
+            btn.textContent = `Lancer (${data.rolls})`;
+            btn.onclick = async () => {
+                if(data.turn === this.myId && data.rolls > 0 && data.winner === '') {
+                    let nd = data.dice.map((v,i) => data.kept[i] ? v : Math.floor(Math.random()*6)+1);
+                    await update(this.ref, { dice: nd, rolls: data.rolls - 1 });
+                }
+            };
+            btn.disabled = (data.turn !== this.myId || data.rolls === 0);
+
+            // Scores Tables
+            const c = document.getElementById('net-yams-scores'); c.innerHTML = '';
+            const count={}; data.dice.forEach(x=>count[x]=(count[x]||0)+1); const v=Object.values(count), set=new Set(data.dice);
+            const seq = (l) => { let st=0,mx=0; for(let i=1;i<=6;i++){if(set.has(i))st++;else st=0;mx=Math.max(mx,st);} return mx>=l; };
+            
+            ['X','O'].forEach((pid, idx) => {
+                let t = `<table class="y-table"><tr><th colspan="2">Joueur ${idx+1} (${pid})</th></tr>`;
+                ['1','2','3','4','5','6','Bonus (>62)','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(cat => {
+                    let val = data.scores[pid][cat] !== undefined ? data.scores[pid][cat] : '-';
+                    let isPot = false;
+                    // Calc potential
+                    if(data.turn === this.myId && pid === this.myId && val === '-' && data.rolls < 3 && !cat.includes('Bonus')) {
+                        isPot = true;
+                        if(!isNaN(cat)) val=(count[cat]||0)*parseInt(cat);
+                        else if(cat==='Brelan'&&v.some(x=>x>=3)) val=data.dice.reduce((a,b)=>a+b);
+                        else if(cat==='Carré'&&v.some(x=>x>=4)) val=data.dice.reduce((a,b)=>a+b);
+                        else if(cat==='Full'&&v.includes(3)&&v.includes(2)) val=25;
+                        else if(cat==='Petite Suite'&&seq(4)) val=30;
+                        else if(cat==='Grande Suite'&&seq(5)) val=40;
+                        else if(cat==='Yams'&&v.includes(5)) val=50;
+                        else if(cat==='Chance') val=data.dice.reduce((a,b)=>a+b);
+                        else val=0;
+                    }
+                    if(cat.includes('Bonus')) t += `<tr style="background:#020617"><td style="color:var(--gold)">${cat}</td><td class="val">${val}</td></tr>`;
+                    else t += `<tr><td>${cat}</td><td class="val ${val !== '-' && !isPot ? 'locked' : ''} ${isPot?'pot':''}" ${isPot ? `data-action="${cat}" data-pts="${val}"` : ''}>${val}</td></tr>`;
+                });
+                // Totals
+                let sumTop = ['1','2','3','4','5','6'].reduce((sm,k)=>sm+(data.scores[pid][k]||0),0);
+                let tot = Object.values(data.scores[pid]).reduce((a,b)=> typeof b === 'number' ? a+b : a,0);
+                if(sumTop >= 63) tot += 35;
+                t += `<tr class="total-row"><td>TOTAL</td><td>${tot}</td></tr></table>`;
+                c.innerHTML += t;
+            });
+
+            // Lock score event
+            document.querySelectorAll('.pot').forEach(el => {
+                el.onclick = async () => {
+                    let cat = el.dataset.action; let pts = parseInt(el.dataset.pts);
+                    let ns = JSON.parse(JSON.stringify(data.scores)); ns[this.myId][cat] = pts;
+                    
+                    let win = '';
+                    if(Object.keys(ns['X']).length === 14 && Object.keys(ns['O']).length === 14) {
+                        let tx = Object.values(ns['X']).reduce((a,b)=>typeof b==='number'?a+b:a,0) + (['1','2','3','4','5','6'].reduce((s,k)=>s+(ns['X'][k]||0),0)>=63?35:0);
+                        let to = Object.values(ns['O']).reduce((a,b)=>typeof b==='number'?a+b:a,0) + (['1','2','3','4','5','6'].reduce((s,k)=>s+(ns['O'][k]||0),0)>=63?35:0);
+                        win = tx > to ? 'X' : (to > tx ? 'O' : 'Draw');
+                    }
+                    await update(this.ref, { scores: ns, turn: (this.myId==='X'?'O':'X'), rolls: 3, kept: [false,false,false,false,false], dice: data.dice.map(()=>Math.floor(Math.random()*6)+1), winner: win });
+                };
+            });
+
+            this.statusUI('net-yams-status', data, () => update(this.ref, { scores: {X:{init:true},O:{init:true}}, turn: 'X', winner: '', rolls: 3, kept: [false,false,false,false,false] }));
+        },
+
+        // --- UTILS RÉSEAU ---
+        statusUI(id, data, replayCb) {
+            const sb = document.getElementById(id);
             if(data.winner !== '') {
-                if(data.winner === 'Draw') sb.innerHTML = "Égalité parfaite !";
+                if(data.winner === 'Draw') sb.innerHTML = "Égalité !";
                 else if(data.winner === this.myId) sb.innerHTML = "<span style='color:var(--accent)'>VICTOIRE ! 🎉</span>";
                 else sb.innerHTML = `<span style='color:${this.myId==='X'?'var(--player-o)':'var(--player-x)'}'>DÉFAITE...</span>`;
-                
-                if(this.myId === 'X') {
-                    sb.innerHTML += `<br><button class="btn" style="margin-top:15px;" id="btn-net-rep">Rejouer la manche</button>`;
-                    document.getElementById('btn-net-rep').onclick = () => update(this.ref, { board: Array(9).fill(''), turn: 'X', winner: '' });
-                } else sb.innerHTML += `<br><small style="font-weight:normal;color:var(--text-muted)">En attente de l'hôte pour relancer...</small>`;
-            } else {
-                sb.innerHTML = data.turn === this.myId ? `<span style='color:var(--accent)'>À ton tour ! (${this.myId})</span>` : `Attente de l'adversaire...`;
-            }
+                if(this.myId === 'X') { sb.innerHTML += `<br><button class="btn" style="margin-top:10px;" id="br-${id}">Rejouer</button>`; document.getElementById(`br-${id}`).onclick = replayCb; }
+                else sb.innerHTML += `<br><small style="color:var(--text-muted)">Attente de l'hôte...</small>`;
+            } else sb.innerHTML = data.turn === this.myId ? `<span style='color:var(--accent)'>À ton tour ! (${this.myId})</span>` : `Tour de l'adversaire...`;
         },
-
-        leave() {
-            if(this.myId === 'X' && this.ref) remove(this.ref);
-            window.location.reload();
-        }
+        leave() { if(this.myId === 'X' && this.ref) remove(this.ref); window.location.reload(); }
     };
 
-    // LIAISON DES BOUTONS RESEAU
+    // EVENTS INITIAUX
     document.getElementById('btn-create-room').onclick = () => window.App.Network.host();
     document.getElementById('btn-join-room').onclick = () => window.App.Network.join();
-    document.getElementById('btn-net-leave').onclick = () => window.App.Network.leave();
-
-    // LIAISON DU MENU
     document.querySelectorAll('#nav-menu li').forEach(li => {
         li.onclick = (e) => {
-            document.querySelectorAll('#nav-menu li').forEach(i => i.classList.remove('active'));
-            e.currentTarget.classList.add('active');
-            let t = e.currentTarget.dataset.target;
-            window.UI.switchScreen(t);
-            if(t==='s-sim') window.App.Sim.init();
-            if(t==='s-ult') window.App.Ult.init();
-            if(t==='s-mine') window.App.Mine.init();
-            if(t==='s-yams') window.App.Yams.init();
+            document.querySelectorAll('#nav-menu li').forEach(i => i.classList.remove('active')); e.currentTarget.classList.add('active');
+            let t = e.currentTarget.dataset.target; window.UI.switchScreen(t);
+            if(t==='s-sim') window.App.Sim.init(); if(t==='s-ult') window.App.Ult.init();
+            if(t==='s-mine') window.App.Mine.init(); if(t==='s-yams') window.App.Yams.init();
             if(t==='s-belote') window.App.Belote.init();
         };
     });
 
-    // DÉMARRAGE
     window.App.Sim.init();
 </script>
 </body>
