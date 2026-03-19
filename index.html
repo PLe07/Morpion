@@ -70,7 +70,7 @@
         .mu-cell { height: 50px; background: var(--bg-color); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; cursor: pointer; }
         .mu-cell:hover:not(.taken) { background: var(--panel-hover); }
         .mu-active { outline: 4px solid var(--accent); background: #064e3b; box-shadow: 0 0 25px var(--accent-glow); animation: muPulse 2s infinite; z-index: 5; }
-        .mu-won { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.85); display: flex; align-items: center; justify-content: center; font-size: 6rem; font-weight: 900; border-radius: 10px; backdrop-filter: blur(3px); z-index: 10; }
+        .mu-won { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.85); display: flex; align-items: center; justify-content: center; font-size: 6rem; font-weight: 900; border-radius: 10px; backdrop-filter: blur(3px); z-index: 10; animation: screenFade 0.3s ease-out; }
         @keyframes muPulse { 0% { outline-color: var(--accent); } 50% { outline-color: #34d399; } 100% { outline-color: var(--accent); } }
 
         /* =========================================
@@ -78,43 +78,55 @@
            ========================================= */
         .dm-header { display: flex; justify-content: center; gap: 40px; margin-bottom: 30px; font-size: 1.4rem; font-weight: bold; background: #000; padding: 15px 30px; border-radius: 50px; border: 1px solid #1e293b; }
         #dm-board { display: grid; grid-template-columns: repeat(20, 30px); gap: 2px; background: #334155; padding: 3px; border: 4px solid #1e293b; margin: 0 auto 30px auto; width: fit-content; border-radius: 8px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
-        .dm-tile { width: 30px; height: 30px; background: var(--panel-bg); display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 900; cursor: pointer; border-radius: 3px; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3); }
+        .dm-tile { width: 30px; height: 30px; background: var(--panel-bg); display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 900; cursor: pointer; user-select: none; border-radius: 3px; transition: background 0.1s; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3), inset 2px 2px 5px rgba(255,255,255,0.05); }
         .dm-tile:hover:not(.open) { background: var(--panel-hover); }
         .dm-tile.open { background: #cbd5e1; box-shadow: inset 2px 2px 6px rgba(0,0,0,0.3); cursor: default; }
         .dm-tile.mine { background: var(--player-x); font-size: 1.2rem; }
         .dm-c1 { color: #2563eb; } .dm-c2 { color: #16a34a; } .dm-c3 { color: #dc2626; } .dm-c4 { color: #7c3aed; }
-        .dm-c5 { color: #991b1b; } .dm-c6 { color: #0d9488; }
+        .dm-c5 { color: #991b1b; } .dm-c6 { color: #0d9488; } .dm-c7 { color: #000000; } .dm-c8 { color: #57534e; }
 
         /* =========================================
-           6. YAMS PRO
+           6. YAMS PRO MULTI-JOUEURS
            ========================================= */
         .yams-layout { display: flex; gap: 50px; justify-content: center; align-items: flex-start; margin-top: 20px; flex-wrap: wrap; }
         .y-dice-area { background: var(--panel-bg); padding: 40px; border-radius: 20px; text-align: center; border: 2px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 400px; }
         .y-dice-container { font-size: 4.5rem; display: flex; gap: 15px; margin-bottom: 30px; justify-content: center; min-height: 80px; }
-        .y-die { cursor: pointer; transition: 0.3s; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .y-die { cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .y-die.kept { color: var(--accent); transform: translateY(-15px) scale(1.1); text-shadow: 0 10px 20px var(--accent-glow); }
         .y-tables { display: flex; gap: 15px; }
-        .y-table { border-collapse: collapse; background: var(--panel-bg); border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; }
+        .y-table { border-collapse: collapse; background: var(--panel-bg); border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .y-table th { padding: 15px; background: #020617; color: var(--text-main); font-size: 1.2rem; border-bottom: 2px solid var(--accent); }
         .y-table td { border: 1px solid #1e293b; padding: 12px 20px; cursor: pointer; font-size: 1.1rem; }
+        .y-table td:first-child { font-weight: 600; color: var(--text-muted); }
         .y-table .pot { color: var(--accent); opacity: 0.4; font-style: italic; font-weight: bold; }
         .y-table .locked { color: var(--accent); font-weight: 900; background: rgba(16,185,129,0.05); }
+        .y-table .total-row { background: #020617; color: var(--gold); font-weight: 900; font-size: 1.3rem; }
 
         /* =========================================
-           7. BELOTE
+           7. BELOTE (LE MOTEUR DE PLI)
            ========================================= */
         .bl-info { text-align: center; margin-bottom: 20px; font-size: 1.3rem; font-weight: bold; }
         .bl-atout { display: inline-block; padding: 5px 15px; background: #000; border-radius: 8px; border: 1px solid #333; margin-left: 10px; }
-        .bl-tapis { background: radial-gradient(circle, #065f46 0%, #022c22 100%); width: 700px; height: 450px; border-radius: 220px; margin: 0 auto; border: 15px solid #451a03; position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.8); }
-        .bl-slot { position: absolute; width: 80px; height: 115px; border: 2px dashed rgba(255,255,255,0.15); border-radius: 8px; }
+        .bl-tapis { 
+            background: radial-gradient(circle, #065f46 0%, #022c22 100%); width: 700px; height: 450px; 
+            border-radius: 220px; margin: 0 auto; border: 15px solid #451a03; 
+            position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 50px rgba(0,0,0,0.6);
+        }
+        .bl-slot { position: absolute; width: 80px; height: 115px; border: 2px dashed rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
         #bl-s-n { top: 25px; left: 295px; } #bl-s-s { bottom: 25px; left: 295px; }
         #bl-s-e { right: 60px; top: 152px; } #bl-s-w { left: 60px; top: 152px; }
-        .bl-card { width: 80px; height: 115px; background: #fff; color: #000; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5rem; cursor: pointer; box-shadow: -2px 5px 15px rgba(0,0,0,0.4); position: relative; transition: 0.3s; }
+        .bl-card { 
+            width: 80px; height: 115px; background: #fff; color: #000; border-radius: 8px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            font-weight: 900; font-size: 1.5rem; cursor: pointer; border: 1px solid #ccc; 
+            box-shadow: -2px 5px 15px rgba(0,0,0,0.4); transition: 0.3s; position: relative;
+        }
         .bl-card.red { color: #ef4444; }
         .bl-hand { display: flex; gap: -20px; justify-content: center; margin-top: 30px; height: 130px; }
-        .bl-hand .bl-card { margin-left: -30px; } .bl-hand .bl-card:first-child { margin-left: 0; }
-        .bl-hand .bl-card:hover { transform: translateY(-20px); z-index: 50; border-color: var(--accent); }
-        .bl-played { position: absolute; animation: playCard 0.4s forwards; pointer-events: none; }
+        .bl-hand .bl-card { margin-left: -30px; }
+        .bl-hand .bl-card:first-child { margin-left: 0; }
+        .bl-hand .bl-card:hover { transform: translateY(-20px); z-index: 50; border-color: var(--accent); box-shadow: 0 10px 25px rgba(0,0,0,0.6); }
+        .bl-played { position: absolute; animation: playCard 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; pointer-events: none; }
         @keyframes playCard { from { transform: scale(1.5) translateY(50px); opacity: 0; } to { transform: scale(1) translateY(0) rotate(calc(-5deg + 10deg * var(--rand))); opacity: 1; } }
 
         /* =========================================
@@ -150,22 +162,24 @@
 
 <main>
     <section id="s-sim" class="screen active">
-        <h1>Tic-Tac-Toe</h1><p class="subtitle">Mode Local (Même écran)</p>
+        <h1>Tic-Tac-Toe</h1>
+        <p class="subtitle">Mode Local (Même écran)</p>
         <div id="ms-board" class="ms-grid"></div>
-        <div style="text-align: center;"><button class="btn" onclick="App.Sim.init()">Réinitialiser</button></div>
+        <div style="text-align: center;"><button class="btn" onclick="App.Sim.init()">Réinitialiser la grille</button></div>
     </section>
 
     <section id="s-ult" class="screen">
-        <h1>Morpion Ultime</h1><p class="subtitle" id="mu-status">Chargement...</p>
+        <h1>Morpion Ultime</h1>
+        <p class="subtitle" id="mu-status">Chargement...</p>
         <div id="mu-board" class="mu-container"></div>
-        <div style="text-align: center;"><button class="btn" onclick="App.Ult.init()">Recommencer</button></div>
+        <div style="text-align: center;"><button class="btn" onclick="App.Ult.init()">Abandonner et recommencer</button></div>
     </section>
 
     <section id="s-mine" class="screen">
         <h1>Démineur Expert</h1>
         <div class="dm-header">
-            <span>🚩 <span id="dm-flags" style="color:var(--player-x)">60</span></span>
-            <span>⏱️ <span id="dm-time" style="color:var(--accent)">0</span>s</span>
+            <span>🚩 Drapeaux : <span id="dm-flags" style="color:var(--player-x)">60</span></span>
+            <span>⏱️ Temps : <span id="dm-time" style="color:var(--accent)">0</span>s</span>
         </div>
         <div id="dm-board"></div>
         <div style="text-align: center;"><button class="btn" onclick="App.Mine.init()">Nouvelle Génération</button></div>
@@ -173,6 +187,7 @@
 
     <section id="s-yams" class="screen">
         <h1>Yams Championship</h1>
+        <p class="subtitle">Sélectionnez vos dés pour les garder entre deux lancers.</p>
         <div class="yams-layout">
             <div class="y-dice-area">
                 <div id="y-dice" class="y-dice-container"></div>
@@ -181,18 +196,22 @@
             </div>
             <div id="y-score-container" class="y-tables"></div>
         </div>
-        <div style="text-align: center; margin-top: 30px;"><button class="btn" onclick="App.Yams.init()">Remettre à zéro</button></div>
+        <div style="text-align: center; margin-top: 30px;"><button class="btn" onclick="App.Yams.init()">Remettre à zéro le championnat</button></div>
     </section>
 
     <section id="s-belote" class="screen">
         <h1>Belote Interactive</h1>
-        <div class="bl-info">Atout : <span id="bl-atout" class="bl-atout">-</span></div>
+        <div class="bl-info">
+            Atout de la manche : <span id="bl-atout" class="bl-atout">-</span>
+        </div>
         <div class="bl-tapis">
-            <div id="bl-s-n" class="bl-slot"></div><div id="bl-s-s" class="bl-slot"></div>
-            <div id="bl-s-e" class="bl-slot"></div><div id="bl-s-w" class="bl-slot"></div>
+            <div id="bl-s-n" class="bl-slot"></div>
+            <div id="bl-s-s" class="bl-slot"></div>
+            <div id="bl-s-e" class="bl-slot"></div>
+            <div id="bl-s-w" class="bl-slot"></div>
         </div>
         <div id="bl-hand" class="bl-hand"></div>
-        <div style="text-align: center; margin-top: 30px;"><button class="btn" onclick="App.Belote.init()">Nouvelle Donne</button></div>
+        <div style="text-align: center; margin-top: 30px;"><button class="btn" onclick="App.Belote.init()">Distribuer une nouvelle main</button></div>
     </section>
 
     <section id="s-net-lobby" class="screen">
@@ -254,6 +273,7 @@
         modalCb: null,
         showModal(title, desc, cb) {
             document.getElementById('modal-title').innerHTML = title;
+            document.getElementById('modal-title').style.color = (title.includes('Victoire') || title.includes('Gagné')) ? 'var(--accent)' : 'var(--player-x)';
             document.getElementById('modal-desc').innerHTML = desc;
             this.modalCb = cb;
             document.getElementById('modal-overlay').style.display = 'flex';
@@ -276,7 +296,7 @@
         state: [], player: 'X',
         init() {
             const b = document.getElementById('ms-board'); b.innerHTML = '';
-            this.state = Array(9).fill(null); this.player = 'X';
+            this.state = Array(9).fill(''); this.player = 'X';
             for(let i=0; i<9; i++) {
                 let c = document.createElement('div'); c.className = 'ms-cell';
                 c.onclick = () => this.play(i, c);
@@ -284,15 +304,15 @@
             }
         },
         play(i, el) {
-            if(this.state[i]) return;
+            if(this.state[i] !== '') return;
             this.state[i] = this.player; el.textContent = this.player;
             el.style.color = this.player === 'X' ? 'var(--player-x)' : 'var(--player-o)';
             el.classList.add('taken');
             const win = this.checkWin(this.state);
             if(win) {
                 win.forEach(idx => document.getElementById('ms-board').children[idx].classList.add('win'));
-                setTimeout(() => window.UI.showModal('Victoire !', `Le joueur ${this.player} a gagné en local.`, () => this.init()), 500);
-            } else if(!this.state.includes(null)) {
+                setTimeout(() => window.UI.showModal('Victoire !', `Le joueur <b style="color:${el.style.color}">${this.player}</b> a gagné en local.`, () => this.init()), 600);
+            } else if(!this.state.includes('')) {
                 setTimeout(() => window.UI.showModal('Égalité', 'Match Nul.', () => this.init()), 200);
             } else this.player = this.player === 'X' ? 'O' : 'X';
         },
@@ -307,7 +327,7 @@
         bGrid: [], sGrids: [], p: 'X', n: -1,
         init() {
             const b = document.getElementById('mu-board'); b.innerHTML = '';
-            this.bGrid = Array(9).fill(null); this.sGrids = Array(9).fill().map(()=>Array(9).fill(null));
+            this.bGrid = Array(9).fill(''); this.sGrids = Array(9).fill().map(()=>Array(9).fill(''));
             this.p = 'X'; this.n = -1; this.ui();
             for(let i=0; i<9; i++) {
                 let g = document.createElement('div'); g.className = 'mu-grid'; g.id = `mu-g-${i}`;
@@ -320,24 +340,24 @@
             this.hl();
         },
         play(bg, sg, el) {
-            if(this.sGrids[bg][sg] || this.bGrid[bg] || (this.n !== -1 && this.n !== bg)) return;
+            if(this.sGrids[bg][sg] !== '' || this.bGrid[bg] !== '' || (this.n !== -1 && this.n !== bg)) return;
             this.sGrids[bg][sg] = this.p; el.textContent = this.p; el.classList.add('taken');
             el.style.color = this.p === 'X' ? 'var(--player-x)' : 'var(--player-o)';
             if(window.App.Sim.checkWin(this.sGrids[bg])) {
                 this.bGrid[bg] = this.p;
                 let cov = document.createElement('div'); cov.className = 'mu-won'; cov.textContent = this.p;
                 cov.style.color = el.style.color; document.getElementById(`mu-g-${bg}`).appendChild(cov);
-            } else if(!this.sGrids[bg].includes(null)) this.bGrid[bg] = 'D';
+            } else if(!this.sGrids[bg].includes('')) this.bGrid[bg] = 'D';
             
-            if(window.App.Sim.checkWin(this.bGrid.map(v=>v==='D'?null:v))) {
-                setTimeout(() => window.UI.showModal('Victoire Ultime', `Le joueur ${this.p} domine la carte !`, () => this.init()), 300);
+            if(window.App.Sim.checkWin(this.bGrid.map(v=>v==='D'?'':v))) {
+                setTimeout(() => window.UI.showModal('Victoire Ultime', `Le stratège <b>${this.p}</b> domine la carte !`, () => this.init()), 300);
                 this.n = 999;
             } else {
-                this.n = (this.bGrid[sg]) ? -1 : sg; this.p = this.p === 'X' ? 'O' : 'X';
+                this.n = (this.bGrid[sg] !== '') ? -1 : sg; this.p = this.p === 'X' ? 'O' : 'X';
                 this.ui(); this.hl();
             }
         },
-        hl() { document.querySelectorAll('.mu-grid').forEach((g,i) => { g.classList.remove('mu-active'); if((this.n===-1||this.n===i) && !this.bGrid[i]) g.classList.add('mu-active'); }); },
+        hl() { document.querySelectorAll('.mu-grid').forEach((g,i) => { g.classList.remove('mu-active'); if((this.n===-1||this.n===i) && this.bGrid[i]==='') g.classList.add('mu-active'); }); },
         ui() { document.getElementById('mu-status').innerHTML = `Tour de : <b style="color:${this.p==='X'?'var(--player-x)':'var(--player-o)'}">${this.p}</b>`; }
     };
 
@@ -368,9 +388,9 @@
         rev(i) {
             if(this.o[i]) return; const t = document.getElementById('dm-board').children[i];
             this.o[i] = true; t.classList.add('open');
-            if(this.g[i]==='M') { t.classList.add('mine'); t.textContent='💣'; clearInterval(this.timer); setTimeout(()=>window.UI.showModal('BOUM !','Mines déclenchées.',()=>this.init()), 300); }
+            if(this.g[i]==='M') { t.classList.add('mine'); t.textContent='💣'; clearInterval(this.timer); setTimeout(()=>window.UI.showModal('BOUM !',`Opération échouée à ${this.t} secondes.`,()=>this.init()), 300); }
             else { if(this.g[i]>0) { t.textContent=this.g[i]; t.classList.add('dm-c'+this.g[i]); } else this.adj(i).forEach(n=>this.rev(n)); }
-            if(this.o.filter(v=>!v).length === 60) { clearInterval(this.timer); setTimeout(()=>window.UI.showModal('Déminage Réussi',`Temps: ${this.t}s`,()=>this.init()),300); }
+            if(this.o.filter(v=>!v).length === 340) { clearInterval(this.timer); setTimeout(()=>window.UI.showModal('Déminage Réussi',`Temps: ${this.t}s`,()=>this.init()),300); }
         }
     };
 
@@ -382,8 +402,9 @@
             const c = document.getElementById('y-score-container'); c.innerHTML = '';
             for(let i=0;i<2;i++) {
                 let t = `<table class="y-table" id="yt-${i}"><tr><th colspan="2">Joueur ${i+1}</th></tr>`;
-                ['1','2','3','4','5','6','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(cat => {
-                    t += `<tr><td>${cat}</td><td class="val" id="y-${i}-${cat.replace(/\s/g,'')}" onclick="window.App.Yams.lock('${cat}', ${i})">-</td></tr>`;
+                ['1','2','3','4','5','6','Bonus (si > 62)','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(cat => {
+                    if(cat.includes('Bonus')) t += `<tr style="background:#020617"><td style="color:var(--gold)">${cat}</td><td class="val" id="y-${i}-Bonus">0</td></tr>`;
+                    else t += `<tr><td>${cat}</td><td class="val" id="y-${i}-${cat.replace(/\s/g,'')}" onclick="window.App.Yams.lock('${cat}', ${i})">-</td></tr>`;
                 });
                 t += `<tr class="total-row"><td>TOTAL</td><td id="y-tot-${i}">0</td></tr></table>`;
                 c.innerHTML += t;
@@ -399,7 +420,7 @@
                 el.onclick = () => { if(this.r<3){this.k[i]=!this.k[i]; this.ui();} }; b.appendChild(el);
             });
             document.getElementById('y-roll-btn').textContent = `Lancer (${this.r})`;
-            document.getElementById('y-turn').textContent = `Joueur ${this.p+1}`;
+            document.getElementById('y-turn').textContent = `C'est au tour du Joueur ${this.p+1}`;
             this.calc();
         },
         calc() {
@@ -425,12 +446,15 @@
             this.s[pi][cat] = parseInt(el.textContent); el.className='val locked';
             let t = Object.values(this.s[pi]).reduce((a,b)=>a+b,0);
             let sTop = ['1','2','3','4','5','6'].reduce((sm,k)=>sm+(this.s[pi][k]||0),0);
-            if(sTop>=63) t+=35; document.getElementById(`y-tot-${pi}`).textContent = t;
+            if(sTop>=63) { t+=35; document.getElementById(`y-${pi}-Bonus`).textContent = 35; }
+            document.getElementById(`y-tot-${pi}`).textContent = t;
             
             this.p = (this.p+1)%2; this.r=3; this.k.fill(false);
             document.querySelectorAll('.pot').forEach(e=>{e.textContent='-';e.classList.remove('pot');});
-            if(Object.keys(this.s[1]).length === 13) window.UI.showModal('Fin !', 'Partie terminée.', ()=>this.init());
-            else this.roll();
+            if(Object.keys(this.s[1]).length === 13) {
+                let t0 = parseInt(document.getElementById(`y-tot-0`).textContent), t1 = parseInt(document.getElementById(`y-tot-1`).textContent);
+                window.UI.showModal('Fin du Championnat', `Le vainqueur est : <b>${t0>t1?'Joueur 1':(t1>t0?'Joueur 2':'Égalité')}</b> !<br>Scores : J1(${t0}) - J2(${t1})`, ()=>this.init());
+            } else this.roll();
         }
     };
 
@@ -461,7 +485,7 @@
                 }, i*300));
                 setTimeout(()=>{
                     document.querySelectorAll('.bl-slot').forEach(sl=>sl.innerHTML=''); this.play=false;
-                    if(document.getElementById('bl-hand').children.length===0) window.UI.showModal('Donne finie','',()=>this.init());
+                    if(document.getElementById('bl-hand').children.length===0) window.UI.showModal('Donne Terminée', 'Toutes les cartes ont été jouées.', ()=>this.init());
                 }, 1800);
             }, 400);
         }
@@ -477,7 +501,7 @@
         
         async host() {
             this.room = this.gen(); this.myId = 'X'; this.ref = ref(db, 'rooms/' + this.room);
-            await set(this.ref, { status: 'waiting', turn: 'X', board: Array(9).fill(null), winner: null });
+            await set(this.ref, { status: 'waiting', turn: 'X', board: Array(9).fill(''), winner: '' });
             document.getElementById('display-room-code').textContent = this.room;
             window.UI.switchScreen('s-net-waiting');
             this.listen();
@@ -485,13 +509,13 @@
         
         async join() {
             const code = document.getElementById('input-room-code').value.toUpperCase().trim();
-            if(code.length !== 4) return window.UI.showModal('Erreur', 'Le code doit faire 4 lettres.', null);
+            if(code.length !== 4) return window.UI.showModal('Erreur', 'Le code doit faire 4 caractères.', null);
             const snap = await get(ref(db, 'rooms/' + code));
             if(snap.exists() && snap.val().status === 'waiting') {
                 this.room = code; this.myId = 'O'; this.ref = ref(db, 'rooms/' + this.room);
                 await update(this.ref, { status: 'playing' });
                 this.listen();
-            } else window.UI.showModal('Erreur', 'Salon introuvable ou plein.', null);
+            } else window.UI.showModal('Erreur', 'Salon introuvable ou déjà plein.', null);
         },
 
         listen() {
@@ -507,31 +531,34 @@
 
         render(data) {
             const b = document.getElementById('net-board'); b.innerHTML = '';
+            const currentBoard = data.board || Array(9).fill('');
             for(let i=0; i<9; i++) {
-                let c = document.createElement('div'); c.className = 'ms-cell' + (data.board[i] ? ' taken' : '');
-                c.textContent = data.board[i] || '';
-                if(data.board[i]) c.style.color = data.board[i] === 'X' ? 'var(--player-x)' : 'var(--player-o)';
-                c.onclick = () => { if(!data.board[i] && !data.winner && data.turn === this.myId) this.play(i, data); };
+                let c = document.createElement('div'); c.className = 'ms-cell' + (currentBoard[i] !== '' ? ' taken' : '');
+                c.textContent = currentBoard[i] || '';
+                if(currentBoard[i]) c.style.color = currentBoard[i] === 'X' ? 'var(--player-x)' : 'var(--player-o)';
+                c.onclick = () => { if(currentBoard[i] === '' && data.winner === '' && data.turn === this.myId) this.play(i, currentBoard); };
                 b.appendChild(c);
             }
         },
 
-        async play(i, data) {
-            let nb = [...data.board]; nb[i] = this.myId;
-            await update(this.ref, { board: nb, turn: (this.myId==='X'?'O':'X'), winner: window.App.Sim.checkWin(nb) ? this.myId : (nb.includes(null)?null:'Draw') });
+        async play(i, currentBoard) {
+            let nb = [...currentBoard]; nb[i] = this.myId;
+            let win = window.App.Sim.checkWin(nb);
+            let draw = !nb.includes('');
+            await update(this.ref, { board: nb, turn: (this.myId==='X'?'O':'X'), winner: win ? this.myId : (draw?'Draw':'') });
         },
 
         status(data) {
             const sb = document.getElementById('net-status-bar');
-            if(data.winner) {
+            if(data.winner !== '') {
                 if(data.winner === 'Draw') sb.innerHTML = "Égalité parfaite !";
                 else if(data.winner === this.myId) sb.innerHTML = "<span style='color:var(--accent)'>VICTOIRE ! 🎉</span>";
                 else sb.innerHTML = `<span style='color:${this.myId==='X'?'var(--player-o)':'var(--player-x)'}'>DÉFAITE...</span>`;
                 
                 if(this.myId === 'X') {
-                    sb.innerHTML += `<br><button class="btn" style="margin-top:15px;" id="btn-net-rep">Rejouer</button>`;
-                    document.getElementById('btn-net-rep').onclick = () => update(this.ref, { board: Array(9).fill(null), turn: 'X', winner: null });
-                } else sb.innerHTML += `<br><small style="font-weight:normal;color:var(--text-muted)">En attente de l'hôte...</small>`;
+                    sb.innerHTML += `<br><button class="btn" style="margin-top:15px;" id="btn-net-rep">Rejouer la manche</button>`;
+                    document.getElementById('btn-net-rep').onclick = () => update(this.ref, { board: Array(9).fill(''), turn: 'X', winner: '' });
+                } else sb.innerHTML += `<br><small style="font-weight:normal;color:var(--text-muted)">En attente de l'hôte pour relancer...</small>`;
             } else {
                 sb.innerHTML = data.turn === this.myId ? `<span style='color:var(--accent)'>À ton tour ! (${this.myId})</span>` : `Attente de l'adversaire...`;
             }
@@ -543,12 +570,12 @@
         }
     };
 
-    // Event Listeners Réseau
+    // LIAISON DES BOUTONS RESEAU
     document.getElementById('btn-create-room').onclick = () => window.App.Network.host();
     document.getElementById('btn-join-room').onclick = () => window.App.Network.join();
     document.getElementById('btn-net-leave').onclick = () => window.App.Network.leave();
 
-    // Event Listeners Menu Principal
+    // LIAISON DU MENU
     document.querySelectorAll('#nav-menu li').forEach(li => {
         li.onclick = (e) => {
             document.querySelectorAll('#nav-menu li').forEach(i => i.classList.remove('active'));
@@ -563,7 +590,7 @@
         };
     });
 
-    // Démarrage initial
+    // DÉMARRAGE
     window.App.Sim.init();
 </script>
 </body>
