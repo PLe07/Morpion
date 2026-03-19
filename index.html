@@ -2,72 +2,76 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcade Ultimate 2026</title>
+    <title>Arcade Ultimate 2026 - Gold Edition</title>
     <style>
-        :root { --accent: #00ff88; --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        :root { --accent: #00ff88; --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --p1: #f43f5e; --p2: #3b82f6; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Navigation */
-        nav { width: 240px; background: #020617; padding: 20px; border-right: 2px solid var(--accent); flex-shrink: 0; z-index: 100; }
-        nav h2 { color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; font-size: 1.2rem; }
-        nav ul { list-style: none; padding: 0; }
-        nav li { padding: 15px; cursor: pointer; border-radius: 8px; margin-bottom: 10px; background: #1e293b; transition: 0.2s; border: 1px solid transparent; }
-        nav li:hover { border-color: var(--accent); background: #334155; }
-        nav li.active { background: var(--accent); color: #020617; font-weight: bold; }
+        /* Sidebar */
+        nav { width: 240px; background: #020617; padding: 25px; border-right: 2px solid var(--accent); flex-shrink: 0; display: flex; flex-direction: column; }
+        nav h2 { color: var(--accent); text-transform: uppercase; letter-spacing: 2px; font-size: 1.1rem; margin-bottom: 30px; border-bottom: 2px solid #1e293b; padding-bottom: 10px; }
+        nav ul { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
+        nav li { padding: 14px 18px; cursor: pointer; border-radius: 10px; margin-bottom: 12px; background: #1e293b; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid transparent; }
+        nav li:hover { border-color: var(--accent); transform: translateX(5px); }
+        nav li.active { background: var(--accent); color: #020617; font-weight: 800; box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
 
-        /* Contenu */
-        main { flex-grow: 1; position: relative; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 40px; }
-        .screen { display: none; width: 100%; max-width: 900px; animation: fadeIn 0.3s ease; }
+        /* Main Display */
+        main { flex-grow: 1; position: relative; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 40px; scroll-behavior: smooth; }
+        .screen { display: none; width: 100%; max-width: 950px; animation: fadeIn 0.4s ease-out; }
         .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Utilitaires */
-        h1 { color: var(--accent); margin-top: 0; }
-        button { padding: 10px 20px; background: var(--accent); border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: #020617; transition: 0.2s; }
-        button:hover { transform: scale(1.05); }
+        h1 { font-size: 2.5rem; margin-bottom: 25px; background: linear-gradient(90deg, var(--accent), #60efff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        button { padding: 12px 24px; background: var(--accent); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: #020617; transition: 0.2s; box-shadow: 0 4px 0 #00a85a; }
+        button:active { transform: translateY(2px); box-shadow: 0 2px 0 #00a85a; }
 
-        /* --- MORPIONS --- */
-        .grid-sim { display: grid; grid-template-columns: repeat(3, 100px); gap: 8px; margin: 20px auto; }
-        .u-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; background: #334155; padding: 12px; border-radius: 8px; }
-        .s-grid { display: grid; grid-template-columns: repeat(3, 45px); gap: 3px; background: #1e293b; padding: 5px; position: relative; }
-        .cell { width: 100%; height: 100%; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; font-weight: bold; min-height: 45px; }
-        .cell-big { height: 100px; font-size: 3rem; border: 2px solid #334155; border-radius: 8px; }
-        .active-zone { outline: 4px solid var(--accent); box-shadow: 0 0 20px var(--accent); z-index: 5; }
+        /* MORPION SIMPLE & ULTIME */
+        .grid-3x3 { display: grid; grid-template-columns: repeat(3, 110px); gap: 10px; margin: 20px auto; }
+        .u-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; background: #334155; padding: 15px; border-radius: 12px; }
+        .s-grid { display: grid; grid-template-columns: repeat(3, 50px); gap: 4px; background: #1e293b; padding: 6px; position: relative; border-radius: 4px; }
+        .cell { width: 100%; height: 50px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; cursor: pointer; font-weight: 900; border-radius: 4px; transition: 0.1s; }
+        .cell:hover:not(.taken) { background: #1e293b; }
+        .cell-big { height: 110px; font-size: 3.5rem; border: 3px solid #334155; }
+        .active-zone { outline: 4px solid var(--accent); box-shadow: 0 0 30px rgba(0, 255, 136, 0.5); z-index: 5; }
 
-        /* --- DÉMINEUR XXL --- */
-        #m-board { display: grid; grid-template-columns: repeat(20, 28px); gap: 1px; background: #444; margin: auto; border: 2px solid #444; }
-        .m-tile { width: 28px; height: 28px; background: #1e293b; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; cursor: pointer; font-weight: bold; user-select: none; }
-        .m-tile.open { background: #cbd5e1; color: #020617; }
-        .m-tile.mine { background: #f43f5e; }
+        /* DÉMINEUR EXPERT */
+        #m-board { display: grid; grid-template-columns: repeat(20, 30px); gap: 1px; background: #444; margin: auto; border: 3px solid #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .m-tile { width: 30px; height: 30px; background: #1e293b; display: flex; align-items: center; justify-content: center; font-size: 1rem; cursor: pointer; font-weight: bold; user-select: none; }
+        .m-tile.open { background: #cbd5e1; color: #020617; border: 1px solid #94a3b8; }
+        .m-tile.mine { background: #f43f5e; animation: shake 0.2s infinite; }
+        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, -1px); } }
 
-        /* --- YAMS --- */
-        .dice-container { font-size: 4rem; display: flex; gap: 15px; margin: 20px 0; justify-content: center; }
-        .die { cursor: pointer; transition: 0.2s; padding: 5px; border-radius: 10px; }
-        .die.kept { color: var(--accent); transform: translateY(-10px); }
-        .yams-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e293b; }
-        .yams-table td { border: 1px solid #334155; padding: 12px; cursor: pointer; text-align: left; }
-        .yams-table td.val { text-align: right; font-weight: bold; width: 60px; }
-        .yams-table .potential { color: #64748b; font-style: italic; }
-        .yams-table .taken { color: var(--accent); }
+        /* YAMS PRO */
+        .yams-layout { display: flex; gap: 40px; justify-content: center; align-items: flex-start; margin-top: 20px; }
+        .dice-area { background: #1e293b; padding: 30px; border-radius: 20px; border: 2px solid #334155; }
+        .dice-container { font-size: 5rem; display: flex; gap: 20px; margin-bottom: 25px; }
+        .die { cursor: pointer; transition: 0.3s; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3)); }
+        .die.kept { color: var(--accent); transform: translateY(-15px) scale(1.1); }
+        .yams-table { border-collapse: collapse; background: #1e293b; border-radius: 10px; overflow: hidden; min-width: 250px; }
+        .yams-table td { border: 1px solid #334155; padding: 14px 20px; cursor: pointer; }
+        .yams-table td.val { text-align: right; font-weight: 800; color: #94a3b8; }
+        .yams-table .potential { color: var(--accent); opacity: 0.5; font-style: italic; }
+        .yams-table .taken { color: var(--accent); opacity: 1; background: rgba(0, 255, 136, 0.05); }
 
-        /* --- BELOTE --- */
-        .tapis { background: #065f46; width: 550px; height: 380px; border-radius: 120px; margin: 20px auto; position: relative; border: 10px solid #451a03; box-shadow: inset 0 0 60px rgba(0,0,0,0.5); }
-        .slot { position: absolute; width: 70px; height: 100px; border: 2px dashed rgba(255,255,255,0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
-        #sl-n { top: 20px; left: 240px; } #sl-s { bottom: 20px; left: 240px; }
-        #sl-w { left: 40px; top: 140px; } #sl-e { right: 40px; top: 140px; }
-        .card { width: 70px; height: 100px; background: white; color: black; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; box-shadow: 2px 4px 8px rgba(0,0,0,0.4); }
-        .red { color: #f43f5e; }
+        /* BELOTE */
+        .tapis { background: radial-gradient(circle, #065f46 0%, #064e3b 100%); width: 650px; height: 420px; border-radius: 150px; margin: 20px auto; position: relative; border: 12px solid #451a03; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+        .slot { position: absolute; width: 80px; height: 115px; border: 2px dashed rgba(255,255,255,0.15); border-radius: 8px; transition: 0.3s; }
+        #sl-n { top: 30px; left: 285px; } #sl-s { bottom: 30px; left: 285px; }
+        #sl-w { left: 60px; top: 152px; } #sl-e { right: 60px; top: 152px; }
+        .card { width: 80px; height: 115px; background: white; color: black; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; border: 1px solid #ddd; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 1.3rem; }
+        .card:hover { transform: translateY(-10px) rotate(2deg); z-index: 10; }
+        .card.red { color: #f43f5e; }
     </style>
 </head>
 <body>
 
 <nav>
-    <h2>Arcade 2026</h2>
-    <ul id="main-menu">
+    <h2>Arcade v2026</h2>
+    <ul id="menu-list">
         <li data-target="tab-sim" class="active">Morpion Simple</li>
         <li data-target="tab-ult">Morpion Ultime</li>
-        <li data-target="tab-mine">Démineur XXL</li>
+        <li data-target="tab-mine">Démineur Expert</li>
         <li data-target="tab-yams">Yams Pro</li>
         <li data-target="tab-belo">Belote</li>
     </ul>
@@ -75,242 +79,256 @@
 
 <main>
     <section id="tab-sim" class="screen active">
-        <h1>Morpion Simple</h1>
-        <div id="sim-container" class="grid-sim"></div>
-        <button onclick="initSim()">Réinitialiser</button>
+        <h1>Morpion 3x3</h1>
+        <div id="sim-root" class="grid-3x3"></div>
+        <button onclick="initSim()">Reset Game</button>
     </section>
 
     <section id="tab-ult" class="screen">
         <h1>Morpion Ultime</h1>
-        <div id="ult-container" class="u-grid"></div>
+        <p id="u-msg">Joueur actuel : <span style="color:var(--accent)">X</span></p>
+        <div id="ult-root" class="u-grid"></div>
     </section>
 
     <section id="tab-mine" class="screen">
-        <h1>Démineur Expert</h1>
+        <h1>Démineur (20x20)</h1>
         <div id="m-board"></div>
-        <p>Indices : Clic gauche pour creuser, Clic droit pour 🚩</p>
-        <button onclick="initMine()">Nouvelle Grille</button>
+        <div style="margin-top:25px; display:flex; gap:20px; align-items:center;">
+            <p>🚩 Clic droit pour marquer | 💣 60 mines</p>
+            <button onclick="initMine()">Nouvelle Partie</button>
+        </div>
     </section>
 
     <section id="tab-yams" class="screen">
-        <h1>Yams Multi</h1>
-        <div class="dice-container" id="y-dice"></div>
-        <button id="y-roll-btn" onclick="rollYams()">Lancer les dés (3)</button>
-        <table class="yams-table" id="y-table"></table>
+        <h1>Yams Pro</h1>
+        <div class="yams-layout">
+            <div class="dice-area">
+                <div class="dice-container" id="y-dice-box"></div>
+                <button id="y-roll-btn" onclick="rollYams()">Lancer les dés (3)</button>
+                <p id="y-status" style="margin-top:15px; font-weight:bold;"></p>
+            </div>
+            <table class="yams-table" id="y-table-root"></table>
+        </div>
     </section>
 
     <section id="tab-belo" class="screen">
-        <h1>Belote</h1>
+        <h1>Belote Interactive</h1>
         <div class="tapis">
             <div id="sl-n" class="slot"></div><div id="sl-s" class="slot"></div>
             <div id="sl-e" class="slot"></div><div id="sl-w" class="slot"></div>
         </div>
-        <div id="b-hand" style="display:flex; gap:10px; justify-content:center; margin-top:30px;"></div>
-        <button onclick="initB()" style="margin-top:20px;">Nouvelle Donne</button>
+        <div id="b-hand" style="display:flex; gap:12px; justify-content:center; margin-top:35px; min-height:130px;"></div>
+        <div style="text-align:center; margin-top:20px;">
+            <p>Cliquez sur une carte pour la jouer sur le tapis.</p>
+            <button onclick="initBelote()">Redistribuer</button>
+        </div>
     </section>
 </main>
 
 <script>
-/* --- SYSTÈME DE NAVIGATION PROPRE --- */
-document.querySelectorAll('#main-menu li').forEach(li => {
-    li.addEventListener('click', () => {
-        document.querySelectorAll('#main-menu li').forEach(item => item.classList.remove('active'));
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        li.classList.add('active');
-        const target = li.getAttribute('data-target');
+/** GESTIONNAIRE DE NAVIGATION **/
+const screens = document.querySelectorAll('.screen');
+const navItems = document.querySelectorAll('#menu-list li');
+
+navItems.forEach(item => {
+    item.addEventListener('click', () => {
+        navItems.forEach(i => i.classList.remove('active'));
+        screens.forEach(s => s.classList.remove('active'));
+        item.classList.add('active');
+        const target = item.getAttribute('data-target');
         document.getElementById(target).classList.add('active');
-        
-        // Initialisation propre au switch
-        if(target === 'tab-sim') initSim();
-        if(target === 'tab-ult') initUlt();
-        if(target === 'tab-mine') initMine();
-        if(target === 'tab-yams') initYams();
-        if(target === 'tab-belo') initB();
+        window[target.replace('tab-', 'init').charAt(0).toUpperCase() + target.replace('tab-', 'init').slice(1)]();
     });
 });
 
-/* --- MORPION SIMPLE --- */
+/** MORPION SIMPLE **/
 function initSim() {
-    const cont = document.getElementById('sim-container');
-    cont.innerHTML = '';
-    let player = "X";
-    let state = Array(9).fill(null);
+    const root = document.getElementById('sim-root'); root.innerHTML = '';
+    let player = "X", state = Array(9).fill(null);
     for(let i=0; i<9; i++) {
-        const c = document.createElement('div');
-        c.className = 'cell cell-big';
+        const c = document.createElement('div'); c.className = 'cell cell-big';
         c.onclick = () => {
             if(state[i]) return;
-            state[i] = player;
-            c.textContent = player;
-            c.style.color = player === "X" ? "var(--accent)" : "#3b82f6";
-            if(checkWin(state)) { alert(player + " gagne !"); initSim(); }
+            state[i] = player; c.textContent = player;
+            c.classList.add('taken');
+            c.style.color = player === "X" ? "var(--accent)" : "var(--p2)";
+            if(checkWin(state)) { setTimeout(() => { alert(player + " a gagné !"); initSim(); }, 50); return; }
             player = player === "X" ? "O" : "X";
         };
-        cont.appendChild(c);
+        root.appendChild(c);
     }
 }
 
-/* --- MORPION ULTIME --- */
+/** MORPION ULTIME **/
 function initUlt() {
-    const cont = document.getElementById('ult-container');
-    cont.innerHTML = '';
+    const root = document.getElementById('ult-root'); root.innerHTML = '';
     let player = "X", nextGrid = -1, bigState = Array(9).fill(null);
     for(let i=0; i<9; i++) {
-        const sg = document.createElement('div');
-        sg.className = 's-grid';
-        sg.id = `sg-${i}`;
+        const sg = document.createElement('div'); sg.className = 's-grid'; sg.id = `ult-sg-${i}`;
         for(let j=0; j<9; j++) {
-            const c = document.createElement('div');
-            c.className = 'cell';
+            const c = document.createElement('div'); c.className = 'cell';
             c.onclick = () => {
                 if(c.textContent || (nextGrid !== -1 && nextGrid !== i) || bigState[i]) return;
-                c.textContent = player;
-                c.style.color = player === "X" ? "var(--accent)" : "#3b82f6";
+                c.textContent = player; c.classList.add('taken');
+                c.style.color = player === "X" ? "var(--accent)" : "var(--p2)";
                 const cells = Array.from(sg.querySelectorAll('.cell')).map(el => el.textContent);
-                if(checkWin(cells)) { bigState[i] = player; sg.style.background = "rgba(0,255,136,0.2)"; }
-                nextGrid = (bigState[j] || isFull(Array.from(document.querySelectorAll(`#sg-${j} .cell`)))) ? -1 : j;
+                if(checkWin(cells)) { bigState[i] = player; sg.style.background = "rgba(0,255,136,0.15)"; }
+                nextGrid = (bigState[j] || Array.from(document.querySelectorAll(`#ult-sg-${j} .cell`)).every(el => el.textContent)) ? -1 : j;
                 player = player === "X" ? "O" : "X";
-                updateUltUI(nextGrid, bigState);
+                document.getElementById('u-msg').innerHTML = `Joueur actuel : <span style="color:${player==='X'?'var(--accent)':'var(--p2)'}">${player}</span>`;
+                updateUltVisuals(nextGrid, bigState);
             };
             sg.appendChild(c);
         }
-        cont.appendChild(sg);
+        root.appendChild(sg);
     }
-    updateUltUI(-1, bigState);
+    updateUltVisuals(-1, bigState);
 }
-function updateUltUI(next, big) {
+function updateUltVisuals(next, big) {
     document.querySelectorAll('.s-grid').forEach((g, i) => {
         g.classList.remove('active-zone');
         if((next === -1 || next === i) && !big[i]) g.classList.add('active-zone');
     });
 }
 
-/* --- DÉMINEUR XXL --- */
-let mGrid = [], mOpen = [], mFirst = true;
+/** DÉMINEUR EXPERT **/
+let mGrid = [], mOpen = [], mFlags = [], mFirst = true;
 function initMine() {
     const board = document.getElementById('m-board'); board.innerHTML = '';
     mGrid = Array(400).fill(0); mOpen = Array(400).fill(false); mFirst = true;
     for(let i=0; i<400; i++) {
         const t = document.createElement('div'); t.className = 'm-tile';
-        t.onclick = () => { if(mFirst) { setupMines(i); mFirst = false; } revealMine(i); };
-        t.oncontextmenu = (e) => { e.preventDefault(); t.textContent = t.textContent === '🚩' ? '' : '🚩'; };
+        t.onmousedown = (e) => {
+            if(e.button === 2) { e.preventDefault(); t.textContent = t.textContent === '🚩' ? '' : '🚩'; return; }
+            if(t.textContent === '🚩') return;
+            if(mFirst) { generateMines(i); mFirst = false; }
+            revealTile(i);
+        };
+        t.oncontextmenu = (e) => e.preventDefault();
         board.appendChild(t);
     }
 }
-function setupMines(safe) {
+function generateMines(safeZone) {
     let m = 0; while(m < 60) {
         let r = Math.floor(Math.random()*400);
-        if(r !== safe && mGrid[r] !== 'M') { mGrid[r] = 'M'; m++; }
+        if(r !== safeZone && mGrid[r] !== 'M') { mGrid[r] = 'M'; m++; }
     }
     for(let i=0; i<400; i++) {
         if(mGrid[i]==='M') continue;
-        let n=0, r=Math.floor(i/20), c=i%20;
+        let count=0, r=Math.floor(i/20), c=i%20;
         for(let x=-1; x<=1; x++) for(let y=-1; y<=1; y++) {
-            let nr=r+x, nc=c+y; if(nr>=0&&nr<20&&nc>=0&&nc<20&&mGrid[nr*20+nc]==='M') n++;
+            let nr=r+x, nc=c+y; if(nr>=0&&nr<20&&nc>=0&&nc<20&&mGrid[nr*20+nc]==='M') count++;
         }
-        mGrid[i] = n;
+        mGrid[i] = count;
     }
 }
-function revealMine(i) {
+function revealTile(i) {
     if(mOpen[i]) return;
     const tiles = document.getElementById('m-board').children;
     mOpen[i] = true; tiles[i].classList.add('open');
-    if(mGrid[i] === 'M') { tiles[i].classList.add('mine'); tiles[i].textContent='💣'; alert('BOOM'); initMine(); }
+    if(mGrid[i] === 'M') { tiles[i].classList.add('mine'); tiles[i].textContent='💣'; setTimeout(() => { alert('GAME OVER'); initMine(); }, 100); }
     else {
         tiles[i].textContent = mGrid[i] || '';
         if(mGrid[i] === 0) {
             let r=Math.floor(i/20), c=i%20;
             for(let x=-1; x<=1; x++) for(let y=-1; y<=1; y++) {
-                let nr=r+x, nc=c+y; if(nr>=0&&nr<20&&nc>=0&&nc<20) revealMine(nr*20+nc);
+                let nr=r+x, nc=c+y; if(nr>=0&&nr<20&&nc>=0&&nc<20) revealTile(nr*20+nc);
             }
         }
     }
 }
 
-/* --- YAMS PRO --- */
+/** YAMS PRO **/
 let yDice = [1,1,1,1,1], yKeep = [false,false,false,false,false], yRolls = 3, yScores = {};
 function initYams() {
     yScores = {}; yRolls = 3; yKeep.fill(false);
-    const table = document.getElementById('y-table'); table.innerHTML = '';
-    ['1','2','3','4','5','6','Brelan','Carré','Full','Suite','Yams'].forEach(cat => {
-        let row = table.insertRow();
-        row.insertCell().textContent = cat;
-        let valCell = row.insertCell(); valCell.className = 'val'; valCell.id = `sc-${cat}`;
-        valCell.onclick = () => lockYams(cat, valCell);
+    const table = document.getElementById('y-table-root'); table.innerHTML = '';
+    const cats = ['1','2','3','4','5','6','Brelan','Full','Carré','Petite Suite','Grande Suite','Yams','Chance'];
+    cats.forEach(c => {
+        let row = table.insertRow(); row.insertCell().textContent = c;
+        let v = row.insertCell(); v.className = 'val'; v.id = `ys-${c}`;
+        v.onclick = () => lockScore(c, v);
     });
     rollYams();
 }
 function rollYams() {
     if(yRolls <= 0) return;
-    yDice = yDice.map((d, i) => yKeep[i] ? d : Math.floor(Math.random()*6)+1);
-    yRolls--;
-    updateYUI();
+    yDice = yDice.map((v, i) => yKeep[i] ? v : Math.floor(Math.random()*6)+1);
+    yRolls--; updateYamsUI();
 }
-function updateYUI() {
-    const cont = document.getElementById('y-dice'); cont.innerHTML = '';
+function updateYamsUI() {
+    const box = document.getElementById('y-dice-box'); box.innerHTML = '';
     yDice.forEach((v, i) => {
-        let d = document.createElement('div'); d.className = 'die' + (yKeep[i] ? ' kept' : '');
+        let d = document.createElement('div'); d.className = 'die' + (yKeep[i]?' kept':'');
         d.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][v-1];
-        d.onclick = () => { yKeep[i] = !yKeep[i]; updateYUI(); };
-        cont.appendChild(d);
+        d.onclick = () => { yKeep[i] = !yKeep[i]; updateYamsUI(); };
+        box.appendChild(d);
     });
     document.getElementById('y-roll-btn').textContent = `Lancer (${yRolls})`;
-    calcPotentials();
+    document.getElementById('y-status').textContent = yRolls === 0 ? "Choisissez une case !" : "Relancez ou choisissez !";
+    calculateYamsPotentials();
 }
-function calcPotentials() {
+function calculateYamsPotentials() {
     const counts = {}; yDice.forEach(v => counts[v] = (counts[v]||0)+1);
-    const unique = Object.values(counts);
-    ['1','2','3','4','5','6','Brelan','Carré','Full','Suite','Yams'].forEach(cat => {
-        const el = document.getElementById(`sc-${cat}`);
-        if(yScores[cat] !== undefined) return;
+    const v = Object.values(counts); const s = new Set(yDice);
+    ['1','2','3','4','5','6','Brelan','Full','Carré','Petite Suite','Grande Suite','Yams','Chance'].forEach(c => {
+        const el = document.getElementById(`ys-${c}`); if(yScores[c] !== undefined) return;
         let p = 0;
-        if(!isNaN(cat)) p = (counts[cat] || 0) * parseInt(cat);
-        else if(cat === 'Brelan' && unique.some(v => v >= 3)) p = yDice.reduce((a,b)=>a+b);
-        else if(cat === 'Carré' && unique.some(v => v >= 4)) p = yDice.reduce((a,b)=>a+b);
-        else if(cat === 'Full' && unique.includes(3) && unique.includes(2)) p = 25;
-        else if(cat === 'Yams' && unique.includes(5)) p = 50;
-        else if(cat === 'Suite' && (new Set(yDice).size >= 5 && (Math.max(...yDice)-Math.min(...yDice) === 4))) p = 40;
+        if(!isNaN(c)) p = (counts[c]||0) * parseInt(c);
+        else if(c==='Brelan' && v.some(x=>x>=3)) p = yDice.reduce((a,b)=>a+b);
+        else if(c==='Carré' && v.some(x=>x>=4)) p = yDice.reduce((a,b)=>a+b);
+        else if(c==='Full' && v.includes(3) && v.includes(2)) p = 25;
+        else if(c==='Petite Suite' && isSuite(s, 4)) p = 30;
+        else if(c==='Grande Suite' && isSuite(s, 5)) p = 40;
+        else if(c==='Yams' && v.includes(5)) p = 50;
+        else if(c==='Chance') p = yDice.reduce((a,b)=>a+b);
         el.textContent = p; el.className = 'val potential';
     });
 }
-function lockYams(cat, el) {
-    if(yScores[cat] !== undefined) return;
-    yScores[cat] = el.textContent; el.classList.remove('potential'); el.classList.add('taken');
+function isSuite(set, len) {
+    let count = 0, max = 0;
+    for(let i=1; i<=6; i++) {
+        if(set.has(i)) count++; else count = 0;
+        max = Math.max(max, count);
+    }
+    return max >= len;
+}
+function lockScore(c, el) {
+    if(yScores[c] !== undefined) return;
+    yScores[c] = el.textContent; el.classList.remove('potential'); el.classList.add('taken');
     yRolls = 3; yKeep.fill(false); rollYams();
 }
 
-/* --- BELOTE --- */
-function initB() {
-    const h = document.getElementById('b-hand'); h.innerHTML = '';
+/** BELOTE **/
+function initBelote() {
+    const hand = document.getElementById('b-hand'); hand.innerHTML = '';
     const suits = [{s:'♠',c:'b'},{s:'♣',c:'b'},{s:'♥',c:'r'},{s:'♦',c:'r'}];
     const ranks = ['7','8','9','10','V','D','R','A'];
+    document.querySelectorAll('.slot').forEach(s => s.innerHTML = '');
     for(let i=0; i<8; i++) {
-        let s = suits[Math.floor(Math.random()*4)];
-        let r = ranks[Math.floor(Math.random()*8)];
-        let c = document.createElement('div'); c.className = `card ${s.c==='r'?'red':''}`;
-        c.innerHTML = `<span>${r}</span><span>${s.s}</span>`;
+        let su = suits[Math.floor(Math.random()*4)], ra = ranks[Math.floor(Math.random()*8)];
+        let c = document.createElement('div'); c.className = `card ${su.c==='r'?'red':''}`;
+        c.innerHTML = `<span>${ra}</span><span>${su.s}</span>`;
         c.onclick = () => {
             document.getElementById('sl-s').appendChild(c);
             setTimeout(() => {
                 ['n','e','w'].forEach(p => {
-                    let bc = document.createElement('div'); bc.className='card'; bc.style.background='#333';
+                    let bc = document.createElement('div'); bc.className='card'; bc.style.background='#222';
                     document.getElementById('sl-'+p).innerHTML = ''; document.getElementById('sl-'+p).appendChild(bc);
                 });
-                setTimeout(() => document.querySelectorAll('.slot').forEach(sl => sl.innerHTML=''), 1000);
-            }, 500);
+                setTimeout(() => document.querySelectorAll('.slot').forEach(s => s.innerHTML=''), 1200);
+            }, 400);
         };
-        h.appendChild(c);
+        hand.appendChild(c);
     }
 }
 
-/* --- HELPERS --- */
+/** HELPER WIN **/
 function checkWin(g) {
     const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
     return w.some(p => g[p[0]] && g[p[0]] === g[p[1]] && g[p[0]] === g[p[2]]);
 }
-function isFull(arr) { return arr.every(c => c.textContent !== ""); }
 
-// Lancement initial
 initSim();
 </script>
 </body>
