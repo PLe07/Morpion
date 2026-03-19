@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcade Ultimate 2026 - Édition Master</title>
+    <title>Arcade</title>
     <style>
         /* =========================================
            1. VARIABLES ET BASE
@@ -63,8 +63,17 @@
             max-width: 450px; 
         }
 
-        .modal-box h2 { font-size: 2.2rem; margin-bottom: 15px; }
-        .modal-box p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 30px; line-height: 1.5; }
+        .modal-box h2 { 
+            font-size: 2.2rem; 
+            margin-bottom: 15px; 
+        }
+
+        .modal-box p { 
+            font-size: 1.2rem; 
+            color: var(--text-muted); 
+            margin-bottom: 30px; 
+            line-height: 1.5; 
+        }
         
         @keyframes modalPop { 
             0% { transform: scale(0.7) translateY(30px); opacity: 0; } 
@@ -92,8 +101,11 @@
             margin-bottom: 30px; 
         }
 
-        nav ul { list-style: none; overflow-y: auto; }
-        
+        nav ul { 
+            list-style: none; 
+            overflow-y: auto; 
+        }
+
         nav li { 
             padding: 15px; 
             cursor: pointer; 
@@ -108,9 +120,24 @@
             border: 1px solid transparent; 
         }
 
-        nav li:hover { background: var(--panel-hover); transform: translateX(5px); }
-        nav li.active { background: var(--accent); color: #000; box-shadow: 0 0 20px var(--accent-glow); border-color: var(--accent); }
-        .nav-divider { height: 2px; background: #1e293b; margin: 15px 0; border-radius: 2px; }
+        nav li:hover { 
+            background: var(--panel-hover); 
+            transform: translateX(5px); 
+        }
+
+        nav li.active { 
+            background: var(--accent); 
+            color: #000; 
+            box-shadow: 0 0 20px var(--accent-glow); 
+            border-color: var(--accent); 
+        }
+
+        .nav-divider { 
+            height: 2px; 
+            background: #1e293b; 
+            margin: 15px 0; 
+            border-radius: 2px; 
+        }
 
         /* Écrans Principaux */
         main { 
@@ -123,44 +150,203 @@
             position: relative; 
             scroll-behavior: smooth; 
         }
-        
-        .screen { display: none; width: 100%; max-width: 1000px; animation: screenFade 0.4s ease-out; }
-        .screen.active { display: block; }
+
+        .screen { 
+            display: none; 
+            width: 100%; 
+            max-width: 1000px; 
+            animation: screenFade 0.4s ease-out; 
+        }
+
+        .screen.active { 
+            display: block; 
+        }
         
         @keyframes screenFade { 
             from { opacity: 0; transform: translateY(15px); } 
             to { opacity: 1; transform: translateY(0); } 
         }
         
-        h1 { text-align: center; margin-bottom: 10px; font-size: 2.8rem; font-weight: 800; background: linear-gradient(to right, var(--accent), #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 40px; font-size: 1.1rem; }
+        h1 { 
+            text-align: center; 
+            margin-bottom: 10px; 
+            font-size: 2.8rem; 
+            font-weight: 800; 
+            background: linear-gradient(to right, var(--accent), #34d399); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+
+        .subtitle { 
+            text-align: center; 
+            color: var(--text-muted); 
+            margin-bottom: 40px; 
+            font-size: 1.1rem; 
+        }
         
-        .btn { padding: 12px 28px; background: var(--accent); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; color: #000; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; margin: 5px; }
-        .btn:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--accent-glow); }
-        .btn:disabled { background: #334155; color: #94a3b8; cursor: not-allowed; box-shadow: none; transform: none; }
-        input[type="text"], select { padding: 15px; font-size: 1.2rem; border-radius: 8px; border: 2px solid #334155; background: #020617; color: white; text-align: center; margin: 10px; text-transform: uppercase; width: 250px; font-weight: bold; outline:none; }
-        select { cursor: pointer; text-transform: none; }
+        /* Boutons et Inputs */
+        .btn { 
+            padding: 12px 28px; 
+            background: var(--accent); 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 1.1rem; 
+            color: #000; 
+            transition: 0.2s; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            margin: 5px; 
+        }
+
+        .btn:hover { 
+            transform: scale(1.05); 
+            box-shadow: 0 0 15px var(--accent-glow); 
+        }
+
+        .btn:disabled { 
+            background: #334155; 
+            color: #94a3b8; 
+            cursor: not-allowed; 
+            box-shadow: none; 
+            transform: none; 
+        }
+
+        input[type="text"], select { 
+            padding: 15px; 
+            font-size: 1.2rem; 
+            border-radius: 8px; 
+            border: 2px solid #334155; 
+            background: #020617; 
+            color: white; 
+            text-align: center; 
+            margin: 10px; 
+            text-transform: uppercase; 
+            width: 250px; 
+            font-weight: bold; 
+            outline: none; 
+        }
+
+        select { 
+            cursor: pointer; 
+            text-transform: none; 
+        }
 
         /* =========================================
-           3. MORPION ET DÉMINEUR
+           3. MORPION SIMPLE
            ========================================= */
-        .ms-grid { display: grid; grid-template-columns: repeat(3, 130px); gap: 12px; margin: 0 auto 40px auto; width: fit-content; }
-        .ms-cell { height: 130px; background: var(--panel-bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 5rem; cursor: pointer; font-weight: 900; transition: 0.2s; border: 2px solid #1e293b; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .ms-cell:hover:not(.taken) { background: var(--panel-hover); border-color: var(--accent); }
-        .ms-cell.win { animation: pulseWin 1s infinite alternate; background: rgba(16, 185, 129, 0.1); border-color: var(--accent); }
+        .ms-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 130px); 
+            gap: 12px; 
+            margin: 0 auto 40px auto; 
+            width: fit-content; 
+        }
+
+        .ms-cell { 
+            height: 130px; 
+            background: var(--panel-bg); 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 5rem; 
+            cursor: pointer; 
+            font-weight: 900; 
+            transition: 0.2s; 
+            border: 2px solid #1e293b; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); 
+        }
+
+        .ms-cell:hover:not(.taken) { 
+            background: var(--panel-hover); 
+            border-color: var(--accent); 
+        }
+
+        .ms-cell.win { 
+            animation: pulseWin 1s infinite alternate; 
+            background: rgba(16, 185, 129, 0.1); 
+            border-color: var(--accent); 
+        }
         
         @keyframes pulseWin { 
             from { transform: scale(1); box-shadow: 0 0 10px var(--accent-glow); } 
             to { transform: scale(1.05); box-shadow: 0 0 30px var(--accent-glow); } 
         }
 
-        #mu-status { text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; }
-        .mu-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; background: #020617; padding: 20px; border-radius: 20px; margin: 0 auto 30px auto; width: fit-content; border: 3px solid #1e293b; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .mu-grid { display: grid; grid-template-columns: repeat(3, 50px); gap: 4px; background: var(--panel-bg); padding: 8px; border-radius: 10px; position: relative; transition: 0.3s; }
-        .mu-cell { height: 50px; background: var(--bg-color); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; cursor: pointer; }
-        .mu-cell:hover:not(.taken) { background: var(--panel-hover); }
-        .mu-active { outline: 4px solid var(--accent); background: #064e3b; box-shadow: 0 0 25px var(--accent-glow); animation: muPulse 2s infinite; z-index: 5; }
-        .mu-won { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.85); display: flex; align-items: center; justify-content: center; font-size: 6rem; font-weight: 900; border-radius: 10px; backdrop-filter: blur(3px); z-index: 10; animation: screenFade 0.3s ease-out; }
+        /* =========================================
+           4. MORPION ULTIME
+           ========================================= */
+        .mu-status { 
+            text-align: center; 
+            font-size: 1.5rem; 
+            font-weight: bold; 
+            margin-bottom: 20px; 
+        }
+
+        .mu-container { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 15px; 
+            background: #020617; 
+            padding: 20px; 
+            border-radius: 20px; 
+            margin: 0 auto 30px auto; 
+            width: fit-content; 
+            border: 3px solid #1e293b; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+        }
+
+        .mu-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 50px); 
+            gap: 4px; 
+            background: var(--panel-bg); 
+            padding: 8px; 
+            border-radius: 10px; 
+            position: relative; 
+            transition: 0.3s; 
+        }
+
+        .mu-cell { 
+            height: 50px; 
+            background: var(--bg-color); 
+            border-radius: 5px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.8rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+
+        .mu-cell:hover:not(.taken) { 
+            background: var(--panel-hover); 
+        }
+
+        .mu-active { 
+            outline: 4px solid var(--accent); 
+            background: #064e3b; 
+            box-shadow: 0 0 25px var(--accent-glow); 
+            animation: muPulse 2s infinite; 
+            z-index: 5; 
+        }
+
+        .mu-won { 
+            position: absolute; 
+            inset: 0; 
+            background: rgba(2, 6, 23, 0.85); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 6rem; 
+            font-weight: 900; 
+            border-radius: 10px; 
+            backdrop-filter: blur(3px); 
+            z-index: 10; 
+            animation: screenFade 0.3s ease-out; 
+        }
         
         @keyframes muPulse { 
             0% { outline-color: var(--accent); } 
@@ -168,86 +354,313 @@
             100% { outline-color: var(--accent); } 
         }
 
-        .dm-header { display: flex; justify-content: center; gap: 40px; margin-bottom: 30px; font-size: 1.4rem; font-weight: bold; background: #000; padding: 15px 30px; border-radius: 50px; border: 1px solid #1e293b; }
-        #dm-board { display: grid; grid-template-columns: repeat(20, 30px); gap: 2px; background: #334155; padding: 3px; border: 4px solid #1e293b; margin: 0 auto 30px auto; width: fit-content; border-radius: 8px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
-        .dm-tile { width: 30px; height: 30px; background: var(--panel-bg); display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 900; cursor: pointer; border-radius: 3px; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3); }
-        .dm-tile:hover:not(.open) { background: var(--panel-hover); }
-        .dm-tile.open { background: #cbd5e1; box-shadow: inset 2px 2px 6px rgba(0,0,0,0.3); cursor: default; }
-        .dm-tile.mine { background: var(--player-x); font-size: 1.2rem; }
-        .dm-c1 { color: #2563eb; } .dm-c2 { color: #16a34a; } .dm-c3 { color: #dc2626; } .dm-c4 { color: #7c3aed; } .dm-c5 { color: #991b1b; } .dm-c6 { color: #0d9488; }
-
         /* =========================================
-           4. YAMS
+           5. DÉMINEUR EXPERT
            ========================================= */
-        .yams-layout { display: flex; gap: 40px; justify-content: center; align-items: flex-start; margin-top: 20px; flex-wrap: wrap; }
-        .y-dice-area { background: var(--panel-bg); padding: 40px; border-radius: 20px; text-align: center; border: 2px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 400px; }
-        .y-dice-container { font-size: 4.5rem; display: flex; gap: 15px; margin-bottom: 30px; justify-content: center; min-height: 80px; }
-        .y-die { cursor: pointer; transition: 0.3s; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        .y-die.kept { color: var(--accent); transform: translateY(-15px) scale(1.1); text-shadow: 0 10px 20px var(--accent-glow); }
-        .y-tables { display: flex; gap: 15px; }
-        .y-table { border-collapse: collapse; background: var(--panel-bg); border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .y-table th { padding: 15px; background: #020617; color: var(--text-main); font-size: 1.2rem; border-bottom: 2px solid var(--accent); }
-        .y-table td { border: 1px solid #1e293b; padding: 12px 20px; cursor: pointer; font-size: 1.1rem; }
-        .y-table td:first-child { font-weight: 600; color: var(--text-muted); }
-        .y-table .pot { color: var(--accent); opacity: 0.4; font-style: italic; font-weight: bold; }
-        .y-table .locked { color: var(--accent); font-weight: 900; background: rgba(16,185,129,0.05); }
-        .y-table .total-row { background: #020617; color: var(--gold); font-weight: 900; font-size: 1.3rem; }
-
-        /* =========================================
-           5. LA VRAIE BELOTE (Design Pro)
-           ========================================= */
-        .bl-scoreboard { display: flex; justify-content: center; gap: 50px; background: #020617; padding: 15px 30px; border-radius: 15px; border: 2px solid #1e293b; margin-bottom: 20px; font-size: 1.5rem; font-weight: bold; }
-        .bl-info { text-align: center; margin-bottom: 20px; font-size: 1.3rem; font-weight: bold; color: var(--gold); min-height: 30px; }
-        .bl-atout-display { 
-            display: flex; flex-direction: column; align-items: center; 
-            padding: 10px 20px; background: #000; border-radius: 10px; 
-            border: 1px solid #333; font-size: 1.5rem; 
+        .dm-header { 
+            display: flex; 
+            justify-content: center; 
+            gap: 40px; 
+            margin-bottom: 30px; 
+            font-size: 1.4rem; 
+            font-weight: bold; 
+            background: #000; 
+            padding: 15px 30px; 
+            border-radius: 50px; 
+            border: 1px solid #1e293b; 
         }
-        .bl-taker-name { font-size: 0.9rem; color: #ccc; margin-top: 5px; font-weight: normal; text-transform: uppercase; }
+
+        #dm-board { 
+            display: grid; 
+            grid-template-columns: repeat(20, 30px); 
+            gap: 2px; 
+            background: #334155; 
+            padding: 3px; 
+            border: 4px solid #1e293b; 
+            margin: 0 auto 30px auto; 
+            width: fit-content; 
+            border-radius: 8px; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6); 
+        }
+
+        .dm-tile { 
+            width: 30px; 
+            height: 30px; 
+            background: var(--panel-bg); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1rem; 
+            font-weight: 900; 
+            cursor: pointer; 
+            border-radius: 3px; 
+            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3); 
+        }
+
+        .dm-tile:hover:not(.open) { 
+            background: var(--panel-hover); 
+        }
+
+        .dm-tile.open { 
+            background: #cbd5e1; 
+            box-shadow: inset 2px 2px 6px rgba(0,0,0,0.3); 
+            cursor: default; 
+        }
+
+        .dm-tile.mine { 
+            background: var(--player-x); 
+            font-size: 1.2rem; 
+        }
+
+        .dm-c1 { color: #2563eb; } 
+        .dm-c2 { color: #16a34a; } 
+        .dm-c3 { color: #dc2626; } 
+        .dm-c4 { color: #7c3aed; } 
+        .dm-c5 { color: #991b1b; } 
+        .dm-c6 { color: #0d9488; }
+        .dm-c7 { color: #000; }
+        .dm-c8 { color: #fff; }
+
+        /* =========================================
+           6. YAMS
+           ========================================= */
+        .yams-layout { 
+            display: flex; 
+            gap: 40px; 
+            justify-content: center; 
+            align-items: flex-start; 
+            margin-top: 20px; 
+            flex-wrap: wrap; 
+        }
+
+        .y-dice-area { 
+            background: var(--panel-bg); 
+            padding: 40px; 
+            border-radius: 20px; 
+            text-align: center; 
+            border: 2px solid #1e293b; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            width: 400px; 
+        }
+
+        .y-dice-container { 
+            font-size: 4.5rem; 
+            display: flex; 
+            gap: 15px; 
+            margin-bottom: 30px; 
+            justify-content: center; 
+            min-height: 80px; 
+        }
+
+        .y-die { 
+            cursor: pointer; 
+            transition: 0.3s; 
+            text-shadow: 0 5px 15px rgba(0,0,0,0.5); 
+        }
+
+        .y-die.kept { 
+            color: var(--accent); 
+            transform: translateY(-15px) scale(1.1); 
+            text-shadow: 0 10px 20px var(--accent-glow); 
+        }
+
+        .y-tables { 
+            display: flex; 
+            gap: 15px; 
+        }
+
+        .y-table { 
+            border-collapse: collapse; 
+            background: var(--panel-bg); 
+            border-radius: 12px; 
+            overflow: hidden; 
+            border: 1px solid #1e293b; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+        }
+
+        .y-table th { 
+            padding: 15px; 
+            background: #020617; 
+            color: var(--text-main); 
+            font-size: 1.2rem; 
+            border-bottom: 2px solid var(--accent); 
+        }
+
+        .y-table td { 
+            border: 1px solid #1e293b; 
+            padding: 12px 20px; 
+            cursor: pointer; 
+            font-size: 1.1rem; 
+        }
+
+        .y-table td:first-child { 
+            font-weight: 600; 
+            color: var(--text-muted); 
+        }
+
+        .y-table .pot { 
+            color: var(--accent); 
+            opacity: 0.4; 
+            font-style: italic; 
+            font-weight: bold; 
+        }
+
+        .y-table .locked { 
+            color: var(--accent); 
+            font-weight: 900; 
+            background: rgba(16,185,129,0.05); 
+        }
+
+        .y-table .total-row { 
+            background: #020617; 
+            color: var(--gold); 
+            font-weight: 900; 
+            font-size: 1.3rem; 
+        }
+
+        /* =========================================
+           7. LA VRAIE BELOTE
+           ========================================= */
+        .bl-scoreboard { 
+            display: flex; 
+            justify-content: center; 
+            gap: 50px; 
+            background: #020617; 
+            padding: 15px 30px; 
+            border-radius: 15px; 
+            border: 2px solid #1e293b; 
+            margin-bottom: 20px; 
+            font-size: 1.5rem; 
+            font-weight: bold; 
+        }
+
+        .bl-info { 
+            text-align: center; 
+            margin-bottom: 20px; 
+            font-size: 1.3rem; 
+            font-weight: bold; 
+            color: var(--gold); 
+            min-height: 30px; 
+        }
+
+        .bl-atout-display { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 10px 20px; 
+            background: #000; 
+            border-radius: 10px; 
+            border: 1px solid #333; 
+            font-size: 1.5rem; 
+        }
+
+        .bl-taker-name { 
+            font-size: 0.9rem; 
+            color: #ccc; 
+            margin-top: 5px; 
+            font-weight: normal; 
+            text-transform: uppercase; 
+        }
         
         .bl-tapis { 
             background: radial-gradient(circle, #065f46 0%, #022c22 100%); 
-            width: 700px; height: 450px; border-radius: 220px; margin: 0 auto; 
-            border: 15px solid #451a03; position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.8); 
+            width: 700px; 
+            height: 450px; 
+            border-radius: 220px; 
+            margin: 0 auto; 
+            border: 15px solid #451a03; 
+            position: relative; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8); 
         }
         
         .bl-name { 
-            position: absolute; color: var(--gold); font-weight: bold; font-size: 1.1rem; 
-            text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); 
-            pointer-events: none; z-index: 5; 
+            position: absolute; 
+            color: var(--gold); 
+            font-weight: bold; 
+            font-size: 1.1rem; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8); 
+            pointer-events: none; 
+            z-index: 5; 
         }
+
         #bl-n-n { top: 15px; left: 50%; transform: translateX(-50%); }
         #bl-n-s { bottom: 15px; left: 50%; transform: translateX(-50%); }
         #bl-n-e { right: 20px; top: 50%; transform: translateY(-50%); writing-mode: vertical-rl; text-orientation: mixed; }
         #bl-n-w { left: 20px; top: 50%; transform: translateY(-50%); writing-mode: vertical-rl; text-orientation: mixed; transform: translateY(-50%) rotate(180deg); }
         
         .bl-dealer { 
-            position: absolute; background: var(--gold); color: #000; width: 30px; height: 30px; 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 10; transition: 0.5s; font-size: 1.2rem; 
+            position: absolute; 
+            background: var(--gold); 
+            color: #000; 
+            width: 30px; 
+            height: 30px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5); 
+            z-index: 10; 
+            transition: 0.5s; 
+            font-size: 1.2rem; 
         }
         
-        .bl-slot { position: absolute; width: 80px; height: 115px; border: 2px dashed rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .bl-slot { 
+            position: absolute; 
+            width: 80px; 
+            height: 115px; 
+            border: 2px dashed rgba(255,255,255,0.15); 
+            border-radius: 8px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+
         #bl-s-n { top: 45px; left: 295px; } 
         #bl-s-s { bottom: 45px; left: 295px; }
         #bl-s-e { right: 60px; top: 152px; } 
         #bl-s-w { left: 60px; top: 152px; }
         
         .bl-card { 
-            width: 80px; height: 115px; background: #fff; color: #000; border-radius: 8px; display: flex; 
-            flex-direction: column; align-items: center; justify-content: center; font-weight: 900; 
-            font-size: 1.5rem; cursor: pointer; box-shadow: -2px 5px 15px rgba(0,0,0,0.4); 
-            position: relative; transition: 0.3s; 
+            width: 80px; 
+            height: 115px; 
+            background: #fff; 
+            color: #000; 
+            border-radius: 8px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 900; 
+            font-size: 1.5rem; 
+            cursor: pointer; 
+            box-shadow: -2px 5px 15px rgba(0,0,0,0.4); 
+            position: relative; 
+            transition: 0.2s; 
         }
+
         .bl-card.red { color: #ef4444; }
         .bl-card.invalid { filter: brightness(0.5); cursor: not-allowed; }
         
-        .bl-hand { display: flex; gap: -20px; justify-content: center; margin-top: 30px; height: 130px; }
+        .bl-hand { 
+            display: flex; 
+            gap: -20px; 
+            justify-content: center; 
+            margin-top: 30px; 
+            height: 130px; 
+        }
+
         .bl-hand .bl-card { margin-left: -30px; } 
         .bl-hand .bl-card:first-child { margin-left: 0; }
         .bl-hand .bl-card:hover:not(.invalid) { transform: translateY(-20px); z-index: 50; border-color: var(--accent); }
         
-        .bl-played { position: absolute; animation: playCard 0.3s forwards; pointer-events: none; }
+        .bl-played { 
+            position: absolute; 
+            animation: playCard 0.25s forwards; 
+            pointer-events: none; 
+        }
         
         @keyframes playCard { 
             from { transform: scale(1.5) translateY(50px); opacity: 0; } 
@@ -255,11 +668,40 @@
         }
         
         /* =========================================
-           6. FIREBASE NETWORK LOBBY
+           8. FIREBASE NETWORK LOBBY
            ========================================= */
-        .lobby-box { background: var(--panel-bg); padding: 40px; border-radius: 20px; border: 2px solid #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; max-width: 600px; margin: auto; }
-        .room-code-display { font-size: 4.5rem; letter-spacing: 10px; color: var(--accent); font-weight: 900; margin: 30px 0; background: #020617; padding: 20px; border-radius: 15px; }
-        .net-status-bar { background: #020617; padding: 20px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 30px; font-size: 1.4rem; font-weight: bold; text-align: center; }
+        .lobby-box { 
+            background: var(--panel-bg); 
+            padding: 40px; 
+            border-radius: 20px; 
+            border: 2px solid #334155; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            text-align: center; 
+            max-width: 600px; 
+            margin: auto; 
+        }
+
+        .room-code-display { 
+            font-size: 4.5rem; 
+            letter-spacing: 10px; 
+            color: var(--accent); 
+            font-weight: 900; 
+            margin: 30px 0; 
+            background: #020617; 
+            padding: 20px; 
+            border-radius: 15px; 
+        }
+
+        .net-status-bar { 
+            background: #020617; 
+            padding: 20px; 
+            border-radius: 10px; 
+            border: 1px solid #334155; 
+            margin-bottom: 30px; 
+            font-size: 1.4rem; 
+            font-weight: bold; 
+            text-align: center; 
+        }
     </style>
 </head>
 <body>
@@ -278,8 +720,8 @@
         <li data-target="s-sim" class="active"><span>✖️</span> Morpion Local</li>
         <li data-target="s-ult"><span>🔥</span> Morpion Ultime</li>
         <li data-target="s-mine"><span>💣</span> Démineur Expert</li>
-        <li data-target="s-yams"><span>🎲</span> Yams Complet</li>
-        <li data-target="s-belote"><span>🃏</span> Vraie Belote</li>
+        <li data-target="s-yams"><span>🎲</span> Yams </li>
+        <li data-target="s-belote"><span>🃏</span>  Belote</li>
         <div class="nav-divider"></div>
         <li data-target="s-net-lobby" style="color:var(--accent); border-color:var(--accent);"><span>🌐</span> Salon Multijoueur</li>
     </ul>
@@ -339,10 +781,10 @@
         <div class="bl-info" id="bl-status">Cliquez sur Nouvelle Manche pour commencer.</div>
         
         <div class="bl-tapis">
-            <div id="bl-n-n" class="bl-name">Nord (Allié)</div>
-            <div id="bl-n-s" class="bl-name">Toi (Sud)</div>
-            <div id="bl-n-w" class="bl-name">Ouest (Bot)</div>
-            <div id="bl-n-e" class="bl-name">Est (Bot)</div>
+            <div id="bl-n-n" class="bl-name">Nord</div>
+            <div id="bl-n-s" class="bl-name">Toi</div>
+            <div id="bl-n-w" class="bl-name">Ouest</div>
+            <div id="bl-n-e" class="bl-name">Est</div>
 
             <div id="bl-dealer-token" class="bl-dealer" style="display:none;">D</div>
             
@@ -456,7 +898,13 @@
         modalCb: null,
         showModal(title, desc, cb) {
             document.getElementById('modal-title').innerHTML = title;
-            document.getElementById('modal-title').style.color = (title.includes('Victoire') || title.includes('Gagné') || title.includes('Terminée') || title.includes('Réussi')) ? 'var(--accent)' : 'var(--player-x)';
+            
+            let titleColor = 'var(--player-x)';
+            if (title.includes('Victoire') || title.includes('Gagné') || title.includes('Terminée') || title.includes('Réussi') || title.includes('Fin')) {
+                titleColor = 'var(--accent)';
+            }
+            document.getElementById('modal-title').style.color = titleColor;
+            
             document.getElementById('modal-desc').innerHTML = desc;
             this.modalCb = cb; 
             document.getElementById('modal-overlay').style.display = 'flex';
@@ -466,9 +914,14 @@
             if(this.modalCb) this.modalCb(); 
         },
         switchScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+            document.querySelectorAll('.screen').forEach(s => {
+                s.classList.remove('active');
+            }); 
             document.getElementById(id).classList.add('active');
-            if(id !== 's-mine') clearInterval(window.App.Mine.timer);
+            
+            if(id !== 's-mine') {
+                clearInterval(window.App.Mine.timer);
+            }
         }
     };
 
@@ -494,6 +947,7 @@
         },
         play(i, el) {
             if(this.state[i] !== '') return; 
+            
             this.state[i] = this.player; 
             el.textContent = this.player; 
             el.style.color = this.player === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
@@ -502,15 +956,23 @@
             const win = this.checkWin(this.state); 
             if(win) { 
                 win.forEach(idx => document.getElementById('ms-board').children[idx].classList.add('win')); 
-                setTimeout(() => window.UI.showModal('Victoire !', `Le joueur <b style="color:${el.style.color}">${this.player}</b> a gagné.`, () => this.init()), 600); 
+                setTimeout(() => {
+                    window.UI.showModal('Victoire !', `Le joueur <b style="color:${el.style.color}">${this.player}</b> a gagné en local.`, () => this.init());
+                }, 600); 
             } else if(!this.state.includes('')) {
-                setTimeout(() => window.UI.showModal('Égalité', 'Match Nul.', () => this.init()), 200); 
+                setTimeout(() => {
+                    window.UI.showModal('Égalité', 'Match Nul.', () => this.init());
+                }, 200); 
             } else {
                 this.player = this.player === 'X' ? 'O' : 'X'; 
             }
         },
         checkWin(g) {
-            const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]; 
+            const w = [
+                [0,1,2], [3,4,5], [6,7,8], 
+                [0,3,6], [1,4,7], [2,5,8], 
+                [0,4,8], [2,4,6]
+            ]; 
             return w.find(l => g[l[0]] && g[l[0]] === g[l[1]] && g[l[0]] === g[l[2]]);
         }
     };
@@ -531,10 +993,12 @@
             this.p = 'X'; 
             this.n = -1; 
             this.ui(); 
+            
             for(let i = 0; i < 9; i++) { 
                 let g = document.createElement('div'); 
                 g.className = 'mu-grid'; 
                 g.id = `mu-g-${i}`; 
+                
                 for(let j = 0; j < 9; j++) { 
                     let c = document.createElement('div'); 
                     c.className = 'mu-cell'; 
@@ -565,7 +1029,9 @@
             }
             
             if(window.App.Sim.checkWin(this.bGrid.map(v => v === 'D' ? '' : v))) { 
-                setTimeout(() => window.UI.showModal('Victoire Ultime', `Le stratège <b>${this.p}</b> domine !`, () => this.init()), 300); 
+                setTimeout(() => {
+                    window.UI.showModal('Victoire Ultime', `Le stratège <b>${this.p}</b> domine !`, () => this.init());
+                }, 300); 
                 this.n = 999; 
             } else { 
                 this.n = (this.bGrid[sg] !== '') ? -1 : sg; 
@@ -575,13 +1041,15 @@
             }
         },
         hl() {
-            document.querySelectorAll('.mu-grid').forEach((g,i) => { 
+            document.querySelectorAll('.mu-grid').forEach((g, i) => { 
                 g.classList.remove('mu-active'); 
-                if((this.n === -1 || this.n === i) && this.bGrid[i] === '') g.classList.add('mu-active'); 
+                if((this.n === -1 || this.n === i) && this.bGrid[i] === '') {
+                    g.classList.add('mu-active');
+                }
             });
         },
         ui() {
-            document.getElementById('mu-status').innerHTML = `Tour de : <b style="color:${this.p==='X'?'var(--player-x)':'var(--player-o)'}">${this.p}</b>`;
+            document.getElementById('mu-status').innerHTML = `Tour de : <b style="color:${this.p === 'X' ? 'var(--player-x)' : 'var(--player-o)'}">${this.p}</b>`;
         }
     };
 
@@ -589,7 +1057,12 @@
     // MOTEUR : DEMINEUR
     // =========================================================
     window.App.Mine = {
-        g: [], o: [], f: 60, t: 0, timer: null, first: true,
+        g: [], 
+        o: [], 
+        f: 60, 
+        t: 0, 
+        timer: null, 
+        first: true,
         init() {
             const b = document.getElementById('dm-board'); 
             b.innerHTML = ''; 
@@ -600,6 +1073,7 @@
             this.first = true; 
             clearInterval(this.timer); 
             this.ui(); 
+            
             for(let i = 0; i < 400; i++) { 
                 let c = document.createElement('div'); 
                 c.className = 'dm-tile'; 
@@ -607,8 +1081,14 @@
                     if(e.button === 2) { 
                         e.preventDefault(); 
                         if(this.o[i]) return; 
-                        if(c.textContent === '🚩') { c.textContent = ''; this.f++; }
-                        else if(this.f > 0) { c.textContent = '🚩'; this.f--; } 
+                        
+                        if(c.textContent === '🚩') { 
+                            c.textContent = ''; 
+                            this.f++; 
+                        } else if(this.f > 0) { 
+                            c.textContent = '🚩'; 
+                            this.f--; 
+                        } 
                         this.ui(); 
                     } else { 
                         if(c.textContent === '🚩' || this.o[i]) return; 
@@ -625,11 +1105,16 @@
             document.getElementById('dm-time').textContent = this.t;
         },
         adj(i) {
-            let r = Math.floor(i/20), c = i%20, res = []; 
+            let r = Math.floor(i / 20);
+            let c = i % 20;
+            let res = []; 
             for(let x = -1; x <= 1; x++) {
                 for(let y = -1; y <= 1; y++) {
-                    let nr = r + x, nc = c + y;
-                    if(nr >= 0 && nr < 20 && nc >= 0 && nc < 20) res.push(nr*20 + nc);
+                    let nr = r + x;
+                    let nc = c + y;
+                    if(nr >= 0 && nr < 20 && nc >= 0 && nc < 20) {
+                        res.push(nr * 20 + nc);
+                    }
                 }
             } 
             return res;
@@ -638,14 +1123,24 @@
             this.first = false; 
             let m = 0; 
             const safe = [...this.adj(s), s]; 
+            
             while(m < 60) { 
                 let r = Math.floor(Math.random() * 400); 
-                if(!safe.includes(r) && this.g[r] !== 'M') { this.g[r] = 'M'; m++; } 
+                if(!safe.includes(r) && this.g[r] !== 'M') { 
+                    this.g[r] = 'M'; 
+                    m++; 
+                } 
             } 
+            
             for(let i = 0; i < 400; i++) {
-                if(this.g[i] !== 'M') this.g[i] = this.adj(i).filter(n => this.g[n] === 'M').length; 
+                if(this.g[i] !== 'M') {
+                    this.g[i] = this.adj(i).filter(n => this.g[n] === 'M').length; 
+                }
             }
-            this.timer = setInterval(() => { this.t++; this.ui(); }, 1000);
+            this.timer = setInterval(() => { 
+                this.t++; 
+                this.ui(); 
+            }, 1000);
         },
         rev(i) {
             if(this.o[i]) return; 
@@ -657,7 +1152,9 @@
                 t.classList.add('mine'); 
                 t.textContent = '💣'; 
                 clearInterval(this.timer); 
-                setTimeout(() => window.UI.showModal('BOUM !', `Échec à ${this.t} sec.`, () => this.init()), 300); 
+                setTimeout(() => {
+                    window.UI.showModal('BOUM !', `Échec à ${this.t} sec.`, () => this.init());
+                }, 300); 
             } else { 
                 if(this.g[i] > 0) { 
                     t.textContent = this.g[i]; 
@@ -666,9 +1163,12 @@
                     this.adj(i).forEach(n => this.rev(n)); 
                 }
             } 
+            
             if(this.o.filter(v => !v).length === 340) { 
                 clearInterval(this.timer); 
-                setTimeout(() => window.UI.showModal('Déminage Réussi', `Temps: ${this.t}s`, () => this.init()), 300); 
+                setTimeout(() => {
+                    window.UI.showModal('Déminage Réussi', `Temps: ${this.t}s`, () => this.init());
+                }, 300); 
             }
         }
     };
@@ -677,23 +1177,32 @@
     // MOTEUR : YAMS
     // =========================================================
     window.App.Yams = {
-        d: [1,1,1,1,1], k: [false,false,false,false,false], r: 3, p: 0, s: [{},{}],
+        d: [1,1,1,1,1], 
+        k: [false,false,false,false,false], 
+        r: 3, 
+        p: 0, 
+        s: [{},{}],
         init() {
             this.s = [{},{}]; 
             this.p = 0; 
             this.r = 3; 
             this.k.fill(false); 
+            
             const c = document.getElementById('y-score-container'); 
             c.innerHTML = ''; 
+            
             for(let i = 0; i < 2; i++) { 
                 let t = `<table class="y-table" id="yt-${i}"><tr><th colspan="2">Joueur ${i+1}</th></tr>`; 
-                ['1','2','3','4','5','6','Bonus (>62)','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(cat => { 
+                let categories = ['1','2','3','4','5','6','Bonus (>62)','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'];
+                
+                categories.forEach(cat => { 
                     if(cat.includes('Bonus')) {
                         t += `<tr style="background:#020617"><td style="color:var(--gold)">${cat}</td><td class="val" id="y-${i}-Bonus">0</td></tr>`; 
                     } else {
                         t += `<tr><td>${cat}</td><td class="val" id="y-${i}-${cat.replace(/\s/g,'')}" onclick="window.App.Yams.lock('${cat}', ${i})">-</td></tr>`; 
                     }
                 }); 
+                
                 t += `<tr class="total-row"><td>TOTAL</td><td id="y-tot-${i}">0</td></tr></table>`; 
                 c.innerHTML += t; 
             } 
@@ -708,13 +1217,20 @@
         ui() {
             const b = document.getElementById('y-dice'); 
             b.innerHTML = ''; 
+            
             this.d.forEach((v, i) => { 
                 let el = document.createElement('div'); 
                 el.className = 'y-die' + (this.k[i] ? ' kept' : ''); 
                 el.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][v - 1]; 
-                el.onclick = () => { if(this.r < 3) { this.k[i] = !this.k[i]; this.ui(); } }; 
+                el.onclick = () => { 
+                    if(this.r < 3) { 
+                        this.k[i] = !this.k[i]; 
+                        this.ui(); 
+                    } 
+                }; 
                 b.appendChild(el); 
             }); 
+            
             document.getElementById('y-roll-btn').textContent = `Lancer (${this.r})`; 
             document.getElementById('y-turn').textContent = `C'est au tour du Joueur ${this.p + 1}`; 
             this.calc();
@@ -724,29 +1240,47 @@
             this.d.forEach(x => c[x] = (c[x] || 0) + 1); 
             const v = Object.values(c);
             const set = new Set(this.d); 
+            
             const seq = (l) => { 
-                let st = 0, mx = 0; 
+                let st = 0;
+                let mx = 0; 
                 for(let i = 1; i <= 6; i++) {
-                    if(set.has(i)) st++; else st = 0; 
+                    if(set.has(i)) {
+                        st++; 
+                    } else {
+                        st = 0; 
+                    }
                     mx = Math.max(mx, st);
                 } 
                 return mx >= l; 
             }; 
             
-            ['1','2','3','4','5','6','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(cat => { 
+            let categories = ['1','2','3','4','5','6','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'];
+            
+            categories.forEach(cat => { 
                 let id = cat.replace(/\s/g,''); 
                 const el = document.getElementById(`y-${this.p}-${id}`); 
+                
                 if(this.s[this.p][cat] !== undefined) return; 
                 
                 let pts = 0; 
-                if(!isNaN(cat)) pts = (c[cat] || 0) * parseInt(cat); 
-                else if(cat === 'Brelan' && v.some(x => x >= 3)) pts = this.d.reduce((a,b) => a + b); 
-                else if(cat === 'Carré' && v.some(x => x >= 4)) pts = this.d.reduce((a,b) => a + b); 
-                else if(cat === 'Full' && v.includes(3) && v.includes(2)) pts = 25; 
-                else if(cat === 'Petite Suite' && seq(4)) pts = 30; 
-                else if(cat === 'Grande Suite' && seq(5)) pts = 40; 
-                else if(cat === 'Yams' && v.includes(5)) pts = 50; 
-                else if(cat === 'Chance') pts = this.d.reduce((a,b) => a + b); 
+                if(!isNaN(cat)) {
+                    pts = (c[cat] || 0) * parseInt(cat); 
+                } else if(cat === 'Brelan' && v.some(x => x >= 3)) {
+                    pts = this.d.reduce((a,b) => a + b); 
+                } else if(cat === 'Carré' && v.some(x => x >= 4)) {
+                    pts = this.d.reduce((a,b) => a + b); 
+                } else if(cat === 'Full' && v.includes(3) && v.includes(2)) {
+                    pts = 25; 
+                } else if(cat === 'Petite Suite' && seq(4)) {
+                    pts = 30; 
+                } else if(cat === 'Grande Suite' && seq(5)) {
+                    pts = 40; 
+                } else if(cat === 'Yams' && v.includes(5)) {
+                    pts = 50; 
+                } else if(cat === 'Chance') {
+                    pts = this.d.reduce((a,b) => a + b); 
+                }
                 
                 el.textContent = pts; 
                 el.className = 'val pot'; 
@@ -754,28 +1288,37 @@
         },
         lock(cat, pi) {
             if(pi !== this.p || this.s[pi][cat] !== undefined) return; 
+            
             let id = cat.replace(/\s/g,''); 
             const el = document.getElementById(`y-${pi}-${id}`); 
             this.s[pi][cat] = parseInt(el.textContent); 
             el.className = 'val locked'; 
             
-            let t = Object.values(this.s[pi]).reduce((a,b) => a + b, 0); 
+            let t = Object.values(this.s[pi]).reduce((a, b) => a + b, 0); 
             let sTop = ['1','2','3','4','5','6'].reduce((sm, k) => sm + (this.s[pi][k] || 0), 0); 
+            
             if(sTop >= 63) { 
                 t += 35; 
                 document.getElementById(`y-${pi}-Bonus`).textContent = 35; 
             } 
+            
             document.getElementById(`y-tot-${pi}`).textContent = t; 
             
             this.p = (this.p + 1) % 2; 
             this.r = 3; 
             this.k.fill(false); 
-            document.querySelectorAll('.pot').forEach(e => { e.textContent = '-'; e.classList.remove('pot'); }); 
+            
+            document.querySelectorAll('.pot').forEach(e => { 
+                e.textContent = '-'; 
+                e.classList.remove('pot'); 
+            }); 
             
             if(Object.keys(this.s[1]).length === 13) { 
                 let t0 = parseInt(document.getElementById(`y-tot-0`).textContent);
                 let t1 = parseInt(document.getElementById(`y-tot-1`).textContent); 
-                window.UI.showModal('Fin !', `Vainqueur: ${t0 > t1 ? 'J1' : (t1 > t0 ? 'J2' : 'Égalité')}`, () => this.init()); 
+                
+                let msg = `Vainqueur: ${t0 > t1 ? 'J1' : (t1 > t0 ? 'J2' : 'Égalité')}`;
+                window.UI.showModal('Fin !', msg, () => this.init()); 
             } else {
                 this.roll(); 
             }
@@ -783,11 +1326,11 @@
     };
 
     // =========================================================
-    // MOTEUR : LA VRAIE BELOTE IA INTELLIGENTE
+    // MOTEUR : LA VRAIE BELOTE IA INTELLIGENTE ET FLUIDE
     // =========================================================
     window.App.Belote = {
         deck: [], 
-        hands: [[], [], [], []], // 0:Sud(Toi), 1:Est, 2:Nord, 3:Ouest
+        hands: [[], [], [], []], // 0:Toi(Sud), 1:Est, 2:Nord, 3:Ouest
         scores: { nous: 0, eux: 0 },
         dealer: -1, 
         firstPlayer: 0, 
@@ -809,7 +1352,10 @@
         ordNormal: ['A','10','R','D','V','9','8','7'],
 
         initGame() {
-            if(this.dealer === -1) this.dealer = Math.floor(Math.random() * 4);
+            this.scores = { nous: 0, eux: 0 };
+            if(this.dealer === -1) {
+                this.dealer = Math.floor(Math.random() * 4);
+            }
             this.updateScoreUI();
             this.startDeal();
         },
@@ -820,11 +1366,17 @@
             document.getElementById('bl-hand').innerHTML = '';
             document.getElementById('bl-actions').style.display = 'none';
             
-            // Rotation du donneur
+            // Le donneur tourne
             this.dealer = (this.dealer + 1) % 4;
             this.firstPlayer = (this.dealer + 1) % 4;
             
-            const positions = [{x:295, y:400}, {x:570, y:152}, {x:295, y:10}, {x:15, y:152}];
+            const positions = [
+                {x: 295, y: 400}, 
+                {x: 570, y: 152}, 
+                {x: 295, y: 10}, 
+                {x: 15, y: 152}
+            ];
+            
             const tkn = document.getElementById('bl-dealer-token');
             tkn.style.display = 'flex';
             tkn.style.left = positions[this.dealer].x + 'px';
@@ -836,6 +1388,7 @@
                     this.deck.push({ suit: suit, rank: rank, isRed: suit.c === 'r' }); 
                 }); 
             });
+            
             for(let i = this.deck.length - 1; i > 0; i--) { 
                 const j = Math.floor(Math.random() * (i + 1)); 
                 [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; 
@@ -889,13 +1442,20 @@
                     let suitCards = hand.filter(c => c.suit.s === suit);
                     
                     let shouldTake = false;
-                    if (rank === 'V' || rank === '9') shouldTake = true;
-                    else if (suitCards.length >= 2 && suitCards.some(c => c.rank === 'V' || c.rank === '9')) shouldTake = true;
-                    else if (suitCards.length >= 3) shouldTake = true;
+                    if (rank === 'V' || rank === '9') {
+                        shouldTake = true;
+                    } else if (suitCards.length >= 2 && suitCards.some(c => c.rank === 'V' || c.rank === '9')) {
+                        shouldTake = true;
+                    } else if (suitCards.length >= 3) {
+                        shouldTake = true;
+                    }
 
-                    if(shouldTake || Math.random() < 0.05) this.take(this.currentTurn);
-                    else this.pass();
-                }, 1000);
+                    if(shouldTake || Math.random() < 0.05) {
+                        this.take(this.currentTurn);
+                    } else {
+                        this.pass();
+                    }
+                }, 500);
             }
         },
 
@@ -910,14 +1470,14 @@
             let name = playerIdx === 0 ? "Vous avez" : (playerIdx === 1 ? 'Est a' : (playerIdx === 2 ? 'Nord a' : 'Ouest a'));
             this.updateStatus(`${name} pris à ${this.atout.s} !`);
             
-            setTimeout(() => this.finishDeal(), 1500);
+            setTimeout(() => this.finishDeal(), 800);
         },
 
         pass() {
             this.currentTurn = (this.currentTurn + 1) % 4;
             if(this.currentTurn === this.firstPlayer) {
                 this.updateStatus("Personne n'a pris. Redistribution !");
-                setTimeout(() => this.startDeal(), 2000);
+                setTimeout(() => this.startDeal(), 1000);
             } else {
                 this.processBidding();
             }
@@ -925,7 +1485,7 @@
 
         finishDeal() {
             this.phase = 'playing';
-            let takerName = this.taker === 0 ? "Nous (Toi)" : (this.taker === 1 ? 'Eux (Est)' : (this.taker === 2 ? 'Nous (Nord)' : 'Eux (Ouest)'));
+            let takerName = this.taker === 0 ? "Toi" : (this.taker === 1 ? 'Est' : (this.taker === 2 ? 'Nord' : 'Ouest'));
             
             document.getElementById('bl-center').innerHTML = `
                 <div class="bl-atout-display" style="color:${this.atout.c==='r'?'#f43f5e':'white'};">
@@ -946,10 +1506,7 @@
         },
 
         processPlay() {
-            if(this.trick.length === 4) {
-                this.resolveTrick();
-                return;
-            }
+            if(this.tricksPlayed === 8) return;
 
             if(this.currentTurn === 0) {
                 this.updateStatus("À vous de jouer !");
@@ -957,7 +1514,7 @@
             } else {
                 let botName = this.currentTurn === 1 ? 'Est' : (this.currentTurn === 2 ? 'Nord' : 'Ouest');
                 this.updateStatus(`${botName} joue...`);
-                setTimeout(() => this.botPlay(), 800);
+                setTimeout(() => this.botPlay(), 400);
             }
         },
 
@@ -974,9 +1531,15 @@
                 let valForCompare = 8 - order.indexOf(c.rank); 
                 
                 if(atoutPlayed) { 
-                    if(c.suit.s === this.atout.s && valForCompare > highestVal) { highestVal = valForCompare; winnerIndex = i; } 
+                    if(c.suit.s === this.atout.s && valForCompare > highestVal) { 
+                        highestVal = valForCompare; 
+                        winnerIndex = i; 
+                    } 
                 } else { 
-                    if(c.suit.s === leadSuit && valForCompare > highestVal) { highestVal = valForCompare; winnerIndex = i; } 
+                    if(c.suit.s === leadSuit && valForCompare > highestVal) { 
+                        highestVal = valForCompare; 
+                        winnerIndex = i; 
+                    } 
                 }
             }
             return currentTrick[winnerIndex];
@@ -997,7 +1560,7 @@
                 }
             });
 
-            // 1. Fournir la couleur
+            // 1. Fournir
             if(sameSuit.length > 0) {
                 if(leadSuit === this.atout.s) {
                     let higherTrumps = sameSuit.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRank);
@@ -1013,7 +1576,7 @@
 
             if(trumps.length > 0) {
                 if(isPartnerWinning) {
-                    return hand; // Partenaire maître = on joue ce qu'on veut
+                    return hand; // Partenaire maître = on pisse
                 } else {
                     let higherTrumps = trumps.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRank);
                     if(higherTrumps.length > 0) return higherTrumps; 
@@ -1026,7 +1589,6 @@
 
         chooseBotCard(validCards) {
             if(this.trick.length === 0) {
-                // Premier à jouer : On joue la plus forte carte
                 validCards.sort((a,b) => this.getCardValue(b) - this.getCardValue(a));
                 return validCards[0];
             }
@@ -1036,16 +1598,14 @@
             let isPartnerWinning = (currentWinner && currentWinner.player === partnerIdx);
 
             if(isPartnerWinning) {
-                // Partenaire maître : on donne des points (si pas atout) ou on se débarrasse d'une mauvaise
                 validCards.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
-                return validCards[0]; // On joue la plus faible pour l'instant
+                return validCards[0];
             } else {
-                // Adversaire maître : On essaie de battre
                 let winningCard = currentWinner.card;
                 let winningVal = (winningCard.suit.s === this.atout.s) ? (8 - this.ordAtout.indexOf(winningCard.rank)) : (8 - this.ordNormal.indexOf(winningCard.rank));
                 
                 let cardsThatBeat = validCards.filter(c => {
-                    if(c.suit.s === this.atout.s && winningCard.suit.s !== this.atout.s) return true; // Coupe
+                    if(c.suit.s === this.atout.s && winningCard.suit.s !== this.atout.s) return true;
                     if(c.suit.s === winningCard.suit.s) {
                         let order = (c.suit.s === this.atout.s) ? this.ordAtout : this.ordNormal;
                         return (8 - order.indexOf(c.rank)) > winningVal;
@@ -1054,11 +1614,9 @@
                 });
 
                 if(cardsThatBeat.length > 0) {
-                    // On joue la plus petite carte qui permet de gagner
                     cardsThatBeat.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
                     return cardsThatBeat[0];
                 } else {
-                    // On ne peut pas gagner, on jette la plus faible
                     validCards.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
                     return validCards[0];
                 }
@@ -1102,8 +1660,11 @@
             this.trick.push({ player: 0, card: playedCard }); 
             this.currentTurn = 1; 
             
-            if(this.trick.length === 4) this.resolveTrick(); 
-            else this.processPlay();
+            if(this.trick.length === 4) {
+                this.resolveTrick(); 
+            } else {
+                this.processPlay();
+            }
         },
 
         botPlay() {
@@ -1122,8 +1683,11 @@
             this.trick.push({ player: this.currentTurn, card: playedCard });
             this.currentTurn = (this.currentTurn + 1) % 4;
             
-            if(this.trick.length === 4) this.resolveTrick(); 
-            else this.processPlay();
+            if(this.trick.length === 4) {
+                this.resolveTrick(); 
+            } else {
+                this.processPlay();
+            }
         },
 
         getCardValue(card) { 
@@ -1131,7 +1695,7 @@
         },
 
         resolveTrick() {
-            this.phase = 'resolving'; // Empêche de jouer pendant l'animation
+            this.phase = 'resolving';
             
             let winnerObj = this.getTrickWinner(this.trick);
             let trickPts = this.trick.reduce((sum, t) => sum + this.getCardValue(t.card), 0);
@@ -1140,7 +1704,7 @@
             this.tricksPlayed++; 
 
             if(this.tricksPlayed === 8) {
-                trickPts += 10; // Le 10 de der
+                trickPts += 10; // 10 de der
             }
             
             this.trickPoints += trickPts;
@@ -1151,8 +1715,11 @@
             setTimeout(() => {
                 document.querySelectorAll('.bl-slot').forEach(sl => sl.innerHTML = '');
                 
-                if(winnerPlayer === 0 || winnerPlayer === 2) this.scores.nous += trickPts; 
-                else this.scores.eux += trickPts;
+                if(winnerPlayer === 0 || winnerPlayer === 2) {
+                    this.scores.nous += trickPts; 
+                } else {
+                    this.scores.eux += trickPts;
+                }
                 
                 this.updateScoreUI(); 
                 this.trick = []; 
@@ -1164,7 +1731,7 @@
                 } else {
                     this.processPlay();
                 }
-            }, 2500);
+            }, 1200);
         },
 
         updateScoreUI() { 
@@ -1173,7 +1740,15 @@
         },
         
         endDeal() { 
-            window.UI.showModal('Manche Terminée !', `Total des points de la partie :<br><br><b style="color:var(--accent);">Nous : ${this.scores.nous}</b><br><b style="color:var(--player-x);">Eux : ${this.scores.eux}</b>`, () => this.startDeal()); 
+            let msg = `Score de la manche :<br><br><b style="color:var(--accent);">Nous : ${this.scores.nous}</b><br><b style="color:var(--player-x);">Eux : ${this.scores.eux}</b>`;
+            
+            if (this.scores.nous >= 1000 || this.scores.eux >= 1000) {
+                let winnerText = this.scores.nous >= 1000 ? "VOUS AVEZ" : "ILS ONT";
+                msg = `<span style="font-size:1.5em; color:var(--gold)">PARTIE TERMINÉE !</span><br><br>${winnerText} ATTEINT 1000 POINTS !<br><br>` + msg;
+                window.UI.showModal('Fin de la Partie', msg, () => this.initGame());
+            } else {
+                window.UI.showModal('Manche Terminée !', msg, () => this.startDeal());
+            }
         },
         
         updateStatus(msg) { 
@@ -1191,8 +1766,11 @@
         gameType: null,
         
         gen() { 
-            let c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r = '';
-            for(let i = 0; i < 4; i++) r += c.charAt(Math.floor(Math.random() * c.length));
+            let c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let r = '';
+            for(let i = 0; i < 4; i++) {
+                r += c.charAt(Math.floor(Math.random() * c.length));
+            }
             return r; 
         },
         
@@ -1203,6 +1781,7 @@
             this.ref = ref(db, 'rooms/' + this.room);
             
             let initData = { status: 'waiting', type: this.gameType, turn: 'X', winner: '' };
+            
             if(this.gameType === 'sim') { 
                 initData.board = Array(9).fill(''); 
             }
@@ -1226,7 +1805,9 @@
         
         async join() {
             const code = document.getElementById('input-room-code').value.toUpperCase().trim();
-            if(code.length !== 4) return window.UI.showModal('Erreur', 'Code invalide.', null);
+            if(code.length !== 4) {
+                return window.UI.showModal('Erreur', 'Code invalide.', null);
+            }
             
             const snap = await get(ref(db, 'rooms/' + code));
             if(snap.exists() && snap.val().status === 'waiting') {
@@ -1250,9 +1831,18 @@
                     return; 
                 }
                 if(data.status === 'playing') {
-                    if(this.gameType === 'sim') { window.UI.switchScreen('s-net-sim'); this.renderSim(data); }
-                    if(this.gameType === 'ult') { window.UI.switchScreen('s-net-ult'); this.renderUlt(data); }
-                    if(this.gameType === 'yams') { window.UI.switchScreen('s-net-yams'); this.renderYams(data); }
+                    if(this.gameType === 'sim') { 
+                        window.UI.switchScreen('s-net-sim'); 
+                        this.renderSim(data); 
+                    }
+                    if(this.gameType === 'ult') { 
+                        window.UI.switchScreen('s-net-ult'); 
+                        this.renderUlt(data); 
+                    }
+                    if(this.gameType === 'yams') { 
+                        window.UI.switchScreen('s-net-yams'); 
+                        this.renderYams(data); 
+                    }
                 }
             });
         },
@@ -1266,18 +1856,27 @@
                 let c = document.createElement('div'); 
                 c.className = 'ms-cell' + (cBoard[i] !== '' ? ' taken' : ''); 
                 c.textContent = cBoard[i] || ''; 
-                if(cBoard[i]) c.style.color = cBoard[i] === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
+                
+                if(cBoard[i]) {
+                    c.style.color = cBoard[i] === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
+                }
                 
                 c.onclick = async () => { 
                     if(cBoard[i] === '' && data.winner === '' && data.turn === this.myId) { 
                         let nb = [...cBoard]; 
                         nb[i] = this.myId; 
                         let win = window.App.Sim.checkWin(nb); 
-                        await update(this.ref, { board: nb, turn: (this.myId === 'X' ? 'O' : 'X'), winner: win ? this.myId : (!nb.includes('') ? 'Draw' : '') }); 
+                        
+                        await update(this.ref, { 
+                            board: nb, 
+                            turn: (this.myId === 'X' ? 'O' : 'X'), 
+                            winner: win ? this.myId : (!nb.includes('') ? 'Draw' : '') 
+                        }); 
                     } 
                 }; 
                 b.appendChild(c); 
             }
+            
             this.statusUI('net-sim-status', data, () => update(this.ref, { board: Array(9).fill(''), turn: 'X', winner: '' }));
         },
 
@@ -1288,13 +1887,19 @@
             for(let i = 0; i < 9; i++) { 
                 let g = document.createElement('div'); 
                 g.className = 'mu-grid'; 
-                if((data.next === -1 || data.next === i) && data.bGrid[i] === '') g.classList.add('mu-active'); 
+                
+                if((data.next === -1 || data.next === i) && data.bGrid[i] === '') {
+                    g.classList.add('mu-active'); 
+                }
                 
                 for(let j = 0; j < 9; j++) { 
                     let c = document.createElement('div'); 
                     c.className = 'mu-cell' + (data.sGrids[i][j] !== '' ? ' taken' : ''); 
                     c.textContent = data.sGrids[i][j]; 
-                    if(data.sGrids[i][j]) c.style.color = data.sGrids[i][j] === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
+                    
+                    if(data.sGrids[i][j]) {
+                        c.style.color = data.sGrids[i][j] === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
+                    }
                     
                     c.onclick = async () => { 
                         if(data.sGrids[i][j] === '' && data.bGrid[i] === '' && data.winner === '' && data.turn === this.myId && (data.next === -1 || data.next === i)) { 
@@ -1302,15 +1907,26 @@
                             let bg = [...data.bGrid]; 
                             sg[i][j] = this.myId; 
                             
-                            if(window.App.Sim.checkWin(sg[i])) bg[i] = this.myId; 
-                            else if(!sg[i].includes('')) bg[i] = 'D'; 
+                            if(window.App.Sim.checkWin(sg[i])) {
+                                bg[i] = this.myId; 
+                            } else if(!sg[i].includes('')) {
+                                bg[i] = 'D'; 
+                            }
                             
                             let win = window.App.Sim.checkWin(bg.map(v => v === 'D' ? '' : v)) ? this.myId : (!bg.includes('') ? 'Draw' : ''); 
-                            await update(this.ref, { sGrids: sg, bGrid: bg, next: (bg[j] !== '' ? -1 : j), turn: (this.myId === 'X' ? 'O' : 'X'), winner: win }); 
+                            
+                            await update(this.ref, { 
+                                sGrids: sg, 
+                                bGrid: bg, 
+                                next: (bg[j] !== '' ? -1 : j), 
+                                turn: (this.myId === 'X' ? 'O' : 'X'), 
+                                winner: win 
+                            }); 
                         } 
                     }; 
                     g.appendChild(c); 
                 } 
+                
                 if(data.bGrid[i] !== '' && data.bGrid[i] !== 'D') { 
                     let cov = document.createElement('div'); 
                     cov.className = 'mu-won'; 
@@ -1320,16 +1936,25 @@
                 } 
                 b.appendChild(g); 
             }
-            this.statusUI('net-ult-status', data, () => update(this.ref, { bGrid: Array(9).fill(''), sGrids: Array.from({length:9}, () => Array(9).fill('')), next: -1, turn: 'X', winner: '' }));
+            
+            this.statusUI('net-ult-status', data, () => update(this.ref, { 
+                bGrid: Array(9).fill(''), 
+                sGrids: Array.from({length:9}, () => Array(9).fill('')), 
+                next: -1, 
+                turn: 'X', 
+                winner: '' 
+            }));
         },
 
         renderYams(data) {
             const box = document.getElementById('net-yams-dice'); 
             box.innerHTML = ''; 
+            
             data.dice.forEach((d, i) => { 
                 let el = document.createElement('div'); 
                 el.className = 'y-die' + (data.kept[i] ? ' kept' : ''); 
                 el.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][d - 1]; 
+                
                 el.onclick = async () => { 
                     if(data.turn === this.myId && data.rolls < 3 && data.winner === '') { 
                         let nk = [...data.kept]; 
@@ -1342,6 +1967,7 @@
             
             let btn = document.getElementById('net-yams-roll-btn'); 
             btn.textContent = `Lancer (${data.rolls})`; 
+            
             btn.onclick = async () => { 
                 if(data.turn === this.myId && data.rolls > 0 && data.winner === '') { 
                     let nd = data.dice.map((v, i) => data.kept[i] ? v : Math.floor(Math.random() * 6) + 1); 
@@ -1354,12 +1980,19 @@
             c.innerHTML = ''; 
             const count = {}; 
             data.dice.forEach(x => count[x] = (count[x] || 0) + 1); 
+            
             const v = Object.values(count); 
             const set = new Set(data.dice); 
+            
             const seq = (l) => { 
-                let st = 0, mx = 0; 
+                let st = 0;
+                let mx = 0; 
                 for(let i = 1; i <= 6; i++) { 
-                    if(set.has(i)) st++; else st = 0; 
+                    if(set.has(i)) {
+                        st++; 
+                    } else {
+                        st = 0; 
+                    }
                     mx = Math.max(mx, st); 
                 } 
                 return mx >= l; 
@@ -1367,21 +2000,35 @@
             
             ['X','O'].forEach((pid, idx) => { 
                 let t = `<table class="y-table"><tr><th colspan="2">Joueur ${idx+1} (${pid})</th></tr>`; 
-                ['1','2','3','4','5','6','Bonus (>62)','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(cat => { 
+                let categories = ['1','2','3','4','5','6','Bonus (>62)','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'];
+                
+                categories.forEach(cat => { 
                     let val = data.scores[pid][cat] !== undefined ? data.scores[pid][cat] : '-'; 
                     let isPot = false; 
+                    
                     if(data.turn === this.myId && pid === this.myId && val === '-' && data.rolls < 3 && !cat.includes('Bonus')) { 
                         isPot = true; 
-                        if(!isNaN(cat)) val = (count[cat] || 0) * parseInt(cat); 
-                        else if(cat === 'Brelan' && v.some(x => x >= 3)) val = data.dice.reduce((a,b) => a + b); 
-                        else if(cat === 'Carré' && v.some(x => x >= 4)) val = data.dice.reduce((a,b) => a + b); 
-                        else if(cat === 'Full' && v.includes(3) && v.includes(2)) val = 25; 
-                        else if(cat === 'Petite Suite' && seq(4)) val = 30; 
-                        else if(cat === 'Grande Suite' && seq(5)) val = 40; 
-                        else if(cat === 'Yams' && v.includes(5)) val = 50; 
-                        else if(cat === 'Chance') val = data.dice.reduce((a,b) => a + b); 
-                        else val = 0; 
+                        if(!isNaN(cat)) {
+                            val = (count[cat] || 0) * parseInt(cat); 
+                        } else if(cat === 'Brelan' && v.some(x => x >= 3)) {
+                            val = data.dice.reduce((a,b) => a + b); 
+                        } else if(cat === 'Carré' && v.some(x => x >= 4)) {
+                            val = data.dice.reduce((a,b) => a + b); 
+                        } else if(cat === 'Full' && v.includes(3) && v.includes(2)) {
+                            val = 25; 
+                        } else if(cat === 'Petite Suite' && seq(4)) {
+                            val = 30; 
+                        } else if(cat === 'Grande Suite' && seq(5)) {
+                            val = 40; 
+                        } else if(cat === 'Yams' && v.includes(5)) {
+                            val = 50; 
+                        } else if(cat === 'Chance') {
+                            val = data.dice.reduce((a,b) => a + b); 
+                        } else {
+                            val = 0; 
+                        }
                     } 
+                    
                     if(cat.includes('Bonus')) {
                         t += `<tr style="background:#020617"><td style="color:var(--gold)">${cat}</td><td class="val">${val}</td></tr>`; 
                     } else {
@@ -1391,7 +2038,10 @@
                 
                 let sumTop = ['1','2','3','4','5','6'].reduce((sm, k) => sm + (data.scores[pid][k] || 0), 0); 
                 let tot = Object.values(data.scores[pid]).reduce((a, b) => typeof b === 'number' ? a + b : a, 0); 
-                if(sumTop >= 63) tot += 35; 
+                if(sumTop >= 63) {
+                    tot += 35; 
+                }
+                
                 t += `<tr class="total-row"><td>TOTAL</td><td>${tot}</td></tr></table>`; 
                 c.innerHTML += t; 
             });
@@ -1409,19 +2059,37 @@
                         let to = Object.values(ns['O']).reduce((a,b) => typeof b === 'number' ? a + b : a, 0) + (['1','2','3','4','5','6'].reduce((s,k) => s + (ns['O'][k] || 0), 0) >= 63 ? 35 : 0); 
                         win = tx > to ? 'X' : (to > tx ? 'O' : 'Draw'); 
                     } 
-                    await update(this.ref, { scores: ns, turn: (this.myId === 'X' ? 'O' : 'X'), rolls: 3, kept: [false,false,false,false,false], dice: data.dice.map(() => Math.floor(Math.random() * 6) + 1), winner: win }); 
+                    
+                    await update(this.ref, { 
+                        scores: ns, 
+                        turn: (this.myId === 'X' ? 'O' : 'X'), 
+                        rolls: 3, 
+                        kept: [false,false,false,false,false], 
+                        dice: data.dice.map(() => Math.floor(Math.random() * 6) + 1), 
+                        winner: win 
+                    }); 
                 }; 
             });
 
-            this.statusUI('net-yams-status', data, () => update(this.ref, { scores: {X:{init:true},O:{init:true}}, turn: 'X', winner: '', rolls: 3, kept: [false,false,false,false,false] }));
+            this.statusUI('net-yams-status', data, () => update(this.ref, { 
+                scores: {X:{init:true}, O:{init:true}}, 
+                turn: 'X', 
+                winner: '', 
+                rolls: 3, 
+                kept: [false,false,false,false,false] 
+            }));
         },
 
         statusUI(id, data, replayCb) { 
             const sb = document.getElementById(id); 
             if(data.winner !== '') { 
-                if(data.winner === 'Draw') sb.innerHTML = "Égalité !"; 
-                else if(data.winner === this.myId) sb.innerHTML = "<span style='color:var(--accent)'>VICTOIRE ! 🎉</span>"; 
-                else sb.innerHTML = `<span style='color:${this.myId === 'X' ? 'var(--player-o)' : 'var(--player-x)'}'>DÉFAITE...</span>`; 
+                if(data.winner === 'Draw') {
+                    sb.innerHTML = "Égalité !"; 
+                } else if(data.winner === this.myId) {
+                    sb.innerHTML = "<span style='color:var(--accent)'>VICTOIRE ! 🎉</span>"; 
+                } else {
+                    sb.innerHTML = `<span style='color:${this.myId === 'X' ? 'var(--player-o)' : 'var(--player-x)'}'>DÉFAITE...</span>`; 
+                }
                 
                 if(this.myId === 'X') { 
                     sb.innerHTML += `<br><button class="btn" style="margin-top:10px;" id="br-${id}">Rejouer</button>`; 
@@ -1435,7 +2103,9 @@
         },
         
         leave() { 
-            if(this.myId === 'X' && this.ref) remove(this.ref); 
+            if(this.myId === 'X' && this.ref) {
+                remove(this.ref); 
+            }
             window.location.reload(); 
         }
     };
@@ -1450,6 +2120,7 @@
         li.onclick = (e) => { 
             document.querySelectorAll('#nav-menu li').forEach(i => i.classList.remove('active')); 
             e.currentTarget.classList.add('active'); 
+            
             let t = e.currentTarget.dataset.target; 
             window.UI.switchScreen(t); 
             
