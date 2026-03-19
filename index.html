@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcade Ultimate 2026 - Full Network</title>
+    <title>Arcade Ultimate 2026 - Masterpiece & Belote Pro</title>
     <style>
         /* =========================================
            1. VARIABLES ET BASE
@@ -102,7 +102,7 @@
         .bl-info { text-align: center; margin-bottom: 20px; font-size: 1.3rem; font-weight: bold; }
         .bl-atout { display: inline-block; padding: 5px 15px; background: #000; border-radius: 8px; border: 1px solid #333; margin-left: 10px; }
         .bl-tapis { background: radial-gradient(circle, #065f46 0%, #022c22 100%); width: 700px; height: 450px; border-radius: 220px; margin: 0 auto; border: 15px solid #451a03; position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.8); }
-        .bl-slot { position: absolute; width: 80px; height: 115px; border: 2px dashed rgba(255,255,255,0.15); border-radius: 8px; }
+        .bl-slot { position: absolute; width: 80px; height: 115px; border: 2px dashed rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
         #bl-s-n { top: 25px; left: 295px; } #bl-s-s { bottom: 25px; left: 295px; }
         #bl-s-e { right: 60px; top: 152px; } #bl-s-w { left: 60px; top: 152px; }
         .bl-card { width: 80px; height: 115px; background: #fff; color: #000; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5rem; cursor: pointer; box-shadow: -2px 5px 15px rgba(0,0,0,0.4); position: relative; transition: 0.3s; }
@@ -138,7 +138,7 @@
         <li data-target="s-ult"><span>🔥</span> Morpion Ultime</li>
         <li data-target="s-mine"><span>💣</span> Démineur Expert</li>
         <li data-target="s-yams"><span>🎲</span> Yams Complet</li>
-        <li data-target="s-belote"><span>🃏</span> Belote (Partie)</li>
+        <li data-target="s-belote"><span>🃏</span> Belote Pro</li>
         <div class="nav-divider"></div>
         <li data-target="s-net-lobby" style="color:var(--accent); border-color:var(--accent);"><span>🌐</span> Salon Multijoueur</li>
     </ul>
@@ -178,10 +178,25 @@
     </section>
 
     <section id="s-belote" class="screen">
-        <h1>Belote Interactive</h1><div class="bl-info">Atout : <span id="bl-atout" class="bl-atout">-</span></div>
-        <div class="bl-tapis"><div id="bl-s-n" class="bl-slot"></div><div id="bl-s-s" class="bl-slot"></div><div id="bl-s-e" class="bl-slot"></div><div id="bl-s-w" class="bl-slot"></div></div>
+        <h1>Belote Classique</h1>
+        <div class="bl-info" id="bl-status">Cliquez sur Nouvelle Donne pour commencer.</div>
+        <div class="bl-tapis" style="position: relative;">
+            <div id="bl-center" style="position:absolute; top:45%; left:50%; transform:translate(-50%, -50%); z-index:10; display:flex; flex-direction:column; align-items:center;"></div>
+            
+            <div id="bl-actions" style="position:absolute; top:70%; left:50%; transform:translate(-50%, 0); display:none; gap:10px; z-index:20;">
+                <button class="btn" id="btn-prendre" style="background:var(--accent);">Prendre</button>
+                <button class="btn" id="btn-passer" style="background:#f43f5e; color:white;">Passer</button>
+            </div>
+
+            <div id="bl-s-n" class="bl-slot"></div>
+            <div id="bl-s-s" class="bl-slot"></div>
+            <div id="bl-s-e" class="bl-slot"></div>
+            <div id="bl-s-w" class="bl-slot"></div>
+        </div>
         <div id="bl-hand" class="bl-hand"></div>
-        <div style="text-align: center; margin-top: 30px;"><button class="btn" onclick="App.Belote.init()">Nouvelle Donne</button></div>
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" onclick="window.App.Belote.init()">Nouvelle Donne</button>
+        </div>
     </section>
 
     <section id="s-net-lobby" class="screen">
@@ -266,7 +281,7 @@
         modalCb: null,
         showModal(title, desc, cb) {
             document.getElementById('modal-title').innerHTML = title;
-            document.getElementById('modal-title').style.color = (title.includes('Victoire') || title.includes('Gagné')) ? 'var(--accent)' : 'var(--player-x)';
+            document.getElementById('modal-title').style.color = (title.includes('Victoire') || title.includes('Gagné') || title.includes('Réussi')) ? 'var(--accent)' : 'var(--player-x)';
             document.getElementById('modal-desc').innerHTML = desc;
             this.modalCb = cb; document.getElementById('modal-overlay').style.display = 'flex';
         },
@@ -281,7 +296,7 @@
     window.App = {};
 
     // =========================================================
-    // JEUX LOCAUX (Bases intactes)
+    // JEUX LOCAUX
     // =========================================================
     
     window.App.Sim = {
@@ -360,7 +375,7 @@
             this.o[i] = true; t.classList.add('open');
             if(this.g[i]==='M') { t.classList.add('mine'); t.textContent='💣'; clearInterval(this.timer); setTimeout(()=>window.UI.showModal('BOUM !',`Échec à ${this.t} sec.`,()=>this.init()), 300); }
             else { if(this.g[i]>0) { t.textContent=this.g[i]; t.classList.add('dm-c'+this.g[i]); } else this.adj(i).forEach(n=>this.rev(n)); }
-            if(this.o.filter(v=>!v).length === 60) { clearInterval(this.timer); setTimeout(()=>window.UI.showModal('Déminage Réussi',`Temps: ${this.t}s`,()=>this.init()),300); }
+            if(this.o.filter(v=>!v).length === 340) { clearInterval(this.timer); setTimeout(()=>window.UI.showModal('Déminage Réussi',`Temps: ${this.t}s`,()=>this.init()),300); }
         }
     };
 
@@ -389,7 +404,7 @@
                 el.onclick = () => { if(this.r<3){this.k[i]=!this.k[i]; this.ui();} }; b.appendChild(el);
             });
             document.getElementById('y-roll-btn').textContent = `Lancer (${this.r})`;
-            document.getElementById('y-turn').textContent = `Joueur ${this.p+1}`;
+            document.getElementById('y-turn').textContent = `C'est au tour du Joueur ${this.p+1}`;
             this.calc();
         },
         calc() {
@@ -427,36 +442,127 @@
         }
     };
 
+    // --- 5. NOUVEAU MOTEUR BELOTE EXPERT ---
     window.App.Belote = {
-        play: false,
+        deck: [], hands: [[], [], [], []], // 0:Toi(Sud), 1:Est, 2:Nord, 3:Ouest
+        centerCard: null, atout: null, turn: 0, phase: 'init', currentTrick: [],
+        suits: [{s:'♠',c:'b'}, {s:'♣',c:'b'}, {s:'♥',c:'r'}, {s:'♦',c:'r'}],
+        ranks: ['7','8','9','10','V','D','R','A'],
+        
         init() {
-            const h = document.getElementById('bl-hand'); h.innerHTML='';
-            const s=[{s:'♠',c:'b'},{s:'♣',c:'b'},{s:'♥',c:'r'},{s:'♦',c:'r'}], r=['7','8','9','10','V','D','R','A'];
-            let a = s[Math.floor(Math.random()*4)];
-            document.getElementById('bl-atout').textContent = a.s; document.getElementById('bl-atout').style.color=a.c==='r'?'#f43f5e':'white';
-            document.querySelectorAll('.bl-slot').forEach(sl=>sl.innerHTML=''); this.play=false;
-            for(let i=0;i<8;i++) {
-                let su=s[Math.floor(Math.random()*4)], ra=r[Math.floor(Math.random()*8)];
-                let c = document.createElement('div'); c.className=`bl-card ${su.c==='r'?'red':''}`;
-                c.innerHTML=`<span>${ra}</span><span>${su.s}</span>`;
-                c.onclick = () => this.playC(c); h.appendChild(c);
-            }
+            document.querySelectorAll('.bl-slot').forEach(sl=>sl.innerHTML='');
+            document.getElementById('bl-center').innerHTML = '';
+            document.getElementById('bl-actions').style.display = 'none';
+            document.getElementById('bl-hand').innerHTML = '';
+            
+            this.deck = [];
+            this.suits.forEach(suit => { this.ranks.forEach(rank => { this.deck.push({ suit: suit, rank: rank, isRed: suit.c === 'r' }); }); });
+            for(let i = this.deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; }
+            
+            this.hands = [[], [], [], []]; this.currentTrick = []; this.atout = null; this.dealFirstPhase();
         },
-        playC(el) {
-            if(this.play) return; this.play = true; el.onclick=null;
-            let pC = el.cloneNode(true); pC.style.setProperty('--rand', Math.random()); pC.className+=' bl-played';
-            document.getElementById('bl-s-s').appendChild(pC); el.remove();
-            setTimeout(()=>{
-                ['n','e','w'].forEach((p,i) => setTimeout(()=>{
-                    let bc = document.createElement('div'); bc.className='bl-card bl-played'; bc.style.background='#e2e8f0'; bc.style.color='#0f172a';
-                    bc.innerHTML='🤖'; bc.style.setProperty('--rand',Math.random()); document.getElementById('bl-s-'+p).appendChild(bc);
-                }, i*300));
-                setTimeout(()=>{
-                    document.querySelectorAll('.bl-slot').forEach(sl=>sl.innerHTML=''); this.play=false;
-                    if(document.getElementById('bl-hand').children.length===0) window.UI.showModal('Fin','',()=>this.init());
-                }, 1800);
-            }, 400);
-        }
+
+        dealFirstPhase() {
+            this.phase = 'bidding_1';
+            for(let player = 0; player < 4; player++) {
+                this.hands[player].push(...this.deck.splice(0, 3));
+                this.hands[player].push(...this.deck.splice(0, 2));
+            }
+            this.centerCard = this.deck.shift();
+            this.renderHand(); this.showCenterCard();
+            this.updateStatus("Tour 1 : Voulez-vous prendre cette carte ?");
+            
+            document.getElementById('bl-actions').style.display = 'flex';
+            document.getElementById('btn-prendre').onclick = () => this.humanTake();
+            document.getElementById('btn-passer').onclick = () => this.humanPass();
+        },
+
+        showCenterCard() {
+            const center = document.getElementById('bl-center');
+            const c = document.createElement('div'); c.className = `bl-card ${this.centerCard.isRed ? 'red' : ''}`;
+            c.innerHTML = `<span>${this.centerCard.rank}</span><span>${this.centerCard.suit.s}</span>`;
+            center.innerHTML = ''; center.appendChild(c);
+        },
+
+        renderHand() {
+            const h = document.getElementById('bl-hand'); h.innerHTML = '';
+            this.hands[0].sort((a,b) => a.suit.s.localeCompare(b.suit.s));
+            this.hands[0].forEach((card, index) => {
+                let c = document.createElement('div'); c.className = `bl-card ${card.isRed ? 'red' : ''}`;
+                c.innerHTML = `<span>${card.rank}</span><span>${card.suit.s}</span>`;
+                c.onclick = () => this.playCard(index, c); h.appendChild(c);
+            });
+        },
+
+        humanTake() {
+            document.getElementById('bl-actions').style.display = 'none';
+            this.atout = this.centerCard.suit; this.hands[0].push(this.centerCard); this.finishDeal(0);
+        },
+
+        humanPass() {
+            document.getElementById('bl-actions').style.display = 'none';
+            this.updateStatus("Les bots réfléchissent...");
+            setTimeout(() => {
+                let takenBy = -1;
+                for(let i=1; i<=3; i++) { if(Math.random() < 0.25) { takenBy = i; break; } }
+                
+                if(takenBy !== -1) {
+                    this.updateStatus(`Le Bot ${takenBy} a pris ! À l'atout ${this.centerCard.suit.s}`);
+                    this.atout = this.centerCard.suit; this.hands[takenBy].push(this.centerCard); this.finishDeal(takenBy);
+                } else {
+                    this.updateStatus("Personne n'a pris. Redistribution automatique..."); setTimeout(() => this.init(), 2000);
+                }
+            }, 1000);
+        },
+
+        finishDeal(takerIndex) {
+            this.phase = 'playing';
+            document.getElementById('bl-center').innerHTML = `<div style="background:#000; padding:10px; border-radius:10px; color:${this.atout.c==='r'?'#f43f5e':'white'}; font-weight:bold; font-size:1.5rem;">ATOUT : ${this.atout.s}</div>`;
+            for(let player = 0; player < 4; player++) {
+                let cardsToGive = (player === takerIndex) ? 2 : 3;
+                this.hands[player].push(...this.deck.splice(0, cardsToGive));
+            }
+            this.renderHand(); this.updateStatus("Que le jeu commence ! C'est à vous de jouer."); this.turn = 0;
+        },
+
+        playCard(cardIndex, el) {
+            if(this.phase !== 'playing' || this.turn !== 0) return;
+            let playedCard = this.hands[0].splice(cardIndex, 1)[0]; this.renderHand();
+            
+            let pC = el.cloneNode(true); pC.style.setProperty('--rand', Math.random()); pC.className += ' bl-played';
+            document.getElementById('bl-s-s').appendChild(pC);
+            
+            this.currentTrick.push({ player: 0, card: playedCard }); this.turn = 1; this.updateStatus("Les bots jouent..."); this.botsPlayLoop();
+        },
+
+        botsPlayLoop() {
+            if(this.currentTrick.length === 4) { this.resolveTrick(); return; }
+            setTimeout(() => {
+                let botIndex = this.turn; let botHand = this.hands[botIndex];
+                let playedCard = botHand.splice(Math.floor(Math.random() * botHand.length), 1)[0];
+                this.currentTrick.push({ player: botIndex, card: playedCard });
+                
+                const positions = ['s', 'e', 'n', 'w']; let bc = document.createElement('div'); 
+                bc.className = `bl-card bl-played ${playedCard.isRed ? 'red' : ''}`;
+                bc.innerHTML = `<span>${playedCard.rank}</span><span>${playedCard.suit.s}</span>`;
+                bc.style.setProperty('--rand', Math.random()); document.getElementById('bl-s-' + positions[botIndex]).appendChild(bc);
+                
+                this.turn = (this.turn + 1) % 4;
+                if(this.turn === 0) { if(this.currentTrick.length === 4) this.resolveTrick(); else this.updateStatus("À vous de jouer !"); } 
+                else this.botsPlayLoop();
+            }, 800);
+        },
+
+        resolveTrick() {
+            this.updateStatus("Ramassage du pli...");
+            setTimeout(() => {
+                document.querySelectorAll('.bl-slot').forEach(sl => sl.innerHTML = '');
+                this.currentTrick = []; this.turn = 0; this.updateStatus("Nouveau pli, à vous de jouer !");
+                if(this.hands[0].length === 0) window.UI.showModal('Manche Terminée !', 'Toutes les cartes ont été jouées.', () => this.init());
+            }, 1500);
+        },
+
+        updateStatus(msg) { document.getElementById('bl-status').innerHTML = msg; }
     };
 
     // =========================================================
@@ -552,7 +658,6 @@
 
         // --- NET: YAMS ---
         renderYams(data) {
-            // Dice
             const box = document.getElementById('net-yams-dice'); box.innerHTML = '';
             data.dice.forEach((d, i) => {
                 let el = document.createElement('div'); el.className = 'y-die' + (data.kept[i]?' kept':'');
@@ -571,7 +676,6 @@
             };
             btn.disabled = (data.turn !== this.myId || data.rolls === 0);
 
-            // Scores Tables
             const c = document.getElementById('net-yams-scores'); c.innerHTML = '';
             const count={}; data.dice.forEach(x=>count[x]=(count[x]||0)+1); const v=Object.values(count), set=new Set(data.dice);
             const seq = (l) => { let st=0,mx=0; for(let i=1;i<=6;i++){if(set.has(i))st++;else st=0;mx=Math.max(mx,st);} return mx>=l; };
@@ -581,7 +685,6 @@
                 ['1','2','3','4','5','6','Bonus (>62)','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'].forEach(cat => {
                     let val = data.scores[pid][cat] !== undefined ? data.scores[pid][cat] : '-';
                     let isPot = false;
-                    // Calc potential
                     if(data.turn === this.myId && pid === this.myId && val === '-' && data.rolls < 3 && !cat.includes('Bonus')) {
                         isPot = true;
                         if(!isNaN(cat)) val=(count[cat]||0)*parseInt(cat);
@@ -597,7 +700,6 @@
                     if(cat.includes('Bonus')) t += `<tr style="background:#020617"><td style="color:var(--gold)">${cat}</td><td class="val">${val}</td></tr>`;
                     else t += `<tr><td>${cat}</td><td class="val ${val !== '-' && !isPot ? 'locked' : ''} ${isPot?'pot':''}" ${isPot ? `data-action="${cat}" data-pts="${val}"` : ''}>${val}</td></tr>`;
                 });
-                // Totals
                 let sumTop = ['1','2','3','4','5','6'].reduce((sm,k)=>sm+(data.scores[pid][k]||0),0);
                 let tot = Object.values(data.scores[pid]).reduce((a,b)=> typeof b === 'number' ? a+b : a,0);
                 if(sumTop >= 63) tot += 35;
@@ -605,12 +707,10 @@
                 c.innerHTML += t;
             });
 
-            // Lock score event
             document.querySelectorAll('.pot').forEach(el => {
                 el.onclick = async () => {
                     let cat = el.dataset.action; let pts = parseInt(el.dataset.pts);
                     let ns = JSON.parse(JSON.stringify(data.scores)); ns[this.myId][cat] = pts;
-                    
                     let win = '';
                     if(Object.keys(ns['X']).length === 14 && Object.keys(ns['O']).length === 14) {
                         let tx = Object.values(ns['X']).reduce((a,b)=>typeof b==='number'?a+b:a,0) + (['1','2','3','4','5','6'].reduce((s,k)=>s+(ns['X'][k]||0),0)>=63?35:0);
@@ -624,7 +724,6 @@
             this.statusUI('net-yams-status', data, () => update(this.ref, { scores: {X:{init:true},O:{init:true}}, turn: 'X', winner: '', rolls: 3, kept: [false,false,false,false,false] }));
         },
 
-        // --- UTILS RÉSEAU ---
         statusUI(id, data, replayCb) {
             const sb = document.getElementById(id);
             if(data.winner !== '') {
