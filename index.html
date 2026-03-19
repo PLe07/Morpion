@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcade Ultimate 2026 - Édition Studio</title>
+    <title>Arcade Ultimate 2026 - Édition Studio Pro</title>
     <style>
         /* =========================================
            1. VARIABLES GLOBALES ET RESET
@@ -63,17 +63,8 @@
             max-width: 450px; 
         }
 
-        .modal-box h2 { 
-            font-size: 2.2rem; 
-            margin-bottom: 15px; 
-        }
-
-        .modal-box p { 
-            font-size: 1.2rem; 
-            color: var(--text-muted); 
-            margin-bottom: 30px; 
-            line-height: 1.5; 
-        }
+        .modal-box h2 { font-size: 2.2rem; margin-bottom: 15px; }
+        .modal-box p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 30px; line-height: 1.5; }
         
         @keyframes modalPop { 
             0% { transform: scale(0.7) translateY(30px); opacity: 0; } 
@@ -101,11 +92,7 @@
             margin-bottom: 30px; 
         }
 
-        nav ul { 
-            list-style: none; 
-            overflow-y: auto; 
-        }
-        
+        nav ul { list-style: none; overflow-y: auto; }
         nav li { 
             padding: 15px; 
             cursor: pointer; 
@@ -120,24 +107,9 @@
             border: 1px solid transparent; 
         }
 
-        nav li:hover { 
-            background: var(--panel-hover); 
-            transform: translateX(5px); 
-        }
-
-        nav li.active { 
-            background: var(--accent); 
-            color: #000; 
-            box-shadow: 0 0 20px var(--accent-glow); 
-            border-color: var(--accent); 
-        }
-
-        .nav-divider { 
-            height: 2px; 
-            background: #1e293b; 
-            margin: 15px 0; 
-            border-radius: 2px; 
-        }
+        nav li:hover { background: var(--panel-hover); transform: translateX(5px); }
+        nav li.active { background: var(--accent); color: #000; box-shadow: 0 0 20px var(--accent-glow); border-color: var(--accent); }
+        .nav-divider { height: 2px; background: #1e293b; margin: 15px 0; border-radius: 2px; }
 
         /* Écrans Principaux */
         main { 
@@ -150,196 +122,47 @@
             position: relative; 
             scroll-behavior: smooth; 
         }
-        
-        .screen { 
-            display: none; 
-            width: 100%; 
-            max-width: 1100px; 
-            animation: screenFade 0.4s ease-out; 
-        }
 
-        .screen.active { 
-            display: block; 
-        }
+        .screen { display: none; width: 100%; max-width: 1100px; animation: screenFade 0.4s ease-out; }
+        .screen.active { display: block; }
         
         @keyframes screenFade { 
             from { opacity: 0; transform: translateY(15px); } 
             to { opacity: 1; transform: translateY(0); } 
         }
         
-        h1 { 
-            text-align: center; 
-            margin-bottom: 10px; 
-            font-size: 2.8rem; 
-            font-weight: 800; 
-            background: linear-gradient(to right, var(--accent), #34d399); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-        }
-
-        .subtitle { 
-            text-align: center; 
-            color: var(--text-muted); 
-            margin-bottom: 40px; 
-            font-size: 1.1rem; 
-        }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 2.8rem; font-weight: 800; background: linear-gradient(to right, var(--accent), #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 40px; font-size: 1.1rem; }
         
-        .btn { 
-            padding: 12px 28px; 
-            background: var(--accent); 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 1.1rem; 
-            color: #000; 
-            transition: 0.2s; 
-            text-transform: uppercase; 
-            letter-spacing: 1px; 
-            margin: 5px; 
-        }
-
-        .btn:hover { 
-            transform: scale(1.05); 
-            box-shadow: 0 0 15px var(--accent-glow); 
-        }
-
-        .btn:disabled { 
-            background: #334155; 
-            color: #94a3b8; 
-            cursor: not-allowed; 
-            box-shadow: none; 
-            transform: none; 
-        }
-
-        input[type="text"], select { 
-            padding: 15px; 
-            font-size: 1.2rem; 
-            border-radius: 8px; 
-            border: 2px solid #334155; 
-            background: #020617; 
-            color: white; 
-            text-align: center; 
-            margin: 10px; 
-            text-transform: uppercase; 
-            width: 250px; 
-            font-weight: bold; 
-            outline: none; 
-        }
-
-        select { 
-            cursor: pointer; 
-            text-transform: none; 
-        }
+        .btn { padding: 12px 28px; background: var(--accent); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; color: #000; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; margin: 5px; }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--accent-glow); }
+        .btn:disabled { background: #334155; color: #94a3b8; cursor: not-allowed; box-shadow: none; transform: none; }
+        input[type="text"], select { padding: 15px; font-size: 1.2rem; border-radius: 8px; border: 2px solid #334155; background: #020617; color: white; text-align: center; margin: 10px; text-transform: uppercase; width: 250px; font-weight: bold; outline: none; }
+        select { cursor: pointer; text-transform: none; }
 
         /* =========================================
-           3. CSS DES JEUX : MORPIONS & DÉMINEUR & YAMS
+           3. JEUX CLASSIQUES
            ========================================= */
-        
         /* Morpion Simple */
-        .ms-grid { 
-            display: grid; 
-            grid-template-columns: repeat(3, 130px); 
-            gap: 12px; 
-            margin: 0 auto 40px auto; 
-            width: fit-content; 
-        }
-
-        .ms-cell { 
-            height: 130px; 
-            background: var(--panel-bg); 
-            border-radius: 12px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 5rem; 
-            cursor: pointer; 
-            font-weight: 900; 
-            transition: 0.2s; 
-            border: 2px solid #1e293b; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3); 
-        }
-
-        .ms-cell:hover:not(.taken) { 
-            background: var(--panel-hover); 
-            border-color: var(--accent); 
-        }
-
-        .ms-cell.win { 
-            animation: pulseWin 1s infinite alternate; 
-            background: rgba(16, 185, 129, 0.1); 
-            border-color: var(--accent); 
+        .ms-grid { display: grid; grid-template-columns: repeat(3, 130px); gap: 12px; margin: 0 auto 40px auto; width: fit-content; }
+        .ms-cell { height: 130px; background: var(--panel-bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 5rem; cursor: pointer; font-weight: 900; transition: 0.2s; border: 2px solid #1e293b; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .ms-cell:hover:not(.taken) { background: var(--panel-hover); border-color: var(--accent); }
+        .ms-cell.win { animation: pulseWin 1s infinite alternate; background: rgba(16, 185, 129, 0.1); border-color: var(--accent); }
+        
+        @keyframes pulseWin { 
+            from { transform: scale(1); box-shadow: 0 0 10px var(--accent-glow); } 
+            to { transform: scale(1.05); box-shadow: 0 0 30px var(--accent-glow); } 
         }
 
         /* Morpion Ultime */
-        .mu-status { 
-            text-align: center; 
-            font-size: 1.5rem; 
-            font-weight: bold; 
-            margin-bottom: 20px; 
-        }
-
-        .mu-container { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 15px; 
-            background: #020617; 
-            padding: 20px; 
-            border-radius: 20px; 
-            margin: 0 auto 30px auto; 
-            width: fit-content; 
-            border: 3px solid #1e293b; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
-        }
-
-        .mu-grid { 
-            display: grid; 
-            grid-template-columns: repeat(3, 50px); 
-            gap: 4px; 
-            background: var(--panel-bg); 
-            padding: 8px; 
-            border-radius: 10px; 
-            position: relative; 
-            transition: 0.3s; 
-        }
-
-        .mu-cell { 
-            height: 50px; 
-            background: var(--bg-color); 
-            border-radius: 5px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 1.8rem; 
-            font-weight: bold; 
-            cursor: pointer; 
-        }
-
+        .mu-status { text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; }
+        .mu-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; background: #020617; padding: 20px; border-radius: 20px; margin: 0 auto 30px auto; width: fit-content; border: 3px solid #1e293b; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .mu-grid { display: grid; grid-template-columns: repeat(3, 50px); gap: 4px; background: var(--panel-bg); padding: 8px; border-radius: 10px; position: relative; transition: 0.3s; }
+        .mu-cell { height: 50px; background: var(--bg-color); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; cursor: pointer; }
         .mu-cell:hover:not(.taken) { background: var(--panel-hover); }
+        .mu-active { outline: 4px solid var(--accent); background: #064e3b; box-shadow: 0 0 25px var(--accent-glow); animation: muPulse 2s infinite; z-index: 5; }
+        .mu-won { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.85); display: flex; align-items: center; justify-content: center; font-size: 6rem; font-weight: 900; border-radius: 10px; backdrop-filter: blur(3px); z-index: 10; animation: screenFade 0.3s ease-out; }
         
-        .mu-active { 
-            outline: 4px solid var(--accent); 
-            background: #064e3b; 
-            box-shadow: 0 0 25px var(--accent-glow); 
-            animation: muPulse 2s infinite; 
-            z-index: 5; 
-        }
-
-        .mu-won { 
-            position: absolute; 
-            inset: 0; 
-            background: rgba(2, 6, 23, 0.85); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 6rem; 
-            font-weight: 900; 
-            border-radius: 10px; 
-            backdrop-filter: blur(3px); 
-            z-index: 10; 
-            animation: screenFade 0.3s ease-out; 
-        }
-
         @keyframes muPulse { 
             0% { outline-color: var(--accent); } 
             50% { outline-color: #34d399; } 
@@ -347,131 +170,31 @@
         }
 
         /* Démineur */
-        .dm-header { 
-            display: flex; 
-            justify-content: center; 
-            gap: 40px; 
-            margin-bottom: 30px; 
-            font-size: 1.4rem; 
-            font-weight: bold; 
-            background: #000; 
-            padding: 15px 30px; 
-            border-radius: 50px; 
-            border: 1px solid #1e293b; 
-        }
-
-        #dm-board { 
-            display: grid; 
-            grid-template-columns: repeat(20, 30px); 
-            gap: 2px; 
-            background: #334155; 
-            padding: 3px; 
-            border: 4px solid #1e293b; 
-            margin: 0 auto 30px auto; 
-            width: fit-content; 
-            border-radius: 8px; 
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6); 
-        }
-
-        .dm-tile { 
-            width: 30px; 
-            height: 30px; 
-            background: var(--panel-bg); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 1rem; 
-            font-weight: 900; 
-            cursor: pointer; 
-            border-radius: 3px; 
-            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3); 
-        }
-
+        .dm-header { display: flex; justify-content: center; gap: 40px; margin-bottom: 30px; font-size: 1.4rem; font-weight: bold; background: #000; padding: 15px 30px; border-radius: 50px; border: 1px solid #1e293b; }
+        #dm-board { display: grid; grid-template-columns: repeat(20, 30px); gap: 2px; background: #334155; padding: 3px; border: 4px solid #1e293b; margin: 0 auto 30px auto; width: fit-content; border-radius: 8px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
+        .dm-tile { width: 30px; height: 30px; background: var(--panel-bg); display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 900; cursor: pointer; border-radius: 3px; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3); }
         .dm-tile:hover:not(.open) { background: var(--panel-hover); }
         .dm-tile.open { background: #cbd5e1; box-shadow: inset 2px 2px 6px rgba(0,0,0,0.3); cursor: default; }
         .dm-tile.mine { background: var(--player-x); font-size: 1.2rem; }
-        
-        .dm-c1 { color: #2563eb; } 
-        .dm-c2 { color: #16a34a; } 
-        .dm-c3 { color: #dc2626; } 
-        .dm-c4 { color: #7c3aed; } 
-        .dm-c5 { color: #991b1b; } 
-        .dm-c6 { color: #0d9488; }
+        .dm-c1 { color: #2563eb; } .dm-c2 { color: #16a34a; } .dm-c3 { color: #dc2626; } .dm-c4 { color: #7c3aed; } .dm-c5 { color: #991b1b; } .dm-c6 { color: #0d9488; }
 
         /* Yams */
-        .yams-layout { 
-            display: flex; 
-            gap: 40px; 
-            justify-content: center; 
-            align-items: flex-start; 
-            margin-top: 20px; 
-            flex-wrap: wrap; 
-        }
-
-        .y-dice-area { 
-            background: var(--panel-bg); 
-            padding: 40px; 
-            border-radius: 20px; 
-            text-align: center; 
-            border: 2px solid #1e293b; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-            width: 400px; 
-        }
-
-        .y-dice-container { 
-            font-size: 4.5rem; 
-            display: flex; 
-            gap: 15px; 
-            margin-bottom: 30px; 
-            justify-content: center; 
-            min-height: 80px; 
-        }
-
-        .y-die { 
-            cursor: pointer; 
-            transition: 0.3s; 
-            text-shadow: 0 5px 15px rgba(0,0,0,0.5); 
-        }
-
-        .y-die.kept { 
-            color: var(--accent); 
-            transform: translateY(-15px) scale(1.1); 
-            text-shadow: 0 10px 20px var(--accent-glow); 
-        }
-
+        .yams-layout { display: flex; gap: 40px; justify-content: center; align-items: flex-start; margin-top: 20px; flex-wrap: wrap; }
+        .y-dice-area { background: var(--panel-bg); padding: 40px; border-radius: 20px; text-align: center; border: 2px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 400px; }
+        .y-dice-container { font-size: 4.5rem; display: flex; gap: 15px; margin-bottom: 30px; justify-content: center; min-height: 80px; }
+        .y-die { cursor: pointer; transition: 0.3s; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .y-die.kept { color: var(--accent); transform: translateY(-15px) scale(1.1); text-shadow: 0 10px 20px var(--accent-glow); }
         .y-tables { display: flex; gap: 15px; }
-
-        .y-table { 
-            border-collapse: collapse; 
-            background: var(--panel-bg); 
-            border-radius: 12px; 
-            overflow: hidden; 
-            border: 1px solid #1e293b; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-        }
-
-        .y-table th { 
-            padding: 15px; 
-            background: #020617; 
-            color: var(--text-main); 
-            font-size: 1.2rem; 
-            border-bottom: 2px solid var(--accent); 
-        }
-
-        .y-table td { 
-            border: 1px solid #1e293b; 
-            padding: 12px 20px; 
-            cursor: pointer; 
-            font-size: 1.1rem; 
-        }
-
+        .y-table { border-collapse: collapse; background: var(--panel-bg); border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .y-table th { padding: 15px; background: #020617; color: var(--text-main); font-size: 1.2rem; border-bottom: 2px solid var(--accent); }
+        .y-table td { border: 1px solid #1e293b; padding: 12px 20px; cursor: pointer; font-size: 1.1rem; }
         .y-table td:first-child { font-weight: 600; color: var(--text-muted); }
         .y-table .pot { color: var(--accent); opacity: 0.4; font-style: italic; font-weight: bold; }
         .y-table .locked { color: var(--accent); font-weight: 900; background: rgba(16,185,129,0.05); }
         .y-table .total-row { background: #020617; color: var(--gold); font-weight: 900; font-size: 1.3rem; }
 
         /* =========================================
-           4. CSS : LA VRAIE BELOTE PRO
+           4. LA VRAIE BELOTE (Interface Optimisée)
            ========================================= */
         .bl-scoreboard { 
             display: flex; 
@@ -495,23 +218,74 @@
             min-height: 30px; 
         }
 
+        /* Le Tapis Vert - Élargi pour que tout respire */
         .bl-tapis { 
             background: radial-gradient(circle, #065f46 0%, #022c22 100%); 
-            width: 750px; 
+            width: 800px; 
             height: 500px; 
             border-radius: 250px; 
             margin: 0 auto; 
             border: 15px solid #451a03; 
             position: relative; 
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8); 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 50px rgba(0,0,0,0.5); 
         }
         
-        /* HUD Coins */
+        /* Les Noms des joueurs (Placés sur le bois du bord) */
+        .bl-name { 
+            position: absolute; 
+            color: #94a3b8; 
+            font-weight: bold; 
+            font-size: 1.1rem; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.9); 
+            pointer-events: none; 
+            z-index: 5; 
+            transition: 0.3s;
+        }
+
+        .bl-name.active-turn {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+            transform: scale(1.1);
+        }
+
+        #bl-n-n { top: -35px; left: 50%; transform: translateX(-50%); }
+        #bl-n-n.active-turn { transform: translateX(-50%) scale(1.1); }
+        
+        #bl-n-s { bottom: -35px; left: 50%; transform: translateX(-50%); }
+        #bl-n-s.active-turn { transform: translateX(-50%) scale(1.1); }
+        
+        #bl-n-e { right: -40px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+        #bl-n-e.active-turn { transform: translateY(-50%) rotate(90deg) scale(1.1); }
+        
+        #bl-n-w { left: -45px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+        #bl-n-w.active-turn { transform: translateY(-50%) rotate(-90deg) scale(1.1); }
+
+        /* Le Jeton du donneur */
+        .bl-dealer { 
+            position: absolute; 
+            background: var(--gold); 
+            color: #000; 
+            width: 32px; 
+            height: 32px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.8); 
+            z-index: 10; 
+            transition: 0.5s; 
+            font-size: 1.2rem; 
+        }
+
+        /* Les HUDs (Atout et Points de la Manche) */
         #bl-atout-corner {
             position: absolute; 
             top: 20px; 
-            left: 20px; 
-            background: rgba(0, 0, 0, 0.8);
+            left: 30px; 
+            background: rgba(0, 0, 0, 0.7);
             padding: 10px 15px; 
             border-radius: 8px; 
             border: 1px solid var(--accent);
@@ -536,8 +310,8 @@
         #bl-trick-points {
             position: absolute; 
             top: 20px; 
-            right: 20px; 
-            background: rgba(0, 0, 0, 0.8);
+            right: 30px; 
+            background: rgba(0, 0, 0, 0.7);
             padding: 10px 15px; 
             border-radius: 8px; 
             border: 1px solid var(--gold);
@@ -548,79 +322,22 @@
             font-weight: bold;
         }
 
-        /* Noms des joueurs (Animation tour) */
-        .bl-name { 
-            position: absolute; 
-            color: #94a3b8; 
-            font-weight: bold; 
-            font-size: 1.1rem; 
-            text-transform: uppercase; 
-            letter-spacing: 1px; 
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8); 
-            pointer-events: none; 
-            z-index: 5; 
-            transition: 0.3s;
-        }
-
-        .bl-name.active-turn {
-            color: var(--accent);
-            text-shadow: 0 0 10px var(--accent-glow);
-            transform: scale(1.1);
-        }
-
-        #bl-n-n { top: 20px; left: 50%; transform: translateX(-50%); }
-        #bl-n-n.active-turn { transform: translateX(-50%) scale(1.1); }
-        #bl-n-s { bottom: 20px; left: 50%; transform: translateX(-50%); }
-        #bl-n-s.active-turn { transform: translateX(-50%) scale(1.1); }
-        #bl-n-e { right: 30px; top: 50%; transform: translateY(-50%); writing-mode: vertical-rl; text-orientation: mixed; }
-        #bl-n-e.active-turn { transform: translateY(-50%) scale(1.1); }
-        #bl-n-w { left: 30px; top: 50%; transform: translateY(-50%); writing-mode: vertical-rl; text-orientation: mixed; rotate: 180deg; }
-        #bl-n-w.active-turn { transform: translateY(-50%) scale(1.1) rotate(180deg); }
-
-        /* Dos des cartes (Bots) */
-        .bl-bot-hand { 
-            position: absolute; 
-            display: flex; 
-            gap: -30px; 
-            pointer-events: none; 
-            z-index: 4; 
-        }
-
-        .bl-bot-hand .bl-card-back { 
-            width: 40px; 
-            height: 60px; 
-            background: repeating-linear-gradient(45deg, #1e293b, #1e293b 5px, #0f172a 5px, #0f172a 10px); 
-            border: 2px solid #fff; 
-            border-radius: 5px; 
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.5); 
-        }
-
-        #bl-h-n { top: 50px; left: 50%; transform: translateX(-50%); }
-        #bl-h-e { right: 60px; top: 50%; transform: translateY(-50%) rotate(90deg); }
-        #bl-h-w { left: 60px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
-        
-        /* Jeton Donneur */
-        .bl-dealer { 
-            position: absolute; 
-            background: var(--gold); 
-            color: #000; 
-            width: 30px; 
-            height: 30px; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: bold; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5); 
-            z-index: 10; 
-            transition: 0.5s; 
-            font-size: 1.2rem; 
-        }
-
-        /* Animation Belote */
-        .bl-annonce {
+        /* Le centre de la table (Carte à prendre) */
+        #bl-center {
             position: absolute; 
             top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            z-index: 10; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+        }
+
+        /* Animation Belote/Rebelote */
+        .bl-annonce {
+            position: absolute; 
+            top: 40%; 
             left: 50%; 
             transform: translate(-50%, -50%);
             background: var(--gold); 
@@ -632,6 +349,7 @@
             z-index: 50; 
             opacity: 0; 
             pointer-events: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
 
         .bl-annonce.active { 
@@ -644,8 +362,59 @@
             80% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 
             100% { opacity: 0; transform: translate(-50%, -100%) scale(0.8); } 
         }
+
+        /* ==============================================
+           RÉSOLUTION DU BUG VISUEL DES CARTES DE BOTS
+           ============================================== */
+        .bl-bot-hand { 
+            position: absolute; 
+            display: flex; 
+            pointer-events: none; 
+            z-index: 4; 
+        }
+
+        /* Le Nord reste horizontal */
+        #bl-h-n { 
+            top: 20px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            flex-direction: row; 
+            gap: -20px; 
+        }
         
-        /* Zones de pose */
+        #bl-h-n .bl-card-back { 
+            width: 45px; 
+            height: 65px; 
+            background: repeating-linear-gradient(45deg, #1e293b, #1e293b 5px, #0f172a 5px, #0f172a 10px); 
+            border: 2px solid #fff; 
+            border-radius: 5px; 
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5); 
+        }
+
+        /* L'Est et l'Ouest s'empilent verticalement ! */
+        #bl-h-e, #bl-h-w {
+            top: 50%; 
+            transform: translateY(-50%); 
+            flex-direction: column; 
+            gap: -35px; /* Empilement propre sur la verticale */
+        }
+        
+        #bl-h-e { right: 20px; }
+        #bl-h-w { left: 20px; }
+
+        /* Leurs cartes ont des dimensions inversées (paysage) pour faire réaliste */
+        #bl-h-e .bl-card-back, #bl-h-w .bl-card-back {
+            width: 65px; 
+            height: 45px; 
+            background: repeating-linear-gradient(45deg, #1e293b, #1e293b 5px, #0f172a 5px, #0f172a 10px); 
+            border: 2px solid #fff; 
+            border-radius: 5px; 
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+        }
+
+        /* ==============================================
+           LA CROIX CENTRALE DES CARTES JOUÉES
+           ============================================== */
         .bl-slot { 
             position: absolute; 
             width: 80px; 
@@ -655,14 +424,16 @@
             display: flex; 
             align-items: center; 
             justify-content: center; 
+            z-index: 6;
         }
 
-        #bl-s-n { top: 70px; left: 320px; } 
-        #bl-s-s { bottom: 70px; left: 320px; }
-        #bl-s-e { right: 110px; top: 177px; } 
-        #bl-s-w { left: 110px; top: 177px; }
+        /* Calcul exact depuis le centre (400, 250) */
+        #bl-s-n { top: 70px; left: 50%; transform: translateX(-50%); } 
+        #bl-s-s { bottom: 70px; left: 50%; transform: translateX(-50%); }
+        #bl-s-e { top: 50%; right: 200px; transform: translateY(-50%); } 
+        #bl-s-w { top: 50%; left: 200px; transform: translateY(-50%); }
         
-        /* Design Cartes */
+        /* Design des cartes jouables */
         .bl-card { 
             width: 80px; 
             height: 115px; 
@@ -682,13 +453,19 @@
         }
 
         .bl-card.red { color: #ef4444; }
-        .bl-card.invalid { filter: brightness(0.5); cursor: not-allowed; }
         
+        /* Assombrit les cartes qu'on n'a pas le droit de jouer */
+        .bl-card.invalid { 
+            filter: brightness(0.5); 
+            cursor: not-allowed; 
+        }
+        
+        /* Main du joueur Humain */
         .bl-hand { 
             display: flex; 
             gap: -20px; 
             justify-content: center; 
-            margin-top: 30px; 
+            margin-top: 40px; 
             height: 130px; 
         }
 
@@ -696,18 +473,20 @@
         .bl-hand .bl-card:first-child { margin-left: 0; }
         .bl-hand .bl-card:hover:not(.invalid) { transform: translateY(-20px); z-index: 50; border-color: var(--accent); }
         
+        /* Animation fluide de glissade sur la table */
         .bl-played { 
             position: absolute; 
-            animation: playCard 0.25s forwards; 
+            animation: playCard 0.4s ease-out forwards; 
             pointer-events: none; 
+            z-index: 8; 
         }
 
         @keyframes playCard { 
-            from { transform: scale(1.5) translateY(50px); opacity: 0; } 
+            from { transform: scale(1.5) translateY(100px); opacity: 0; } 
             to { transform: scale(1) translateY(0) rotate(calc(-5deg + 10deg * var(--rand))); opacity: 1; } 
         }
         
-        /* Boutons de Choix de Couleur (Tour 2) */
+        /* Boutons pour le Choix Couleur (Tour 2 d'enchères) */
         .bl-suit-btn { 
             font-size: 2rem; 
             padding: 10px 20px; 
@@ -791,18 +570,14 @@
     <section id="s-sim" class="screen active">
         <h1>Tic-Tac-Toe</h1>
         <div id="ms-board" class="ms-grid"></div>
-        <div style="text-align: center;">
-            <button class="btn" onclick="App.Sim.init()">Réinitialiser</button>
-        </div>
+        <div style="text-align: center;"><button class="btn" onclick="App.Sim.init()">Réinitialiser</button></div>
     </section>
 
     <section id="s-ult" class="screen">
         <h1>Morpion Ultime</h1>
         <p class="subtitle mu-status" id="mu-status">Chargement...</p>
         <div id="mu-board" class="mu-container"></div>
-        <div style="text-align: center;">
-            <button class="btn" onclick="App.Ult.init()">Recommencer</button>
-        </div>
+        <div style="text-align: center;"><button class="btn" onclick="App.Ult.init()">Recommencer</button></div>
     </section>
 
     <section id="s-mine" class="screen">
@@ -812,9 +587,7 @@
             <span>⏱️ <span id="dm-time" style="color:var(--accent)">0</span>s</span>
         </div>
         <div id="dm-board"></div>
-        <div style="text-align: center;">
-            <button class="btn" onclick="App.Mine.init()">Nouvelle Génération</button>
-        </div>
+        <div style="text-align: center;"><button class="btn" onclick="App.Mine.init()">Nouvelle Génération</button></div>
     </section>
 
     <section id="s-yams" class="screen">
@@ -827,9 +600,7 @@
             </div>
             <div id="y-score-container" class="y-tables"></div>
         </div>
-        <div style="text-align: center; margin-top: 30px;">
-            <button class="btn" onclick="App.Yams.init()">Remettre à zéro</button>
-        </div>
+        <div style="text-align: center; margin-top: 30px;"><button class="btn" onclick="App.Yams.init()">Remettre à zéro</button></div>
     </section>
 
     <section id="s-belote" class="screen">
@@ -863,14 +634,14 @@
 
             <div id="bl-annonce-msg" class="bl-annonce">BELOTE !</div>
 
-            <div id="bl-center" style="position:absolute; top:45%; left:50%; transform:translate(-50%, -50%); z-index:10; display:flex; flex-direction:column; align-items:center;"></div>
+            <div id="bl-center"></div>
             
-            <div id="bl-actions-1" style="position:absolute; top:70%; left:50%; transform:translate(-50%, 0); display:none; gap:10px; z-index:20;">
+            <div id="bl-actions-1" style="position:absolute; top:75%; left:50%; transform:translate(-50%, 0); display:none; gap:10px; z-index:20;">
                 <button class="btn" id="btn-prendre-1" style="background:var(--accent);">Prendre</button>
                 <button class="btn" id="btn-passer-1" style="background:var(--player-x); color:white;">Passer</button>
             </div>
 
-            <div id="bl-actions-2" style="position:absolute; top:70%; left:50%; transform:translate(-50%, 0); display:none; gap:15px; z-index:20; align-items: center;">
+            <div id="bl-actions-2" style="position:absolute; top:75%; left:50%; transform:translate(-50%, 0); display:none; gap:15px; z-index:20; align-items: center;">
                 <div id="bl-suits-container" style="display:flex; gap:10px;"></div>
                 <button class="btn" id="btn-passer-2" style="background:var(--player-x); color:white;">Passer</button>
             </div>
@@ -953,12 +724,15 @@
 </main>
 
 <script type="module">
+    // =========================================================
+    // IMPORTATION DES MODULES FIREBASE
+    // =========================================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getDatabase, ref, set, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-    // ---------------------------------------------------------
-    // FIREBASE CONFIGURATION
-    // ---------------------------------------------------------
+    // =========================================================
+    // CONFIGURATION DE LA BASE DE DONNÉES
+    // =========================================================
     const firebaseConfig = {
         apiKey: "AIzaSyD5YeADpzCBrjhiYIgGjZU6ilRipK66NwY",
         authDomain: "arcade-8546c.firebaseapp.com",
@@ -972,16 +746,15 @@
     const fbApp = initializeApp(firebaseConfig);
     const db = getDatabase(fbApp);
 
-    // ---------------------------------------------------------
-    // INTERFACE ET GESTIONNAIRE DE VUES (UI)
-    // ---------------------------------------------------------
+    // =========================================================
+    // OBJET GESTIONNAIRE D'INTERFACE (UI)
+    // =========================================================
     window.UI = {
         modalCb: null,
         
         showModal(title, desc, cb) {
             document.getElementById('modal-title').innerHTML = title;
             
-            // Logique de couleur dynamique
             let titleColor = 'var(--player-x)';
             if (title.includes('Victoire') || title.includes('Gagné') || title.includes('Terminée') || title.includes('Réussi') || title.includes('Fin')) {
                 titleColor = 'var(--accent)';
@@ -1015,9 +788,9 @@
 
     window.App = {};
 
-    // ---------------------------------------------------------
-    // JEU 1 : MORPION SIMPLE
-    // ---------------------------------------------------------
+    // =========================================================
+    // MOTEUR DE JEU : MORPION SIMPLE
+    // =========================================================
     window.App.Sim = {
         state: [], 
         player: 'X',
@@ -1074,9 +847,9 @@
         }
     };
 
-    // ---------------------------------------------------------
-    // JEU 2 : MORPION ULTIME
-    // ---------------------------------------------------------
+    // =========================================================
+    // MOTEUR DE JEU : MORPION ULTIME
+    // =========================================================
     window.App.Ult = {
         bGrid: [], 
         sGrids: [], 
@@ -1159,9 +932,9 @@
         }
     };
 
-    // ---------------------------------------------------------
-    // JEU 3 : DÉMINEUR EXPERT
-    // ---------------------------------------------------------
+    // =========================================================
+    // MOTEUR DE JEU : DÉMINEUR EXPERT
+    // =========================================================
     window.App.Mine = {
         grid: [], 
         opened: [], 
@@ -1298,9 +1071,9 @@
         }
     };
 
-    // ---------------------------------------------------------
-    // JEU 4 : YAMS CHAMPIONSHIP
-    // ---------------------------------------------------------
+    // =========================================================
+    // MOTEUR DE JEU : YAMS CHAMPIONSHIP
+    // =========================================================
     window.App.Yams = {
         dice: [1, 1, 1, 1, 1], 
         kept: [false, false, false, false, false], 
@@ -1479,9 +1252,9 @@
         }
     };
 
-    // ---------------------------------------------------------
-    // JEU 5 : LA VRAIE BELOTE IA INTELLIGENTE ET COMPLÈTE
-    // ---------------------------------------------------------
+    // =========================================================
+    // MOTEUR DE JEU : LA VRAIE BELOTE IA INTELLIGENTE ET COMPLÈTE
+    // =========================================================
     window.App.Belote = {
         deck: [], 
         hands: [[], [], [], []], // Index 0:Toi(Sud), 1:Est, 2:Nord, 3:Ouest
@@ -1510,9 +1283,9 @@
             {s: '♥', color: 'r'}, 
             {s: '♦', color: 'r'}
         ],
-        
         ranks: ['7', '8', '9', '10', 'V', 'D', 'R', 'A'],
         
+        // Hiérarchie Belote
         valAtout: { 'V':20, '9':14, 'A':11, '10':10, 'R':4, 'D':3, '8':0, '7':0 },
         valNormal: { 'A':11, '10':10, 'R':4, 'D':3, 'V':2, '9':0, '8':0, '7':0 },
         ordAtout: ['V', '9', 'A', '10', 'R', 'D', '8', '7'],
@@ -1522,6 +1295,7 @@
             this.scores = { nous: 0, eux: 0 };
             this.litigePot = 0;
             
+            // Premier donneur aléatoire
             if (this.dealerIndex === -1) {
                 this.dealerIndex = Math.floor(Math.random() * 4);
             }
@@ -1531,6 +1305,7 @@
         },
 
         startDeal() {
+            // Reset UI complet
             document.querySelectorAll('.bl-slot').forEach(slot => slot.innerHTML = '');
             document.getElementById('bl-center').innerHTML = '';
             document.getElementById('bl-hand').innerHTML = '';
@@ -1540,16 +1315,18 @@
             document.getElementById('bl-trick-points').style.display = 'none';
             document.getElementById('bl-atout-corner').style.display = 'none';
             
-            this.updatePlayerHighlight(-1);
+            this.updatePlayerHighlight(-1); // Efface les highlights
 
+            // Le donneur tourne
             this.dealerIndex = (this.dealerIndex + 1) % 4;
             this.firstPlayerIndex = (this.dealerIndex + 1) % 4;
             
+            // Position précise pour le tapis 800x500
             const positions = [
-                {x: 295, y: 400}, 
-                {x: 570, y: 152}, 
-                {x: 295, y: 10},  
-                {x: 15, y: 152}   
+                {x: 450, y: 420}, // Sud
+                {x: 680, y: 300}, // Est
+                {x: 450, y: 40},  // Nord
+                {x: 100, y: 300}  // Ouest
             ];
             
             const tkn = document.getElementById('bl-dealer-token');
@@ -1557,6 +1334,7 @@
             tkn.style.left = positions[this.dealerIndex].x + 'px';
             tkn.style.top = positions[this.dealerIndex].y + 'px';
 
+            // Création et mélange du deck
             this.deck = [];
             this.suits.forEach(suitObj => { 
                 this.ranks.forEach(rankStr => { 
@@ -1569,16 +1347,19 @@
                 [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; 
             }
             
+            // Reset des variables de donne
             this.hands = [[], [], [], []]; 
             this.currentTrick = []; 
             this.dealPoints = { nous: 0, eux: 0 };
             this.tricksWon = { nous: 0, eux: 0 };
+            this.tricksPlayedCount = 0;
             
             this.atoutSuit = null; 
             this.takerIndex = -1;
             this.beloteAnnouncedBy = null;
             this.phase = 'bidding_1';
             
+            // Distribution : 3 puis 2
             for (let p = 0; p < 4; p++) {
                 let targetPlayer = (this.firstPlayerIndex + p) % 4;
                 this.hands[targetPlayer].push(...this.deck.splice(0, 3));
@@ -1605,6 +1386,7 @@
             centerArea.appendChild(cardElement);
         },
 
+        // --- ENCHÈRES TOUR 1 ---
         processBidding1() {
             this.updatePlayerHighlight(this.currentTurnIndex);
             
@@ -1640,7 +1422,7 @@
                     } else {
                         this.passBidding1();
                     }
-                }, 800);
+                }, 1200);
             }
         },
 
@@ -1648,6 +1430,7 @@
             this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
             
             if (this.currentTurnIndex === this.firstPlayerIndex) {
+                // Fin du tour 1, on passe au tour 2
                 this.phase = 'bidding_2';
                 this.updateStatus("TOUR 2 : Choix d'une autre couleur.");
                 setTimeout(() => this.processBidding2(), 500);
@@ -1656,6 +1439,7 @@
             }
         },
 
+        // --- ENCHÈRES TOUR 2 ---
         processBidding2() {
             this.updatePlayerHighlight(this.currentTurnIndex);
             
@@ -1685,6 +1469,7 @@
                     this.passBidding2();
                 };
             } else {
+                // IA Tour 2
                 let botName = this.currentTurnIndex === 1 ? 'Est' : (this.currentTurnIndex === 2 ? 'Nord' : 'Ouest');
                 this.updateStatus(`${botName} réfléchit (Tour 2)...`);
                 
@@ -1693,6 +1478,7 @@
                     let bestSuit = null;
                     let bestScore = 0;
 
+                    // Le bot évalue chaque couleur restante
                     availableSuits.forEach(suitObj => {
                         let suitCards = hand.filter(c => c.suit.s === suitObj.s);
                         let score = 0;
@@ -1707,12 +1493,13 @@
                         }
                     });
 
+                    // S'il a une main forte, il prend
                     if (bestScore >= 4 || (bestScore >= 3 && Math.random() < 0.2)) {
                         this.take(this.currentTurnIndex, bestSuit);
                     } else {
                         this.passBidding2();
                     }
-                }, 800);
+                }, 1200);
             }
         },
 
@@ -1720,6 +1507,7 @@
             this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
             
             if (this.currentTurnIndex === this.firstPlayerIndex) {
+                // Tout le monde a passé deux fois
                 this.updateStatus("Tout le monde a passé. Redistribution générale !");
                 setTimeout(() => this.startDeal(), 1500);
             } else {
@@ -1727,6 +1515,7 @@
             }
         },
 
+        // --- LOGIQUE DE PRISE ---
         take(playerIdx, selectedSuit) {
             document.getElementById('bl-actions-1').style.display = 'none';
             document.getElementById('bl-actions-2').style.display = 'none';
@@ -1744,7 +1533,7 @@
             
             this.updateStatus(`${nameDisplay} pris à <span style="color:${this.atoutSuit.color === 'r' ? '#f43f5e' : 'white'}; font-size:1.5rem;">${this.atoutSuit.s}</span> !`);
             
-            setTimeout(() => this.finishDeal(), 1500);
+            setTimeout(() => this.finishDeal(), 2000);
         },
 
         finishDeal() {
@@ -1764,6 +1553,7 @@
             document.getElementById('bl-trick-points').style.display = 'block';
             this.updateTrickPointsUI();
             
+            // Distribution du reste
             for (let p = 0; p < 4; p++) {
                 let targetPlayer = (this.firstPlayerIndex + p) % 4;
                 let numCardsToGive = (targetPlayer === this.takerIndex) ? 2 : 3;
@@ -1776,7 +1566,6 @@
 
         updatePlayerHighlight(index) {
             document.querySelectorAll('.bl-name').forEach(el => el.classList.remove('active-turn'));
-            
             if (index === 0) document.getElementById('bl-n-s').classList.add('active-turn');
             if (index === 1) document.getElementById('bl-n-e').classList.add('active-turn');
             if (index === 2) document.getElementById('bl-n-n').classList.add('active-turn');
@@ -1784,14 +1573,14 @@
         },
 
         renderBotHands() {
+            // Dessine visuellement le dos des cartes des bots
             const mapId = ['none', 'bl-h-e', 'bl-h-n', 'bl-h-w'];
             
-            for(let i = 1; i <= 3; i++) {
+            for (let i = 1; i <= 3; i++) {
                 const container = document.getElementById(mapId[i]);
                 container.innerHTML = '';
-                
                 let nbCards = this.hands[i].length;
-                for(let c = 0; c < nbCards; c++) {
+                for (let c = 0; c < nbCards; c++) {
                     let back = document.createElement('div');
                     back.className = 'bl-card-back';
                     container.appendChild(back);
@@ -1801,7 +1590,7 @@
 
         processPlay() {
             if (this.tricksPlayedCount === 8) {
-                return;
+                return; // Verrouille le jeu en fin de partie
             }
 
             this.updatePlayerHighlight(this.currentTurnIndex);
@@ -1818,7 +1607,8 @@
                 
                 this.updateStatus(`${botName} joue...`);
                 
-                setTimeout(() => this.botPlay(), 600);
+                // Rythme bot ralenti (1.2s au lieu de 0.6s) pour la fluidité visuelle
+                setTimeout(() => this.botPlay(), 1200);
             }
         },
 
@@ -1864,7 +1654,6 @@
             let trumpCardsInHand = handArray.filter(c => c.suit.s === this.atoutSuit.s);
 
             let highestTrumpRankInTrick = -1;
-            
             this.currentTrick.forEach(trickEntry => {
                 if (trickEntry.card.suit.s === this.atoutSuit.s) {
                     let val = 8 - this.ordAtout.indexOf(trickEntry.card.rank);
@@ -1874,6 +1663,7 @@
                 }
             });
 
+            // Règle 1 : Obligation de fournir à la couleur
             if (cardsOfRequestedSuit.length > 0) {
                 if (leadSuitChar === this.atoutSuit.s) {
                     let higherTrumpsToPlay = cardsOfRequestedSuit.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRankInTrick);
@@ -1884,6 +1674,7 @@
                 return cardsOfRequestedSuit; 
             }
             
+            // Règle 2 : On n'a pas la couleur demandée. Faut-il couper ?
             let currentWinnerData = this.getTrickWinner(this.currentTrick);
             let partnerIndex = (this.currentTurnIndex + 2) % 4;
             let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
@@ -1900,10 +1691,12 @@
                 }
             }
             
+            // On a ni la couleur, ni atout : on peut se défausser de n'importe quelle carte
             return handArray;
         },
 
         chooseBotCard(validCardsArray) {
+            // Si le bot commence
             if (this.currentTrick.length === 0) {
                 validCardsArray.sort((a,b) => this.getCardValue(b) - this.getCardValue(a));
                 return validCardsArray[0];
@@ -1913,10 +1706,12 @@
             let partnerIndex = (this.currentTurnIndex + 2) % 4;
             let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
 
+            // Partenaire maître
             if (isPartnerWinning) {
                 validCardsArray.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
                 return validCardsArray[0];
             } else {
+                // Adversaire maître : On essaye de gagner
                 let winningCard = currentWinnerData.card;
                 let winningVal = (winningCard.suit.s === this.atoutSuit.s) ? (8 - this.ordAtout.indexOf(winningCard.rank)) : (8 - this.ordNormal.indexOf(winningCard.rank));
                 
@@ -1964,7 +1759,7 @@
             const annonceEl = document.getElementById('bl-annonce-msg');
             annonceEl.textContent = msg;
             annonceEl.classList.remove('active');
-            void annonceEl.offsetWidth; 
+            void annonceEl.offsetWidth; // Force reflow
             annonceEl.classList.add('active');
         },
 
@@ -1989,6 +1784,7 @@
                 
                 if (isValid && this.phase === 'playing' && this.currentTurnIndex === 0) {
                     cardElement.onclick = () => {
+                        // Double sécurité anti-bug
                         if (this.phase === 'playing' && this.currentTurnIndex === 0) {
                             this.playCard(index, cardElement);
                         }
@@ -2000,7 +1796,7 @@
         },
 
         playCard(cardIndex, cardElement) {
-            this.phase = 'resolving'; 
+            this.phase = 'resolving'; // Lock immédiat pour éviter que le joueur joue 2 cartes
             
             let playedCardObj = this.hands[0].splice(cardIndex, 1)[0]; 
             this.renderHand();
@@ -2040,7 +1836,8 @@
 
             this.currentTrick.push({ player: this.currentTurnIndex, card: playedCardObj });
             this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
-            this.renderBotHands(); 
+            
+            this.renderBotHands(); // Mise à jour visuelle des dos de cartes
             
             if (this.currentTrick.length === 4) {
                 this.resolveTrick(); 
@@ -2050,12 +1847,15 @@
         },
 
         getCardValue(cardObj) { 
-            if (cardObj.suit.s === this.atoutSuit.s) return this.valAtout[cardObj.rank];
-            return this.valNormal[cardObj.rank]; 
+            if (cardObj.suit.s === this.atoutSuit.s) {
+                return this.valAtout[cardObj.rank];
+            } else {
+                return this.valNormal[cardObj.rank]; 
+            }
         },
 
         resolveTrick() {
-            this.phase = 'resolving'; 
+            this.phase = 'resolving'; // Lock le jeu pendant l'animation
             this.updatePlayerHighlight(-1);
             
             let winnerObject = this.getTrickWinner(this.currentTrick);
@@ -2082,18 +1882,28 @@
             
             this.updateStatus(`${winMessageName} le pli ! (+${pointsInTrick} pts)`);
 
+            // Pause visuelle avant de ramasser (2.5 secondes)
             setTimeout(() => {
                 document.querySelectorAll('.bl-slot').forEach(slot => slot.innerHTML = '');
+                
+                if (trickWinnerIndex === 0 || trickWinnerIndex === 2) {
+                    this.scores.nous += pointsInTrick; 
+                } else {
+                    this.scores.eux += pointsInTrick;
+                }
+                
+                this.updateScoreUI(); 
                 this.currentTrick = []; 
                 this.currentTurnIndex = trickWinnerIndex; 
                 this.phase = 'playing';
                 
-                if (this.hands[0].length === 0) {
+                // Fin de la manche
+                if (this.tricksPlayedCount === 8) {
                     this.endDeal();
                 } else {
                     this.processPlay();
                 }
-            }, 1000);
+            }, 2500);
         },
 
         updateTrickPointsUI() {
@@ -2106,10 +1916,14 @@
         },
         
         endDeal() { 
+            // ==========================================
+            // CALCUL AVANCÉ DES RÈGLES DE LA BELOTE
+            // ==========================================
             let ptsNous = this.dealPoints.nous;
             let ptsEux = this.dealPoints.eux;
             let msg = "";
 
+            // 1. CAPOT
             if (this.tricksWon.nous === 8) {
                 ptsNous = 250 + (this.beloteAnnouncedBy === 'nous' ? 20 : 0);
                 msg += "<b style='color:var(--accent); font-size:1.3em;'>CAPOT ! (250 pts)</b><br><br>";
@@ -2118,6 +1932,7 @@
                 msg += "<b style='color:var(--player-x); font-size:1.3em;'>CAPOT ADVERSE ! (250 pts)</b><br><br>";
             }
 
+            // 2. CHUTE ET CONTRAT
             let takerTeam = (this.takerIndex === 0 || this.takerIndex === 2) ? 'nous' : 'eux';
             
             if (takerTeam === 'nous' && this.tricksWon.nous !== 8) {
@@ -2127,17 +1942,17 @@
                     this.litigePot = 0;
                     msg += "Contrat rempli !<br>";
                 } else if (ptsNous < ptsEux) {
-                    msg += "<b style='color:var(--player-x);'>DEDANS ! L'adversaire prend 162 pts.</b><br>";
+                    msg += "<b style='color:var(--player-x);'>CHUTE ! L'adversaire prend 162 pts.</b><br>";
                     this.scores.eux += 162 + this.litigePot;
                     this.scores.nous += (this.beloteAnnouncedBy === 'nous' ? 20 : 0); 
                     this.litigePot = 0;
                     ptsNous = (this.beloteAnnouncedBy === 'nous' ? 20 : 0); 
                     ptsEux = 162;
                 } else {
-                    msg += "<b style='color:var(--gold);'>LITIGE ! Vos points sont reportés.</b><br>";
+                    msg += "<b style='color:var(--gold);'>LITIGE (81-81) ! Vos points sont reportés.</b><br>";
                     this.litigePot += ptsNous;
                     this.scores.eux += ptsEux;
-                    ptsNous = 0; 
+                    ptsNous = 0;
                 }
             } 
             else if (takerTeam === 'eux' && this.tricksWon.eux !== 8) {
@@ -2154,18 +1969,25 @@
                     ptsEux = (this.beloteAnnouncedBy === 'eux' ? 20 : 0);
                     ptsNous = 162;
                 } else {
-                    msg += "<b style='color:var(--gold);'>LITIGE ! Points adverses reportés.</b><br>";
+                    msg += "<b style='color:var(--gold);'>LITIGE (81-81) ! Points adverses reportés.</b><br>";
                     this.litigePot += ptsEux;
                     this.scores.nous += ptsNous;
                     ptsEux = 0;
                 }
-            } else {
-                if (this.tricksWon.nous === 8) { this.scores.nous += ptsNous + this.litigePot; this.litigePot = 0; }
-                if (this.tricksWon.eux === 8)  { this.scores.eux += ptsEux + this.litigePot; this.litigePot = 0; }
+            } else if (this.tricksWon.nous === 8 || this.tricksWon.eux === 8) {
+                if (this.tricksWon.nous === 8) { 
+                    this.scores.nous += ptsNous + this.litigePot; 
+                    this.litigePot = 0; 
+                }
+                if (this.tricksWon.eux === 8) { 
+                    this.scores.eux += ptsEux + this.litigePot; 
+                    this.litigePot = 0; 
+                }
             }
 
-            msg += `<br>Scores de cette manche :<br>Nous : ${ptsNous} pts<br>Eux : ${ptsEux} pts`;
+            msg += `<br>Scores de la donne :<br>Nous : ${ptsNous} pts<br>Eux : ${ptsEux} pts`;
             
+            // 3. VICTOIRE GLOBALE
             if (this.scores.nous >= 1000 || this.scores.eux >= 1000) {
                 let winnerTeamText = this.scores.nous >= 1000 ? "VOUS AVEZ" : "ILS ONT";
                 msg = `<span style="font-size:1.5em; color:var(--gold)">PARTIE TERMINÉE !</span><br><br>${winnerTeamText} ATTEINT 1000 POINTS !<br><br>Score Final : Nous ${this.scores.nous} - Eux ${this.scores.eux}`;
@@ -2182,7 +2004,7 @@
     };
 
     // =========================================================
-    // MOTEUR DE JEU : RÉSEAU FIREBASE MULTIJOUEUR
+    // MOTEUR: RÉSEAU FIREBASE MULTIJOUEUR
     // =========================================================
     window.App.Network = {
         room: null, 
@@ -2459,9 +2281,9 @@
                             val = data.dice.reduce((a,b) => a + b); 
                         } else if (cat === 'Full' && valuesCount.includes(3) && valuesCount.includes(2)) {
                             val = 25; 
-                        } else if (cat === 'Petite Suite' && hasSequence(4)) {
+                        } else if (cat === 'Petite Suite' && seq(4)) {
                             val = 30; 
-                        } else if (cat === 'Grande Suite' && hasSequence(5)) {
+                        } else if (cat === 'Grande Suite' && seq(5)) {
                             val = 40; 
                         } else if (cat === 'Yams' && valuesCount.includes(5)) {
                             val = 50; 
@@ -2563,7 +2385,6 @@
     // =========================================================
     // ÉCOUTEURS D'ÉVÉNEMENTS INITIAUX
     // =========================================================
-    
     document.getElementById('btn-create-room').onclick = () => window.App.Network.host(); 
     document.getElementById('btn-join-room').onclick = () => window.App.Network.join();
     
