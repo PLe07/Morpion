@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcade Ultimate 2026 - Édition Pro Absolue</title>
+    <title>Arcade Ultimate 2026 - Édition Master</title>
     <style>
         /* =========================================
            1. VARIABLES ET BASE
@@ -83,8 +83,17 @@
             box-shadow: 10px 0 30px rgba(0,0,0,0.5); 
         }
 
-        nav h2 { color: var(--accent); text-transform: uppercase; letter-spacing: 3px; text-align: center; font-size: 1.1rem; margin-bottom: 30px; }
+        nav h2 { 
+            color: var(--accent); 
+            text-transform: uppercase; 
+            letter-spacing: 3px; 
+            text-align: center; 
+            font-size: 1.1rem; 
+            margin-bottom: 30px; 
+        }
+
         nav ul { list-style: none; overflow-y: auto; }
+        
         nav li { 
             padding: 15px; 
             cursor: pointer; 
@@ -98,6 +107,7 @@
             gap: 15px; 
             border: 1px solid transparent; 
         }
+
         nav li:hover { background: var(--panel-hover); transform: translateX(5px); }
         nav li.active { background: var(--accent); color: #000; box-shadow: 0 0 20px var(--accent-glow); border-color: var(--accent); }
         .nav-divider { height: 2px; background: #1e293b; margin: 15px 0; border-radius: 2px; }
@@ -113,6 +123,7 @@
             position: relative; 
             scroll-behavior: smooth; 
         }
+        
         .screen { display: none; width: 100%; max-width: 1000px; animation: screenFade 0.4s ease-out; }
         .screen.active { display: block; }
         
@@ -124,7 +135,6 @@
         h1 { text-align: center; margin-bottom: 10px; font-size: 2.8rem; font-weight: 800; background: linear-gradient(to right, var(--accent), #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 40px; font-size: 1.1rem; }
         
-        /* Boutons et Inputs */
         .btn { padding: 12px 28px; background: var(--accent); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; color: #000; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; margin: 5px; }
         .btn:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--accent-glow); }
         .btn:disabled { background: #334155; color: #94a3b8; cursor: not-allowed; box-shadow: none; transform: none; }
@@ -132,9 +142,8 @@
         select { cursor: pointer; text-transform: none; }
 
         /* =========================================
-           3. JEUX CLASSIQUES
+           3. MORPION ET DÉMINEUR
            ========================================= */
-        /* Morpion Simple */
         .ms-grid { display: grid; grid-template-columns: repeat(3, 130px); gap: 12px; margin: 0 auto 40px auto; width: fit-content; }
         .ms-cell { height: 130px; background: var(--panel-bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 5rem; cursor: pointer; font-weight: 900; transition: 0.2s; border: 2px solid #1e293b; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .ms-cell:hover:not(.taken) { background: var(--panel-hover); border-color: var(--accent); }
@@ -145,8 +154,7 @@
             to { transform: scale(1.05); box-shadow: 0 0 30px var(--accent-glow); } 
         }
 
-        /* Morpion Ultime */
-        .mu-status { text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; }
+        #mu-status { text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; }
         .mu-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; background: #020617; padding: 20px; border-radius: 20px; margin: 0 auto 30px auto; width: fit-content; border: 3px solid #1e293b; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .mu-grid { display: grid; grid-template-columns: repeat(3, 50px); gap: 4px; background: var(--panel-bg); padding: 8px; border-radius: 10px; position: relative; transition: 0.3s; }
         .mu-cell { height: 50px; background: var(--bg-color); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; cursor: pointer; }
@@ -160,7 +168,6 @@
             100% { outline-color: var(--accent); } 
         }
 
-        /* Démineur */
         .dm-header { display: flex; justify-content: center; gap: 40px; margin-bottom: 30px; font-size: 1.4rem; font-weight: bold; background: #000; padding: 15px 30px; border-radius: 50px; border: 1px solid #1e293b; }
         #dm-board { display: grid; grid-template-columns: repeat(20, 30px); gap: 2px; background: #334155; padding: 3px; border: 4px solid #1e293b; margin: 0 auto 30px auto; width: fit-content; border-radius: 8px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
         .dm-tile { width: 30px; height: 30px; background: var(--panel-bg); display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 900; cursor: pointer; border-radius: 3px; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3); }
@@ -169,7 +176,9 @@
         .dm-tile.mine { background: var(--player-x); font-size: 1.2rem; }
         .dm-c1 { color: #2563eb; } .dm-c2 { color: #16a34a; } .dm-c3 { color: #dc2626; } .dm-c4 { color: #7c3aed; } .dm-c5 { color: #991b1b; } .dm-c6 { color: #0d9488; }
 
-        /* Yams */
+        /* =========================================
+           4. YAMS
+           ========================================= */
         .yams-layout { display: flex; gap: 40px; justify-content: center; align-items: flex-start; margin-top: 20px; flex-wrap: wrap; }
         .y-dice-area { background: var(--panel-bg); padding: 40px; border-radius: 20px; text-align: center; border: 2px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 400px; }
         .y-dice-container { font-size: 4.5rem; display: flex; gap: 15px; margin-bottom: 30px; justify-content: center; min-height: 80px; }
@@ -185,19 +194,23 @@
         .y-table .total-row { background: #020617; color: var(--gold); font-weight: 900; font-size: 1.3rem; }
 
         /* =========================================
-           4. LA VRAIE BELOTE (Design Pro)
+           5. LA VRAIE BELOTE (Design Pro)
            ========================================= */
         .bl-scoreboard { display: flex; justify-content: center; gap: 50px; background: #020617; padding: 15px 30px; border-radius: 15px; border: 2px solid #1e293b; margin-bottom: 20px; font-size: 1.5rem; font-weight: bold; }
         .bl-info { text-align: center; margin-bottom: 20px; font-size: 1.3rem; font-weight: bold; color: var(--gold); min-height: 30px; }
-        .bl-atout-display { display: inline-block; padding: 5px 15px; background: #000; border-radius: 8px; border: 1px solid #333; margin-left: 10px; font-size: 1.5rem; }
+        .bl-atout-display { 
+            display: flex; flex-direction: column; align-items: center; 
+            padding: 10px 20px; background: #000; border-radius: 10px; 
+            border: 1px solid #333; font-size: 1.5rem; 
+        }
+        .bl-taker-name { font-size: 0.9rem; color: #ccc; margin-top: 5px; font-weight: normal; text-transform: uppercase; }
         
         .bl-tapis { 
-            background: radial-gradient(circle, #065f46 0%, #022c22 100%); width: 700px; height: 450px; 
-            border-radius: 220px; margin: 0 auto; border: 15px solid #451a03; position: relative; 
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8); 
+            background: radial-gradient(circle, #065f46 0%, #022c22 100%); 
+            width: 700px; height: 450px; border-radius: 220px; margin: 0 auto; 
+            border: 15px solid #451a03; position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.8); 
         }
         
-        /* Noms des joueurs */
         .bl-name { 
             position: absolute; color: var(--gold); font-weight: bold; font-size: 1.1rem; 
             text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); 
@@ -235,13 +248,14 @@
         .bl-hand .bl-card:hover:not(.invalid) { transform: translateY(-20px); z-index: 50; border-color: var(--accent); }
         
         .bl-played { position: absolute; animation: playCard 0.3s forwards; pointer-events: none; }
+        
         @keyframes playCard { 
             from { transform: scale(1.5) translateY(50px); opacity: 0; } 
             to { transform: scale(1) translateY(0) rotate(calc(-5deg + 10deg * var(--rand))); opacity: 1; } 
         }
         
         /* =========================================
-           5. FIREBASE NETWORK LOBBY
+           6. FIREBASE NETWORK LOBBY
            ========================================= */
         .lobby-box { background: var(--panel-bg); padding: 40px; border-radius: 20px; border: 2px solid #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; max-width: 600px; margin: auto; }
         .room-code-display { font-size: 4.5rem; letter-spacing: 10px; color: var(--accent); font-weight: 900; margin: 30px 0; background: #020617; padding: 20px; border-radius: 15px; }
@@ -442,7 +456,7 @@
         modalCb: null,
         showModal(title, desc, cb) {
             document.getElementById('modal-title').innerHTML = title;
-            document.getElementById('modal-title').style.color = (title.includes('Victoire') || title.includes('Gagné') || title.includes('Terminée')) ? 'var(--accent)' : 'var(--player-x)';
+            document.getElementById('modal-title').style.color = (title.includes('Victoire') || title.includes('Gagné') || title.includes('Terminée') || title.includes('Réussi')) ? 'var(--accent)' : 'var(--player-x)';
             document.getElementById('modal-desc').innerHTML = desc;
             this.modalCb = cb; 
             document.getElementById('modal-overlay').style.display = 'flex';
@@ -769,7 +783,7 @@
     };
 
     // =========================================================
-    // MOTEUR : LA VRAIE BELOTE COMPLÈTE
+    // MOTEUR : LA VRAIE BELOTE IA INTELLIGENTE
     // =========================================================
     window.App.Belote = {
         deck: [], 
@@ -789,7 +803,6 @@
         suits: [{s:'♠',c:'b'}, {s:'♣',c:'b'}, {s:'♥',c:'r'}, {s:'♦',c:'r'}],
         ranks: ['7','8','9','10','V','D','R','A'],
         
-        // Hiérarchie Belote
         valAtout: { 'V':20, '9':14, 'A':11, '10':10, 'R':4, 'D':3, '8':0, '7':0 },
         valNormal: { 'A':11, '10':10, 'R':4, 'D':3, 'V':2, '9':0, '8':0, '7':0 },
         ordAtout: ['V','9','A','10','R','D','8','7'],
@@ -807,7 +820,7 @@
             document.getElementById('bl-hand').innerHTML = '';
             document.getElementById('bl-actions').style.display = 'none';
             
-            // Le donneur tourne
+            // Rotation du donneur
             this.dealer = (this.dealer + 1) % 4;
             this.firstPlayer = (this.dealer + 1) % 4;
             
@@ -835,7 +848,6 @@
             this.taker = -1;
             this.phase = 'bidding';
             
-            // Distribution : 3 puis 2
             for(let p = 0; p < 4; p++) {
                 let target = (this.firstPlayer + p) % 4;
                 this.hands[target].push(...this.deck.splice(0, 3));
@@ -876,7 +888,6 @@
                     let hand = this.hands[this.currentTurn];
                     let suitCards = hand.filter(c => c.suit.s === suit);
                     
-                    // IA de prise
                     let shouldTake = false;
                     if (rank === 'V' || rank === '9') shouldTake = true;
                     else if (suitCards.length >= 2 && suitCards.some(c => c.rank === 'V' || c.rank === '9')) shouldTake = true;
@@ -914,7 +925,14 @@
 
         finishDeal() {
             this.phase = 'playing';
-            document.getElementById('bl-center').innerHTML = `<div class="bl-atout-display" style="color:${this.atout.c==='r'?'#f43f5e':'white'};">ATOUT : ${this.atout.s}</div>`;
+            let takerName = this.taker === 0 ? "Nous (Toi)" : (this.taker === 1 ? 'Eux (Est)' : (this.taker === 2 ? 'Nous (Nord)' : 'Eux (Ouest)'));
+            
+            document.getElementById('bl-center').innerHTML = `
+                <div class="bl-atout-display" style="color:${this.atout.c==='r'?'#f43f5e':'white'};">
+                    ATOUT : ${this.atout.s} <br>
+                    <span class="bl-taker-name">Preneur : ${takerName}</span>
+                </div>
+            `;
             
             for(let p = 0; p < 4; p++) {
                 let target = (this.firstPlayer + p) % 4;
@@ -928,7 +946,10 @@
         },
 
         processPlay() {
-            if(this.tricksPlayed === 8) return;
+            if(this.trick.length === 4) {
+                this.resolveTrick();
+                return;
+            }
 
             if(this.currentTurn === 0) {
                 this.updateStatus("À vous de jouer !");
@@ -976,7 +997,7 @@
                 }
             });
 
-            // Règle 1: Obligation de fournir
+            // 1. Fournir la couleur
             if(sameSuit.length > 0) {
                 if(leadSuit === this.atout.s) {
                     let higherTrumps = sameSuit.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRank);
@@ -985,22 +1006,63 @@
                 return sameSuit; 
             }
             
-            // Règle 2: Couper
+            // 2. Couper / Pisser
             let currentWinner = this.getTrickWinner(this.trick);
             let partnerIdx = (this.currentTurn + 2) % 4;
             let isPartnerWinning = (currentWinner && currentWinner.player === partnerIdx);
 
             if(trumps.length > 0) {
                 if(isPartnerWinning) {
-                    return hand;
+                    return hand; // Partenaire maître = on joue ce qu'on veut
                 } else {
                     let higherTrumps = trumps.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRank);
-                    if(higherTrumps.length > 0) return higherTrumps;
+                    if(higherTrumps.length > 0) return higherTrumps; 
                     return trumps; 
                 }
             }
             
             return hand;
+        },
+
+        chooseBotCard(validCards) {
+            if(this.trick.length === 0) {
+                // Premier à jouer : On joue la plus forte carte
+                validCards.sort((a,b) => this.getCardValue(b) - this.getCardValue(a));
+                return validCards[0];
+            }
+
+            let currentWinner = this.getTrickWinner(this.trick);
+            let partnerIdx = (this.currentTurn + 2) % 4;
+            let isPartnerWinning = (currentWinner && currentWinner.player === partnerIdx);
+
+            if(isPartnerWinning) {
+                // Partenaire maître : on donne des points (si pas atout) ou on se débarrasse d'une mauvaise
+                validCards.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
+                return validCards[0]; // On joue la plus faible pour l'instant
+            } else {
+                // Adversaire maître : On essaie de battre
+                let winningCard = currentWinner.card;
+                let winningVal = (winningCard.suit.s === this.atout.s) ? (8 - this.ordAtout.indexOf(winningCard.rank)) : (8 - this.ordNormal.indexOf(winningCard.rank));
+                
+                let cardsThatBeat = validCards.filter(c => {
+                    if(c.suit.s === this.atout.s && winningCard.suit.s !== this.atout.s) return true; // Coupe
+                    if(c.suit.s === winningCard.suit.s) {
+                        let order = (c.suit.s === this.atout.s) ? this.ordAtout : this.ordNormal;
+                        return (8 - order.indexOf(c.rank)) > winningVal;
+                    }
+                    return false;
+                });
+
+                if(cardsThatBeat.length > 0) {
+                    // On joue la plus petite carte qui permet de gagner
+                    cardsThatBeat.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
+                    return cardsThatBeat[0];
+                } else {
+                    // On ne peut pas gagner, on jette la plus faible
+                    validCards.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
+                    return validCards[0];
+                }
+            }
         },
 
         renderHand() {
@@ -1039,12 +1101,15 @@
             
             this.trick.push({ player: 0, card: playedCard }); 
             this.currentTurn = 1; 
-            this.processPlay();
+            
+            if(this.trick.length === 4) this.resolveTrick(); 
+            else this.processPlay();
         },
 
         botPlay() {
             let validCards = this.getValidCards(this.hands[this.currentTurn]);
-            let playedCard = validCards[Math.floor(Math.random() * validCards.length)]; 
+            let playedCard = this.chooseBotCard(validCards); 
+            
             this.hands[this.currentTurn] = this.hands[this.currentTurn].filter(c => c !== playedCard);
             
             const positions = ['s', 'e', 'n', 'w'];
@@ -1066,14 +1131,16 @@
         },
 
         resolveTrick() {
+            this.phase = 'resolving'; // Empêche de jouer pendant l'animation
+            
             let winnerObj = this.getTrickWinner(this.trick);
             let trickPts = this.trick.reduce((sum, t) => sum + this.getCardValue(t.card), 0);
-            
             let winnerPlayer = winnerObj.player;
+            
             this.tricksPlayed++; 
 
             if(this.tricksPlayed === 8) {
-                trickPts += 10; // 10 de der
+                trickPts += 10; // Le 10 de der
             }
             
             this.trickPoints += trickPts;
@@ -1090,6 +1157,7 @@
                 this.updateScoreUI(); 
                 this.trick = []; 
                 this.currentTurn = winnerPlayer; 
+                this.phase = 'playing';
                 
                 if(this.tricksPlayed === 8) {
                     this.endDeal();
@@ -1103,9 +1171,11 @@
             document.getElementById('bl-score-nous').textContent = this.scores.nous; 
             document.getElementById('bl-score-eux').textContent = this.scores.eux; 
         },
+        
         endDeal() { 
-            window.UI.showModal('Manche Terminée !', `Total des points :<br><br><b>Nous : ${this.scores.nous}</b><br>Eux : ${this.scores.eux}`, () => this.startDeal()); 
+            window.UI.showModal('Manche Terminée !', `Total des points de la partie :<br><br><b style="color:var(--accent);">Nous : ${this.scores.nous}</b><br><b style="color:var(--player-x);">Eux : ${this.scores.eux}</b>`, () => this.startDeal()); 
         },
+        
         updateStatus(msg) { 
             document.getElementById('bl-status').innerHTML = msg; 
         }
