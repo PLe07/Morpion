@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcade Ultimate 2026 - Édition Pro Absolue</title>
+    <title>Arcade Ultimate 2026 - Édition Studio</title>
     <style>
         /* =========================================
            1. VARIABLES GLOBALES ET RESET
@@ -42,92 +42,429 @@
            2. COMPOSANTS D'INTERFACE (UI)
            ========================================= */
         #modal-overlay { 
-            display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); 
-            z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(8px); 
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0, 0, 0, 0.85); 
+            z-index: 9999; 
+            align-items: center; 
+            justify-content: center; 
+            backdrop-filter: blur(8px); 
         }
 
         .modal-box { 
-            background: var(--panel-bg); padding: 40px; border-radius: 20px; text-align: center; 
-            border: 2px solid var(--accent); box-shadow: 0 15px 50px var(--accent-glow); 
-            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-width: 450px; 
+            background: var(--panel-bg); 
+            padding: 40px; 
+            border-radius: 20px; 
+            text-align: center; 
+            border: 2px solid var(--accent); 
+            box-shadow: 0 15px 50px var(--accent-glow); 
+            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            max-width: 450px; 
         }
 
-        .modal-box h2 { font-size: 2.2rem; margin-bottom: 15px; }
-        .modal-box p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 30px; line-height: 1.5; }
+        .modal-box h2 { 
+            font-size: 2.2rem; 
+            margin-bottom: 15px; 
+        }
+
+        .modal-box p { 
+            font-size: 1.2rem; 
+            color: var(--text-muted); 
+            margin-bottom: 30px; 
+            line-height: 1.5; 
+        }
         
         @keyframes modalPop { 
             0% { transform: scale(0.7) translateY(30px); opacity: 0; } 
             100% { transform: scale(1) translateY(0); opacity: 1; } 
         }
 
-        /* Navigation */
+        /* Navigation latérale */
         nav { 
-            width: 270px; background: #020617; padding: 30px 20px; border-right: 1px solid #1e293b; 
-            display: flex; flex-direction: column; z-index: 100; box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5); 
+            width: 270px; 
+            background: #020617; 
+            padding: 30px 20px; 
+            border-right: 1px solid #1e293b; 
+            display: flex; 
+            flex-direction: column; 
+            z-index: 100; 
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5); 
         }
-        nav h2 { color: var(--accent); text-transform: uppercase; letter-spacing: 3px; text-align: center; font-size: 1.1rem; margin-bottom: 30px; }
-        nav ul { list-style: none; overflow-y: auto; }
+
+        nav h2 { 
+            color: var(--accent); 
+            text-transform: uppercase; 
+            letter-spacing: 3px; 
+            text-align: center; 
+            font-size: 1.1rem; 
+            margin-bottom: 30px; 
+        }
+
+        nav ul { 
+            list-style: none; 
+            overflow-y: auto; 
+        }
+        
         nav li { 
-            padding: 15px; cursor: pointer; border-radius: 12px; margin-bottom: 10px; 
-            background: var(--panel-bg); transition: 0.3s; font-weight: 600; display: flex; align-items: center; gap: 15px; border: 1px solid transparent; 
+            padding: 15px; 
+            cursor: pointer; 
+            border-radius: 12px; 
+            margin-bottom: 10px; 
+            background: var(--panel-bg); 
+            transition: 0.3s; 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            border: 1px solid transparent; 
         }
-        nav li:hover { background: var(--panel-hover); transform: translateX(5px); }
-        nav li.active { background: var(--accent); color: #000; box-shadow: 0 0 20px var(--accent-glow); border-color: var(--accent); }
-        .nav-divider { height: 2px; background: #1e293b; margin: 15px 0; border-radius: 2px; }
+
+        nav li:hover { 
+            background: var(--panel-hover); 
+            transform: translateX(5px); 
+        }
+
+        nav li.active { 
+            background: var(--accent); 
+            color: #000; 
+            box-shadow: 0 0 20px var(--accent-glow); 
+            border-color: var(--accent); 
+        }
+
+        .nav-divider { 
+            height: 2px; 
+            background: #1e293b; 
+            margin: 15px 0; 
+            border-radius: 2px; 
+        }
 
         /* Écrans Principaux */
         main { 
-            flex-grow: 1; padding: 40px; overflow-y: auto; display: flex; 
-            flex-direction: column; align-items: center; position: relative; scroll-behavior: smooth; 
+            flex-grow: 1; 
+            padding: 40px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            position: relative; 
+            scroll-behavior: smooth; 
         }
-        .screen { display: none; width: 100%; max-width: 1000px; animation: screenFade 0.4s ease-out; }
-        .screen.active { display: block; }
-        @keyframes screenFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
-        h1 { text-align: center; margin-bottom: 10px; font-size: 2.8rem; font-weight: 800; background: linear-gradient(to right, var(--accent), #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 40px; font-size: 1.1rem; }
+        .screen { 
+            display: none; 
+            width: 100%; 
+            max-width: 1100px; 
+            animation: screenFade 0.4s ease-out; 
+        }
+
+        .screen.active { 
+            display: block; 
+        }
         
-        .btn { padding: 12px 28px; background: var(--accent); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; color: #000; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; margin: 5px; }
-        .btn:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--accent-glow); }
-        .btn:disabled { background: #334155; color: #94a3b8; cursor: not-allowed; box-shadow: none; transform: none; }
-        input[type="text"], select { padding: 15px; font-size: 1.2rem; border-radius: 8px; border: 2px solid #334155; background: #020617; color: white; text-align: center; margin: 10px; text-transform: uppercase; width: 250px; font-weight: bold; outline: none; }
-        select { cursor: pointer; text-transform: none; }
+        @keyframes screenFade { 
+            from { opacity: 0; transform: translateY(15px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        h1 { 
+            text-align: center; 
+            margin-bottom: 10px; 
+            font-size: 2.8rem; 
+            font-weight: 800; 
+            background: linear-gradient(to right, var(--accent), #34d399); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+
+        .subtitle { 
+            text-align: center; 
+            color: var(--text-muted); 
+            margin-bottom: 40px; 
+            font-size: 1.1rem; 
+        }
+        
+        .btn { 
+            padding: 12px 28px; 
+            background: var(--accent); 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 1.1rem; 
+            color: #000; 
+            transition: 0.2s; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            margin: 5px; 
+        }
+
+        .btn:hover { 
+            transform: scale(1.05); 
+            box-shadow: 0 0 15px var(--accent-glow); 
+        }
+
+        .btn:disabled { 
+            background: #334155; 
+            color: #94a3b8; 
+            cursor: not-allowed; 
+            box-shadow: none; 
+            transform: none; 
+        }
+
+        input[type="text"], select { 
+            padding: 15px; 
+            font-size: 1.2rem; 
+            border-radius: 8px; 
+            border: 2px solid #334155; 
+            background: #020617; 
+            color: white; 
+            text-align: center; 
+            margin: 10px; 
+            text-transform: uppercase; 
+            width: 250px; 
+            font-weight: bold; 
+            outline: none; 
+        }
+
+        select { 
+            cursor: pointer; 
+            text-transform: none; 
+        }
 
         /* =========================================
-           3. CSS : MORPIONS, DÉMINEUR, YAMS
+           3. CSS DES JEUX : MORPIONS & DÉMINEUR & YAMS
            ========================================= */
-        .ms-grid { display: grid; grid-template-columns: repeat(3, 130px); gap: 12px; margin: 0 auto 40px auto; width: fit-content; }
-        .ms-cell { height: 130px; background: var(--panel-bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 5rem; cursor: pointer; font-weight: 900; transition: 0.2s; border: 2px solid #1e293b; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .ms-cell:hover:not(.taken) { background: var(--panel-hover); border-color: var(--accent); }
-        .ms-cell.win { animation: pulseWin 1s infinite alternate; background: rgba(16, 185, 129, 0.1); border-color: var(--accent); }
-        @keyframes pulseWin { from { transform: scale(1); box-shadow: 0 0 10px var(--accent-glow); } to { transform: scale(1.05); box-shadow: 0 0 30px var(--accent-glow); } }
+        
+        /* Morpion Simple */
+        .ms-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 130px); 
+            gap: 12px; 
+            margin: 0 auto 40px auto; 
+            width: fit-content; 
+        }
 
-        .mu-status { text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; }
-        .mu-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; background: #020617; padding: 20px; border-radius: 20px; margin: 0 auto 30px auto; width: fit-content; border: 3px solid #1e293b; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .mu-grid { display: grid; grid-template-columns: repeat(3, 50px); gap: 4px; background: var(--panel-bg); padding: 8px; border-radius: 10px; position: relative; transition: 0.3s; }
-        .mu-cell { height: 50px; background: var(--bg-color); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; cursor: pointer; }
+        .ms-cell { 
+            height: 130px; 
+            background: var(--panel-bg); 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 5rem; 
+            cursor: pointer; 
+            font-weight: 900; 
+            transition: 0.2s; 
+            border: 2px solid #1e293b; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); 
+        }
+
+        .ms-cell:hover:not(.taken) { 
+            background: var(--panel-hover); 
+            border-color: var(--accent); 
+        }
+
+        .ms-cell.win { 
+            animation: pulseWin 1s infinite alternate; 
+            background: rgba(16, 185, 129, 0.1); 
+            border-color: var(--accent); 
+        }
+
+        /* Morpion Ultime */
+        .mu-status { 
+            text-align: center; 
+            font-size: 1.5rem; 
+            font-weight: bold; 
+            margin-bottom: 20px; 
+        }
+
+        .mu-container { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 15px; 
+            background: #020617; 
+            padding: 20px; 
+            border-radius: 20px; 
+            margin: 0 auto 30px auto; 
+            width: fit-content; 
+            border: 3px solid #1e293b; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+        }
+
+        .mu-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 50px); 
+            gap: 4px; 
+            background: var(--panel-bg); 
+            padding: 8px; 
+            border-radius: 10px; 
+            position: relative; 
+            transition: 0.3s; 
+        }
+
+        .mu-cell { 
+            height: 50px; 
+            background: var(--bg-color); 
+            border-radius: 5px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.8rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+
         .mu-cell:hover:not(.taken) { background: var(--panel-hover); }
-        .mu-active { outline: 4px solid var(--accent); background: #064e3b; box-shadow: 0 0 25px var(--accent-glow); animation: muPulse 2s infinite; z-index: 5; }
-        .mu-won { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.85); display: flex; align-items: center; justify-content: center; font-size: 6rem; font-weight: 900; border-radius: 10px; backdrop-filter: blur(3px); z-index: 10; animation: screenFade 0.3s ease-out; }
-        @keyframes muPulse { 0% { outline-color: var(--accent); } 50% { outline-color: #34d399; } 100% { outline-color: var(--accent); } }
+        
+        .mu-active { 
+            outline: 4px solid var(--accent); 
+            background: #064e3b; 
+            box-shadow: 0 0 25px var(--accent-glow); 
+            animation: muPulse 2s infinite; 
+            z-index: 5; 
+        }
 
-        .dm-header { display: flex; justify-content: center; gap: 40px; margin-bottom: 30px; font-size: 1.4rem; font-weight: bold; background: #000; padding: 15px 30px; border-radius: 50px; border: 1px solid #1e293b; }
-        #dm-board { display: grid; grid-template-columns: repeat(20, 30px); gap: 2px; background: #334155; padding: 3px; border: 4px solid #1e293b; margin: 0 auto 30px auto; width: fit-content; border-radius: 8px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
-        .dm-tile { width: 30px; height: 30px; background: var(--panel-bg); display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 900; cursor: pointer; border-radius: 3px; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3); }
+        .mu-won { 
+            position: absolute; 
+            inset: 0; 
+            background: rgba(2, 6, 23, 0.85); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 6rem; 
+            font-weight: 900; 
+            border-radius: 10px; 
+            backdrop-filter: blur(3px); 
+            z-index: 10; 
+            animation: screenFade 0.3s ease-out; 
+        }
+
+        @keyframes muPulse { 
+            0% { outline-color: var(--accent); } 
+            50% { outline-color: #34d399; } 
+            100% { outline-color: var(--accent); } 
+        }
+
+        /* Démineur */
+        .dm-header { 
+            display: flex; 
+            justify-content: center; 
+            gap: 40px; 
+            margin-bottom: 30px; 
+            font-size: 1.4rem; 
+            font-weight: bold; 
+            background: #000; 
+            padding: 15px 30px; 
+            border-radius: 50px; 
+            border: 1px solid #1e293b; 
+        }
+
+        #dm-board { 
+            display: grid; 
+            grid-template-columns: repeat(20, 30px); 
+            gap: 2px; 
+            background: #334155; 
+            padding: 3px; 
+            border: 4px solid #1e293b; 
+            margin: 0 auto 30px auto; 
+            width: fit-content; 
+            border-radius: 8px; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6); 
+        }
+
+        .dm-tile { 
+            width: 30px; 
+            height: 30px; 
+            background: var(--panel-bg); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1rem; 
+            font-weight: 900; 
+            cursor: pointer; 
+            border-radius: 3px; 
+            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3); 
+        }
+
         .dm-tile:hover:not(.open) { background: var(--panel-hover); }
         .dm-tile.open { background: #cbd5e1; box-shadow: inset 2px 2px 6px rgba(0,0,0,0.3); cursor: default; }
         .dm-tile.mine { background: var(--player-x); font-size: 1.2rem; }
-        .dm-c1 { color: #2563eb; } .dm-c2 { color: #16a34a; } .dm-c3 { color: #dc2626; } .dm-c4 { color: #7c3aed; } .dm-c5 { color: #991b1b; } .dm-c6 { color: #0d9488; }
+        
+        .dm-c1 { color: #2563eb; } 
+        .dm-c2 { color: #16a34a; } 
+        .dm-c3 { color: #dc2626; } 
+        .dm-c4 { color: #7c3aed; } 
+        .dm-c5 { color: #991b1b; } 
+        .dm-c6 { color: #0d9488; }
 
-        .yams-layout { display: flex; gap: 40px; justify-content: center; align-items: flex-start; margin-top: 20px; flex-wrap: wrap; }
-        .y-dice-area { background: var(--panel-bg); padding: 40px; border-radius: 20px; text-align: center; border: 2px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 400px; }
-        .y-dice-container { font-size: 4.5rem; display: flex; gap: 15px; margin-bottom: 30px; justify-content: center; min-height: 80px; }
-        .y-die { cursor: pointer; transition: 0.3s; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        .y-die.kept { color: var(--accent); transform: translateY(-15px) scale(1.1); text-shadow: 0 10px 20px var(--accent-glow); }
+        /* Yams */
+        .yams-layout { 
+            display: flex; 
+            gap: 40px; 
+            justify-content: center; 
+            align-items: flex-start; 
+            margin-top: 20px; 
+            flex-wrap: wrap; 
+        }
+
+        .y-dice-area { 
+            background: var(--panel-bg); 
+            padding: 40px; 
+            border-radius: 20px; 
+            text-align: center; 
+            border: 2px solid #1e293b; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            width: 400px; 
+        }
+
+        .y-dice-container { 
+            font-size: 4.5rem; 
+            display: flex; 
+            gap: 15px; 
+            margin-bottom: 30px; 
+            justify-content: center; 
+            min-height: 80px; 
+        }
+
+        .y-die { 
+            cursor: pointer; 
+            transition: 0.3s; 
+            text-shadow: 0 5px 15px rgba(0,0,0,0.5); 
+        }
+
+        .y-die.kept { 
+            color: var(--accent); 
+            transform: translateY(-15px) scale(1.1); 
+            text-shadow: 0 10px 20px var(--accent-glow); 
+        }
+
         .y-tables { display: flex; gap: 15px; }
-        .y-table { border-collapse: collapse; background: var(--panel-bg); border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .y-table th { padding: 15px; background: #020617; color: var(--text-main); font-size: 1.2rem; border-bottom: 2px solid var(--accent); }
-        .y-table td { border: 1px solid #1e293b; padding: 12px 20px; cursor: pointer; font-size: 1.1rem; }
+
+        .y-table { 
+            border-collapse: collapse; 
+            background: var(--panel-bg); 
+            border-radius: 12px; 
+            overflow: hidden; 
+            border: 1px solid #1e293b; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+        }
+
+        .y-table th { 
+            padding: 15px; 
+            background: #020617; 
+            color: var(--text-main); 
+            font-size: 1.2rem; 
+            border-bottom: 2px solid var(--accent); 
+        }
+
+        .y-table td { 
+            border: 1px solid #1e293b; 
+            padding: 12px 20px; 
+            cursor: pointer; 
+            font-size: 1.1rem; 
+        }
+
         .y-table td:first-child { font-weight: 600; color: var(--text-muted); }
         .y-table .pot { color: var(--accent); opacity: 0.4; font-style: italic; font-weight: bold; }
         .y-table .locked { color: var(--accent); font-weight: 900; background: rgba(16,185,129,0.05); }
@@ -137,49 +474,100 @@
            4. CSS : LA VRAIE BELOTE PRO
            ========================================= */
         .bl-scoreboard { 
-            display: flex; justify-content: center; gap: 50px; background: #020617; 
-            padding: 15px 30px; border-radius: 15px; border: 2px solid #1e293b; 
-            margin-bottom: 20px; font-size: 1.5rem; font-weight: bold; 
+            display: flex; 
+            justify-content: center; 
+            gap: 50px; 
+            background: #020617; 
+            padding: 15px 30px; 
+            border-radius: 15px; 
+            border: 2px solid #1e293b; 
+            margin-bottom: 20px; 
+            font-size: 1.5rem; 
+            font-weight: bold; 
         }
 
         .bl-info { 
-            text-align: center; margin-bottom: 20px; font-size: 1.3rem; 
-            font-weight: bold; color: var(--gold); min-height: 30px; 
+            text-align: center; 
+            margin-bottom: 20px; 
+            font-size: 1.3rem; 
+            font-weight: bold; 
+            color: var(--gold); 
+            min-height: 30px; 
         }
 
         .bl-tapis { 
             background: radial-gradient(circle, #065f46 0%, #022c22 100%); 
-            width: 750px; height: 500px; border-radius: 250px; margin: 0 auto; 
-            border: 15px solid #451a03; position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.8); 
+            width: 750px; 
+            height: 500px; 
+            border-radius: 250px; 
+            margin: 0 auto; 
+            border: 15px solid #451a03; 
+            position: relative; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8); 
         }
         
-        /* Affichage de l'Atout et Infos (HUD) */
+        /* HUD Coins */
         #bl-atout-corner {
-            position: absolute; top: 20px; left: 20px; background: rgba(0, 0, 0, 0.8);
-            padding: 10px 15px; border-radius: 8px; border: 1px solid var(--accent);
-            text-align: center; z-index: 10; display: none;
-        }
-        #bl-taker-name { font-size: 0.85rem; color: #ccc; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
-        #bl-atout-suit { font-size: 2.2rem; line-height: 1; }
-        
-        /* Affichage des Points du Pli Actuel (HUD) */
-        #bl-trick-points {
-            position: absolute; top: 20px; right: 20px; background: rgba(0, 0, 0, 0.8);
-            padding: 10px 15px; border-radius: 8px; border: 1px solid var(--gold);
-            text-align: center; z-index: 10; display: none; color: var(--gold); font-weight: bold;
+            position: absolute; 
+            top: 20px; 
+            left: 20px; 
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 15px; 
+            border-radius: 8px; 
+            border: 1px solid var(--accent);
+            text-align: center; 
+            z-index: 10; 
+            display: none;
         }
 
-        /* Noms des joueurs avec effet de tour actif */
-        .bl-name { 
-            position: absolute; color: #94a3b8; font-weight: bold; font-size: 1.1rem; 
-            text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); 
-            pointer-events: none; z-index: 5; transition: 0.3s;
+        #bl-taker-name { 
+            font-size: 0.85rem; 
+            color: #ccc; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            margin-bottom: 5px; 
         }
+
+        #bl-atout-suit { 
+            font-size: 2.2rem; 
+            line-height: 1; 
+        }
+
+        #bl-trick-points {
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 15px; 
+            border-radius: 8px; 
+            border: 1px solid var(--gold);
+            text-align: center; 
+            z-index: 10; 
+            display: none; 
+            color: var(--gold); 
+            font-weight: bold;
+        }
+
+        /* Noms des joueurs (Animation tour) */
+        .bl-name { 
+            position: absolute; 
+            color: #94a3b8; 
+            font-weight: bold; 
+            font-size: 1.1rem; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8); 
+            pointer-events: none; 
+            z-index: 5; 
+            transition: 0.3s;
+        }
+
         .bl-name.active-turn {
             color: var(--accent);
             text-shadow: 0 0 10px var(--accent-glow);
             transform: scale(1.1);
         }
+
         #bl-n-n { top: 20px; left: 50%; transform: translateX(-50%); }
         #bl-n-n.active-turn { transform: translateX(-50%) scale(1.1); }
         #bl-n-s { bottom: 20px; left: 50%; transform: translateX(-50%); }
@@ -189,65 +577,191 @@
         #bl-n-w { left: 30px; top: 50%; transform: translateY(-50%); writing-mode: vertical-rl; text-orientation: mixed; rotate: 180deg; }
         #bl-n-w.active-turn { transform: translateY(-50%) scale(1.1) rotate(180deg); }
 
-        /* Dos des cartes des bots pour le visuel */
-        .bl-bot-hand { position: absolute; display: flex; gap: -30px; pointer-events: none; z-index: 4; }
-        .bl-bot-hand .bl-card-back { 
-            width: 40px; height: 60px; background: repeating-linear-gradient(45deg, #1e293b, #1e293b 5px, #0f172a 5px, #0f172a 10px); 
-            border: 2px solid #fff; border-radius: 5px; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); 
+        /* Dos des cartes (Bots) */
+        .bl-bot-hand { 
+            position: absolute; 
+            display: flex; 
+            gap: -30px; 
+            pointer-events: none; 
+            z-index: 4; 
         }
+
+        .bl-bot-hand .bl-card-back { 
+            width: 40px; 
+            height: 60px; 
+            background: repeating-linear-gradient(45deg, #1e293b, #1e293b 5px, #0f172a 5px, #0f172a 10px); 
+            border: 2px solid #fff; 
+            border-radius: 5px; 
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5); 
+        }
+
         #bl-h-n { top: 50px; left: 50%; transform: translateX(-50%); }
         #bl-h-e { right: 60px; top: 50%; transform: translateY(-50%) rotate(90deg); }
         #bl-h-w { left: 60px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
         
+        /* Jeton Donneur */
         .bl-dealer { 
-            position: absolute; background: var(--gold); color: #000; width: 30px; height: 30px; 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 10; transition: 0.5s; font-size: 1.2rem; 
+            position: absolute; 
+            background: var(--gold); 
+            color: #000; 
+            width: 30px; 
+            height: 30px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5); 
+            z-index: 10; 
+            transition: 0.5s; 
+            font-size: 1.2rem; 
         }
 
+        /* Animation Belote */
         .bl-annonce {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: var(--gold); color: #000; padding: 10px 20px; border-radius: 10px;
-            font-size: 1.5rem; font-weight: 900; z-index: 50; opacity: 0; pointer-events: none;
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            background: var(--gold); 
+            color: #000; 
+            padding: 10px 20px; 
+            border-radius: 10px;
+            font-size: 1.5rem; 
+            font-weight: 900; 
+            z-index: 50; 
+            opacity: 0; 
+            pointer-events: none;
         }
-        .bl-annonce.active { animation: annoncePop 2s ease-in-out forwards; }
-        @keyframes annoncePop { 0% { opacity: 0; transform: translate(-50%, 0) scale(0.5); } 20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); } 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -100%) scale(0.8); } }
+
+        .bl-annonce.active { 
+            animation: annoncePop 2s ease-in-out forwards; 
+        }
+
+        @keyframes annoncePop { 
+            0% { opacity: 0; transform: translate(-50%, 0) scale(0.5); } 
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); } 
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 
+            100% { opacity: 0; transform: translate(-50%, -100%) scale(0.8); } 
+        }
         
-        .bl-slot { position: absolute; width: 80px; height: 115px; border: 2px dashed rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        /* Zones de pose */
+        .bl-slot { 
+            position: absolute; 
+            width: 80px; 
+            height: 115px; 
+            border: 2px dashed rgba(255,255,255,0.15); 
+            border-radius: 8px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+
         #bl-s-n { top: 70px; left: 320px; } 
         #bl-s-s { bottom: 70px; left: 320px; }
         #bl-s-e { right: 110px; top: 177px; } 
         #bl-s-w { left: 110px; top: 177px; }
         
+        /* Design Cartes */
         .bl-card { 
-            width: 80px; height: 115px; background: #fff; color: #000; border-radius: 8px; display: flex; 
-            flex-direction: column; align-items: center; justify-content: center; font-weight: 900; 
-            font-size: 1.5rem; cursor: pointer; box-shadow: -2px 5px 15px rgba(0,0,0,0.4); 
-            position: relative; transition: 0.2s; 
+            width: 80px; 
+            height: 115px; 
+            background: #fff; 
+            color: #000; 
+            border-radius: 8px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 900; 
+            font-size: 1.5rem; 
+            cursor: pointer; 
+            box-shadow: -2px 5px 15px rgba(0,0,0,0.4); 
+            position: relative; 
+            transition: 0.2s; 
         }
+
         .bl-card.red { color: #ef4444; }
         .bl-card.invalid { filter: brightness(0.5); cursor: not-allowed; }
         
-        .bl-hand { display: flex; gap: -20px; justify-content: center; margin-top: 30px; height: 130px; }
+        .bl-hand { 
+            display: flex; 
+            gap: -20px; 
+            justify-content: center; 
+            margin-top: 30px; 
+            height: 130px; 
+        }
+
         .bl-hand .bl-card { margin-left: -30px; } 
         .bl-hand .bl-card:first-child { margin-left: 0; }
         .bl-hand .bl-card:hover:not(.invalid) { transform: translateY(-20px); z-index: 50; border-color: var(--accent); }
         
-        .bl-played { position: absolute; animation: playCard 0.25s forwards; pointer-events: none; }
-        @keyframes playCard { from { transform: scale(1.5) translateY(50px); opacity: 0; } to { transform: scale(1) translateY(0) rotate(calc(-5deg + 10deg * var(--rand))); opacity: 1; } }
+        .bl-played { 
+            position: absolute; 
+            animation: playCard 0.25s forwards; 
+            pointer-events: none; 
+        }
+
+        @keyframes playCard { 
+            from { transform: scale(1.5) translateY(50px); opacity: 0; } 
+            to { transform: scale(1) translateY(0) rotate(calc(-5deg + 10deg * var(--rand))); opacity: 1; } 
+        }
         
         /* Boutons de Choix de Couleur (Tour 2) */
-        .bl-suit-btn { font-size: 2rem; padding: 10px 20px; background: var(--panel-bg); border: 2px solid #334155; border-radius: 10px; cursor: pointer; transition: 0.2s; }
-        .bl-suit-btn:hover { background: var(--panel-hover); border-color: var(--accent); transform: scale(1.1); }
+        .bl-suit-btn { 
+            font-size: 2rem; 
+            padding: 10px 20px; 
+            background: var(--panel-bg); 
+            border: 2px solid #334155; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            transition: 0.2s; 
+        }
+
+        .bl-suit-btn:hover { 
+            background: var(--panel-hover); 
+            border-color: var(--accent); 
+            transform: scale(1.1); 
+        }
+
         .bl-suit-btn.red { color: #ef4444; }
         .bl-suit-btn.black { color: #fff; }
 
         /* =========================================
-           7. FIREBASE NETWORK LOBBY
+           8. FIREBASE NETWORK LOBBY
            ========================================= */
-        .lobby-box { background: var(--panel-bg); padding: 40px; border-radius: 20px; border: 2px solid #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; max-width: 600px; margin: auto; }
-        .room-code-display { font-size: 4.5rem; letter-spacing: 10px; color: var(--accent); font-weight: 900; margin: 30px 0; background: #020617; padding: 20px; border-radius: 15px; }
-        .net-status-bar { background: #020617; padding: 20px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 30px; font-size: 1.4rem; font-weight: bold; text-align: center; }
+        .lobby-box { 
+            background: var(--panel-bg); 
+            padding: 40px; 
+            border-radius: 20px; 
+            border: 2px solid #334155; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            text-align: center; 
+            max-width: 600px; 
+            margin: auto; 
+        }
+
+        .room-code-display { 
+            font-size: 4.5rem; 
+            letter-spacing: 10px; 
+            color: var(--accent); 
+            font-weight: 900; 
+            margin: 30px 0; 
+            background: #020617; 
+            padding: 20px; 
+            border-radius: 15px; 
+        }
+
+        .net-status-bar { 
+            background: #020617; 
+            padding: 20px; 
+            border-radius: 10px; 
+            border: 1px solid #334155; 
+            margin-bottom: 30px; 
+            font-size: 1.4rem; 
+            font-weight: bold; 
+            text-align: center; 
+        }
     </style>
 </head>
 <body>
@@ -277,14 +791,18 @@
     <section id="s-sim" class="screen active">
         <h1>Tic-Tac-Toe</h1>
         <div id="ms-board" class="ms-grid"></div>
-        <div style="text-align: center;"><button class="btn" onclick="App.Sim.init()">Réinitialiser</button></div>
+        <div style="text-align: center;">
+            <button class="btn" onclick="App.Sim.init()">Réinitialiser</button>
+        </div>
     </section>
 
     <section id="s-ult" class="screen">
         <h1>Morpion Ultime</h1>
         <p class="subtitle mu-status" id="mu-status">Chargement...</p>
         <div id="mu-board" class="mu-container"></div>
-        <div style="text-align: center;"><button class="btn" onclick="App.Ult.init()">Recommencer</button></div>
+        <div style="text-align: center;">
+            <button class="btn" onclick="App.Ult.init()">Recommencer</button>
+        </div>
     </section>
 
     <section id="s-mine" class="screen">
@@ -294,7 +812,9 @@
             <span>⏱️ <span id="dm-time" style="color:var(--accent)">0</span>s</span>
         </div>
         <div id="dm-board"></div>
-        <div style="text-align: center;"><button class="btn" onclick="App.Mine.init()">Nouvelle Génération</button></div>
+        <div style="text-align: center;">
+            <button class="btn" onclick="App.Mine.init()">Nouvelle Génération</button>
+        </div>
     </section>
 
     <section id="s-yams" class="screen">
@@ -307,15 +827,19 @@
             </div>
             <div id="y-score-container" class="y-tables"></div>
         </div>
-        <div style="text-align: center; margin-top: 30px;"><button class="btn" onclick="App.Yams.init()">Remettre à zéro</button></div>
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" onclick="App.Yams.init()">Remettre à zéro</button>
+        </div>
     </section>
 
     <section id="s-belote" class="screen">
         <h1>Belote Officielle (1000 Pts)</h1>
+        
         <div class="bl-scoreboard">
             <span style="color: var(--accent);">Nous : <span id="bl-score-nous">0</span></span>
             <span style="color: var(--player-x);">Eux : <span id="bl-score-eux">0</span></span>
         </div>
+        
         <div class="bl-info" id="bl-status">Cliquez sur Nouvelle Partie pour commencer.</div>
         
         <div class="bl-tapis">
@@ -358,6 +882,7 @@
         </div>
         
         <div id="bl-hand" class="bl-hand"></div>
+        
         <div style="text-align: center; margin-top: 30px;">
             <button class="btn" onclick="App.Belote.initGame()">Nouvelle Partie</button>
         </div>
@@ -393,18 +918,47 @@
         </div>
     </section>
 
-    <section id="s-net-sim" class="screen"><h1>Morpion En Ligne</h1><div id="net-sim-status" class="net-status-bar">Sync...</div><div id="net-sim-board" class="ms-grid"></div><div style="text-align: center;"><button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button></div></section>
-    <section id="s-net-ult" class="screen"><h1>Morpion Ultime En Ligne</h1><div id="net-ult-status" class="net-status-bar">Sync...</div><div id="net-ult-board" class="mu-container"></div><div style="text-align: center;"><button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button></div></section>
-    <section id="s-net-yams" class="screen"><h1>Yams En Ligne</h1><div id="net-yams-status" class="net-status-bar">Sync...</div><div class="yams-layout"><div class="y-dice-area"><div id="net-yams-dice" class="y-dice-container"></div><button id="net-yams-roll-btn" class="btn">Lancer les dés</button></div><div id="net-yams-scores" class="y-tables"></div></div><div style="text-align: center; margin-top:30px;"><button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button></div></section>
+    <section id="s-net-sim" class="screen">
+        <h1>Morpion En Ligne</h1>
+        <div id="net-sim-status" class="net-status-bar">Synchronisation...</div>
+        <div id="net-sim-board" class="ms-grid"></div>
+        <div style="text-align: center;">
+            <button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button>
+        </div>
+    </section>
+
+    <section id="s-net-ult" class="screen">
+        <h1>Morpion Ultime En Ligne</h1>
+        <div id="net-ult-status" class="net-status-bar">Synchronisation...</div>
+        <div id="net-ult-board" class="mu-container"></div>
+        <div style="text-align: center;">
+            <button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button>
+        </div>
+    </section>
+
+    <section id="s-net-yams" class="screen">
+        <h1>Yams En Ligne</h1>
+        <div id="net-yams-status" class="net-status-bar">Synchronisation...</div>
+        <div class="yams-layout">
+            <div class="y-dice-area">
+                <div id="net-yams-dice" class="y-dice-container"></div>
+                <button id="net-yams-roll-btn" class="btn">Lancer les dés</button>
+            </div>
+            <div id="net-yams-scores" class="y-tables"></div>
+        </div>
+        <div style="text-align: center; margin-top:30px;">
+            <button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button>
+        </div>
+    </section>
 </main>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getDatabase, ref, set, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-    // =========================================================
-    // CONFIGURATION FIREBASE
-    // =========================================================
+    // ---------------------------------------------------------
+    // FIREBASE CONFIGURATION
+    // ---------------------------------------------------------
     const firebaseConfig = {
         apiKey: "AIzaSyD5YeADpzCBrjhiYIgGjZU6ilRipK66NwY",
         authDomain: "arcade-8546c.firebaseapp.com",
@@ -418,16 +972,18 @@
     const fbApp = initializeApp(firebaseConfig);
     const db = getDatabase(fbApp);
 
-    // =========================================================
-    // UI GLOBALE
-    // =========================================================
+    // ---------------------------------------------------------
+    // INTERFACE ET GESTIONNAIRE DE VUES (UI)
+    // ---------------------------------------------------------
     window.UI = {
         modalCb: null,
+        
         showModal(title, desc, cb) {
             document.getElementById('modal-title').innerHTML = title;
             
+            // Logique de couleur dynamique
             let titleColor = 'var(--player-x)';
-            if (title.includes('Victoire') || title.includes('Gagné') || title.includes('Terminée') || title.includes('Réussi') || title.includes('Rempli') || title.includes('Fin')) {
+            if (title.includes('Victoire') || title.includes('Gagné') || title.includes('Terminée') || title.includes('Réussi') || title.includes('Fin')) {
                 titleColor = 'var(--accent)';
             }
             document.getElementById('modal-title').style.color = titleColor;
@@ -436,17 +992,22 @@
             this.modalCb = cb; 
             document.getElementById('modal-overlay').style.display = 'flex';
         },
+        
         closeModal() { 
             document.getElementById('modal-overlay').style.display = 'none'; 
-            if(this.modalCb) this.modalCb(); 
+            if (this.modalCb) {
+                this.modalCb(); 
+            }
         },
+        
         switchScreen(id) {
             document.querySelectorAll('.screen').forEach(s => {
                 s.classList.remove('active');
             }); 
+            
             document.getElementById(id).classList.add('active');
             
-            if(id !== 's-mine') {
+            if (id !== 's-mine') {
                 clearInterval(window.App.Mine.timer);
             }
         }
@@ -454,40 +1015,47 @@
 
     window.App = {};
 
-    // =========================================================
-    // MOTEUR : MORPION SIMPLE
-    // =========================================================
+    // ---------------------------------------------------------
+    // JEU 1 : MORPION SIMPLE
+    // ---------------------------------------------------------
     window.App.Sim = {
         state: [], 
         player: 'X',
+        
         init() {
-            const b = document.getElementById('ms-board'); 
-            b.innerHTML = ''; 
+            const board = document.getElementById('ms-board'); 
+            board.innerHTML = ''; 
             this.state = Array(9).fill(''); 
             this.player = 'X'; 
             
-            for(let i = 0; i < 9; i++) { 
-                let c = document.createElement('div'); 
-                c.className = 'ms-cell'; 
-                c.onclick = () => this.play(i, c); 
-                b.appendChild(c); 
+            for (let i = 0; i < 9; i++) { 
+                let cell = document.createElement('div'); 
+                cell.className = 'ms-cell'; 
+                cell.onclick = () => this.play(i, cell); 
+                board.appendChild(cell); 
             }
         },
-        play(i, el) {
-            if(this.state[i] !== '') return; 
+        
+        play(index, element) {
+            if (this.state[index] !== '') {
+                return; 
+            }
             
-            this.state[i] = this.player; 
-            el.textContent = this.player; 
-            el.style.color = this.player === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
-            el.classList.add('taken'); 
+            this.state[index] = this.player; 
+            element.textContent = this.player; 
+            element.style.color = this.player === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
+            element.classList.add('taken'); 
             
-            const win = this.checkWin(this.state); 
-            if(win) { 
-                win.forEach(idx => document.getElementById('ms-board').children[idx].classList.add('win')); 
+            const winLine = this.checkWin(this.state); 
+            
+            if (winLine) { 
+                winLine.forEach(idx => {
+                    document.getElementById('ms-board').children[idx].classList.add('win');
+                }); 
                 setTimeout(() => {
-                    window.UI.showModal('Victoire !', `Le joueur <b style="color:${el.style.color}">${this.player}</b> a gagné en local.`, () => this.init());
+                    window.UI.showModal('Victoire !', `Le joueur <b style="color:${element.style.color}">${this.player}</b> a gagné en local.`, () => this.init());
                 }, 600); 
-            } else if(!this.state.includes('')) {
+            } else if (!this.state.includes('')) {
                 setTimeout(() => {
                     window.UI.showModal('Égalité', 'Match Nul.', () => this.init());
                 }, 200); 
@@ -495,389 +1063,444 @@
                 this.player = this.player === 'X' ? 'O' : 'X'; 
             }
         },
-        checkWin(g) {
-            const w = [
-                [0,1,2], [3,4,5], [6,7,8], 
-                [0,3,6], [1,4,7], [2,5,8], 
-                [0,4,8], [2,4,6]
+        
+        checkWin(grid) {
+            const winConditions = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], 
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], 
+                [0, 4, 8], [2, 4, 6]             
             ]; 
-            return w.find(l => g[l[0]] && g[l[0]] === g[l[1]] && g[l[0]] === g[l[2]]);
+            return winConditions.find(line => grid[line[0]] && grid[line[0]] === grid[line[1]] && grid[line[0]] === grid[line[2]]);
         }
     };
 
-    // =========================================================
-    // MOTEUR : MORPION ULTIME
-    // =========================================================
+    // ---------------------------------------------------------
+    // JEU 2 : MORPION ULTIME
+    // ---------------------------------------------------------
     window.App.Ult = {
         bGrid: [], 
         sGrids: [], 
-        p: 'X', 
-        n: -1,
+        currentPlayer: 'X', 
+        nextActiveGrid: -1,
+        
         init() {
-            const b = document.getElementById('mu-board'); 
-            b.innerHTML = ''; 
+            const mainBoard = document.getElementById('mu-board'); 
+            mainBoard.innerHTML = ''; 
             this.bGrid = Array(9).fill(''); 
             this.sGrids = Array.from({length: 9}, () => Array(9).fill('')); 
-            this.p = 'X'; 
-            this.n = -1; 
-            this.ui(); 
+            this.currentPlayer = 'X'; 
+            this.nextActiveGrid = -1; 
+            this.updateStatusUI(); 
             
-            for(let i = 0; i < 9; i++) { 
-                let g = document.createElement('div'); 
-                g.className = 'mu-grid'; 
-                g.id = `mu-g-${i}`; 
+            for (let bgIndex = 0; bgIndex < 9; bgIndex++) { 
+                let subGrid = document.createElement('div'); 
+                subGrid.className = 'mu-grid'; 
+                subGrid.id = `mu-g-${bgIndex}`; 
                 
-                for(let j = 0; j < 9; j++) { 
-                    let c = document.createElement('div'); 
-                    c.className = 'mu-cell'; 
-                    c.onclick = () => this.play(i, j, c); 
-                    g.appendChild(c); 
+                for (let sgIndex = 0; sgIndex < 9; sgIndex++) { 
+                    let cell = document.createElement('div'); 
+                    cell.className = 'mu-cell'; 
+                    cell.onclick = () => this.play(bgIndex, sgIndex, cell); 
+                    subGrid.appendChild(cell); 
                 } 
-                b.appendChild(g); 
+                mainBoard.appendChild(subGrid); 
             } 
-            this.hl();
+            this.highlightActiveGrids();
         },
-        play(bg, sg, el) {
-            if(this.sGrids[bg][sg] !== '' || this.bGrid[bg] !== '' || (this.n !== -1 && this.n !== bg)) return; 
-            
-            this.sGrids[bg][sg] = this.p; 
-            el.textContent = this.p; 
-            el.classList.add('taken'); 
-            el.style.color = this.p === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
-            
-            if(window.App.Sim.checkWin(this.sGrids[bg])) { 
-                this.bGrid[bg] = this.p; 
-                let cov = document.createElement('div'); 
-                cov.className = 'mu-won'; 
-                cov.textContent = this.p; 
-                cov.style.color = el.style.color; 
-                document.getElementById(`mu-g-${bg}`).appendChild(cov); 
-            } else if(!this.sGrids[bg].includes('')) {
-                this.bGrid[bg] = 'D'; 
+        
+        play(bgIndex, sgIndex, cellElement) {
+            if (this.sGrids[bgIndex][sgIndex] !== '' || this.bGrid[bgIndex] !== '' || (this.nextActiveGrid !== -1 && this.nextActiveGrid !== bgIndex)) {
+                return; 
             }
             
-            if(window.App.Sim.checkWin(this.bGrid.map(v => v === 'D' ? '' : v))) { 
+            this.sGrids[bgIndex][sgIndex] = this.currentPlayer; 
+            cellElement.textContent = this.currentPlayer; 
+            cellElement.classList.add('taken'); 
+            cellElement.style.color = this.currentPlayer === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
+            
+            if (window.App.Sim.checkWin(this.sGrids[bgIndex])) { 
+                this.bGrid[bgIndex] = this.currentPlayer; 
+                let cover = document.createElement('div'); 
+                cover.className = 'mu-won'; 
+                cover.textContent = this.currentPlayer; 
+                cover.style.color = cellElement.style.color; 
+                document.getElementById(`mu-g-${bgIndex}`).appendChild(cover); 
+            } else if (!this.sGrids[bgIndex].includes('')) {
+                this.bGrid[bgIndex] = 'D'; 
+            }
+            
+            const cleanBigGrid = this.bGrid.map(val => val === 'D' ? '' : val);
+            
+            if (window.App.Sim.checkWin(cleanBigGrid)) { 
                 setTimeout(() => {
-                    window.UI.showModal('Victoire Ultime', `Le stratège <b>${this.p}</b> domine !`, () => this.init());
+                    window.UI.showModal('Victoire Ultime', `Le stratège <b>${this.currentPlayer}</b> domine !`, () => this.init());
                 }, 300); 
-                this.n = 999; 
+                this.nextActiveGrid = 999; 
             } else { 
-                this.n = (this.bGrid[sg] !== '') ? -1 : sg; 
-                this.p = this.p === 'X' ? 'O' : 'X'; 
-                this.ui(); 
-                this.hl(); 
+                this.nextActiveGrid = (this.bGrid[sgIndex] !== '') ? -1 : sgIndex; 
+                this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X'; 
+                this.updateStatusUI(); 
+                this.highlightActiveGrids(); 
             }
         },
-        hl() {
-            document.querySelectorAll('.mu-grid').forEach((g, i) => { 
-                g.classList.remove('mu-active'); 
-                if((this.n === -1 || this.n === i) && this.bGrid[i] === '') {
-                    g.classList.add('mu-active');
+        
+        highlightActiveGrids() {
+            document.querySelectorAll('.mu-grid').forEach((gridElement, index) => { 
+                gridElement.classList.remove('mu-active'); 
+                if ((this.nextActiveGrid === -1 || this.nextActiveGrid === index) && this.bGrid[index] === '') {
+                    gridElement.classList.add('mu-active');
                 }
             });
         },
-        ui() {
-            document.getElementById('mu-status').innerHTML = `Tour de : <b style="color:${this.p === 'X' ? 'var(--player-x)' : 'var(--player-o)'}">${this.p}</b>`;
+        
+        updateStatusUI() {
+            const color = this.currentPlayer === 'X' ? 'var(--player-x)' : 'var(--player-o)';
+            document.getElementById('mu-status').innerHTML = `Tour de : <b style="color:${color}">${this.currentPlayer}</b>`;
         }
     };
 
-    // =========================================================
-    // MOTEUR : DEMINEUR
-    // =========================================================
+    // ---------------------------------------------------------
+    // JEU 3 : DÉMINEUR EXPERT
+    // ---------------------------------------------------------
     window.App.Mine = {
-        g: [], 
-        o: [], 
-        f: 60, 
-        t: 0, 
+        grid: [], 
+        opened: [], 
+        flags: 60, 
+        time: 0, 
         timer: null, 
-        first: true,
+        isFirstClick: true,
+        
         init() {
-            const b = document.getElementById('dm-board'); 
-            b.innerHTML = ''; 
-            this.g = Array(400).fill(0); 
-            this.o = Array(400).fill(false); 
-            this.f = 60; 
-            this.t = 0; 
-            this.first = true; 
-            clearInterval(this.timer); 
-            this.ui(); 
+            const board = document.getElementById('dm-board'); 
+            board.innerHTML = ''; 
+            this.grid = Array(400).fill(0); 
+            this.opened = Array(400).fill(false); 
+            this.flags = 60; 
+            this.time = 0; 
+            this.isFirstClick = true; 
             
-            for(let i = 0; i < 400; i++) { 
-                let c = document.createElement('div'); 
-                c.className = 'dm-tile'; 
-                c.onmousedown = (e) => { 
-                    if(e.button === 2) { 
+            clearInterval(this.timer); 
+            this.updateUI(); 
+            
+            for (let i = 0; i < 400; i++) { 
+                let tile = document.createElement('div'); 
+                tile.className = 'dm-tile'; 
+                
+                tile.onmousedown = (e) => { 
+                    if (e.button === 2) { 
                         e.preventDefault(); 
-                        if(this.o[i]) return; 
+                        if (this.opened[i]) return; 
                         
-                        if(c.textContent === '🚩') { 
-                            c.textContent = ''; 
-                            this.f++; 
-                        } else if(this.f > 0) { 
-                            c.textContent = '🚩'; 
-                            this.f--; 
+                        if (tile.textContent === '🚩') { 
+                            tile.textContent = ''; 
+                            this.flags++; 
+                        } else if (this.flags > 0) { 
+                            tile.textContent = '🚩'; 
+                            this.flags--; 
                         } 
-                        this.ui(); 
+                        this.updateUI(); 
                     } else { 
-                        if(c.textContent === '🚩' || this.o[i]) return; 
-                        if(this.first) this.gen(i); 
-                        this.rev(i); 
+                        if (tile.textContent === '🚩' || this.opened[i]) {
+                            return; 
+                        }
+                        if (this.isFirstClick) {
+                            this.generateMines(i); 
+                        }
+                        this.reveal(i); 
                     } 
                 }; 
-                c.oncontextmenu = e => e.preventDefault(); 
-                b.appendChild(c); 
+                
+                tile.oncontextmenu = e => e.preventDefault(); 
+                board.appendChild(tile); 
             }
         },
-        ui() {
-            document.getElementById('dm-flags').textContent = this.f; 
-            document.getElementById('dm-time').textContent = this.t;
+        
+        updateUI() {
+            document.getElementById('dm-flags').textContent = this.flags; 
+            document.getElementById('dm-time').textContent = this.time;
         },
-        adj(i) {
-            let r = Math.floor(i / 20);
-            let c = i % 20;
-            let res = []; 
-            for(let x = -1; x <= 1; x++) {
-                for(let y = -1; y <= 1; y++) {
-                    let nr = r + x;
-                    let nc = c + y;
-                    if(nr >= 0 && nr < 20 && nc >= 0 && nc < 20) {
-                        res.push(nr * 20 + nc);
+        
+        getNeighbors(index) {
+            let row = Math.floor(index / 20);
+            let col = index % 20;
+            let neighbors = []; 
+            
+            for (let x = -1; x <= 1; x++) {
+                for (let y = -1; y <= 1; y++) {
+                    let newRow = row + x;
+                    let newCol = col + y;
+                    
+                    if (newRow >= 0 && newRow < 20 && newCol >= 0 && newCol < 20) {
+                        neighbors.push(newRow * 20 + newCol);
                     }
                 }
             } 
-            return res;
+            return neighbors;
         },
-        gen(s) {
-            this.first = false; 
-            let m = 0; 
-            const safe = [...this.adj(s), s]; 
+        
+        generateMines(safeIndex) {
+            this.isFirstClick = false; 
+            let minesPlaced = 0; 
+            const safeZone = [...this.getNeighbors(safeIndex), safeIndex]; 
             
-            while(m < 60) { 
-                let r = Math.floor(Math.random() * 400); 
-                if(!safe.includes(r) && this.g[r] !== 'M') { 
-                    this.g[r] = 'M'; 
-                    m++; 
+            while (minesPlaced < 60) { 
+                let randomIndex = Math.floor(Math.random() * 400); 
+                
+                if (!safeZone.includes(randomIndex) && this.grid[randomIndex] !== 'M') { 
+                    this.grid[randomIndex] = 'M'; 
+                    minesPlaced++; 
                 } 
             } 
             
-            for(let i = 0; i < 400; i++) {
-                if(this.g[i] !== 'M') {
-                    this.g[i] = this.adj(i).filter(n => this.g[n] === 'M').length; 
+            for (let i = 0; i < 400; i++) {
+                if (this.grid[i] !== 'M') {
+                    this.grid[i] = this.getNeighbors(i).filter(n => this.grid[n] === 'M').length; 
                 }
             }
+            
             this.timer = setInterval(() => { 
-                this.t++; 
-                this.ui(); 
+                this.time++; 
+                this.updateUI(); 
             }, 1000);
         },
-        rev(i) {
-            if(this.o[i]) return; 
-            const t = document.getElementById('dm-board').children[i]; 
-            this.o[i] = true; 
-            t.classList.add('open'); 
+        
+        reveal(index) {
+            if (this.opened[index]) {
+                return; 
+            }
             
-            if(this.g[i] === 'M') { 
-                t.classList.add('mine'); 
-                t.textContent = '💣'; 
+            const tileElement = document.getElementById('dm-board').children[index]; 
+            this.opened[index] = true; 
+            tileElement.classList.add('open'); 
+            
+            if (this.grid[index] === 'M') { 
+                tileElement.classList.add('mine'); 
+                tileElement.textContent = '💣'; 
                 clearInterval(this.timer); 
                 setTimeout(() => {
-                    window.UI.showModal('BOUM !', `Échec à ${this.t} sec.`, () => this.init());
+                    window.UI.showModal('BOUM !', `Mines déclenchées à ${this.time} secondes.`, () => this.init());
                 }, 300); 
             } else { 
-                if(this.g[i] > 0) { 
-                    t.textContent = this.g[i]; 
-                    t.classList.add('dm-c' + this.g[i]); 
+                if (this.grid[index] > 0) { 
+                    tileElement.textContent = this.grid[index]; 
+                    tileElement.classList.add('dm-c' + this.grid[index]); 
                 } else {
-                    this.adj(i).forEach(n => this.rev(n)); 
+                    this.getNeighbors(index).forEach(n => this.reveal(n)); 
                 }
             } 
             
-            if(this.o.filter(v => !v).length === 340) { 
+            if (this.opened.filter(val => !val).length === 340) { 
                 clearInterval(this.timer); 
                 setTimeout(() => {
-                    window.UI.showModal('Déminage Réussi', `Temps: ${this.t}s`, () => this.init());
+                    window.UI.showModal('Déminage Réussi !', `Terrain sécurisé en ${this.time}s.`, () => this.init());
                 }, 300); 
             }
         }
     };
 
-    // =========================================================
-    // MOTEUR : YAMS
-    // =========================================================
+    // ---------------------------------------------------------
+    // JEU 4 : YAMS CHAMPIONSHIP
+    // ---------------------------------------------------------
     window.App.Yams = {
-        d: [1,1,1,1,1], 
-        k: [false,false,false,false,false], 
-        r: 3, 
-        p: 0, 
-        s: [{},{}],
+        dice: [1, 1, 1, 1, 1], 
+        kept: [false, false, false, false, false], 
+        rollsLeft: 3, 
+        currentPlayer: 0, 
+        scores: [{}, {}],
+        
         init() {
-            this.s = [{},{}]; 
-            this.p = 0; 
-            this.r = 3; 
-            this.k.fill(false); 
+            this.scores = [{}, {}]; 
+            this.currentPlayer = 0; 
+            this.rollsLeft = 3; 
+            this.kept.fill(false); 
             
-            const c = document.getElementById('y-score-container'); 
-            c.innerHTML = ''; 
+            const container = document.getElementById('y-score-container'); 
+            container.innerHTML = ''; 
             
-            for(let i = 0; i < 2; i++) { 
-                let t = `<table class="y-table" id="yt-${i}"><tr><th colspan="2">Joueur ${i+1}</th></tr>`; 
-                let categories = ['1','2','3','4','5','6','Bonus (>62)','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'];
+            const categoriesList = [
+                '1', '2', '3', '4', '5', '6', 'Bonus (>62)', 
+                'Brelan', 'Carré', 'Full', 'Petite Suite', 'Grande Suite', 'Yams', 'Chance'
+            ];
+            
+            for (let i = 0; i < 2; i++) { 
+                let tableHTML = `<table class="y-table" id="yt-${i}"><tr><th colspan="2">Joueur ${i+1}</th></tr>`; 
                 
-                categories.forEach(cat => { 
-                    if(cat.includes('Bonus')) {
-                        t += `<tr style="background:#020617"><td style="color:var(--gold)">${cat}</td><td class="val" id="y-${i}-Bonus">0</td></tr>`; 
+                categoriesList.forEach(cat => { 
+                    if (cat.includes('Bonus')) {
+                        tableHTML += `<tr style="background:#020617"><td style="color:var(--gold)">${cat}</td><td class="val" id="y-${i}-Bonus">0</td></tr>`; 
                     } else {
-                        t += `<tr><td>${cat}</td><td class="val" id="y-${i}-${cat.replace(/\s/g,'')}" onclick="window.App.Yams.lock('${cat}', ${i})">-</td></tr>`; 
+                        let cleanID = cat.replace(/\s/g, '');
+                        tableHTML += `<tr><td>${cat}</td><td class="val" id="y-${i}-${cleanID}" onclick="window.App.Yams.lockCategory('${cat}', ${i})">-</td></tr>`; 
                     }
                 }); 
                 
-                t += `<tr class="total-row"><td>TOTAL</td><td id="y-tot-${i}">0</td></tr></table>`; 
-                c.innerHTML += t; 
+                tableHTML += `<tr class="total-row"><td>TOTAL</td><td id="y-tot-${i}">0</td></tr></table>`; 
+                container.innerHTML += tableHTML; 
             } 
-            this.roll();
-        },
-        roll() {
-            if(this.r <= 0) return; 
-            this.d = this.d.map((v, i) => this.k[i] ? v : Math.floor(Math.random() * 6) + 1); 
-            this.r--; 
-            this.ui();
-        },
-        ui() {
-            const b = document.getElementById('y-dice'); 
-            b.innerHTML = ''; 
             
-            this.d.forEach((v, i) => { 
-                let el = document.createElement('div'); 
-                el.className = 'y-die' + (this.k[i] ? ' kept' : ''); 
-                el.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][v - 1]; 
-                el.onclick = () => { 
-                    if(this.r < 3) { 
-                        this.k[i] = !this.k[i]; 
-                        this.ui(); 
+            this.rollDice();
+        },
+        
+        rollDice() {
+            if (this.rollsLeft <= 0) {
+                return; 
+            }
+            
+            this.dice = this.dice.map((val, index) => {
+                return this.kept[index] ? val : Math.floor(Math.random() * 6) + 1;
+            }); 
+            
+            this.rollsLeft--; 
+            this.updateDiceUI();
+        },
+        
+        updateDiceUI() {
+            const diceBox = document.getElementById('y-dice'); 
+            diceBox.innerHTML = ''; 
+            
+            this.dice.forEach((val, index) => { 
+                let dieElement = document.createElement('div'); 
+                dieElement.className = 'y-die' + (this.kept[index] ? ' kept' : ''); 
+                dieElement.textContent = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'][val - 1]; 
+                
+                dieElement.onclick = () => { 
+                    if (this.rollsLeft < 3) { 
+                        this.kept[index] = !this.kept[index]; 
+                        this.updateDiceUI(); 
                     } 
                 }; 
-                b.appendChild(el); 
+                
+                diceBox.appendChild(dieElement); 
             }); 
             
-            document.getElementById('y-roll-btn').textContent = `Lancer (${this.r})`; 
-            document.getElementById('y-turn').textContent = `C'est au tour du Joueur ${this.p + 1}`; 
-            this.calc();
-        },
-        calc() {
-            const c = {}; 
-            this.d.forEach(x => c[x] = (c[x] || 0) + 1); 
-            const v = Object.values(c);
-            const set = new Set(this.d); 
+            document.getElementById('y-roll-btn').textContent = `Lancer (${this.rollsLeft})`; 
+            document.getElementById('y-turn').textContent = `C'est au tour du Joueur ${this.currentPlayer + 1}`; 
             
-            const seq = (l) => { 
-                let st = 0;
-                let mx = 0; 
-                for(let i = 1; i <= 6; i++) {
-                    if(set.has(i)) {
-                        st++; 
+            this.calculatePotentials();
+        },
+        
+        calculatePotentials() {
+            const counts = {}; 
+            this.dice.forEach(x => counts[x] = (counts[x] || 0) + 1); 
+            
+            const valuesCount = Object.values(counts);
+            const uniqueSet = new Set(this.dice); 
+            
+            const hasSequence = (lengthRequired) => { 
+                let currentStreak = 0;
+                let maxStreak = 0; 
+                for (let i = 1; i <= 6; i++) {
+                    if (uniqueSet.has(i)) {
+                        currentStreak++; 
                     } else {
-                        st = 0; 
+                        currentStreak = 0; 
                     }
-                    mx = Math.max(mx, st);
+                    maxStreak = Math.max(maxStreak, currentStreak);
                 } 
-                return mx >= l; 
+                return maxStreak >= lengthRequired; 
             }; 
             
-            let categories = ['1','2','3','4','5','6','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'];
+            const categories = ['1', '2', '3', '4', '5', '6', 'Brelan', 'Carré', 'Full', 'Petite Suite', 'Grande Suite', 'Yams', 'Chance'];
             
             categories.forEach(cat => { 
-                let id = cat.replace(/\s/g,''); 
-                const el = document.getElementById(`y-${this.p}-${id}`); 
+                let cleanID = cat.replace(/\s/g, ''); 
+                const cellElement = document.getElementById(`y-${this.currentPlayer}-${cleanID}`); 
                 
-                if(this.s[this.p][cat] !== undefined) return; 
-                
-                let pts = 0; 
-                if(!isNaN(cat)) {
-                    pts = (c[cat] || 0) * parseInt(cat); 
-                } else if(cat === 'Brelan' && v.some(x => x >= 3)) {
-                    pts = this.d.reduce((a,b) => a + b); 
-                } else if(cat === 'Carré' && v.some(x => x >= 4)) {
-                    pts = this.d.reduce((a,b) => a + b); 
-                } else if(cat === 'Full' && v.includes(3) && v.includes(2)) {
-                    pts = 25; 
-                } else if(cat === 'Petite Suite' && seq(4)) {
-                    pts = 30; 
-                } else if(cat === 'Grande Suite' && seq(5)) {
-                    pts = 40; 
-                } else if(cat === 'Yams' && v.includes(5)) {
-                    pts = 50; 
-                } else if(cat === 'Chance') {
-                    pts = this.d.reduce((a,b) => a + b); 
+                if (this.scores[this.currentPlayer][cat] !== undefined) {
+                    return; 
                 }
                 
-                el.textContent = pts; 
-                el.className = 'val pot'; 
+                let potentialPoints = 0; 
+                
+                if (!isNaN(cat)) {
+                    potentialPoints = (counts[cat] || 0) * parseInt(cat); 
+                } else if (cat === 'Brelan' && valuesCount.some(x => x >= 3)) {
+                    potentialPoints = this.dice.reduce((a,b) => a + b); 
+                } else if (cat === 'Carré' && valuesCount.some(x => x >= 4)) {
+                    potentialPoints = this.dice.reduce((a,b) => a + b); 
+                } else if (cat === 'Full' && valuesCount.includes(3) && valuesCount.includes(2)) {
+                    potentialPoints = 25; 
+                } else if (cat === 'Petite Suite' && hasSequence(4)) {
+                    potentialPoints = 30; 
+                } else if (cat === 'Grande Suite' && hasSequence(5)) {
+                    potentialPoints = 40; 
+                } else if (cat === 'Yams' && valuesCount.includes(5)) {
+                    potentialPoints = 50; 
+                } else if (cat === 'Chance') {
+                    potentialPoints = this.dice.reduce((a,b) => a + b); 
+                }
+                
+                cellElement.textContent = potentialPoints; 
+                cellElement.className = 'val pot'; 
             });
         },
-        lock(cat, pi) {
-            if(pi !== this.p || this.s[pi][cat] !== undefined) return; 
+        
+        lockCategory(category, playerIndex) {
+            if (playerIndex !== this.currentPlayer || this.scores[playerIndex][category] !== undefined) {
+                return; 
+            }
             
-            let id = cat.replace(/\s/g,''); 
-            const el = document.getElementById(`y-${pi}-${id}`); 
-            this.s[pi][cat] = parseInt(el.textContent); 
-            el.className = 'val locked'; 
+            let cleanID = category.replace(/\s/g, ''); 
+            const cellElement = document.getElementById(`y-${playerIndex}-${cleanID}`); 
             
-            let t = Object.values(this.s[pi]).reduce((a, b) => a + b, 0); 
-            let sTop = ['1','2','3','4','5','6'].reduce((sm, k) => sm + (this.s[pi][k] || 0), 0); 
+            this.scores[playerIndex][category] = parseInt(cellElement.textContent); 
+            cellElement.className = 'val locked'; 
             
-            if(sTop >= 63) { 
-                t += 35; 
-                document.getElementById(`y-${pi}-Bonus`).textContent = 35; 
+            let total = Object.values(this.scores[playerIndex]).reduce((sum, val) => sum + val, 0); 
+            let sumTopSection = ['1', '2', '3', '4', '5', '6'].reduce((sum, key) => sum + (this.scores[playerIndex][key] || 0), 0); 
+            
+            if (sumTopSection >= 63) { 
+                total += 35; 
+                document.getElementById(`y-${playerIndex}-Bonus`).textContent = 35; 
             } 
             
-            document.getElementById(`y-tot-${pi}`).textContent = t; 
+            document.getElementById(`y-tot-${playerIndex}`).textContent = total; 
             
-            this.p = (this.p + 1) % 2; 
-            this.r = 3; 
-            this.k.fill(false); 
+            this.currentPlayer = (this.currentPlayer + 1) % 2; 
+            this.rollsLeft = 3; 
+            this.kept.fill(false); 
             
-            document.querySelectorAll('.pot').forEach(e => { 
-                e.textContent = '-'; 
-                e.classList.remove('pot'); 
+            document.querySelectorAll('.pot').forEach(element => { 
+                element.textContent = '-'; 
+                element.classList.remove('pot'); 
             }); 
             
-            if(Object.keys(this.s[1]).length === 13) { 
-                let t0 = parseInt(document.getElementById(`y-tot-0`).textContent);
-                let t1 = parseInt(document.getElementById(`y-tot-1`).textContent); 
+            if (Object.keys(this.scores[1]).length === 13) { 
+                let totalPlayer1 = parseInt(document.getElementById(`y-tot-0`).textContent);
+                let totalPlayer2 = parseInt(document.getElementById(`y-tot-1`).textContent); 
                 
-                let winnerText = t0 > t1 ? 'Joueur 1' : (t1 > t0 ? 'Joueur 2' : 'Égalité parfaite');
-                let msg = `Scores finaux :<br>J1 : ${t0}<br>J2 : ${t1}<br><br>Vainqueur : <b>${winnerText}</b>`;
-                window.UI.showModal('Fin du Championnat !', msg, () => this.init()); 
+                let winnerText = totalPlayer1 > totalPlayer2 ? 'Joueur 1' : (totalPlayer2 > totalPlayer1 ? 'Joueur 2' : 'Égalité parfaite');
+                let message = `Scores finaux :<br>J1 : ${totalPlayer1}<br>J2 : ${totalPlayer2}<br><br>Vainqueur : <b>${winnerText}</b>`;
+                
+                window.UI.showModal('Fin du Championnat !', message, () => this.init()); 
             } else {
-                this.roll(); 
+                this.rollDice(); 
             }
         }
     };
 
-    // =========================================================
-    // MOTEUR : LA VRAIE BELOTE IA INTELLIGENTE ET COMPLETE
-    // =========================================================
+    // ---------------------------------------------------------
+    // JEU 5 : LA VRAIE BELOTE IA INTELLIGENTE ET COMPLÈTE
+    // ---------------------------------------------------------
     window.App.Belote = {
         deck: [], 
-        hands: [[], [], [], []], // 0:Toi(Sud), 1:Est, 2:Nord, 3:Ouest
+        hands: [[], [], [], []], // Index 0:Toi(Sud), 1:Est, 2:Nord, 3:Ouest
         scores: { nous: 0, eux: 0 },
-        litigePot: 0, // Points en attente si égalité 81-81
+        litigePot: 0,
         
         dealerIndex: -1, 
         firstPlayerIndex: 0, 
         currentTurnIndex: 0,
         
-        phase: 'init', // init, bidding_1, bidding_2, playing, resolving
-        
+        phase: 'init', 
         centerCard: null, 
         atoutSuit: null, 
         takerIndex: -1,
         
         currentTrick: [], 
-        
-        // Suivi des points de la donne en cours
         dealPoints: { nous: 0, eux: 0 },
-        tricksWon: { nous: 0, eux: 0 }, // Pour le calcul du Capot
+        tricksWon: { nous: 0, eux: 0 },
+        tricksPlayedCount: 0,
         
         beloteAnnouncedBy: null, 
         
@@ -887,6 +1510,7 @@
             {s: '♥', color: 'r'}, 
             {s: '♦', color: 'r'}
         ],
+        
         ranks: ['7', '8', '9', '10', 'V', 'D', 'R', 'A'],
         
         valAtout: { 'V':20, '9':14, 'A':11, '10':10, 'R':4, 'D':3, '8':0, '7':0 },
@@ -898,7 +1522,6 @@
             this.scores = { nous: 0, eux: 0 };
             this.litigePot = 0;
             
-            // Premier donneur aléatoire
             if (this.dealerIndex === -1) {
                 this.dealerIndex = Math.floor(Math.random() * 4);
             }
@@ -908,7 +1531,6 @@
         },
 
         startDeal() {
-            // Reset UI complet
             document.querySelectorAll('.bl-slot').forEach(slot => slot.innerHTML = '');
             document.getElementById('bl-center').innerHTML = '';
             document.getElementById('bl-hand').innerHTML = '';
@@ -918,17 +1540,16 @@
             document.getElementById('bl-trick-points').style.display = 'none';
             document.getElementById('bl-atout-corner').style.display = 'none';
             
-            this.updatePlayerHighlight(-1); // Efface les highlights
+            this.updatePlayerHighlight(-1);
 
-            // Le donneur tourne
             this.dealerIndex = (this.dealerIndex + 1) % 4;
             this.firstPlayerIndex = (this.dealerIndex + 1) % 4;
             
             const positions = [
-                {x: 295, y: 400}, // Sud
-                {x: 570, y: 152}, // Est
-                {x: 295, y: 10},  // Nord
-                {x: 15, y: 152}   // Ouest
+                {x: 295, y: 400}, 
+                {x: 570, y: 152}, 
+                {x: 295, y: 10},  
+                {x: 15, y: 152}   
             ];
             
             const tkn = document.getElementById('bl-dealer-token');
@@ -936,7 +1557,6 @@
             tkn.style.left = positions[this.dealerIndex].x + 'px';
             tkn.style.top = positions[this.dealerIndex].y + 'px';
 
-            // Création et mélange du deck
             this.deck = [];
             this.suits.forEach(suitObj => { 
                 this.ranks.forEach(rankStr => { 
@@ -949,7 +1569,6 @@
                 [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; 
             }
             
-            // Reset des variables de donne
             this.hands = [[], [], [], []]; 
             this.currentTrick = []; 
             this.dealPoints = { nous: 0, eux: 0 };
@@ -960,7 +1579,6 @@
             this.beloteAnnouncedBy = null;
             this.phase = 'bidding_1';
             
-            // Distribution : 3 puis 2
             for (let p = 0; p < 4; p++) {
                 let targetPlayer = (this.firstPlayerIndex + p) % 4;
                 this.hands[targetPlayer].push(...this.deck.splice(0, 3));
@@ -987,7 +1605,6 @@
             centerArea.appendChild(cardElement);
         },
 
-        // --- ENCHÈRES TOUR 1 ---
         processBidding1() {
             this.updatePlayerHighlight(this.currentTurnIndex);
             
@@ -1031,7 +1648,6 @@
             this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
             
             if (this.currentTurnIndex === this.firstPlayerIndex) {
-                // Fin du tour 1, on passe au tour 2
                 this.phase = 'bidding_2';
                 this.updateStatus("TOUR 2 : Choix d'une autre couleur.");
                 setTimeout(() => this.processBidding2(), 500);
@@ -1040,7 +1656,6 @@
             }
         },
 
-        // --- ENCHÈRES TOUR 2 ---
         processBidding2() {
             this.updatePlayerHighlight(this.currentTurnIndex);
             
@@ -1070,7 +1685,6 @@
                     this.passBidding2();
                 };
             } else {
-                // IA Tour 2
                 let botName = this.currentTurnIndex === 1 ? 'Est' : (this.currentTurnIndex === 2 ? 'Nord' : 'Ouest');
                 this.updateStatus(`${botName} réfléchit (Tour 2)...`);
                 
@@ -1079,13 +1693,12 @@
                     let bestSuit = null;
                     let bestScore = 0;
 
-                    // Le bot évalue chaque couleur restante
                     availableSuits.forEach(suitObj => {
                         let suitCards = hand.filter(c => c.suit.s === suitObj.s);
                         let score = 0;
-                        if(suitCards.some(c => c.rank === 'V')) score += 3;
-                        if(suitCards.some(c => c.rank === '9')) score += 2;
-                        if(suitCards.some(c => c.rank === 'A')) score += 1;
+                        if (suitCards.some(c => c.rank === 'V')) score += 3;
+                        if (suitCards.some(c => c.rank === '9')) score += 2;
+                        if (suitCards.some(c => c.rank === 'A')) score += 1;
                         score += suitCards.length;
 
                         if (score > bestScore) {
@@ -1094,7 +1707,6 @@
                         }
                     });
 
-                    // S'il a une main forte dans une couleur, il prend
                     if (bestScore >= 4 || (bestScore >= 3 && Math.random() < 0.2)) {
                         this.take(this.currentTurnIndex, bestSuit);
                     } else {
@@ -1108,7 +1720,6 @@
             this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
             
             if (this.currentTurnIndex === this.firstPlayerIndex) {
-                // Tout le monde a passé deux fois
                 this.updateStatus("Tout le monde a passé. Redistribution générale !");
                 setTimeout(() => this.startDeal(), 1500);
             } else {
@@ -1116,7 +1727,6 @@
             }
         },
 
-        // --- LOGIQUE DE PRISE ---
         take(playerIdx, selectedSuit) {
             document.getElementById('bl-actions-1').style.display = 'none';
             document.getElementById('bl-actions-2').style.display = 'none';
@@ -1154,7 +1764,6 @@
             document.getElementById('bl-trick-points').style.display = 'block';
             this.updateTrickPointsUI();
             
-            // Distribution du reste
             for (let p = 0; p < 4; p++) {
                 let targetPlayer = (this.firstPlayerIndex + p) % 4;
                 let numCardsToGive = (targetPlayer === this.takerIndex) ? 2 : 3;
@@ -1167,6 +1776,7 @@
 
         updatePlayerHighlight(index) {
             document.querySelectorAll('.bl-name').forEach(el => el.classList.remove('active-turn'));
+            
             if (index === 0) document.getElementById('bl-n-s').classList.add('active-turn');
             if (index === 1) document.getElementById('bl-n-e').classList.add('active-turn');
             if (index === 2) document.getElementById('bl-n-n').classList.add('active-turn');
@@ -1174,12 +1784,12 @@
         },
 
         renderBotHands() {
-            // Dessine visuellement le dos des cartes des bots
             const mapId = ['none', 'bl-h-e', 'bl-h-n', 'bl-h-w'];
             
             for(let i = 1; i <= 3; i++) {
                 const container = document.getElementById(mapId[i]);
                 container.innerHTML = '';
+                
                 let nbCards = this.hands[i].length;
                 for(let c = 0; c < nbCards; c++) {
                     let back = document.createElement('div');
@@ -1190,9 +1800,7 @@
         },
 
         processPlay() {
-            // Fin des 8 plis ?
-            if (this.hands[0].length === 0 && this.currentTrick.length === 0) {
-                this.endDeal();
+            if (this.tricksPlayedCount === 8) {
                 return;
             }
 
@@ -1210,7 +1818,6 @@
                 
                 this.updateStatus(`${botName} joue...`);
                 
-                // Rythme très dynamique (600ms)
                 setTimeout(() => this.botPlay(), 600);
             }
         },
@@ -1257,6 +1864,7 @@
             let trumpCardsInHand = handArray.filter(c => c.suit.s === this.atoutSuit.s);
 
             let highestTrumpRankInTrick = -1;
+            
             this.currentTrick.forEach(trickEntry => {
                 if (trickEntry.card.suit.s === this.atoutSuit.s) {
                     let val = 8 - this.ordAtout.indexOf(trickEntry.card.rank);
@@ -1266,9 +1874,7 @@
                 }
             });
 
-            // 1. Fournir
             if (cardsOfRequestedSuit.length > 0) {
-                // Si on a joué atout, on doit monter si on a plus fort
                 if (leadSuitChar === this.atoutSuit.s) {
                     let higherTrumpsToPlay = cardsOfRequestedSuit.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRankInTrick);
                     if (higherTrumpsToPlay.length > 0) {
@@ -1278,34 +1884,27 @@
                 return cardsOfRequestedSuit; 
             }
             
-            // 2. Couper / Pisser
             let currentWinnerData = this.getTrickWinner(this.currentTrick);
             let partnerIndex = (this.currentTurnIndex + 2) % 4;
             let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
 
             if (trumpCardsInHand.length > 0) {
                 if (isPartnerWinning) {
-                    // Partenaire maître = on peut se défausser de ce qu'on veut
                     return handArray; 
                 } else {
-                    // Adversaire maître = obligation de couper et sur-couper si possible
                     let higherTrumpsToPlay = trumpCardsInHand.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRankInTrick);
                     if (higherTrumpsToPlay.length > 0) {
                         return higherTrumpsToPlay; 
                     }
-                    // Doit couper même si atout inférieur
                     return trumpCardsInHand; 
                 }
             }
             
-            // Pas de couleur, pas d'atout = On jette n'importe quoi
             return handArray;
         },
 
         chooseBotCard(validCardsArray) {
-            // IA intelligente 
             if (this.currentTrick.length === 0) {
-                // Entame du pli : joue la plus forte
                 validCardsArray.sort((a,b) => this.getCardValue(b) - this.getCardValue(a));
                 return validCardsArray[0];
             }
@@ -1315,20 +1914,16 @@
             let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
 
             if (isPartnerWinning) {
-                // Se défausser d'une petite carte (on trie par ordre croissant de valeur)
                 validCardsArray.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
                 return validCardsArray[0];
             } else {
                 let winningCard = currentWinnerData.card;
                 let winningVal = (winningCard.suit.s === this.atoutSuit.s) ? (8 - this.ordAtout.indexOf(winningCard.rank)) : (8 - this.ordNormal.indexOf(winningCard.rank));
                 
-                // Trouve toutes les cartes qui battent la carte gagnante actuelle
                 let cardsThatBeatWinner = validCardsArray.filter(c => {
-                    // Si je coupe
                     if (c.suit.s === this.atoutSuit.s && winningCard.suit.s !== this.atoutSuit.s) {
                         return true;
                     }
-                    // Si on est dans la même couleur
                     if (c.suit.s === winningCard.suit.s) {
                         let order = (c.suit.s === this.atoutSuit.s) ? this.ordAtout : this.ordNormal;
                         return (8 - order.indexOf(c.rank)) > winningVal;
@@ -1337,11 +1932,9 @@
                 });
 
                 if (cardsThatBeatWinner.length > 0) {
-                    // Jouer la plus petite carte capable de battre
                     cardsThatBeatWinner.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
                     return cardsThatBeatWinner[0];
                 } else {
-                    // Se défausser de la plus petite carte
                     validCardsArray.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
                     return validCardsArray[0];
                 }
@@ -1371,7 +1964,7 @@
             const annonceEl = document.getElementById('bl-annonce-msg');
             annonceEl.textContent = msg;
             annonceEl.classList.remove('active');
-            void annonceEl.offsetWidth; // Force reflow
+            void annonceEl.offsetWidth; 
             annonceEl.classList.add('active');
         },
 
@@ -1395,7 +1988,11 @@
                 cardElement.innerHTML = `<span>${card.rank}</span><span>${card.suit.s}</span>`;
                 
                 if (isValid && this.phase === 'playing' && this.currentTurnIndex === 0) {
-                    cardElement.onclick = () => this.playCard(index, cardElement);
+                    cardElement.onclick = () => {
+                        if (this.phase === 'playing' && this.currentTurnIndex === 0) {
+                            this.playCard(index, cardElement);
+                        }
+                    };
                 }
                 
                 handContainer.appendChild(cardElement);
@@ -1403,6 +2000,8 @@
         },
 
         playCard(cardIndex, cardElement) {
+            this.phase = 'resolving'; 
+            
             let playedCardObj = this.hands[0].splice(cardIndex, 1)[0]; 
             this.renderHand();
             
@@ -1419,6 +2018,7 @@
             if (this.currentTrick.length === 4) {
                 this.resolveTrick(); 
             } else {
+                this.phase = 'playing';
                 this.processPlay();
             }
         },
@@ -1440,6 +2040,7 @@
 
             this.currentTrick.push({ player: this.currentTurnIndex, card: playedCardObj });
             this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
+            this.renderBotHands(); 
             
             if (this.currentTrick.length === 4) {
                 this.resolveTrick(); 
@@ -1449,11 +2050,8 @@
         },
 
         getCardValue(cardObj) { 
-            if (cardObj.suit.s === this.atoutSuit.s) {
-                return this.valAtout[cardObj.rank];
-            } else {
-                return this.valNormal[cardObj.rank]; 
-            }
+            if (cardObj.suit.s === this.atoutSuit.s) return this.valAtout[cardObj.rank];
+            return this.valNormal[cardObj.rank]; 
         },
 
         resolveTrick() {
@@ -1466,12 +2064,12 @@
             let trickWinnerIndex = winnerObject.player;
             let winningTeam = (trickWinnerIndex === 0 || trickWinnerIndex === 2) ? 'nous' : 'eux';
             
-            // 10 de der ?
-            if (this.hands[0].length === 0) {
+            this.tricksPlayedCount++; 
+
+            if (this.tricksPlayedCount === 8) {
                 pointsInTrick += 10; 
             }
             
-            // Ajout aux points de la donne
             this.dealPoints[winningTeam] += pointsInTrick;
             this.tricksWon[winningTeam] += 1;
             this.updateTrickPointsUI();
@@ -1484,7 +2082,6 @@
             
             this.updateStatus(`${winMessageName} le pli ! (+${pointsInTrick} pts)`);
 
-            // Ramassage rapide (1000ms)
             setTimeout(() => {
                 document.querySelectorAll('.bl-slot').forEach(slot => slot.innerHTML = '');
                 this.currentTrick = []; 
@@ -1500,7 +2097,6 @@
         },
 
         updateTrickPointsUI() {
-            // Affiche les points sécurisés par l'équipe du joueur humain
             document.getElementById('bl-trick-pts-val').textContent = this.dealPoints.nous;
         },
 
@@ -1510,14 +2106,10 @@
         },
         
         endDeal() { 
-            // ==========================================
-            // CALCUL AVANCÉ DES RÈGLES DE LA BELOTE
-            // ==========================================
             let ptsNous = this.dealPoints.nous;
             let ptsEux = this.dealPoints.eux;
             let msg = "";
 
-            // 1. CAPOT
             if (this.tricksWon.nous === 8) {
                 ptsNous = 250 + (this.beloteAnnouncedBy === 'nous' ? 20 : 0);
                 msg += "<b style='color:var(--accent); font-size:1.3em;'>CAPOT ! (250 pts)</b><br><br>";
@@ -1526,41 +2118,35 @@
                 msg += "<b style='color:var(--player-x); font-size:1.3em;'>CAPOT ADVERSE ! (250 pts)</b><br><br>";
             }
 
-            // 2. CHUTE (Contrat)
             let takerTeam = (this.takerIndex === 0 || this.takerIndex === 2) ? 'nous' : 'eux';
             
             if (takerTeam === 'nous' && this.tricksWon.nous !== 8) {
                 if (ptsNous > ptsEux) {
-                    // Contrat rempli
                     this.scores.nous += ptsNous + this.litigePot;
                     this.scores.eux += ptsEux;
                     this.litigePot = 0;
                     msg += "Contrat rempli !<br>";
                 } else if (ptsNous < ptsEux) {
-                    // Chute
                     msg += "<b style='color:var(--player-x);'>DEDANS ! L'adversaire prend 162 pts.</b><br>";
                     this.scores.eux += 162 + this.litigePot;
-                    this.scores.nous += (this.beloteAnnouncedBy === 'nous' ? 20 : 0); // On garde la belote
+                    this.scores.nous += (this.beloteAnnouncedBy === 'nous' ? 20 : 0); 
                     this.litigePot = 0;
-                    ptsNous = (this.beloteAnnouncedBy === 'nous' ? 20 : 0); // Affichage
+                    ptsNous = (this.beloteAnnouncedBy === 'nous' ? 20 : 0); 
                     ptsEux = 162;
                 } else {
-                    // Litige 81-81
                     msg += "<b style='color:var(--gold);'>LITIGE ! Vos points sont reportés.</b><br>";
                     this.litigePot += ptsNous;
                     this.scores.eux += ptsEux;
-                    ptsNous = 0; // Affichage
+                    ptsNous = 0; 
                 }
             } 
             else if (takerTeam === 'eux' && this.tricksWon.eux !== 8) {
                 if (ptsEux > ptsNous) {
-                    // Contrat adverse rempli
                     this.scores.eux += ptsEux + this.litigePot;
                     this.scores.nous += ptsNous;
                     this.litigePot = 0;
                     msg += "L'adversaire a rempli son contrat.<br>";
                 } else if (ptsEux < ptsNous) {
-                    // Adversaire chute
                     msg += "<b style='color:var(--accent);'>ADVERSAIRE DEDANS ! Vous prenez 162 pts.</b><br>";
                     this.scores.nous += 162 + this.litigePot;
                     this.scores.eux += (this.beloteAnnouncedBy === 'eux' ? 20 : 0);
@@ -1568,21 +2154,18 @@
                     ptsEux = (this.beloteAnnouncedBy === 'eux' ? 20 : 0);
                     ptsNous = 162;
                 } else {
-                    // Litige
                     msg += "<b style='color:var(--gold);'>LITIGE ! Points adverses reportés.</b><br>";
                     this.litigePot += ptsEux;
                     this.scores.nous += ptsNous;
                     ptsEux = 0;
                 }
             } else {
-                // Si capot, on additionne direct
                 if (this.tricksWon.nous === 8) { this.scores.nous += ptsNous + this.litigePot; this.litigePot = 0; }
                 if (this.tricksWon.eux === 8)  { this.scores.eux += ptsEux + this.litigePot; this.litigePot = 0; }
             }
 
             msg += `<br>Scores de cette manche :<br>Nous : ${ptsNous} pts<br>Eux : ${ptsEux} pts`;
             
-            // 3. VICTOIRE GLOBALE (1000 Pts)
             if (this.scores.nous >= 1000 || this.scores.eux >= 1000) {
                 let winnerTeamText = this.scores.nous >= 1000 ? "VOUS AVEZ" : "ILS ONT";
                 msg = `<span style="font-size:1.5em; color:var(--gold)">PARTIE TERMINÉE !</span><br><br>${winnerTeamText} ATTEINT 1000 POINTS !<br><br>Score Final : Nous ${this.scores.nous} - Eux ${this.scores.eux}`;
@@ -1599,7 +2182,7 @@
     };
 
     // =========================================================
-    // MOTEUR: RÉSEAU FIREBASE MULTIJOUEUR
+    // MOTEUR DE JEU : RÉSEAU FIREBASE MULTIJOUEUR
     // =========================================================
     window.App.Network = {
         room: null, 
@@ -1608,12 +2191,12 @@
         gameType: null,
         
         gen() { 
-            let c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-            let r = '';
+            let characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let result = '';
             for(let i = 0; i < 4; i++) {
-                r += c.charAt(Math.floor(Math.random() * c.length));
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
             }
-            return r; 
+            return result; 
         },
         
         async host() {
@@ -1730,7 +2313,9 @@
                 boardContainer.appendChild(cell); 
             }
             
-            this.statusUI('net-sim-status', data, () => update(this.ref, { board: Array(9).fill(''), turn: 'X', winner: '' }));
+            this.statusUI('net-sim-status', data, () => {
+                update(this.ref, { board: Array(9).fill(''), turn: 'X', winner: '' });
+            });
         },
 
         renderUlt(data) {
@@ -1790,13 +2375,15 @@
                 boardContainer.appendChild(subGrid); 
             }
             
-            this.statusUI('net-ult-status', data, () => update(this.ref, { 
-                bGrid: Array(9).fill(''), 
-                sGrids: Array.from({length: 9}, () => Array(9).fill('')), 
-                next: -1, 
-                turn: 'X', 
-                winner: '' 
-            }));
+            this.statusUI('net-ult-status', data, () => {
+                update(this.ref, { 
+                    bGrid: Array(9).fill(''), 
+                    sGrids: Array.from({length: 9}, () => Array(9).fill('')), 
+                    next: -1, 
+                    turn: 'X', 
+                    winner: '' 
+                });
+            });
         },
 
         renderYams(data) {
@@ -1804,18 +2391,18 @@
             diceBox.innerHTML = ''; 
             
             data.dice.forEach((dieVal, index) => { 
-                let dieElement = document.createElement('div'); 
-                dieElement.className = 'y-die' + (data.kept[index] ? ' kept' : ''); 
-                dieElement.textContent = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'][dieVal - 1]; 
+                let el = document.createElement('div'); 
+                el.className = 'y-die' + (data.kept[index] ? ' kept' : ''); 
+                el.textContent = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'][dieVal - 1]; 
                 
-                dieElement.onclick = async () => { 
+                el.onclick = async () => { 
                     if (data.turn === this.myId && data.rolls < 3 && data.winner === '') { 
                         let newKept = [...data.kept]; 
                         newKept[index] = !newKept[index]; 
                         await update(this.ref, { kept: newKept }); 
                     }
                 }; 
-                diceBox.appendChild(dieElement); 
+                diceBox.appendChild(el); 
             });
             
             let rollBtn = document.getElementById('net-yams-roll-btn'); 
@@ -1835,6 +2422,7 @@
             
             const countObj = {}; 
             data.dice.forEach(x => countObj[x] = (countObj[x] || 0) + 1); 
+            
             const valuesCount = Object.values(countObj); 
             const uniqueSet = new Set(data.dice); 
             
@@ -1930,13 +2518,15 @@
                 }; 
             });
 
-            this.statusUI('net-yams-status', data, () => update(this.ref, { 
-                scores: { X: {init: true}, O: {init: true} }, 
-                turn: 'X', 
-                winner: '', 
-                rolls: 3, 
-                kept: [false,false,false,false,false] 
-            }));
+            this.statusUI('net-yams-status', data, () => {
+                update(this.ref, { 
+                    scores: { X: {init: true}, O: {init: true} }, 
+                    turn: 'X', 
+                    winner: '', 
+                    rolls: 3, 
+                    kept: [false,false,false,false,false] 
+                });
+            });
         },
 
         statusUI(id, data, replayCb) { 
@@ -1985,7 +2575,6 @@
             let targetID = e.currentTarget.dataset.target; 
             window.UI.switchScreen(targetID); 
             
-            // Initialisation à l'ouverture d'un onglet
             if (targetID === 's-sim') window.App.Sim.init(); 
             if (targetID === 's-ult') window.App.Ult.init(); 
             if (targetID === 's-mine') window.App.Mine.init(); 
@@ -1994,7 +2583,7 @@
         }; 
     });
 
-    // Lancement de l'écran par défaut au démarrage
+    // Lancement initial
     window.App.Sim.init();
 </script>
 </body>
