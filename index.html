@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcade Ultimate 2026 - Édition Studio Pro</title>
+    <title>Arcade Ultimate 2026 - Édition Studio (Partie 1)</title>
     <style>
         /* =========================================
            1. VARIABLES GLOBALES ET RESET
@@ -71,35 +71,71 @@
             100% { transform: scale(1) translateY(0); opacity: 1; } 
         }
 
+        /* Navigation */
         nav { 
-            width: 270px; background: #020617; padding: 30px 20px; 
-            border-right: 1px solid #1e293b; display: flex; flex-direction: column; 
-            z-index: 100; box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5); 
+            width: 270px; 
+            background: #020617; 
+            padding: 30px 20px; 
+            border-right: 1px solid #1e293b; 
+            display: flex; 
+            flex-direction: column; 
+            z-index: 100; 
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5); 
         }
 
-        nav h2 { color: var(--accent); text-transform: uppercase; letter-spacing: 3px; text-align: center; font-size: 1.1rem; margin-bottom: 30px; }
-        nav ul { list-style: none; overflow-y: auto; }
-        nav li { 
-            padding: 15px; cursor: pointer; border-radius: 12px; margin-bottom: 10px; 
-            background: var(--panel-bg); transition: 0.3s; font-weight: 600; display: flex; align-items: center; gap: 15px; border: 1px solid transparent; 
+        nav h2 { 
+            color: var(--accent); 
+            text-transform: uppercase; 
+            letter-spacing: 3px; 
+            text-align: center; 
+            font-size: 1.1rem; 
+            margin-bottom: 30px; 
         }
+
+        nav ul { list-style: none; overflow-y: auto; }
+        
+        nav li { 
+            padding: 15px; 
+            cursor: pointer; 
+            border-radius: 12px; 
+            margin-bottom: 10px; 
+            background: var(--panel-bg); 
+            transition: 0.3s; 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            border: 1px solid transparent; 
+        }
+
         nav li:hover { background: var(--panel-hover); transform: translateX(5px); }
         nav li.active { background: var(--accent); color: #000; box-shadow: 0 0 20px var(--accent-glow); border-color: var(--accent); }
         .nav-divider { height: 2px; background: #1e293b; margin: 15px 0; border-radius: 2px; }
 
+        /* Écrans Principaux */
         main { 
-            flex-grow: 1; padding: 40px; overflow-y: auto; display: flex; 
-            flex-direction: column; align-items: center; position: relative; scroll-behavior: smooth; 
+            flex-grow: 1; 
+            padding: 40px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            position: relative; 
+            scroll-behavior: smooth; 
         }
 
         .screen { display: none; width: 100%; max-width: 1100px; animation: screenFade 0.4s ease-out; }
         .screen.active { display: block; }
         
-        @keyframes screenFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes screenFade { 
+            from { opacity: 0; transform: translateY(15px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
         
         h1 { text-align: center; margin-bottom: 10px; font-size: 2.8rem; font-weight: 800; background: linear-gradient(to right, var(--accent), #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 40px; font-size: 1.1rem; }
         
+        /* Boutons et Formulaires */
         .btn { padding: 12px 28px; background: var(--accent); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; color: #000; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; margin: 5px; }
         .btn:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--accent-glow); }
         .btn:disabled { background: #334155; color: #94a3b8; cursor: not-allowed; box-shadow: none; transform: none; }
@@ -107,7 +143,7 @@
         select { cursor: pointer; text-transform: none; width: 350px; }
 
         /* =========================================
-           3. CSS DES JEUX CLASSIQUES
+           3. CSS DES JEUX : MORPIONS & DÉMINEUR & YAMS
            ========================================= */
         .ms-grid { display: grid; grid-template-columns: repeat(3, 130px); gap: 12px; margin: 0 auto 40px auto; width: fit-content; }
         .ms-cell { height: 130px; background: var(--panel-bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 5rem; cursor: pointer; font-weight: 900; transition: 0.2s; border: 2px solid #1e293b; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
@@ -147,10 +183,18 @@
         .y-table .total-row { background: #020617; color: var(--gold); font-weight: 900; font-size: 1.3rem; }
 
         /* =========================================
-           4. CSS DE LA VRAIE BELOTE
+           4. CSS DE LA VRAIE BELOTE PRO
            ========================================= */
-        .bl-scoreboard { display: flex; justify-content: center; gap: 50px; background: #020617; padding: 15px 30px; border-radius: 15px; border: 2px solid #1e293b; margin-bottom: 20px; font-size: 1.5rem; font-weight: bold; }
-        .bl-info { text-align: center; margin-bottom: 20px; font-size: 1.3rem; font-weight: bold; color: var(--gold); min-height: 30px; }
+        .bl-scoreboard { 
+            display: flex; justify-content: center; gap: 50px; background: #020617; 
+            padding: 15px 30px; border-radius: 15px; border: 2px solid #1e293b; 
+            margin-bottom: 20px; font-size: 1.5rem; font-weight: bold; 
+        }
+
+        .bl-info { 
+            text-align: center; margin-bottom: 20px; font-size: 1.3rem; 
+            font-weight: bold; color: var(--gold); min-height: 30px; 
+        }
 
         .bl-tapis { 
             background: radial-gradient(circle, #065f46 0%, #022c22 100%); 
@@ -159,7 +203,7 @@
         }
         
         .bl-atout-corner {
-            position: absolute; top: 20px; left: 30px; background: rgba(0, 0, 0, 0.8);
+            position: absolute; top: 25px; left: 35px; background: rgba(0, 0, 0, 0.8);
             padding: 10px 15px; border-radius: 8px; border: 1px solid var(--accent);
             text-align: center; z-index: 10; display: none;
         }
@@ -167,7 +211,7 @@
         .bl-atout-suit { font-size: 2.2rem; line-height: 1; }
 
         .bl-trick-points {
-            position: absolute; top: 20px; right: 30px; background: rgba(0, 0, 0, 0.8);
+            position: absolute; top: 25px; right: 35px; background: rgba(0, 0, 0, 0.8);
             padding: 10px 15px; border-radius: 8px; border: 1px solid var(--gold);
             text-align: center; z-index: 10; display: none; color: var(--gold); font-weight: bold;
         }
@@ -178,14 +222,22 @@
             font-size: 1.5rem; font-weight: 900; z-index: 50; opacity: 0; pointer-events: none;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
-        .bl-annonce.active { animation: annoncePop 2s ease-in-out forwards; }
+
+        .bl-annonce.active { 
+            animation: annoncePop 2s ease-in-out forwards; 
+        }
 
         .bl-name { 
             position: absolute; color: #94a3b8; font-weight: bold; font-size: 1.1rem; 
             text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.9); 
             pointer-events: none; z-index: 5; transition: 0.3s;
         }
-        .bl-name.active-turn { color: var(--accent); text-shadow: 0 0 10px var(--accent-glow); transform: scale(1.1); }
+
+        .bl-name.active-turn {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+            transform: scale(1.1);
+        }
 
         .bl-n-n { top: -35px; left: 50%; transform: translateX(-50%); }
         .bl-n-s { bottom: -35px; left: 50%; transform: translateX(-50%); }
@@ -210,7 +262,7 @@
         .bl-h-w { left: 20px; }
         .bl-h-e .bl-card-back, .bl-h-w .bl-card-back { width: 65px; height: 45px; background: repeating-linear-gradient(45deg, #1e293b, #1e293b 5px, #0f172a 5px, #0f172a 10px); border: 2px solid #fff; border-radius: 5px; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
 
-        .bl-dealer { position: absolute; background: var(--gold); color: #000; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 10; transition: 0.5s; font-size: 1.2rem; }
+        .bl-dealer { position: absolute; background: var(--gold); color: #000; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.8); z-index: 10; transition: 0.5s; font-size: 1.2rem; }
         .bl-slot { position: absolute; width: 80px; height: 115px; border: 2px dashed rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; z-index: 6; }
         .bl-s-n { top: 70px; left: 50%; transform: translateX(-50%); } 
         .bl-s-s { bottom: 70px; left: 50%; transform: translateX(-50%); }
@@ -481,9 +533,6 @@
 </main>
 
 <script type="module">
-    // =========================================================
-    // IMPORTATION DES MODULES FIREBASE (V 12.10.0)
-    // =========================================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getDatabase, ref, set, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
@@ -499,10 +548,9 @@
 
     const fbApp = initializeApp(firebaseConfig);
     const db = getDatabase(fbApp);
-
-    // ---------------------------------------------------------
-    // UI ET OUTILS GLOBAUX
-    // ---------------------------------------------------------
+    // =========================================================
+    // OUTILS D'INTERFACE (UI)
+    // =========================================================
     window.UI = {
         modalCb: null,
         
@@ -513,8 +561,8 @@
             if (title.includes('Victoire') || title.includes('Gagné') || title.includes('Terminée') || title.includes('Réussi') || title.includes('Fin')) {
                 titleColor = 'var(--accent)';
             }
-            document.getElementById('modal-title').style.color = titleColor;
             
+            document.getElementById('modal-title').style.color = titleColor;
             document.getElementById('modal-desc').innerHTML = desc;
             this.modalCb = cb; 
             document.getElementById('modal-overlay').style.display = 'flex';
@@ -528,18 +576,27 @@
         },
         
         switchScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+            document.querySelectorAll('.screen').forEach(s => {
+                s.classList.remove('active');
+            }); 
+            
             document.getElementById(id).classList.add('active');
-            if (id !== 's-mine') clearInterval(window.App.Mine.timer);
+            
+            if (id !== 's-mine') {
+                clearInterval(window.App.Mine.timer);
+            }
         }
     };
 
+    // Objet global pour stocker nos moteurs de jeu
     window.App = {};
+
+    // Fonction utilitaire de ciblage DOM
     const getEl = (id) => document.getElementById(id);
 
-    // ---------------------------------------------------------
-    // MOTEUR : MORPION SIMPLE
-    // ---------------------------------------------------------
+    // =========================================================
+    // MOTEUR DE JEU 1 : MORPION SIMPLE
+    // =========================================================
     window.App.Sim = {
         state: [], 
         player: 'X',
@@ -559,7 +616,9 @@
         },
         
         play(index, element) {
-            if (this.state[index] !== '') return; 
+            if (this.state[index] !== '') {
+                return; 
+            }
             
             this.state[index] = this.player; 
             element.textContent = this.player; 
@@ -567,25 +626,45 @@
             element.classList.add('taken'); 
             
             const winLine = this.checkWin(this.state); 
+            
             if (winLine) { 
-                winLine.forEach(idx => getEl('ms-board').children[idx].classList.add('win')); 
-                setTimeout(() => window.UI.showModal('Victoire !', `Le joueur <b style="color:${element.style.color}">${this.player}</b> a gagné en local.`, () => this.init()), 600); 
+                winLine.forEach(idx => {
+                    getEl('ms-board').children[idx].classList.add('win');
+                }); 
+                
+                setTimeout(() => {
+                    window.UI.showModal(
+                        'Victoire !', 
+                        `Le joueur <b style="color:${element.style.color}">${this.player}</b> a gagné en local.`, 
+                        () => this.init()
+                    );
+                }, 600); 
+                
             } else if (!this.state.includes('')) {
-                setTimeout(() => window.UI.showModal('Égalité', 'Match Nul.', () => this.init()), 200); 
+                setTimeout(() => {
+                    window.UI.showModal('Égalité', 'Match Nul, la grille est pleine.', () => this.init());
+                }, 200); 
             } else {
                 this.player = this.player === 'X' ? 'O' : 'X'; 
             }
         },
         
         checkWin(grid) {
-            const w = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]]; 
-            return w.find(line => grid[line[0]] && grid[line[0]] === grid[line[1]] && grid[line[0]] === grid[line[2]]);
+            const winConditions = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], 
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], 
+                [0, 4, 8], [2, 4, 6]             
+            ]; 
+            
+            return winConditions.find(line => {
+                return grid[line[0]] && grid[line[0]] === grid[line[1]] && grid[line[0]] === grid[line[2]];
+            });
         }
     };
 
-    // ---------------------------------------------------------
-    // MOTEUR : MORPION ULTIME
-    // ---------------------------------------------------------
+    // =========================================================
+    // MOTEUR DE JEU 2 : MORPION ULTIME
+    // =========================================================
     window.App.Ult = {
         bGrid: [], 
         sGrids: [], 
@@ -599,6 +678,7 @@
             this.sGrids = Array.from({length: 9}, () => Array(9).fill('')); 
             this.currentPlayer = 'X'; 
             this.nextActiveGrid = -1; 
+            
             this.updateStatusUI(); 
             
             for (let bgIndex = 0; bgIndex < 9; bgIndex++) { 
@@ -614,11 +694,14 @@
                 } 
                 mainBoard.appendChild(subGrid); 
             } 
+            
             this.highlightActiveGrids();
         },
         
         play(bgIndex, sgIndex, cellElement) {
-            if (this.sGrids[bgIndex][sgIndex] !== '' || this.bGrid[bgIndex] !== '' || (this.nextActiveGrid !== -1 && this.nextActiveGrid !== bgIndex)) return; 
+            if (this.sGrids[bgIndex][sgIndex] !== '' || this.bGrid[bgIndex] !== '' || (this.nextActiveGrid !== -1 && this.nextActiveGrid !== bgIndex)) {
+                return; 
+            }
             
             this.sGrids[bgIndex][sgIndex] = this.currentPlayer; 
             cellElement.textContent = this.currentPlayer; 
@@ -637,8 +720,11 @@
             }
             
             const cleanBigGrid = this.bGrid.map(val => val === 'D' ? '' : val);
+            
             if (window.App.Sim.checkWin(cleanBigGrid)) { 
-                setTimeout(() => window.UI.showModal('Victoire Ultime', `Le stratège <b>${this.currentPlayer}</b> domine !`, () => this.init()), 300); 
+                setTimeout(() => {
+                    window.UI.showModal('Victoire Ultime', `Le stratège <b style="color:${cellElement.style.color}">${this.currentPlayer}</b> domine la carte !`, () => this.init());
+                }, 300); 
                 this.nextActiveGrid = 999; 
             } else { 
                 this.nextActiveGrid = (this.bGrid[sgIndex] !== '') ? -1 : sgIndex; 
@@ -651,7 +737,9 @@
         highlightActiveGrids() {
             document.querySelectorAll('.mu-grid').forEach((gridElement, index) => { 
                 gridElement.classList.remove('mu-active'); 
-                if ((this.nextActiveGrid === -1 || this.nextActiveGrid === index) && this.bGrid[index] === '') gridElement.classList.add('mu-active');
+                if ((this.nextActiveGrid === -1 || this.nextActiveGrid === index) && this.bGrid[index] === '') {
+                    gridElement.classList.add('mu-active');
+                }
             });
         },
         
@@ -661,9 +749,9 @@
         }
     };
 
-    // ---------------------------------------------------------
-    // MOTEUR : DEMINEUR (25x25)
-    // ---------------------------------------------------------
+    // =========================================================
+    // MOTEUR DE JEU 3 : DÉMINEUR EXPERT (25x25)
+    // =========================================================
     window.App.Mine = {
         grid: [], 
         opened: [], 
@@ -690,18 +778,30 @@
                 
                 tile.onmousedown = (e) => { 
                     if (e.button === 2) { 
+                        // Clic Droit : Drapeau
                         e.preventDefault(); 
                         if (this.opened[i]) return; 
                         
-                        if (tile.textContent === '🚩') { tile.textContent = ''; this.flags++; }
-                        else if (this.flags > 0) { tile.textContent = '🚩'; this.flags--; } 
+                        if (tile.textContent === '🚩') { 
+                            tile.textContent = ''; 
+                            this.flags++; 
+                        } else if (this.flags > 0) { 
+                            tile.textContent = '🚩'; 
+                            this.flags--; 
+                        } 
                         this.updateUI(); 
                     } else { 
-                        if (tile.textContent === '🚩' || this.opened[i]) return; 
-                        if (this.isFirstClick) this.generateMines(i); 
+                        // Clic Gauche : Ouvrir
+                        if (tile.textContent === '🚩' || this.opened[i]) {
+                            return; 
+                        }
+                        if (this.isFirstClick) {
+                            this.generateMines(i); 
+                        }
                         this.reveal(i); 
                     } 
                 }; 
+                
                 tile.oncontextmenu = e => e.preventDefault(); 
                 board.appendChild(tile); 
             }
@@ -713,11 +813,18 @@
         },
         
         getNeighbors(index) {
-            let row = Math.floor(index / 25), col = index % 25, neighbors = []; 
+            let row = Math.floor(index / 25);
+            let col = index % 25;
+            let neighbors = []; 
+            
             for (let x = -1; x <= 1; x++) {
                 for (let y = -1; y <= 1; y++) {
-                    let newRow = row + x, newCol = col + y;
-                    if (newRow >= 0 && newRow < 25 && newCol >= 0 && newCol < 25) neighbors.push(newRow * 25 + newCol);
+                    let newRow = row + x;
+                    let newCol = col + y;
+                    
+                    if (newRow >= 0 && newRow < 25 && newCol >= 0 && newCol < 25) {
+                        neighbors.push(newRow * 25 + newCol);
+                    }
                 }
             } 
             return neighbors;
@@ -726,54 +833,75 @@
         generateMines(safeIndex) {
             this.isFirstClick = false; 
             let minesPlaced = 0; 
+            
+            // Le premier clic (et ses voisins) est toujours sûr
             const safeZone = [...this.getNeighbors(safeIndex), safeIndex]; 
             
             while (minesPlaced < 99) { 
                 let randomIndex = Math.floor(Math.random() * 625); 
+                
                 if (!safeZone.includes(randomIndex) && this.grid[randomIndex] !== 'M') { 
                     this.grid[randomIndex] = 'M'; 
                     minesPlaced++; 
                 } 
             } 
             
+            // Calcul des chiffres
             for (let i = 0; i < 625; i++) {
-                if (this.grid[i] !== 'M') this.grid[i] = this.getNeighbors(i).filter(n => this.grid[n] === 'M').length; 
+                if (this.grid[i] !== 'M') {
+                    this.grid[i] = this.getNeighbors(i).filter(n => this.grid[n] === 'M').length; 
+                }
             }
             
-            this.timer = setInterval(() => { this.time++; this.updateUI(); }, 1000);
+            this.timer = setInterval(() => { 
+                this.time++; 
+                this.updateUI(); 
+            }, 1000);
         },
         
         reveal(index) {
-            if (this.opened[index]) return; 
+            if (this.opened[index]) {
+                return; 
+            }
             
             const tileElement = getEl('dm-board').children[index]; 
             this.opened[index] = true; 
             tileElement.classList.add('open'); 
             
             if (this.grid[index] === 'M') { 
+                // Défaite
                 tileElement.classList.add('mine'); 
                 tileElement.textContent = '💣'; 
                 clearInterval(this.timer); 
-                setTimeout(() => window.UI.showModal('BOUM !', `Mines déclenchées à ${this.time} secondes.`, () => this.init()), 300); 
+                
+                setTimeout(() => {
+                    window.UI.showModal('BOUM !', `Mines déclenchées à ${this.time} secondes.`, () => this.init());
+                }, 300); 
+                
             } else { 
                 if (this.grid[index] > 0) { 
                     tileElement.textContent = this.grid[index]; 
                     tileElement.classList.add('dm-c' + this.grid[index]); 
                 } else {
+                    // Propagation si c'est un zéro
                     this.getNeighbors(index).forEach(n => this.reveal(n)); 
                 }
             } 
             
-            if (this.opened.filter(val => !val).length === 526) { 
+            // Victoire : 625 cases - 99 mines = 526 cases sûres
+            if (this.opened.filter(val => val).length === 526) { 
                 clearInterval(this.timer); 
-                setTimeout(() => window.UI.showModal('Déminage Réussi !', `Terrain sécurisé en ${this.time}s.`, () => this.init()), 300); 
+                
+                setTimeout(() => {
+                    window.UI.showModal('Déminage Réussi !', `Terrain sécurisé en ${this.time}s.`, () => this.init());
+                }, 300); 
             }
         }
     };
 
-    // ---------------------------------------------------------
-    // MOTEUR : YAMS
-    // ---------------------------------------------------------
+    // =========================================================
+    // MOTEUR DE JEU 4 : YAMS CHAMPIONSHIP
+    // =========================================================
     window.App.Yams = {
         dice: [1, 1, 1, 1, 1], 
         kept: [false, false, false, false, false], 
@@ -790,17 +918,23 @@
             const container = getEl('y-score-container'); 
             container.innerHTML = ''; 
             
-            const categoriesList = ['1', '2', '3', '4', '5', '6', 'Bonus (>62)', 'Brelan', 'Carré', 'Full', 'Petite Suite', 'Grande Suite', 'Yams', 'Chance'];
+            const categoriesList = [
+                '1', '2', '3', '4', '5', '6', 'Bonus (>62)', 
+                'Brelan', 'Carré', 'Full', 'Petite Suite', 'Grande Suite', 'Yams', 'Chance'
+            ];
             
             for (let i = 0; i < 2; i++) { 
                 let tableHTML = `<table class="y-table" id="yt-${i}"><tr><th colspan="2">Joueur ${i+1}</th></tr>`; 
+                
                 categoriesList.forEach(cat => { 
-                    if (cat.includes('Bonus')) tableHTML += `<tr style="background:#020617"><td style="color:var(--gold)">${cat}</td><td class="val" id="y-${i}-Bonus">0</td></tr>`; 
-                    else {
+                    if (cat.includes('Bonus')) {
+                        tableHTML += `<tr style="background:#020617"><td style="color:var(--gold)">${cat}</td><td class="val" id="y-${i}-Bonus">0</td></tr>`; 
+                    } else {
                         let cleanID = cat.replace(/\s/g, '');
                         tableHTML += `<tr><td>${cat}</td><td class="val" id="y-${i}-${cleanID}" onclick="window.App.Yams.lockCategory('${cat}', ${i})">-</td></tr>`; 
                     }
                 }); 
+                
                 tableHTML += `<tr class="total-row"><td>TOTAL</td><td id="y-tot-${i}">0</td></tr></table>`; 
                 container.innerHTML += tableHTML; 
             } 
@@ -810,9 +944,14 @@
         },
         
         roll() {
-            if (this.rollsLeft <= 0) return; 
+            if (this.rollsLeft <= 0) {
+                return; 
+            }
             
-            this.dice = this.dice.map((val, index) => this.kept[index] ? val : Math.floor(Math.random() * 6) + 1); 
+            this.dice = this.dice.map((val, index) => {
+                return this.kept[index] ? val : Math.floor(Math.random() * 6) + 1;
+            }); 
+            
             this.rollsLeft--; 
             this.ui();
         },
@@ -824,37 +963,51 @@
             this.dice.forEach((val, index) => { 
                 let dieElement = document.createElement('div'); 
                 dieElement.className = 'y-die' + (this.kept[index] ? ' kept' : ''); 
-                if (this.rollsLeft === 3) dieElement.style.opacity = '0.3';
+                
+                if (this.rollsLeft === 3) {
+                    dieElement.style.opacity = '0.3';
+                }
+                
                 dieElement.textContent = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'][val - 1]; 
                 
                 dieElement.onclick = () => { 
+                    // On ne peut garder que si on a fait au moins un lancer
                     if (this.rollsLeft < 3 && this.rollsLeft > 0) { 
                         this.kept[index] = !this.kept[index]; 
                         this.ui(); 
                     } 
                 }; 
+                
                 diceBox.appendChild(dieElement); 
             }); 
             
             getEl('y-roll-btn').textContent = `Lancer (${this.rollsLeft})`; 
             getEl('y-turn').textContent = `C'est au tour du Joueur ${this.currentPlayer + 1}`; 
             
-            if (this.rollsLeft < 3) this.calculatePotentials();
+            if (this.rollsLeft < 3) {
+                this.calculatePotentials();
+            }
         },
         
         calculatePotentials() {
             const counts = {}; 
             this.dice.forEach(x => counts[x] = (counts[x] || 0) + 1); 
+            
             const valuesCount = Object.values(counts);
             const uniqueSet = new Set(this.dice); 
             
             const hasSequence = (lengthRequired) => { 
-                let st = 0, mx = 0; 
+                let currentStreak = 0;
+                let maxStreak = 0; 
                 for (let i = 1; i <= 6; i++) {
-                    if (uniqueSet.has(i)) st++; else st = 0; 
-                    mx = Math.max(mx, st);
+                    if (uniqueSet.has(i)) {
+                        currentStreak++; 
+                    } else {
+                        currentStreak = 0; 
+                    }
+                    maxStreak = Math.max(maxStreak, currentStreak);
                 } 
-                return mx >= lengthRequired; 
+                return maxStreak >= lengthRequired; 
             }; 
             
             const categories = ['1', '2', '3', '4', '5', '6', 'Brelan', 'Carré', 'Full', 'Petite Suite', 'Grande Suite', 'Yams', 'Chance'];
@@ -862,17 +1015,30 @@
             categories.forEach(cat => { 
                 let cleanID = cat.replace(/\s/g, ''); 
                 const cellElement = getEl(`y-${this.currentPlayer}-${cleanID}`); 
-                if (this.scores[this.currentPlayer][cat] !== undefined) return; 
+                
+                if (this.scores[this.currentPlayer][cat] !== undefined) {
+                    return; 
+                }
                 
                 let potentialPoints = 0; 
-                if (!isNaN(cat)) potentialPoints = (counts[cat] || 0) * parseInt(cat); 
-                else if (cat === 'Brelan' && valuesCount.some(x => x >= 3)) potentialPoints = this.dice.reduce((a,b) => a + b); 
-                else if (cat === 'Carré' && valuesCount.some(x => x >= 4)) potentialPoints = this.dice.reduce((a,b) => a + b); 
-                else if (cat === 'Full' && valuesCount.includes(3) && valuesCount.includes(2)) potentialPoints = 25; 
-                else if (cat === 'Petite Suite' && hasSequence(4)) potentialPoints = 30; 
-                else if (cat === 'Grande Suite' && hasSequence(5)) potentialPoints = 40; 
-                else if (cat === 'Yams' && valuesCount.includes(5)) potentialPoints = 50; 
-                else if (cat === 'Chance') potentialPoints = this.dice.reduce((a,b) => a + b); 
+                
+                if (!isNaN(cat)) {
+                    potentialPoints = (counts[cat] || 0) * parseInt(cat); 
+                } else if (cat === 'Brelan' && valuesCount.some(x => x >= 3)) {
+                    potentialPoints = this.dice.reduce((a,b) => a + b); 
+                } else if (cat === 'Carré' && valuesCount.some(x => x >= 4)) {
+                    potentialPoints = this.dice.reduce((a,b) => a + b); 
+                } else if (cat === 'Full' && valuesCount.includes(3) && valuesCount.includes(2)) {
+                    potentialPoints = 25; 
+                } else if (cat === 'Petite Suite' && hasSequence(4)) {
+                    potentialPoints = 30; 
+                } else if (cat === 'Grande Suite' && hasSequence(5)) {
+                    potentialPoints = 40; 
+                } else if (cat === 'Yams' && valuesCount.includes(5)) {
+                    potentialPoints = 50; 
+                } else if (cat === 'Chance') {
+                    potentialPoints = this.dice.reduce((a,b) => a + b); 
+                }
                 
                 cellElement.textContent = potentialPoints; 
                 cellElement.className = 'val pot'; 
@@ -880,8 +1046,12 @@
         },
         
         lockCategory(category, playerIndex) {
-            if (this.rollsLeft === 3) return; 
-            if (playerIndex !== this.currentPlayer || this.scores[playerIndex][category] !== undefined) return; 
+            if (this.rollsLeft === 3) {
+                return; // Ne peut pas bloquer avant d'avoir lancé
+            }
+            if (playerIndex !== this.currentPlayer || this.scores[playerIndex][category] !== undefined) {
+                return; 
+            }
             
             let cleanID = category.replace(/\s/g, ''); 
             const cellElement = getEl(`y-${playerIndex}-${cleanID}`); 
@@ -892,35 +1062,45 @@
             let total = Object.values(this.scores[playerIndex]).reduce((sum, val) => sum + val, 0); 
             let sumTopSection = ['1', '2', '3', '4', '5', '6'].reduce((sum, key) => sum + (this.scores[playerIndex][key] || 0), 0); 
             
+            // Calcul Bonus 
             if (sumTopSection >= 63) { 
                 total += 35; 
                 getEl(`y-${playerIndex}-Bonus`).textContent = 35; 
             } 
+            
             getEl(`y-tot-${playerIndex}`).textContent = total; 
             
+            // Fin de tour
             this.currentPlayer = (this.currentPlayer + 1) % 2; 
             this.rollsLeft = 3; 
             this.kept.fill(false); 
             this.dice = [1, 1, 1, 1, 1]; 
             
-            document.querySelectorAll('.pot').forEach(element => { element.textContent = '-'; element.classList.remove('pot'); }); 
+            document.querySelectorAll('.pot').forEach(element => { 
+                element.textContent = '-'; 
+                element.classList.remove('pot'); 
+            }); 
             
+            // Fin de partie
             if (Object.keys(this.scores[1]).length === 13) { 
-                let t0 = parseInt(getEl(`y-tot-0`).textContent);
-                let t1 = parseInt(getEl(`y-tot-1`).textContent); 
-                let winnerText = t0 > t1 ? 'Joueur 1' : (t1 > t0 ? 'Joueur 2' : 'Égalité parfaite');
-                window.UI.showModal('Fin du Championnat !', `Scores finaux :<br>J1 : ${t0}<br>J2 : ${t1}<br><br>Vainqueur : <b>${winnerText}</b>`, () => this.init()); 
+                let totalPlayer1 = parseInt(getEl(`y-tot-0`).textContent);
+                let totalPlayer2 = parseInt(getEl(`y-tot-1`).textContent); 
+                
+                let winnerText = totalPlayer1 > totalPlayer2 ? 'Joueur 1' : (totalPlayer2 > totalPlayer1 ? 'Joueur 2' : 'Égalité parfaite');
+                let message = `Scores finaux :<br>J1 : ${totalPlayer1}<br>J2 : ${totalPlayer2}<br><br>Vainqueur : <b>${winnerText}</b>`;
+                
+                window.UI.showModal('Fin du Championnat !', message, () => this.init()); 
             } else {
                 this.ui(); 
             }
         }
     };
-    // ---------------------------------------------------------
-    // MOTEUR : LA VRAIE BELOTE IA (LOCALE)
-    // ---------------------------------------------------------
+    // =========================================================
+    // MOTEUR DE JEU 5 : LA VRAIE BELOTE (LOCALE IA)
+    // =========================================================
     window.App.Belote = {
         deck: [], 
-        hands: [[], [], [], []], // 0:Sud(Toi), 1:Est, 2:Nord, 3:Ouest
+        hands: [[], [], [], []], // Index 0:Toi(Sud), 1:Est, 2:Nord, 3:Ouest
         scores: { nous: 0, eux: 0 },
         litigePot: 0,
         
@@ -948,6 +1128,7 @@
         ],
         ranks: ['7', '8', '9', '10', 'V', 'D', 'R', 'A'],
         
+        // Valeur des cartes (Hiérarchie Belote)
         valAtout: { 'V':20, '9':14, 'A':11, '10':10, 'R':4, 'D':3, '8':0, '7':0 },
         valNormal: { 'A':11, '10':10, 'R':4, 'D':3, 'V':2, '9':0, '8':0, '7':0 },
         ordAtout: ['V', '9', 'A', '10', 'R', 'D', '8', '7'],
@@ -957,6 +1138,7 @@
             this.scores = { nous: 0, eux: 0 };
             this.litigePot = 0;
             
+            // Premier donneur (aléatoire la première fois)
             if (this.dealerIndex === -1) {
                 this.dealerIndex = Math.floor(Math.random() * 4);
             }
@@ -966,7 +1148,10 @@
         },
 
         startDeal() {
-            document.querySelectorAll('.bl-slot').forEach(slot => slot.innerHTML = '');
+            // Nettoyage complet du tapis
+            document.querySelectorAll('.bl-slot').forEach(slot => {
+                slot.innerHTML = '';
+            });
             getEl('loc-bl-center').innerHTML = '';
             getEl('loc-bl-hand').innerHTML = '';
             getEl('loc-bl-actions-1').style.display = 'none';
@@ -977,14 +1162,16 @@
             
             this.updatePlayerHighlight(-1);
 
+            // Rotation du donneur
             this.dealerIndex = (this.dealerIndex + 1) % 4;
             this.firstPlayerIndex = (this.dealerIndex + 1) % 4;
             
+            // Placement du jeton donneur (Coordonnées exactes)
             const positions = [
-                {x: 450, y: 420}, 
-                {x: 680, y: 300}, 
-                {x: 450, y: 40},  
-                {x: 100, y: 300}  
+                {x: 450, y: 420}, // Sud
+                {x: 680, y: 300}, // Est
+                {x: 450, y: 40},  // Nord
+                {x: 100, y: 300}  // Ouest
             ];
             
             const tkn = getEl('loc-bl-dealer-token');
@@ -992,6 +1179,7 @@
             tkn.style.left = positions[this.dealerIndex].x + 'px';
             tkn.style.top = positions[this.dealerIndex].y + 'px';
 
+            // Création du paquet
             this.deck = [];
             this.suits.forEach(suitObj => { 
                 this.ranks.forEach(rankStr => { 
@@ -999,11 +1187,13 @@
                 }); 
             });
             
+            // Mélange Parfait (Algorithme de Fisher-Yates)
             for (let i = this.deck.length - 1; i > 0; i--) { 
                 const j = Math.floor(Math.random() * (i + 1)); 
                 [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; 
             }
             
+            // Réinitialisation des stats de la donne
             this.hands = [[], [], [], []]; 
             this.currentTrick = []; 
             this.dealPoints = { nous: 0, eux: 0 };
@@ -1015,12 +1205,14 @@
             this.beloteAnnouncedBy = null;
             this.phase = 'bidding_1';
             
+            // Distribution (3 puis 2)
             for (let p = 0; p < 4; p++) {
                 let targetPlayer = (this.firstPlayerIndex + p) % 4;
                 this.hands[targetPlayer].push(...this.deck.splice(0, 3));
                 this.hands[targetPlayer].push(...this.deck.splice(0, 2));
             }
             
+            // Affichage de la carte de la retourne
             this.centerCard = this.deck.shift();
             this.showCenterCard(); 
             this.renderHand();
@@ -1047,7 +1239,7 @@
             
             setTimeout(() => {
                 bubble.style.opacity = 0;
-            }, 1200);
+            }, 1500); // Reste affiché 1.5s
         },
 
         showCenterCard() {
@@ -1061,10 +1253,14 @@
             centerArea.appendChild(cardElement);
         },
 
+        // ==========================================
+        // ENCHÈRES : TOUR 1
+        // ==========================================
         processBidding1() {
             this.updatePlayerHighlight(this.currentTurnIndex);
             
             if (this.currentTurnIndex === 0) {
+                // C'est à toi (Humain)
                 this.updateStatus("TOUR 1 : Voulez-vous prendre cette couleur ?");
                 getEl('loc-bl-actions-1').style.display = 'flex';
                 
@@ -1078,6 +1274,7 @@
                     this.passBidding1();
                 };
             } else {
+                // C'est au Bot
                 getEl('loc-bl-actions-1').style.display = 'none';
                 
                 let botName = '';
@@ -1095,6 +1292,7 @@
                     
                     let shouldTake = false;
                     
+                    // L'IA décide
                     if (rank === 'V' || rank === '9') {
                         shouldTake = true;
                     } else if (suitCards.length >= 2 && suitCards.some(c => c.rank === 'V' || c.rank === '9')) {
@@ -1123,6 +1321,7 @@
             this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
             
             if (this.currentTurnIndex === this.firstPlayerIndex) {
+                // Fin du tour 1 complet
                 this.phase = 'bidding_2';
                 this.updateStatus("TOUR 2 : Choix d'une autre couleur.");
                 setTimeout(() => {
@@ -1133,6 +1332,9 @@
             }
         },
 
+        // ==========================================
+        // ENCHÈRES : TOUR 2
+        // ==========================================
         processBidding2() {
             this.updatePlayerHighlight(this.currentTurnIndex);
             
@@ -1191,6 +1393,7 @@
                         }
                     });
 
+                    // L'IA du Tour 2
                     if (bestScore >= 4 || (bestScore >= 3 && Math.random() < 0.2)) {
                         this.showSpeech(this.currentTurnIndex, `Je prends ! (${bestSuit.s})`);
                         setTimeout(() => {
@@ -1219,6 +1422,9 @@
             }
         },
 
+        // ==========================================
+        // VALIDATION DE LA PRISE
+        // ==========================================
         take(playerIdx, selectedSuit) {
             getEl('loc-bl-actions-1').style.display = 'none';
             getEl('loc-bl-actions-2').style.display = 'none';
@@ -1258,6 +1464,7 @@
             getEl('loc-bl-trick-points').style.display = 'block';
             this.updateTrickPointsUI();
             
+            // On distribue le reste
             for (let p = 0; p < 4; p++) {
                 let targetPlayer = (this.firstPlayerIndex + p) % 4;
                 let numCardsToGive = (targetPlayer === this.takerIndex) ? 2 : 3;
@@ -1297,7 +1504,7 @@
 
         processPlay() {
             if (this.tricksPlayedCount === 8) {
-                return; 
+                return; // Protection de fin de manche
             }
 
             this.updatePlayerHighlight(this.currentTurnIndex);
@@ -1316,7 +1523,7 @@
                 
                 setTimeout(() => {
                     this.botPlay();
-                }, 600);
+                }, 800);
             }
         },
 
@@ -1372,6 +1579,7 @@
                 }
             });
 
+            // Fournir à la couleur
             if (cardsOfRequestedSuit.length > 0) {
                 if (leadSuitChar === this.atoutSuit.s) {
                     let higherTrumpsToPlay = cardsOfRequestedSuit.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRankInTrick);
@@ -1382,6 +1590,7 @@
                 return cardsOfRequestedSuit; 
             }
             
+            // Couper ou Pisser
             let currentWinnerData = this.getTrickWinner(this.currentTrick);
             let partnerIndex = (this.currentTurnIndex + 2) % 4;
             let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
@@ -1403,6 +1612,7 @@
 
         chooseBotCard(validCardsArray) {
             if (this.currentTrick.length === 0) {
+                // 1er du pli
                 validCardsArray.sort((a, b) => this.getCardValue(b) - this.getCardValue(a));
                 return validCardsArray[0];
             }
@@ -1412,6 +1622,7 @@
             let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
 
             if (isPartnerWinning) {
+                // Défausse la plus petite
                 validCardsArray.sort((a, b) => this.getCardValue(a) - this.getCardValue(b));
                 return validCardsArray[0];
             } else {
@@ -1498,7 +1709,7 @@
         },
 
         playCard(cardIndex, cardElement) {
-            this.phase = 'resolving'; 
+            this.phase = 'resolving'; // Lock le clic pour éviter les doublons
             
             let playedCardObj = this.hands[0].splice(cardIndex, 1)[0]; 
             this.renderHand();
@@ -1571,6 +1782,7 @@
             
             this.tricksPlayedCount++; 
 
+            // 10 de der
             if (this.tricksPlayedCount === 8) {
                 pointsInTrick += 10; 
             }
@@ -1750,8 +1962,8 @@
                 initData.scores = { X:{init:true}, O:{init:true} }; 
             }
             
+            // Initialisation de la salle Belote Réseau
             if (this.gameType === 'belote_2p') {
-                // On met juste l'état d'attente, l'hôte va gérer la synchro depuis son client
                 initData.beloteState = { playersJoined: 1 };
             }
             
@@ -1765,7 +1977,7 @@
             const codeInput = document.getElementById('input-room-code').value.toUpperCase().trim();
             
             if (codeInput.length !== 4) {
-                return window.UI.showModal('Erreur', 'Code invalide. Le code doit comporter 4 caractères.', null);
+                return window.UI.showModal('Erreur', 'Code invalide.', null);
             }
             
             const snapshot = await get(ref(db, 'rooms/' + codeInput));
@@ -1807,8 +2019,8 @@
                     }
                     if (this.gameType === 'belote_2p') {
                         window.UI.switchScreen('s-net-belote');
-                        // ICI: Initialisation du moteur de Belote Réseau (A venir si on va plus loin)
-                        // Pour le moment, l'interface s'affiche en attendant la logique réseau
+                        // Le code de la Belote Réseau se greffera ici
+                        document.getElementById('net-bl-status').textContent = "Le développement de la Belote Réseau arrivera dans la v2.0 !";
                     }
                 }
             });
