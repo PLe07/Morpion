@@ -235,7 +235,7 @@
         /* =========================================
            3. CSS DES JEUX CLASSIQUES
            ========================================= */
-           
+            
         /* Morpion Simple */
         .ms-grid { 
             display: grid; 
@@ -1192,7 +1192,7 @@
             const winConditions = [
                 [0, 1, 2], [3, 4, 5], [6, 7, 8], 
                 [0, 3, 6], [1, 4, 7], [2, 5, 8], 
-                [0, 4, 8], [2, 4, 6]             
+                [0, 4, 8], [2, 4, 6]            
             ]; 
             
             return winConditions.find(line => grid[line[0]] && grid[line[0]] === grid[line[1]] && grid[line[0]] === grid[line[2]]);
@@ -2113,8 +2113,22 @@
             return handArray;
         },
 
+        // --- CORRECTION: IA RÉFLÉCHIE POUR LES BOTS ---
         chooseBotCard(validCardsArray) {
             if (this.currentTrick.length === 0) {
+                // Si le bot a pris l'atout, il essaie de faire tomber les atouts adverses
+                if (this.takerIndex === this.currentTurnIndex) {
+                    let trumps = validCardsArray.filter(c => c.suit.s === this.atoutSuit.s);
+                    if (trumps.length > 0) {
+                        trumps.sort((a, b) => this.getCardValue(b) - this.getCardValue(a));
+                        return trumps[0];
+                    }
+                }
+                // Sinon, il essaie de jouer ses As (Maîtres)
+                let aces = validCardsArray.filter(c => c.rank === 'A' && c.suit.s !== this.atoutSuit.s);
+                if (aces.length > 0) return aces[0];
+
+                // Par défaut, joue sa carte la plus forte
                 validCardsArray.sort((a, b) => this.getCardValue(b) - this.getCardValue(a));
                 return validCardsArray[0];
             }
@@ -2124,6 +2138,12 @@
             let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
 
             if (isPartnerWinning) {
+                // Le partenaire gagne le pli. On met des points (10 ou As) si on a, sinon on défausse la plus petite
+                let pointsCards = validCardsArray.filter(c => c.rank === '10' || c.rank === 'A');
+                if (pointsCards.length > 0) {
+                    pointsCards.sort((a, b) => this.getCardValue(b) - this.getCardValue(a));
+                    return pointsCards[0];
+                }
                 validCardsArray.sort((a, b) => this.getCardValue(a) - this.getCardValue(b));
                 return validCardsArray[0];
             } else {
@@ -2131,9 +2151,7 @@
                 let winningVal = (winningCard.suit.s === this.atoutSuit.s) ? (8 - this.ordAtout.indexOf(winningCard.rank)) : (8 - this.ordNormal.indexOf(winningCard.rank));
                 
                 let cardsThatBeatWinner = validCardsArray.filter(c => {
-                    if (c.suit.s === this.atoutSuit.s && winningCard.suit.s !== this.atoutSuit.s) {
-                        return true;
-                    }
+                    if (c.suit.s === this.atoutSuit.s && winningCard.suit.s !== this.atoutSuit.s) return true;
                     if (c.suit.s === winningCard.suit.s) {
                         let order = (c.suit.s === this.atoutSuit.s) ? this.ordAtout : this.ordNormal;
                         return (8 - order.indexOf(c.rank)) > winningVal;
@@ -2142,9 +2160,11 @@
                 });
 
                 if (cardsThatBeatWinner.length > 0) {
+                    // On gagne avec la carte JUSTE au-dessus pour ne pas gâcher
                     cardsThatBeatWinner.sort((a, b) => this.getCardValue(a) - this.getCardValue(b));
                     return cardsThatBeatWinner[0];
                 } else {
+                    // Impossible de gagner, on défausse la plus petite
                     validCardsArray.sort((a, b) => this.getCardValue(a) - this.getCardValue(b));
                     return validCardsArray[0];
                 }
@@ -2617,6 +2637,7 @@
             });
         },
 
+        // --- CORRECTION BUG YAMS RÉSEAU ---
         renderYams(data) {
             const diceBox = document.getElementById('net-yams-dice'); 
             diceBox.innerHTML = ''; 
@@ -2690,9 +2711,9 @@
                             val = data.dice.reduce((a,b) => a + b); 
                         } else if (cat === 'Full' && valuesCount.includes(3) && valuesCount.includes(2)) {
                             val = 25; 
-                        } else if (cat === 'Petite Suite' && seq(4)) {
+                        } else if (cat === 'Petite Suite' && hasSequence(4)) { // CORRECTION ICI (remplacement de seq par hasSequence)
                             val = 30; 
-                        } else if (cat === 'Grande Suite' && seq(5)) {
+                        } else if (cat === 'Grande Suite' && hasSequence(5)) { // CORRECTION ICI (remplacement de seq par hasSequence)
                             val = 40; 
                         } else if (cat === 'Yams' && valuesCount.includes(5)) {
                             val = 50; 
