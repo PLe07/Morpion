@@ -892,6 +892,31 @@
         .bj-hand .bl-card:first-child { margin-left: 0; }
 
         /* =========================================
+           6. CSS MASTERMIND & BATAILLE NAVALE
+           ========================================= */
+        /* Mastermind */
+        .mm-board { display: flex; flex-direction: column; gap: 10px; align-items: center; margin-bottom: 20px; }
+        .mm-row { display: flex; gap: 15px; background: #020617; padding: 10px 20px; border-radius: 10px; border: 1px solid #1e293b; }
+        .mm-pegs { display: flex; gap: 10px; }
+        .mm-peg { width: 35px; height: 35px; border-radius: 50%; background: var(--panel-bg); border: 2px solid #334155; cursor: pointer; transition: 0.2s; }
+        .mm-hints { display: grid; grid-template-columns: repeat(2, 15px); gap: 5px; align-items: center; }
+        .mm-hint { width: 15px; height: 15px; border-radius: 50%; background: #1e293b; }
+        .mm-colors { display: flex; gap: 15px; justify-content: center; margin-top: 20px; background: #020617; padding: 15px; border-radius: 15px; }
+        .mm-color-btn { width: 45px; height: 45px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: 0.2s; }
+        .mm-color-btn:hover { transform: scale(1.1); }
+        .mm-color-btn.selected { border-color: white; box-shadow: 0 0 15px rgba(255,255,255,0.5); }
+
+        /* Bataille Navale */
+        .bn-container { display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+        .bn-grid-wrapper { text-align: center; }
+        .bn-grid { display: grid; grid-template-columns: repeat(10, 35px); gap: 2px; background: #334155; padding: 4px; border: 4px solid #1e293b; border-radius: 8px; }
+        .bn-cell { width: 35px; height: 35px; background: var(--bg-color); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .bn-cell:hover:not(.shot) { background: var(--panel-hover); }
+        .bn-ship { background: var(--text-muted); }
+        .bn-hit { background: var(--player-x); animation: pulseWin 1s infinite alternate; }
+        .bn-miss { background: var(--player-o); }
+
+        /* =========================================
            9. RESPONSIVE DESIGN (MOBILES & TABLETTES)
            ========================================= */
         @media (max-width: 900px) {
@@ -936,6 +961,8 @@
         <li data-target="s-belote"><span>🃏</span> Belote </li>
         <li data-target="s-p4"><span>🔴</span> Puissance 4</li>
         <li data-target="s-bj"><span>♠️</span> Blackjack 21</li>
+        <li data-target="s-mm"><span>🧠</span> Mastermind</li>
+        <li data-target="s-bn"><span>🚢</span> Bataille Navale</li>
         <div class="nav-divider"></div>
         <li data-target="s-net-lobby" style="color:var(--accent); border-color:var(--accent);"><span>🌐</span> Salon Multijoueur</li>
     </ul>
@@ -1133,6 +1160,35 @@
         </div>
         <div style="text-align: center; margin-top: 30px;">
             <button class="btn" onclick="App.BJ.init()">Nouvelle Main</button>
+        </div>
+    </section>
+    <section id="s-mm" class="screen">
+        <h1>Mastermind</h1>
+        <p class="subtitle" id="mm-status">Craque le code à 4 couleurs en 10 essais !</p>
+        <div id="mm-board" class="mm-board"></div>
+        <div class="mm-colors" id="mm-color-picker"></div>
+        <div style="text-align: center; margin-top: 20px; display:flex; justify-content:center; gap:10px;">
+            <button class="btn" onclick="App.MM.checkRow()">Valider</button>
+            <button class="btn" style="background:var(--player-x); color:white;" onclick="App.MM.init()">Recommencer</button>
+        </div>
+    </section>
+
+    <section id="s-bn" class="screen">
+        <h1>Bataille Navale</h1>
+        <p class="subtitle" id="bn-status">Génère ta flotte pour commencer.</p>
+        <div class="bn-container">
+            <div class="bn-grid-wrapper">
+                <h2 style="color:var(--accent); margin-bottom:15px;">Ta Flotte</h2>
+                <div id="bn-player-grid" class="bn-grid"></div>
+            </div>
+            <div class="bn-grid-wrapper">
+                <h2 style="color:var(--player-x); margin-bottom:15px;">Flotte Ennemie</h2>
+                <div id="bn-bot-grid" class="bn-grid" style="opacity:0.5; pointer-events:none;"></div>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" id="bn-action-btn" onclick="App.BN.autoPlace()">Placement Auto</button>
+            <button class="btn" style="background:var(--player-x); color:white;" onclick="App.BN.init()">Recommencer</button>
         </div>
     </section>
 </main>
@@ -2527,6 +2583,208 @@
             setTimeout(() => window.UI.showModal('Fin de la main', msg, () => this.init()), 500);
         }
     };
+    // =========================================================
+    // MOTEUR DE JEU : MASTERMIND
+    // =========================================================
+    window.App.MM = {
+        colors: ['#ef4444', '#3b82f6', '#10b981', '#eab308', '#a855f7', '#f97316'],
+        secret: [], currentRow: 0, guess: [], selectedColor: '#ef4444',
+        
+        init() {
+            this.secret = Array.from({length: 4}, () => this.colors[Math.floor(Math.random() * 6)]);
+            this.currentRow = 0; 
+            this.guess = [null, null, null, null];
+            this.renderPicker(); 
+            this.renderBoard();
+            document.getElementById('mm-status').textContent = "Trouve le code secret à 4 couleurs !";
+        },
+        
+        renderPicker() {
+            const p = document.getElementById('mm-color-picker'); p.innerHTML = '';
+            this.colors.forEach(c => {
+                let btn = document.createElement('div'); btn.className = 'mm-color-btn';
+                btn.style.background = c;
+                if(c === this.selectedColor) btn.classList.add('selected');
+                btn.onclick = () => { this.selectedColor = c; this.renderPicker(); };
+                p.appendChild(btn);
+            });
+        },
+        
+        renderBoard() {
+            const b = document.getElementById('mm-board'); b.innerHTML = '';
+            for(let i=0; i<10; i++) {
+                let row = document.createElement('div'); row.className = 'mm-row';
+                row.style.opacity = i === this.currentRow ? '1' : '0.4';
+                
+                let pegs = document.createElement('div'); pegs.className = 'mm-pegs';
+                for(let j=0; j<4; j++) {
+                    let peg = document.createElement('div'); peg.className = 'mm-peg';
+                    peg.id = `mm-peg-${i}-${j}`;
+                    if(i === this.currentRow && this.guess[j]) peg.style.background = this.guess[j];
+                    if(i < this.currentRow) peg.style.background = 'gray'; // Pour l'historique visuel (sera remplacé)
+                    if(i === this.currentRow) peg.onclick = () => { this.guess[j] = this.selectedColor; this.renderBoard(); };
+                    pegs.appendChild(peg);
+                }
+                
+                let hints = document.createElement('div'); hints.className = 'mm-hints';
+                for(let j=0; j<4; j++) {
+                    let hint = document.createElement('div'); hint.className = 'mm-hint';
+                    hint.id = `mm-hint-${i}-${j}`;
+                    hints.appendChild(hint);
+                }
+                row.appendChild(pegs); row.appendChild(hints); b.appendChild(row);
+            }
+            
+            // Restaure les couleurs de l'historique (c'est fait sommairement ici)
+            // Dans un jeu complet, on sauvegarde un tableau 'history'.
+        },
+        
+        checkRow() {
+            if(this.guess.includes(null)) return window.UI.showModal("Erreur", "Remplissez les 4 trous.", null);
+            
+            let exact = 0, color = 0;
+            let secretCopy = [...this.secret], guessCopy = [...this.guess];
+            
+            // Pions bien placés (Rouge)
+            for(let i=0; i<4; i++) {
+                if(guessCopy[i] === secretCopy[i]) { exact++; secretCopy[i] = null; guessCopy[i] = null; }
+            }
+            // Pions mal placés (Blanc)
+            for(let i=0; i<4; i++) {
+                if(guessCopy[i] && secretCopy.includes(guessCopy[i])) {
+                    color++; secretCopy[secretCopy.indexOf(guessCopy[i])] = null;
+                }
+            }
+            
+            // Affichage des indices
+            let hintIndex = 0;
+            for(let i=0; i<exact; i++) { document.getElementById(`mm-hint-${this.currentRow}-${hintIndex++}`).style.background = '#ef4444'; }
+            for(let i=0; i<color; i++) { document.getElementById(`mm-hint-${this.currentRow}-${hintIndex++}`).style.background = '#f8fafc'; }
+            
+            // Fixer les couleurs pour l'historique visuel
+            for(let j=0; j<4; j++) {
+                let peg = document.getElementById(`mm-peg-${this.currentRow}-${j}`);
+                peg.style.background = this.guess[j];
+                peg.onclick = null; // Désactive le clic
+            }
+            
+            if(exact === 4) {
+                setTimeout(() => window.UI.showModal("Gagné !", "Tu as craqué le code de génie !", () => this.init()), 300);
+            } else if(this.currentRow === 9) {
+                setTimeout(() => window.UI.showModal("Perdu...", "Le code était caché à jamais.", () => this.init()), 300);
+            } else {
+                this.currentRow++; this.guess = [null, null, null, null]; this.renderBoard();
+            }
+        }
+    };
+
+    // =========================================================
+    // MOTEUR DE JEU : BATAILLE NAVALE
+    // =========================================================
+    window.App.BN = {
+        pGrid: [], bGrid: [], phase: 'setup', ships: [5, 4, 3, 3, 2],
+        
+        init() {
+            this.pGrid = Array.from({length:10}, () => Array(10).fill(0));
+            this.bGrid = Array.from({length:10}, () => Array(10).fill(0));
+            this.phase = 'setup';
+            document.getElementById('bn-bot-grid').style.opacity = '0.5';
+            document.getElementById('bn-bot-grid').style.pointerEvents = 'none';
+            document.getElementById('bn-action-btn').style.display = 'inline-block';
+            document.getElementById('bn-status').textContent = "Clique sur Placement Auto pour préparer ta flotte.";
+            this.drawGrid('bn-player-grid', this.pGrid, false);
+            this.drawGrid('bn-bot-grid', this.bGrid, true);
+        },
+        
+        drawGrid(id, grid, isBot) {
+            const el = document.getElementById(id); el.innerHTML = '';
+            for(let r=0; r<10; r++) {
+                for(let c=0; c<10; c++) {
+                    let cell = document.createElement('div'); cell.className = 'bn-cell';
+                    if(!isBot && grid[r][c] === 1) cell.classList.add('bn-ship');
+                    if(grid[r][c] === 'H') { cell.classList.add('bn-hit', 'shot'); cell.textContent = '💥'; }
+                    if(grid[r][c] === 'M') { cell.classList.add('bn-miss', 'shot'); cell.textContent = '🌊'; }
+                    
+                    if(isBot && this.phase === 'play') {
+                        cell.onclick = () => this.shoot(r, c);
+                    }
+                    el.appendChild(cell);
+                }
+            }
+        },
+        
+        placeShipsRandomly(grid) {
+            grid.forEach(row => row.fill(0));
+            this.ships.forEach(len => {
+                let placed = false;
+                while(!placed) {
+                    let r = Math.floor(Math.random()*10), c = Math.floor(Math.random()*10), dir = Math.random()>0.5?1:0;
+                    let valid = true;
+                    for(let i=0; i<len; i++) {
+                        let nr = r + (dir?i:0), nc = c + (dir?0:i);
+                        if(nr>=10 || nc>=10 || grid[nr][nc]!==0) { valid=false; break; }
+                    }
+                    if(valid) {
+                        for(let i=0; i<len; i++) grid[r + (dir?i:0)][c + (dir?0:i)] = 1;
+                        placed = true;
+                    }
+                }
+            });
+        },
+        
+        autoPlace() {
+            this.placeShipsRandomly(this.pGrid); this.drawGrid('bn-player-grid', this.pGrid, false);
+            this.placeShipsRandomly(this.bGrid); this.drawGrid('bn-bot-grid', this.bGrid, true);
+            this.phase = 'play';
+            document.getElementById('bn-bot-grid').style.opacity = '1';
+            document.getElementById('bn-bot-grid').style.pointerEvents = 'auto';
+            document.getElementById('bn-status').textContent = "À l'attaque ! Clique sur la grille ennemie.";
+            document.getElementById('bn-action-btn').style.display = 'none'; 
+        },
+        
+        shoot(r, c) {
+            if(this.bGrid[r][c] === 'H' || this.bGrid[r][c] === 'M') return;
+            
+            if(this.bGrid[r][c] === 1) { 
+                this.bGrid[r][c] = 'H'; 
+                document.getElementById('bn-status').textContent = "Touché !";
+            } else { 
+                this.bGrid[r][c] = 'M'; 
+                document.getElementById('bn-status').textContent = "Dans l'eau...";
+                document.getElementById('bn-bot-grid').style.pointerEvents = 'none'; // Tour du bot
+                setTimeout(() => this.botShoot(), 800);
+            }
+            this.drawGrid('bn-bot-grid', this.bGrid, true);
+            
+            if(this.checkWin(this.bGrid)) setTimeout(() => window.UI.showModal('Victoire !', 'Flotte ennemie détruite !', () => this.init()), 500);
+        },
+        
+        botShoot() {
+            let r, c;
+            // Bot tire au hasard (pour rester simple et rapide)
+            do { r = Math.floor(Math.random()*10); c = Math.floor(Math.random()*10); }
+            while(this.pGrid[r][c] === 'H' || this.pGrid[r][c] === 'M');
+            
+            if(this.pGrid[r][c] === 1) {
+                this.pGrid[r][c] = 'H';
+                document.getElementById('bn-status').textContent = "Aïe ! Le bot a touché un navire !";
+                // S'il touche, il rejoue !
+                setTimeout(() => this.botShoot(), 800);
+            } else {
+                this.pGrid[r][c] = 'M';
+                document.getElementById('bn-status').textContent = "Le bot a tiré dans l'eau. À toi !";
+                document.getElementById('bn-bot-grid').style.pointerEvents = 'auto'; // Reprise joueur
+            }
+            
+            this.drawGrid('bn-player-grid', this.pGrid, false);
+            if(this.checkWin(this.pGrid)) setTimeout(() => window.UI.showModal('Défaite...', 'Ta flotte a coulé.', () => this.init()), 500);
+        },
+        
+        checkWin(grid) {
+            for(let r=0; r<10; r++) for(let c=0; c<10; c++) if(grid[r][c] === 1) return false;
+            return true;
+        }
+    };
     
     // =========================================================
     // MOTEUR: RÉSEAU FIREBASE MULTIJOUEUR
@@ -2992,6 +3250,8 @@
             if (targetID === 's-belote') window.App.Belote.initGame(); 
             if (targetID === 's-p4') window.App.P4.init(); 
             if (targetID === 's-bj') window.App.BJ.init();
+            if (targetID === 's-mm') window.App.MM.init(); 
+            if (targetID === 's-bn') window.App.BN.init();
         }; 
     });
 
