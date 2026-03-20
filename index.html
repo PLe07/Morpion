@@ -1071,6 +1071,7 @@
             <button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button>
         </div>
     </section>
+
 </main>
 
 <script type="module">
@@ -1662,6 +1663,23 @@
         ordAtout: ['V', '9', 'A', '10', 'R', 'D', '8', '7'],
         ordNormal: ['A', '10', 'R', 'D', 'V', '9', '8', '7'],
 
+        // CORRECTION 1 : Fonction pour trier les mains parfaitement
+        sortAllHands() {
+            for (let i = 0; i < 4; i++) {
+                this.hands[i].sort((a, b) => {
+                    // Tri par couleur en premier
+                    if (a.suit.s !== b.suit.s) {
+                        const suitOrder = {'♥': 1, '♠': 2, '♦': 3, '♣': 4};
+                        return suitOrder[a.suit.s] - suitOrder[b.suit.s];
+                    }
+                    // Si même couleur, tri par rang (selon Atout ou Normal)
+                    let isAtout = (this.atoutSuit && a.suit.s === this.atoutSuit.s);
+                    let order = isAtout ? this.ordAtout : this.ordNormal;
+                    return order.indexOf(a.rank) - order.indexOf(b.rank);
+                });
+            }
+        },
+
         initGame() {
             this.scores = { nous: 0, eux: 0 };
             this.litigePot = 0;
@@ -1737,6 +1755,7 @@
             }
             
             this.centerCard = this.deck.shift();
+            this.sortAllHands(); // Appel du tri
             this.showCenterCard(); 
             this.renderHand();
             this.renderBotHands();
@@ -1766,9 +1785,6 @@
             centerArea.appendChild(cardElement);
         },
 
-        // ==========================================
-        // ENCHÈRES : TOUR 1
-        // ==========================================
         processBidding1() {
             this.updatePlayerHighlight(this.currentTurnIndex);
             
@@ -1840,9 +1856,6 @@
             }
         },
 
-        // ==========================================
-        // ENCHÈRES : TOUR 2
-        // ==========================================
         processBidding2() {
             this.updatePlayerHighlight(this.currentTurnIndex);
             
@@ -1929,9 +1942,6 @@
             }
         },
 
-        // ==========================================
-        // VALIDATION DE LA PRISE
-        // ==========================================
         take(playerIdx, selectedSuit) {
             document.getElementById('bl-actions-1').style.display = 'none';
             document.getElementById('bl-actions-2').style.display = 'none';
@@ -1977,6 +1987,7 @@
                 this.hands[targetPlayer].push(...this.deck.splice(0, numCardsToGive));
             }
             
+            this.sortAllHands(); // Appel du tri après la distribution
             this.currentTurnIndex = this.firstPlayerIndex;
             this.processPlay();
         },
@@ -2114,10 +2125,9 @@
             return handArray;
         },
 
-        // --- CORRECTION: IA RÉFLÉCHIE POUR LES BOTS ---
+        // CORRECTION 2 : IA Vraiment Réfléchie
         chooseBotCard(validCardsArray) {
             if (this.currentTrick.length === 0) {
-                // Si le bot a pris l'atout, il essaie de faire tomber les atouts adverses
                 if (this.takerIndex === this.currentTurnIndex) {
                     let trumps = validCardsArray.filter(c => c.suit.s === this.atoutSuit.s);
                     if (trumps.length > 0) {
@@ -2125,11 +2135,9 @@
                         return trumps[0];
                     }
                 }
-                // Sinon, il essaie de jouer ses As (Maîtres)
                 let aces = validCardsArray.filter(c => c.rank === 'A' && c.suit.s !== this.atoutSuit.s);
                 if (aces.length > 0) return aces[0];
 
-                // Par défaut, joue sa carte la plus forte
                 validCardsArray.sort((a, b) => this.getCardValue(b) - this.getCardValue(a));
                 return validCardsArray[0];
             }
@@ -2139,7 +2147,6 @@
             let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
 
             if (isPartnerWinning) {
-                // Le partenaire gagne le pli. On met des points (10 ou As) si on a, sinon on défausse la plus petite
                 let pointsCards = validCardsArray.filter(c => c.rank === '10' || c.rank === 'A');
                 if (pointsCards.length > 0) {
                     pointsCards.sort((a, b) => this.getCardValue(b) - this.getCardValue(a));
@@ -2161,11 +2168,9 @@
                 });
 
                 if (cardsThatBeatWinner.length > 0) {
-                    // On gagne avec la carte JUSTE au-dessus pour ne pas gâcher
                     cardsThatBeatWinner.sort((a, b) => this.getCardValue(a) - this.getCardValue(b));
                     return cardsThatBeatWinner[0];
                 } else {
-                    // Impossible de gagner, on défausse la plus petite
                     validCardsArray.sort((a, b) => this.getCardValue(a) - this.getCardValue(b));
                     return validCardsArray[0];
                 }
@@ -2203,11 +2208,7 @@
             const handContainer = document.getElementById('bl-hand'); 
             handContainer.innerHTML = '';
             
-            this.hands[0].sort((a, b) => {
-                if (a.suit.s === this.atoutSuit?.s) return -1; 
-                if (b.suit.s === this.atoutSuit?.s) return 1;
-                return a.suit.s.localeCompare(b.suit.s);
-            });
+            // On a supprimé le tri local ici car il est fait de façon globale pour tous par sortAllHands() !
             
             let validCardsArray = (this.phase === 'playing' && this.currentTurnIndex === 0) ? this.getValidCards(this.hands[0]) : [];
 
@@ -2666,6 +2667,7 @@
             });
         },
 
+        // CORRECTION 3 : Résolution d'une erreur de fonction "seq" dans le Yams Réseau
         renderYams(data) {
             const diceBox = document.getElementById('net-yams-dice'); 
             diceBox.innerHTML = ''; 
@@ -2847,6 +2849,14 @@
     // L'hôte synchronise l'état local du jeu sur Firebase
     window.App.Belote.syncNetwork = function() {
         if (window.App.Network.room && window.App.Network.gameType === 'belote' && window.App.Network.myId === 'X') {
+            
+            // On calcule quels indices de cartes l'invité a le droit de jouer
+            let validGuestIndices = [];
+            if (this.phase === 'playing' && this.currentTurnIndex === 2) {
+                let validCards = this.getValidCards(this.hands[2]);
+                validGuestIndices = validCards.map(c => this.hands[2].indexOf(c));
+            }
+
             update(window.App.Network.ref, {
                 blState: {
                     hands: this.hands,
@@ -2857,13 +2867,18 @@
                     centerCard: this.centerCard,
                     atout: this.atoutSuit,
                     phase: this.phase,
+                    takerIndex: this.takerIndex,
+                    validGuestIndices: validGuestIndices,
                     msg: document.getElementById('bl-status').innerHTML
                 }
             });
         }
     };
 
-    // Le client (Nord) affiche ce que l'hôte lui envoie
+    // Le client (Ami) affiche ce que l'hôte lui envoie
+    // Le client remplace visuellement Sud pour son confort de jeu !
+    let actionSentLock = false; // Verrou anti-double-clic
+    
     window.App.Belote.renderFromNetwork = function(state) {
         if (!state || state.status === 'waiting') return;
         
@@ -2871,7 +2886,14 @@
         document.getElementById('bl-score-nous').textContent = state.scores.nous; 
         document.getElementById('bl-score-eux').textContent = state.scores.eux;
         document.getElementById('bl-status').innerHTML = state.msg;
+        document.getElementById('bl-trick-pts-val').textContent = state.dealPoints.nous || 0;
         
+        // Màj des noms pour le client
+        document.getElementById('bl-n-s').textContent = "Toi";
+        document.getElementById('bl-n-n').textContent = "L'Hôte";
+        document.getElementById('bl-n-w').textContent = "Est"; 
+        document.getElementById('bl-n-e').textContent = "Ouest"; 
+
         // 2. Centre et Atout
         if (state.phase === 'bidding_1' || state.phase === 'bidding_2') {
             if (state.centerCard) {
@@ -2883,29 +2905,50 @@
                 document.getElementById('bl-atout-corner').style.display = 'block';
                 document.getElementById('bl-atout-suit').innerText = state.atout.s;
                 document.getElementById('bl-atout-suit').style.color = state.atout.color === 'r' ? '#f43f5e' : 'white';
+                
+                if (state.takerIndex !== -1) {
+                    let takerName = '';
+                    if (state.takerIndex === 0) takerName = "Hôte";
+                    if (state.takerIndex === 1) takerName = "Est";
+                    if (state.takerIndex === 2) takerName = "Toi";
+                    if (state.takerIndex === 3) takerName = "Ouest";
+                    document.getElementById('bl-taker-name').innerText = `Preneur : ${takerName}`;
+                }
             }
         }
 
-        // 3. Tapis (Le pli)
+        // 3. Tapis (Le pli) vu depuis le Client (Le Client est le joueur index 2)
         document.querySelectorAll('.bl-slot').forEach(s => s.innerHTML = '');
-        const positionsMap = ['s', 'e', 'n', 'w'];
+        const clientPositionsMap = { 2: 's', 3: 'e', 0: 'n', 1: 'w' }; // Rotated perspective
+        
         if (state.trick) {
             state.trick.forEach(t => {
-                document.getElementById('bl-s-' + positionsMap[t.player]).innerHTML = `<div class="bl-card ${t.card.isRed ? 'red' : ''}"><span>${t.card.rank}</span><span>${t.card.suit.s}</span></div>`;
+                document.getElementById('bl-s-' + clientPositionsMap[t.player]).innerHTML = `<div class="bl-card ${t.card.isRed ? 'red' : ''}"><span>${t.card.rank}</span><span>${t.card.suit.s}</span></div>`;
             });
         }
 
-        // 4. Main du Client (Il joue Nord, index 2)
+        // Mise en évidence du tour
+        document.querySelectorAll('.bl-name').forEach(el => el.classList.remove('active-turn'));
+        if (state.turn === 2) document.getElementById('bl-n-s').classList.add('active-turn');
+        if (state.turn === 3) document.getElementById('bl-n-e').classList.add('active-turn');
+        if (state.turn === 0) document.getElementById('bl-n-n').classList.add('active-turn');
+        if (state.turn === 1) document.getElementById('bl-n-w').classList.add('active-turn');
+
+        // 4. Main du Client
         const handContainer = document.getElementById('bl-hand');
         handContainer.innerHTML = '';
         if (state.hands && state.hands[2]) {
             state.hands[2].forEach((card, index) => {
                 let cardEl = document.createElement('div');
-                cardEl.className = `bl-card ${card.isRed ? 'red' : ''}`;
+                let isValid = state.validGuestIndices ? state.validGuestIndices.includes(index) : true;
+                
+                cardEl.className = `bl-card ${card.isRed ? 'red' : ''} ${!isValid && state.phase === 'playing' ? 'invalid' : ''}`;
                 cardEl.innerHTML = `<span>${card.rank}</span><span>${card.suit.s}</span>`;
                 
-                if (state.turn === 2 && state.phase === 'playing') {
+                if (isValid && state.turn === 2 && state.phase === 'playing') {
                     cardEl.onclick = () => {
+                        if (actionSentLock) return; // Anti double clic
+                        actionSentLock = true;
                         update(window.App.Network.ref, { guestAction: { type: 'play', index: index } });
                     };
                 }
@@ -2913,13 +2956,18 @@
             });
         }
 
+        // On reset le verrou si le tour change
+        if (state.turn !== 2) {
+            actionSentLock = false;
+        }
+
         // 5. Actions d'enchères du client
         document.getElementById('bl-actions-1').style.display = (state.turn === 2 && state.phase === 'bidding_1') ? 'flex' : 'none';
         document.getElementById('bl-actions-2').style.display = (state.turn === 2 && state.phase === 'bidding_2') ? 'flex' : 'none';
         
         if (state.turn === 2 && state.phase === 'bidding_1') {
-            document.getElementById('btn-prendre-1').onclick = () => update(window.App.Network.ref, { guestAction: { type: 'take_1', suit: state.centerCard.suit } });
-            document.getElementById('btn-passer-1').onclick = () => update(window.App.Network.ref, { guestAction: { type: 'pass' } });
+            document.getElementById('btn-prendre-1').onclick = () => { if(!actionSentLock){ actionSentLock=true; update(window.App.Network.ref, { guestAction: { type: 'take_1', suit: state.centerCard.suit } }); }};
+            document.getElementById('btn-passer-1').onclick = () => { if(!actionSentLock){ actionSentLock=true; update(window.App.Network.ref, { guestAction: { type: 'pass' } }); }};
         }
         
         if (state.turn === 2 && state.phase === 'bidding_2') {
@@ -2932,10 +2980,10 @@
                 let btn = document.createElement('button');
                 btn.className = `bl-suit-btn ${suitObj.color === 'r' ? 'red' : 'black'}`;
                 btn.textContent = suitObj.s;
-                btn.onclick = () => update(window.App.Network.ref, { guestAction: { type: 'take_2', suit: suitObj } });
+                btn.onclick = () => { if(!actionSentLock){ actionSentLock=true; update(window.App.Network.ref, { guestAction: { type: 'take_2', suit: suitObj } }); }};
                 suitsContainer.appendChild(btn);
             });
-            document.getElementById('btn-passer-2').onclick = () => update(window.App.Network.ref, { guestAction: { type: 'pass' } });
+            document.getElementById('btn-passer-2').onclick = () => { if(!actionSentLock){ actionSentLock=true; update(window.App.Network.ref, { guestAction: { type: 'pass' } }); }};
         }
     };
 
@@ -2969,7 +3017,7 @@
         if (window.App.Network.room && window.App.Network.gameType === 'belote') {
             this.syncNetwork();
             if (this.currentTurnIndex === 2) {
-                this.updateStatus("Votre ami réfléchit...");
+                this.updateStatus("L'Ami réfléchit...");
                 this.syncNetwork();
                 return; // Stoppe le bot Nord : on attend le clic du client
             }
