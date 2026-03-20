@@ -877,6 +877,19 @@
             font-weight: bold; 
             text-align: center; 
         }
+        /* =========================================
+           5. CSS PUISSANCE 4 & BLACKJACK
+           ========================================= */
+        .p4-grid { display: grid; grid-template-columns: repeat(7, 60px); gap: 8px; background: #020617; padding: 15px; border-radius: 15px; margin: 0 auto 30px auto; width: fit-content; border: 3px solid #1e293b; }
+        .p4-cell { width: 60px; height: 60px; background: var(--panel-bg); border-radius: 50%; cursor: pointer; transition: 0.3s; border: 2px solid #334155; }
+        .p4-cell:hover:not(.taken) { background: var(--panel-hover); }
+        .p4-red { background: #ef4444 !important; border-color: #b91c1c; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.3); }
+        .p4-yellow { background: #eab308 !important; border-color: #a16207; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.3); }
+
+        .bj-table { text-align: center; margin-bottom: 30px; }
+        .bj-hand { display: flex; justify-content: center; gap: -30px; height: 130px; margin: 20px 0; }
+        .bj-hand .bl-card { margin-left: -40px; position: relative; }
+        .bj-hand .bl-card:first-child { margin-left: 0; }
 
         /* =========================================
            9. RESPONSIVE DESIGN (MOBILES & TABLETTES)
@@ -916,11 +929,13 @@
 <nav>
     <h2>Arcade 2026</h2>
     <ul id="nav-menu">
-        <li data-target="s-sim" class="active"><span>✖️</span> Morpion Local</li>
+        <li data-target="s-sim" class="active"><span>✖️</span> Morpion </li>
         <li data-target="s-ult"><span>🔥</span> Morpion Ultime</li>
-        <li data-target="s-mine"><span>💣</span> Démineur Expert</li>
-        <li data-target="s-yams"><span>🎲</span> Yams Complet</li>
-        <li data-target="s-belote"><span>🃏</span> Belote Pro</li>
+        <li data-target="s-mine"><span>💣</span> Démineur </li>
+        <li data-target="s-yams"><span>🎲</span> Yams </li>
+        <li data-target="s-belote"><span>🃏</span> Belote </li>
+        <li data-target="s-p4"><span>🔴</span> Puissance 4</li>
+        <li data-target="s-bj"><span>♠️</span> Blackjack 21</li>
         <div class="nav-divider"></div>
         <li data-target="s-net-lobby" style="color:var(--accent); border-color:var(--accent);"><span>🌐</span> Salon Multijoueur</li>
     </ul>
@@ -1093,6 +1108,31 @@
         </div>
         <div style="text-align: center; margin-top:30px;">
             <button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button>
+        </div>
+    </section>
+    <section id="s-p4" class="screen">
+        <h1>Puissance 4</h1>
+        <p class="subtitle" id="p4-status">Joueur Rouge, à toi !</p>
+        <div id="p4-board" class="p4-grid"></div>
+        <div style="text-align: center;"><button class="btn" onclick="App.P4.init()">Recommencer</button></div>
+    </section>
+
+    <section id="s-bj" class="screen">
+        <h1>Blackjack 21</h1>
+        <div class="bj-table">
+            <h2 style="color:var(--text-muted)">Croupier <span id="bj-dealer-score" style="color:var(--gold)">0</span></h2>
+            <div id="bj-dealer-hand" class="bj-hand"></div>
+        </div>
+        <div class="bj-table">
+            <h2 style="color:var(--accent)">Toi <span id="bj-player-score" style="color:var(--gold)">0</span></h2>
+            <div id="bj-player-hand" class="bj-hand"></div>
+        </div>
+        <div id="bj-actions" style="text-align: center; gap: 15px; display: flex; justify-content: center;">
+            <button class="btn" onclick="App.BJ.hit()">Carte</button>
+            <button class="btn" style="background:var(--player-x); color:white;" onclick="App.BJ.stand()">Rester</button>
+        </div>
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" onclick="App.BJ.init()">Nouvelle Main</button>
         </div>
     </section>
 </main>
@@ -2375,7 +2415,119 @@
             document.getElementById('bl-status').innerHTML = msgText; 
         }
     };
+// =========================================================
+    // MOTEUR DE JEU : PUISSANCE 4
+    // =========================================================
+    window.App.P4 = {
+        grid: [], player: 1, // 1 = Rouge, 2 = Jaune
+        init() {
+            const board = document.getElementById('p4-board'); board.innerHTML = '';
+            this.grid = Array.from({length: 6}, () => Array(7).fill(0));
+            this.player = 1; this.updateStatus();
+            for (let r = 0; r < 6; r++) {
+                for (let c = 0; c < 7; c++) {
+                    let cell = document.createElement('div');
+                    cell.className = 'p4-cell'; cell.id = `p4-${r}-${c}`;
+                    cell.onclick = () => this.play(c);
+                    board.appendChild(cell);
+                }
+            }
+        },
+        play(col) {
+            for (let r = 5; r >= 0; r--) {
+                if (this.grid[r][col] === 0) {
+                    this.grid[r][col] = this.player;
+                    let cell = document.getElementById(`p4-${r}-${col}`);
+                    cell.classList.add('taken', this.player === 1 ? 'p4-red' : 'p4-yellow');
+                    if (this.checkWin(r, col)) {
+                        let colorName = this.player === 1 ? 'Rouge' : 'Jaune';
+                        setTimeout(() => window.UI.showModal('Puissance 4 !', `Le joueur ${colorName} a gagné !`, () => this.init()), 300);
+                    } else {
+                        this.player = this.player === 1 ? 2 : 1; this.updateStatus();
+                    }
+                    return;
+                }
+            }
+        },
+        checkWin(r, c) {
+            const p = this.player, g = this.grid;
+            const count = (dr, dc) => {
+                let i = 1, res = 0;
+                while (r+dr*i >= 0 && r+dr*i < 6 && c+dc*i >= 0 && c+dc*i < 7 && g[r+dr*i][c+dc*i] === p) { res++; i++; }
+                return res;
+            };
+            return (count(0,1) + count(0,-1) >= 3) || (count(1,0) + count(-1,0) >= 3) || 
+                   (count(1,1) + count(-1,-1) >= 3) || (count(1,-1) + count(-1,1) >= 3);
+        },
+        updateStatus() {
+            const st = document.getElementById('p4-status');
+            st.textContent = `Joueur ${this.player === 1 ? 'Rouge' : 'Jaune'}, à toi !`;
+            st.style.color = this.player === 1 ? '#ef4444' : '#eab308';
+        }
+    };
 
+    // =========================================================
+    // MOTEUR DE JEU : BLACKJACK
+    // =========================================================
+    window.App.BJ = {
+        deck: [], playerHand: [], dealerHand: [],
+        init() {
+            this.deck = [];
+            ['♠','♣','♥','♦'].forEach(s => {
+                ['2','3','4','5','6','7','8','9','10','V','D','R','A'].forEach(r => this.deck.push({s, r, isRed: s==='♥'||s==='♦'}));
+            });
+            this.deck.sort(() => Math.random() - 0.5);
+            this.playerHand = [this.deck.pop(), this.deck.pop()];
+            this.dealerHand = [this.deck.pop()]; // Croupier n'a qu'une carte au début
+            document.getElementById('bj-actions').style.display = 'flex';
+            this.render();
+        },
+        val(hand) {
+            let score = 0, aces = 0;
+            hand.forEach(c => {
+                if (['V','D','R'].includes(c.r)) score += 10;
+                else if (c.r === 'A') { score += 11; aces++; }
+                else score += parseInt(c.r);
+            });
+            while (score > 21 && aces > 0) { score -= 10; aces--; }
+            return score;
+        },
+        hit() {
+            this.playerHand.push(this.deck.pop()); this.render();
+            if (this.val(this.playerHand) > 21) this.end("Bust ! Tu as dépassé 21.");
+        },
+        stand() {
+            document.getElementById('bj-actions').style.display = 'none';
+            const drawDealer = () => {
+                if (this.val(this.dealerHand) < 17) {
+                    this.dealerHand.push(this.deck.pop()); this.render();
+                    setTimeout(drawDealer, 800);
+                } else {
+                    let pScore = this.val(this.playerHand), dScore = this.val(this.dealerHand);
+                    if (dScore > 21 || pScore > dScore) this.end("Gagné ! Le croupier est battu.");
+                    else if (pScore === dScore) this.end("Égalité !");
+                    else this.end("Perdu ! Le croupier l'emporte.");
+                }
+            };
+            drawDealer();
+        },
+        render() {
+            document.getElementById('bj-player-score').textContent = this.val(this.playerHand);
+            document.getElementById('bj-dealer-score').textContent = this.val(this.dealerHand);
+            const draw = (hand, elId) => {
+                const el = document.getElementById(elId); el.innerHTML = '';
+                hand.forEach(c => {
+                    el.innerHTML += `<div class="bl-card ${c.isRed ? 'red' : ''}" style="box-shadow: 2px 2px 10px rgba(0,0,0,0.5);"><span>${c.r}</span><span>${c.s}</span></div>`;
+                });
+            };
+            draw(this.playerHand, 'bj-player-hand'); draw(this.dealerHand, 'bj-dealer-hand');
+        },
+        end(msg) {
+            document.getElementById('bj-actions').style.display = 'none';
+            setTimeout(() => window.UI.showModal('Fin de la main', msg, () => this.init()), 500);
+        }
+    };
+    
     // =========================================================
     // MOTEUR: RÉSEAU FIREBASE MULTIJOUEUR
     // =========================================================
@@ -2838,6 +2990,8 @@
             if (targetID === 's-mine') window.App.Mine.init(); 
             if (targetID === 's-yams') window.App.Yams.init(); 
             if (targetID === 's-belote') window.App.Belote.initGame(); 
+            if (targetID === 's-p4') window.App.P4.init(); 
+            if (targetID === 's-bj') window.App.BJ.init();
         }; 
     });
 
