@@ -3,709 +3,1085 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcade Master Ultimate 2026 - Édition Studio Pro</title>
+    <title>Arcade Ultimate 2026 - Édition Studio Pro</title>
     <style>
-        /* ==========================================================================
-           1. RESET & ARCHITECTURE CSS
-           ========================================================================== */
+        /* =========================================
+           1. VARIABLES GLOBALES ET RESET
+           ========================================= */
         :root {
-            --bg-color: #05080f; 
-            --panel-bg: #0f172a; 
-            --panel-hover: #1e293b;
+            --bg-color: #080c16; 
+            --panel-bg: #111827; 
+            --panel-hover: #1f2937;
             --accent: #10b981; 
             --accent-glow: rgba(16, 185, 129, 0.4);
             --text-main: #f8fafc; 
-            --text-muted: #94a3b8;
+            --text-muted: #64748b;
             --player-x: #f43f5e; 
             --player-o: #3b82f6; 
             --gold: #fbbf24;
-            --card-w: 85px;
-            --card-h: 125px;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            outline: none;
-            -webkit-tap-highlight-color: transparent;
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            user-select: none; 
+            -webkit-tap-highlight-color: transparent; 
         }
 
-        body {
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-            letter-spacing: -0.01em;
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            background: var(--bg-color); 
+            color: var(--text-main); 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden; 
         }
 
-        /* ==========================================================================
-           2. NAVIGATION LATÉRALE PRO
-           ========================================================================== */
-        nav {
-            width: 300px;
-            background: #020617;
-            padding: 40px 25px;
-            border-right: 1px solid #1e293b;
-            display: flex;
-            flex-direction: column;
-            z-index: 100;
-            box-shadow: 15px 0 50px rgba(0, 0, 0, 0.6);
+        /* =========================================
+           2. COMPOSANTS D'INTERFACE (UI)
+           ========================================= */
+        #modal-overlay { 
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0, 0, 0, 0.85); 
+            z-index: 9999; 
+            align-items: center; 
+            justify-content: center; 
+            backdrop-filter: blur(8px); 
         }
 
-        nav h2 {
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            text-align: center;
-            font-size: 1.3rem;
-            font-weight: 900;
-            margin-bottom: 50px;
-            text-shadow: 0 0 15px var(--accent-glow);
+        .modal-box { 
+            background: var(--panel-bg); 
+            padding: 40px; 
+            border-radius: 20px; 
+            text-align: center; 
+            border: 2px solid var(--accent); 
+            box-shadow: 0 15px 50px var(--accent-glow); 
+            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            max-width: 450px; 
         }
 
-        nav ul {
-            list-style: none;
-            flex-grow: 1;
+        .modal-box h2 { 
+            font-size: 2.2rem; 
+            margin-bottom: 15px; 
         }
 
-        nav li {
-            padding: 20px;
-            cursor: pointer;
-            border-radius: 16px;
-            margin-bottom: 15px;
-            background: var(--panel-bg);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            border: 1px solid rgba(255,255,255,0.03);
-            color: var(--text-muted);
+        .modal-box p { 
+            font-size: 1.2rem; 
+            color: var(--text-muted); 
+            margin-bottom: 30px; 
+            line-height: 1.5; 
+        }
+        
+        @keyframes modalPop { 
+            0% { transform: scale(0.7) translateY(30px); opacity: 0; } 
+            100% { transform: scale(1) translateY(0); opacity: 1; } 
         }
 
-        nav li:hover {
-            background: var(--panel-hover);
-            transform: translateX(10px);
-            color: white;
-            border-color: var(--accent);
+        /* Navigation latérale */
+        nav { 
+            width: 270px; 
+            background: #020617; 
+            padding: 30px 20px; 
+            border-right: 1px solid #1e293b; 
+            display: flex; 
+            flex-direction: column; 
+            z-index: 100; 
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5); 
         }
 
-        nav li.active {
-            background: var(--accent);
-            color: #000;
-            box-shadow: 0 10px 30px var(--accent-glow);
-            border-color: var(--accent);
+        nav h2 { 
+            color: var(--accent); 
+            text-transform: uppercase; 
+            letter-spacing: 3px; 
+            text-align: center; 
+            font-size: 1.1rem; 
+            margin-bottom: 30px; 
         }
 
-        .nav-divider {
-            height: 1px;
-            background: linear-gradient(to right, transparent, #1e293b, transparent);
-            margin: 25px 0;
+        nav ul { 
+            list-style: none; 
+            overflow-y: auto; 
+        }
+        
+        nav li { 
+            padding: 15px; 
+            cursor: pointer; 
+            border-radius: 12px; 
+            margin-bottom: 10px; 
+            background: var(--panel-bg); 
+            transition: 0.3s; 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            border: 1px solid transparent; 
         }
 
-        /* ==========================================================================
-           3. CONTENEUR PRINCIPAL & ÉCRANS
-           ========================================================================== */
-        main {
-            flex-grow: 1;
-            padding: 40px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            background-image: radial-gradient(circle at 50% 50%, #0f172a 0%, #05080f 100%);
+        nav li:hover { 
+            background: var(--panel-hover); 
+            transform: translateX(5px); 
+        }
+        
+        nav li.active { 
+            background: var(--accent); 
+            color: #000; 
+            box-shadow: 0 0 20px var(--accent-glow); 
+            border-color: var(--accent); 
+        }
+        
+        .nav-divider { 
+            height: 2px; 
+            background: #1e293b; 
+            margin: 15px 0; 
+            border-radius: 2px; 
         }
 
-        .screen {
-            display: none;
-            width: 100%;
-            max-width: 1400px;
-            animation: screenSlideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        /* Écrans Principaux */
+        main { 
+            flex-grow: 1; 
+            padding: 40px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            position: relative; 
+            scroll-behavior: smooth; 
         }
 
-        .screen.active {
-            display: block;
+        .screen { 
+            display: none; 
+            width: 100%; 
+            max-width: 1100px; 
+            animation: screenFade 0.4s ease-out; 
         }
 
-        @keyframes screenSlideUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
+        .screen.active { 
+            display: block; 
+        }
+        
+        @keyframes screenFade { 
+            from { opacity: 0; transform: translateY(15px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        h1 { 
+            text-align: center; 
+            margin-bottom: 10px; 
+            font-size: 2.8rem; 
+            font-weight: 800; 
+            background: linear-gradient(to right, var(--accent), #34d399); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+        
+        .subtitle { 
+            text-align: center; 
+            color: var(--text-muted); 
+            margin-bottom: 40px; 
+            font-size: 1.1rem; 
+        }
+        
+        .btn { 
+            padding: 12px 28px; 
+            background: var(--accent); 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 1.1rem; 
+            color: #000; 
+            transition: 0.2s; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            margin: 5px; 
         }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: 3.5rem;
-            font-weight: 900;
-            background: linear-gradient(to bottom right, #fff 30%, var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
+        .btn:hover { 
+            transform: scale(1.05); 
+            box-shadow: 0 0 15px var(--accent-glow); 
         }
 
-        .subtitle {
-            text-align: center;
-            color: var(--text-muted);
-            margin-bottom: 50px;
-            font-size: 1.2rem;
-            font-weight: 500;
+        .btn:disabled { 
+            background: #334155; 
+            color: #94a3b8; 
+            cursor: not-allowed; 
+            box-shadow: none; 
+            transform: none; 
         }
 
-        /* ==========================================================================
-           4. DESIGN DES JEUX : MORPION & MINE & YAMS
-           ========================================================================== */
-        .ms-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 150px);
-            gap: 20px;
-            margin: 0 auto;
-            width: fit-content;
-            perspective: 1000px;
+        input[type="text"], select { 
+            padding: 15px; 
+            font-size: 1.2rem; 
+            border-radius: 8px; 
+            border: 2px solid #334155; 
+            background: #020617; 
+            color: white; 
+            text-align: center; 
+            margin: 10px; 
+            text-transform: uppercase; 
+            width: 250px; 
+            font-weight: bold; 
+            outline: none; 
         }
 
-        .ms-cell {
-            height: 150px;
-            background: var(--panel-bg);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 6.5rem;
-            cursor: pointer;
-            font-weight: 900;
-            border: 3px solid #1e293b;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        select { 
+            cursor: pointer; 
+            text-transform: none; 
         }
 
-        .ms-cell:hover:not(.taken) {
-            transform: translateZ(20px);
-            border-color: var(--accent);
-            background: var(--panel-hover);
+        /* =========================================
+           3. CSS DES JEUX CLASSIQUES
+           ========================================= */
+           
+        /* Morpion Simple */
+        .ms-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 130px); 
+            gap: 12px; 
+            margin: 0 auto 40px auto; 
+            width: fit-content; 
         }
 
-        .ms-cell.win {
-            border-color: var(--accent);
-            background: rgba(16, 185, 129, 0.1);
-            animation: winPulse 1.5s infinite;
+        .ms-cell { 
+            height: 130px; 
+            background: var(--panel-bg); 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 5rem; 
+            cursor: pointer; 
+            font-weight: 900; 
+            transition: 0.2s; 
+            border: 2px solid #1e293b; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); 
         }
 
-        @keyframes winPulse {
-            0% { transform: scale(1); box-shadow: 0 0 0px var(--accent-glow); }
-            50% { transform: scale(1.05); box-shadow: 0 0 40px var(--accent-glow); }
-            100% { transform: scale(1); box-shadow: 0 0 0px var(--accent-glow); }
+        .ms-cell:hover:not(.taken) { 
+            background: var(--panel-hover); 
+            border-color: var(--accent); 
         }
 
-        /* Démineur XXL */
-        #dm-board {
-            display: grid;
-            grid-template-columns: repeat(25, 30px);
-            gap: 2px;
-            background: #1e293b;
-            padding: 8px;
-            border-radius: 12px;
-            margin: 0 auto;
-            width: fit-content;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.7);
-            border: 4px solid #334155;
+        .ms-cell.win { 
+            animation: pulseWin 1s infinite alternate; 
+            background: rgba(16, 185, 129, 0.1); 
+            border-color: var(--accent); 
         }
 
-        .dm-tile {
-            width: 30px;
-            height: 30px;
-            background: var(--panel-bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            font-weight: 900;
-            cursor: pointer;
-            border-radius: 2px;
-            transition: 0.15s;
+        @keyframes pulseWin { 
+            from { transform: scale(1); box-shadow: 0 0 10px var(--accent-glow); } 
+            to { transform: scale(1.05); box-shadow: 0 0 30px var(--accent-glow); } 
         }
 
-        .dm-tile:hover:not(.open) { background: #334155; }
-        .dm-tile.open { background: #e2e8f0; color: #0f172a; }
-
-        /* Yams */
-        .yams-layout {
-            display: flex;
-            gap: 60px;
-            justify-content: center;
-            align-items: flex-start;
-            flex-wrap: wrap;
+        /* Morpion Ultime */
+        .mu-status { 
+            text-align: center; 
+            font-size: 1.5rem; 
+            font-weight: bold; 
+            margin-bottom: 20px; 
         }
 
-        .y-die {
-            font-size: 6rem;
-            cursor: pointer;
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6));
+        .mu-container { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 15px; 
+            background: #020617; 
+            padding: 20px; 
+            border-radius: 20px; 
+            margin: 0 auto 30px auto; 
+            width: fit-content; 
+            border: 3px solid #1e293b; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
         }
 
-        .y-die.kept {
-            color: var(--accent);
-            transform: translateY(-25px) scale(1.15) rotate(10deg);
-            filter: drop-shadow(0 20px 30px var(--accent-glow));
+        .mu-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 50px); 
+            gap: 4px; 
+            background: var(--panel-bg); 
+            padding: 8px; 
+            border-radius: 10px; 
+            position: relative; 
+            transition: 0.3s; 
         }
 
-        .y-table {
-            border-collapse: separate;
-            border-spacing: 0;
-            background: var(--panel-bg);
-            border-radius: 20px;
-            overflow: hidden;
-            width: 280px;
-            border: 1px solid #1e293b;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        .mu-cell { 
+            height: 50px; 
+            background: var(--bg-color); 
+            border-radius: 5px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.8rem; 
+            font-weight: bold; 
+            cursor: pointer; 
         }
 
-        .y-table td {
-            padding: 14px 20px;
-            border-bottom: 1px solid #1e293b;
-            font-weight: 600;
-            font-size: 1.1rem;
+        .mu-cell:hover:not(.taken) { 
+            background: var(--panel-hover); 
         }
 
-        .y-table .pot { color: var(--accent); opacity: 0.4; font-style: italic; }
-        .y-table .locked { color: var(--accent); font-weight: 900; background: rgba(16,185,129,0.05); }
-
-        /* ==========================================================================
-           5. TAPIS DE BELOTE PROFESSIONNEL (ÉDITION 2026)
-           ========================================================================== */
-        .bl-scoreboard {
-            display: flex;
-            justify-content: center;
-            gap: 80px;
-            background: rgba(2, 6, 23, 0.9);
-            padding: 20px 50px;
-            border-radius: 25px;
-            border: 2px solid #1e293b;
-            margin-bottom: 30px;
-            font-size: 1.8rem;
-            font-weight: 900;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        .mu-active { 
+            outline: 4px solid var(--accent); 
+            background: #064e3b; 
+            box-shadow: 0 0 25px var(--accent-glow); 
+            animation: muPulse 2s infinite; 
+            z-index: 5; 
         }
 
-        .bl-info {
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--gold);
-            height: 40px;
-            text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+        .mu-won { 
+            position: absolute; 
+            inset: 0; 
+            background: rgba(2, 6, 23, 0.85); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 6rem; 
+            font-weight: 900; 
+            border-radius: 10px; 
+            backdrop-filter: blur(3px); 
+            z-index: 10; 
+            animation: screenFade 0.3s ease-out; 
         }
 
+        @keyframes muPulse { 
+            0% { outline-color: var(--accent); } 
+            50% { outline-color: #34d399; } 
+            100% { outline-color: var(--accent); } 
+        }
+
+        /* Démineur Expert 25x25 */
+        .dm-header { 
+            display: flex; 
+            justify-content: center; 
+            gap: 40px; 
+            margin-bottom: 30px; 
+            font-size: 1.4rem; 
+            font-weight: bold; 
+            background: #000; 
+            padding: 15px 30px; 
+            border-radius: 50px; 
+            border: 1px solid #1e293b; 
+        }
+
+        #dm-board { 
+            display: grid; 
+            grid-template-columns: repeat(25, 25px); 
+            gap: 2px; 
+            background: #334155; 
+            padding: 3px; 
+            border: 4px solid #1e293b; 
+            margin: 0 auto 30px auto; 
+            width: fit-content; 
+            border-radius: 8px; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6); 
+        }
+
+        .dm-tile { 
+            width: 25px; 
+            height: 25px; 
+            background: var(--panel-bg); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 0.9rem; 
+            font-weight: 900; 
+            cursor: pointer; 
+            border-radius: 3px; 
+            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3); 
+        }
+
+        .dm-tile:hover:not(.open) { 
+            background: var(--panel-hover); 
+        }
+
+        .dm-tile.open { 
+            background: #cbd5e1; 
+            box-shadow: inset 2px 2px 6px rgba(0,0,0,0.3); 
+            cursor: default; 
+        }
+
+        .dm-tile.mine { 
+            background: var(--player-x); 
+            font-size: 1rem; 
+        }
+
+        .dm-c1 { color: #2563eb; } 
+        .dm-c2 { color: #16a34a; } 
+        .dm-c3 { color: #dc2626; } 
+        .dm-c4 { color: #7c3aed; } 
+        .dm-c5 { color: #991b1b; } 
+        .dm-c6 { color: #0d9488; }
+
+        /* Yams Championship */
+        .yams-layout { 
+            display: flex; 
+            gap: 40px; 
+            justify-content: center; 
+            align-items: flex-start; 
+            margin-top: 20px; 
+            flex-wrap: wrap; 
+        }
+
+        .y-dice-area { 
+            background: var(--panel-bg); 
+            padding: 40px; 
+            border-radius: 20px; 
+            text-align: center; 
+            border: 2px solid #1e293b; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            width: 400px; 
+        }
+
+        .y-dice-container { 
+            font-size: 4.5rem; 
+            display: flex; 
+            gap: 15px; 
+            margin-bottom: 30px; 
+            justify-content: center; 
+            min-height: 80px; 
+        }
+
+        .y-die { 
+            cursor: pointer; 
+            transition: 0.3s; 
+            text-shadow: 0 5px 15px rgba(0,0,0,0.5); 
+        }
+
+        .y-die.kept { 
+            color: var(--accent); 
+            transform: translateY(-15px) scale(1.1); 
+            text-shadow: 0 10px 20px var(--accent-glow); 
+        }
+
+        .y-tables { 
+            display: flex; 
+            gap: 15px; 
+        }
+
+        .y-table { 
+            border-collapse: collapse; 
+            background: var(--panel-bg); 
+            border-radius: 12px; 
+            overflow: hidden; 
+            border: 1px solid #1e293b; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+        }
+
+        .y-table th { 
+            padding: 15px; 
+            background: #020617; 
+            color: var(--text-main); 
+            font-size: 1.2rem; 
+            border-bottom: 2px solid var(--accent); 
+        }
+
+        .y-table td { 
+            border: 1px solid #1e293b; 
+            padding: 12px 20px; 
+            cursor: pointer; 
+            font-size: 1.1rem; 
+        }
+
+        .y-table td:first-child { 
+            font-weight: 600; 
+            color: var(--text-muted); 
+        }
+
+        .y-table .pot { 
+            color: var(--accent); 
+            opacity: 0.4; 
+            font-style: italic; 
+            font-weight: bold; 
+        }
+
+        .y-table .locked { 
+            color: var(--accent); 
+            font-weight: 900; 
+            background: rgba(16,185,129,0.05); 
+        }
+
+        .y-table .total-row { 
+            background: #020617; 
+            color: var(--gold); 
+            font-weight: 900; 
+            font-size: 1.3rem; 
+        }
+
+        /* =========================================
+           4. CSS DE LA VRAIE BELOTE PRO
+           ========================================= */
+        .bl-scoreboard { 
+            display: flex; 
+            justify-content: center; 
+            gap: 50px; 
+            background: #020617; 
+            padding: 15px 30px; 
+            border-radius: 15px; 
+            border: 2px solid #1e293b; 
+            margin-bottom: 20px; 
+            font-size: 1.5rem; 
+            font-weight: bold; 
+        }
+
+        .bl-info { 
+            text-align: center; 
+            margin-bottom: 20px; 
+            font-size: 1.3rem; 
+            font-weight: bold; 
+            color: var(--gold); 
+            min-height: 30px; 
+        }
+
+        /* Tapis de Jeu de Belote */
         .bl-tapis { 
             background: radial-gradient(circle, #065f46 0%, #022c22 100%); 
-            width: 950px; 
-            height: 580px; 
-            border-radius: 290px; 
+            width: 800px; 
+            height: 500px; 
+            border-radius: 250px; 
             margin: 0 auto; 
-            border: 18px solid #451a03; 
+            border: 15px solid #451a03; 
             position: relative; 
-            box-shadow: 0 50px 100px rgba(0,0,0,0.9), inset 0 0 100px rgba(0,0,0,0.6); 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 50px rgba(0,0,0,0.5); 
+        }
+        
+        /* HUD Coin Supérieur Gauche */
+        #bl-atout-corner {
+            position: absolute; 
+            top: 25px; 
+            left: 35px; 
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 15px; 
+            border-radius: 8px; 
+            border: 1px solid var(--accent);
+            text-align: center; 
+            z-index: 10; 
+            display: none;
         }
 
-        /* Noms et positions des joueurs */
-        .bl-name {
-            position: absolute;
-            padding: 10px 20px;
-            background: rgba(0,0,0,0.7);
-            border: 2px solid rgba(255,255,255,0.05);
-            border-radius: 30px;
-            font-weight: 800;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            z-index: 10;
-            transition: 0.4s;
+        #bl-taker-name { 
+            font-size: 0.85rem; 
+            color: #ccc; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            margin-bottom: 5px; 
+        }
+
+        #bl-atout-suit { 
+            font-size: 2.2rem; 
+            line-height: 1; 
+        }
+
+        /* HUD Coin Supérieur Droit */
+        #bl-trick-points {
+            position: absolute; 
+            top: 25px; 
+            right: 35px; 
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 15px; 
+            border-radius: 8px; 
+            border: 1px solid var(--gold);
+            text-align: center; 
+            z-index: 10; 
+            display: none; 
+            color: var(--gold); 
+            font-weight: bold;
+        }
+
+        /* Animation Belote/Rebelote Centrale */
+        .bl-annonce {
+            position: absolute; 
+            top: 40%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            background: var(--gold); 
+            color: #000; 
+            padding: 10px 20px; 
+            border-radius: 10px;
+            font-size: 1.5rem; 
+            font-weight: 900; 
+            z-index: 50; 
+            opacity: 0; 
+            pointer-events: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+
+        .bl-annonce.active { 
+            animation: annoncePop 2s ease-in-out forwards; 
+        }
+
+        @keyframes annoncePop { 
+            0% { opacity: 0; transform: translate(-50%, 0) scale(0.5); } 
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); } 
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 
+            100% { opacity: 0; transform: translate(-50%, -100%) scale(0.8); } 
+        }
+
+        /* Noms des joueurs à l'extérieur du tapis */
+        .bl-name { 
+            position: absolute; 
+            color: #94a3b8; 
+            font-weight: bold; 
+            font-size: 1.1rem; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.9); 
+            pointer-events: none; 
+            z-index: 5; 
+            transition: 0.3s;
         }
 
         .bl-name.active-turn {
-            background: var(--accent);
-            color: #000;
-            box-shadow: 0 0 30px var(--accent-glow);
-            transform: scale(1.15);
-            border-color: white;
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+            transform: scale(1.1);
         }
 
-        /* Coordonnées géométriques du tapis */
-        .pos-s { bottom: -30px; left: 50%; transform: translateX(-50%); }
-        .pos-n { top: -30px; left: 50%; transform: translateX(-50%); }
-        .pos-e { right: -70px; top: 50%; transform: translateY(-50%) rotate(90deg); }
-        .pos-w { left: -70px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+        #bl-n-n { top: -35px; left: 50%; transform: translateX(-50%); }
+        #bl-n-n.active-turn { transform: translateX(-50%) scale(1.1); }
+        
+        #bl-n-s { bottom: -35px; left: 50%; transform: translateX(-50%); }
+        #bl-n-s.active-turn { transform: translateX(-50%) scale(1.1); }
+        
+        #bl-n-e { right: -40px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+        #bl-n-e.active-turn { transform: translateY(-50%) rotate(90deg) scale(1.1); }
+        
+        #bl-n-w { left: -45px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+        #bl-n-w.active-turn { transform: translateY(-50%) rotate(-90deg) scale(1.1); }
 
-        /* Bulles de dialogue flottantes */
+        /* Bulles de dialogue des Bots */
         .bl-speech {
-            position: absolute;
-            background: white;
-            color: #000;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-weight: 900;
-            font-size: 1.2rem;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            opacity: 0;
-            transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 150;
-            pointer-events: none;
+            position: absolute; 
+            background: white; 
+            color: black; 
+            padding: 5px 12px;
+            border-radius: 15px; 
+            font-weight: bold; 
+            font-size: 1rem; 
+            z-index: 60;
+            opacity: 0; 
+            transition: 0.3s; 
+            pointer-events: none; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
-        .sp-s { bottom: 50px; left: 50%; transform: translateX(-50%); }
-        .sp-n { top: 50px; left: 50%; transform: translateX(-50%); }
-        .sp-e { right: 120px; top: 50%; transform: translateY(-50%); }
-        .sp-w { left: 120px; top: 50%; transform: translateY(-50%); }
+        #bl-speech-2 { top: -65px; left: 50%; transform: translateX(-50%); }
+        #bl-speech-0 { bottom: -65px; left: 50%; transform: translateX(-50%); }
+        #bl-speech-1 { right: -75px; top: 50%; transform: translateY(-50%); }
+        #bl-speech-3 { left: -75px; top: 50%; transform: translateY(-50%); }
 
-        /* Zones de pose (Croix centrale large) */
-        .bl-slot {
-            position: absolute;
-            width: var(--card-w);
-            height: var(--card-h);
-            border: 2px dashed rgba(255,255,255,0.08);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 5;
+        /* Dos des cartes des bots (Fixé sur les bords) */
+        .bl-bot-hand { 
+            position: absolute; 
+            display: flex; 
+            pointer-events: none; 
+            z-index: 4; 
         }
 
-        .slot-n { top: 22%; left: 50%; transform: translate(-50%, -50%); }
-        .slot-s { top: 78%; left: 50%; transform: translate(-50%, -50%); }
-        .slot-e { top: 50%; left: 75%; transform: translate(-50%, -50%); }
-        .slot-w { top: 50%; left: 25%; transform: translate(-50%, -50%); }
+        #bl-h-n { 
+            top: 20px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            flex-direction: row; 
+            gap: -20px; 
+        }
 
-        /* Les Cartes */
-        .bl-card {
-            width: var(--card-w);
-            height: var(--card-h);
-            background: white;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
+        #bl-h-n .bl-card-back { 
+            width: 45px; 
+            height: 65px; 
+            background: repeating-linear-gradient(45deg, #1e293b, #1e293b 5px, #0f172a 5px, #0f172a 10px); 
+            border: 2px solid #fff; 
+            border-radius: 5px; 
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5); 
+        }
+
+        #bl-h-e, #bl-h-w {
+            top: 50%; 
+            transform: translateY(-50%); 
+            flex-direction: column; 
+            gap: -35px; 
+        }
+
+        #bl-h-e { right: 20px; }
+        #bl-h-w { left: 20px; }
+
+        #bl-h-e .bl-card-back, #bl-h-w .bl-card-back {
+            width: 65px; 
+            height: 45px; 
+            background: repeating-linear-gradient(45deg, #1e293b, #1e293b 5px, #0f172a 5px, #0f172a 10px); 
+            border: 2px solid #fff; 
+            border-radius: 5px; 
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+        }
+
+        /* Jeton du donneur */
+        .bl-dealer { 
+            position: absolute; 
+            background: var(--gold); 
+            color: #000; 
+            width: 32px; 
+            height: 32px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.8); 
+            z-index: 10; 
+            transition: 0.5s; 
+            font-size: 1.2rem; 
+        }
+
+        /* Centre pour l'enchère */
+        #bl-center {
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            z-index: 10; 
+            display: flex; 
+            flex-direction: column; 
             align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 1.8rem;
-            color: #000;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-            position: relative;
-            border: 1px solid #e2e8f0;
+        }
+
+        /* Croix centrale pour les cartes jouées */
+        .bl-slot { 
+            position: absolute; 
+            width: 80px; 
+            height: 115px; 
+            border: 2px dashed rgba(255,255,255,0.15); 
+            border-radius: 8px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 6;
+        }
+
+        #bl-s-n { top: 70px; left: 50%; transform: translateX(-50%); } 
+        #bl-s-s { bottom: 70px; left: 50%; transform: translateX(-50%); }
+        #bl-s-e { top: 50%; right: 200px; transform: translateY(-50%); } 
+        #bl-s-w { top: 50%; left: 200px; transform: translateY(-50%); }
+        
+        /* Design des cartes */
+        .bl-card { 
+            width: 80px; 
+            height: 115px; 
+            background: #fff; 
+            color: #000; 
+            border-radius: 8px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 900; 
+            font-size: 1.5rem; 
+            cursor: pointer; 
+            box-shadow: -2px 5px 15px rgba(0,0,0,0.4); 
+            position: relative; 
+            transition: 0.2s; 
         }
 
         .bl-card.red { color: #ef4444; }
-        .bl-card.invalid { filter: grayscale(1) brightness(0.4); cursor: not-allowed; }
-
-        /* Main du joueur (Sud) */
-        .bl-hand {
-            display: flex;
-            justify-content: center;
-            margin-top: 60px;
-            height: 160px;
-            perspective: 1000px;
+        
+        .bl-card.invalid { 
+            filter: brightness(0.5); 
+            cursor: not-allowed; 
+        }
+        
+        /* Main du joueur Humain (Sud) */
+        .bl-hand { 
+            display: flex; 
+            gap: -20px; 
+            justify-content: center; 
+            margin-top: 40px; 
+            height: 130px; 
         }
 
-        .bl-hand .bl-card {
-            margin-left: -35px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            transform: rotate(calc(var(--angle) * 1deg)) translateY(calc(var(--y) * 1px));
+        .bl-hand .bl-card { margin-left: -30px; } 
+        .bl-hand .bl-card:first-child { margin-left: 0; }
+        
+        .bl-hand .bl-card:hover:not(.invalid) { 
+            transform: translateY(-20px); 
+            z-index: 50; 
+            border-color: var(--accent); 
+        }
+        
+        /* Animation fluide du jeu de la carte */
+        .bl-played { 
+            position: absolute; 
+            animation: playCard 0.4s ease-out forwards; 
+            pointer-events: none; 
+            z-index: 8; 
         }
 
-        .bl-hand .bl-card:hover {
-            transform: translateY(-50px) scale(1.2) rotate(0deg) !important;
-            z-index: 200 !important;
-            border: 3px solid var(--accent);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        @keyframes playCard { 
+            from { transform: scale(1.5) translateY(100px); opacity: 0; } 
+            to { transform: scale(1) translateY(0) rotate(calc(-5deg + 10deg * var(--rand))); opacity: 1; } 
+        }
+        
+        /* Boutons pour le Choix Couleur (Tour 2) */
+        .bl-suit-btn { 
+            font-size: 2rem; 
+            padding: 10px 20px; 
+            background: var(--panel-bg); 
+            border: 2px solid #334155; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            transition: 0.2s; 
         }
 
-        /* Dos des cartes Adversaires */
-        .bl-bot-hand { position: absolute; display: flex; pointer-events: none; z-index: 4; }
-        .bl-h-n { top: 30px; left: 50%; transform: translateX(-50%); gap: -30px; }
-        .bl-h-e, .bl-h-w { top: 50%; transform: translateY(-50%); flex-direction: column; gap: -50px; }
-        .bl-h-e { right: 30px; } .bl-h-w { left: 30px; }
-
-        .bl-card-back {
-            width: 50px; height: 75px;
-            background: repeating-linear-gradient(45deg, #1e293b, #1e293b 10px, #0f172a 10px, #0f172a 20px);
-            border: 2px solid white; border-radius: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        .bl-suit-btn:hover { 
+            background: var(--panel-hover); 
+            border-color: var(--accent); 
+            transform: scale(1.1); 
         }
 
-        /* HUDs Spécifiques */
-        .bl-atout-hud {
-            position: absolute; top: 30px; left: 40px;
-            background: rgba(2, 6, 23, 0.9);
-            padding: 15px 25px; border-radius: 20px;
-            border: 2px solid var(--accent);
-            text-align: center; z-index: 100;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: none;
+        .bl-suit-btn.red { color: #ef4444; }
+        .bl-suit-btn.black { color: #fff; }
+
+        /* =========================================
+           8. FIREBASE NETWORK LOBBY
+           ========================================= */
+        .lobby-box { 
+            background: var(--panel-bg); 
+            padding: 40px; 
+            border-radius: 20px; 
+            border: 2px solid #334155; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            text-align: center; 
+            max-width: 600px; 
+            margin: auto; 
         }
 
-        .bl-trick-pts {
-            position: absolute; top: 30px; right: 40px;
-            background: rgba(2, 6, 23, 0.9);
-            padding: 15px 25px; border-radius: 20px;
-            border: 2px solid var(--gold);
-            font-weight: 900; color: var(--gold);
-            z-index: 100; display: none;
+        .room-code-display { 
+            font-size: 4.5rem; 
+            letter-spacing: 10px; 
+            color: var(--accent); 
+            font-weight: 900; 
+            margin: 30px 0; 
+            background: #020617; 
+            padding: 20px; 
+            border-radius: 15px; 
         }
 
-        .bl-actions {
-            position: absolute; top: 75%; left: 50%; transform: translate(-50%, -50%);
-            display: none; gap: 20px; z-index: 500;
-        }
-
-        /* Animations */
-        .bl-played {
-            position: absolute;
-            animation: playCardAnim 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-            z-index: 100;
-        }
-
-        @keyframes playCardAnim {
-            from { transform: scale(1.5) translateY(150px); opacity: 0; }
-            to { transform: scale(1) translateY(0) rotate(calc(var(--rand) * 1deg)); opacity: 1; }
-        }
-
-        /* ==========================================================================
-           6. MODALS ET BOUTONS LOBBY
-           ========================================================================== */
-        .lobby-box {
-            background: var(--panel-bg);
-            padding: 60px;
-            border-radius: 32px;
-            border: 2px solid #1e293b;
-            text-align: center;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.8);
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .room-code-display {
-            font-size: 5rem;
-            font-weight: 900;
-            color: var(--accent);
-            letter-spacing: 15px;
-            margin: 40px 0;
-            padding: 20px;
-            background: #020617;
-            border-radius: 20px;
-            border: 1px solid #1e293b;
+        .net-status-bar { 
+            background: #020617; 
+            padding: 20px; 
+            border-radius: 10px; 
+            border: 1px solid #334155; 
+            margin-bottom: 30px; 
+            font-size: 1.4rem; 
+            font-weight: bold; 
+            text-align: center; 
         }
     </style>
 </head>
 <body>
 
-    <div id="modal-overlay">
-        <div class="modal-box">
-            <h2 id="modal-title">Titre</h2>
-            <p id="modal-desc">Description</p>
-            <button class="btn" onclick="UI.closeModal()">Continuer</button>
-        </div>
+<div id="modal-overlay">
+    <div class="modal-box">
+        <h2 id="modal-title">Titre</h2>
+        <p id="modal-desc">Description</p>
+        <button class="btn" onclick="UI.closeModal()">Continuer</button>
     </div>
+</div>
 
-    <nav>
-        <h2>Arcade Master</h2>
-        <ul id="nav-menu">
-            <li data-target="s-sim" class="active"><span>✖️</span> Morpion Local</li>
-            <li data-target="s-ult"><span>🔥</span> Morpion Ultime</li>
-            <li data-target="s-mine"><span>💣</span> Démineur Expert</li>
-            <li data-target="s-yams"><span>🎲</span> Yams Complet</li>
-            <li data-target="s-belote"><span>🃏</span> Belote Locale</li>
-            <div class="nav-divider"></div>
-            <li data-target="s-net-lobby" style="color:var(--accent); border-color:var(--accent);"><span>🌐</span> Salon Multijoueur</li>
-        </ul>
-    </nav>
+<nav>
+    <h2>Arcade 2026</h2>
+    <ul id="nav-menu">
+        <li data-target="s-sim" class="active"><span>✖️</span> Morpion Local</li>
+        <li data-target="s-ult"><span>🔥</span> Morpion Ultime</li>
+        <li data-target="s-mine"><span>💣</span> Démineur Expert</li>
+        <li data-target="s-yams"><span>🎲</span> Yams Complet</li>
+        <li data-target="s-belote"><span>🃏</span> Belote Pro</li>
+        <div class="nav-divider"></div>
+        <li data-target="s-net-lobby" style="color:var(--accent); border-color:var(--accent);"><span>🌐</span> Salon Multijoueur</li>
+    </ul>
+</nav>
 
-    <main>
-        <section id="s-sim" class="screen active">
-            <h1>Tic-Tac-Toe</h1>
-            <p class="subtitle">Défiez un ami sur la même machine</p>
-            <div id="ms-board" class="ms-grid"></div>
-            <div style="text-align:center; margin-top:50px">
-                <button class="btn" onclick="App.Sim.init()">Réinitialiser le plateau</button>
+<main>
+    <section id="s-sim" class="screen active">
+        <h1>Tic-Tac-Toe</h1>
+        <div id="ms-board" class="ms-grid"></div>
+        <div style="text-align: center;">
+            <button class="btn" onclick="App.Sim.init()">Réinitialiser</button>
+        </div>
+    </section>
+
+    <section id="s-ult" class="screen">
+        <h1>Morpion Ultime</h1>
+        <p class="subtitle mu-status" id="mu-status">Chargement...</p>
+        <div id="mu-board" class="mu-container"></div>
+        <div style="text-align: center;">
+            <button class="btn" onclick="App.Ult.init()">Recommencer</button>
+        </div>
+    </section>
+
+    <section id="s-mine" class="screen">
+        <h1>Démineur Expert (25x25)</h1>
+        <div class="dm-header">
+            <span>🚩 <span id="dm-flags" style="color:var(--player-x)">99</span></span>
+            <span>⏱️ <span id="dm-time" style="color:var(--accent)">0</span>s</span>
+        </div>
+        <div id="dm-board"></div>
+        <div style="text-align: center;">
+            <button class="btn" onclick="App.Mine.init()">Nouvelle Génération</button>
+        </div>
+    </section>
+
+    <section id="s-yams" class="screen">
+        <h1>Yams Championship</h1>
+        <div class="yams-layout">
+            <div class="y-dice-area">
+                <div id="y-dice" class="y-dice-container"></div>
+                <button id="y-roll-btn" class="btn" onclick="App.Yams.roll()">Lancer les dés</button>
+                <p id="y-turn" style="margin-top:20px; font-size:1.3rem; font-weight:800; color:var(--accent);"></p>
             </div>
-        </section>
+            <div id="y-score-container" class="y-tables"></div>
+        </div>
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" onclick="App.Yams.init()">Remettre à zéro</button>
+        </div>
+    </section>
 
-        <section id="s-ult" class="screen">
-            <h1>Morpion Ultime</h1>
-            <div id="mu-status" class="mu-status">Tour : Joueur X</div>
-            <div id="mu-board" class="mu-container"></div>
-        </section>
+    <section id="s-belote" class="screen">
+        <h1>Belote Officielle (1000 Pts)</h1>
+        
+        <div class="bl-scoreboard">
+            <span style="color: var(--accent);">Nous : <span id="bl-score-nous">0</span></span>
+            <span style="color: var(--player-x);">Eux : <span id="bl-score-eux">0</span></span>
+        </div>
+        
+        <div class="bl-info" id="bl-status">Cliquez sur Nouvelle Partie pour commencer.</div>
+        
+        <div class="bl-tapis">
+            <div id="bl-n-n" class="bl-name">Nord</div>
+            <div id="bl-n-s" class="bl-name">Toi</div>
+            <div id="bl-n-w" class="bl-name">Ouest</div>
+            <div id="bl-n-e" class="bl-name">Est</div>
 
-        <section id="s-mine" class="screen">
-            <h1>Démineur Expert</h1>
-            <p class="subtitle">Grille de 25x25 cases • 99 Mines terrestres</p>
-            <div class="dm-header">
-                <span>🚩 Drapeaux : <span id="dm-flags">99</span></span>
-                <span>⏱️ Temps : <span id="dm-time">0</span>s</span>
-            </div>
-            <div id="dm-board"></div>
-            <div style="text-align:center; margin-top:40px">
-                <button class="btn" onclick="App.Mine.init()">Générer une nouvelle grille</button>
-            </div>
-        </section>
+            <div id="bl-speech-0" class="bl-speech"></div>
+            <div id="bl-speech-1" class="bl-speech"></div>
+            <div id="bl-speech-2" class="bl-speech"></div>
+            <div id="bl-speech-3" class="bl-speech"></div>
 
-        <section id="s-yams" class="screen">
-            <h1>Yams Championship</h1>
-            <div class="yams-layout">
-                <div class="y-dice-area">
-                    <div id="y-dice" class="y-dice-container"></div>
-                    <button id="y-roll-btn" class="btn" onclick="App.Yams.roll()">Lancer les dés (3)</button>
-                    <p id="y-turn-info" style="margin-top:30px; font-weight:800; color:var(--accent); font-size:1.4rem;"></p>
-                </div>
-                <div id="y-score-container" class="y-tables"></div>
-            </div>
-        </section>
+            <div id="bl-h-n" class="bl-bot-hand"></div>
+            <div id="bl-h-e" class="bl-bot-hand"></div>
+            <div id="bl-h-w" class="bl-bot-hand"></div>
 
-        <section id="s-belote" class="screen">
-            <h1>Belote Solo Pro</h1>
-            <div class="bl-scoreboard">
-                <span style="color:var(--accent)">NOUS : <span id="loc-sc-nous">0</span></span>
-                <span style="color:var(--text-muted); opacity:0.3">|</span>
-                <span style="color:var(--player-x)">EUX : <span id="loc-sc-eux">0</span></span>
-            </div>
-            <div id="loc-bl-status" class="bl-info">Prêt pour une donne ?</div>
+            <div id="bl-dealer-token" class="bl-dealer" style="display:none;">D</div>
             
-            <div class="bl-tapis">
-                <div id="loc-n-n" class="bl-name pos-n">Nord (IA)</div>
-                <div id="loc-n-s" class="bl-name pos-s">Toi</div>
-                <div id="loc-n-e" class="bl-name pos-e">Est (IA)</div>
-                <div id="loc-n-w" class="bl-name pos-w">Ouest (IA)</div>
-
-                <div id="loc-sp-n" class="bl-speech sp-n"></div>
-                <div id="loc-sp-s" class="bl-speech sp-s"></div>
-                <div id="loc-sp-e" class="bl-speech sp-e"></div>
-                <div id="loc-sp-w" class="bl-speech sp-w"></div>
-
-                <div class="bl-atout-hud" id="loc-atout-hud">
-                    <div id="loc-taker" style="font-size:0.9rem; font-weight:700; margin-bottom:5px;"></div>
-                    <div id="loc-atout-suit"></div>
-                </div>
-
-                <div class="bl-trick-pts" id="loc-trick-pts">Donne : <span>0</span> pts</div>
-
-                <div id="loc-bl-center" class="bl-center"></div>
-                <div id="loc-actions" class="bl-actions"></div>
-                <div id="loc-bl-annonce-msg" class="bl-annonce">BELOTE !</div>
-
-                <div class="bl-slot slot-n" id="loc-s-n"></div>
-                <div class="bl-slot slot-s" id="loc-s-s"></div>
-                <div class="bl-slot slot-e" id="loc-s-e"></div>
-                <div class="bl-slot slot-w" id="loc-s-w"></div>
-
-                <div id="loc-bl-h-n" class="bl-bot-hand bl-h-n"></div>
-                <div id="loc-bl-h-e" class="bl-bot-hand bl-h-e"></div>
-                <div id="loc-bl-h-w" class="bl-bot-hand bl-h-w"></div>
-
-                <div id="loc-bl-dealer-token" class="bl-dealer">D</div>
+            <div id="bl-atout-corner">
+                <div id="bl-taker-name"></div>
+                <div id="bl-atout-suit"></div>
             </div>
 
-            <div id="loc-hand" class="bl-hand"></div>
+            <div id="bl-trick-points">Manche : <span id="bl-trick-pts-val">0</span> pts</div>
+
+            <div id="bl-annonce-msg" class="bl-annonce">BELOTE !</div>
+
+            <div id="bl-center"></div>
             
-            <div style="text-align:center; margin-top:40px">
-                <button class="btn" onclick="App.Belote.initGame()">Lancer une nouvelle partie</button>
+            <div id="bl-actions-1" style="position:absolute; top:75%; left:50%; transform:translate(-50%, 0); display:none; gap:10px; z-index:20;">
+                <button class="btn" id="btn-prendre-1" style="background:var(--accent);">Prendre</button>
+                <button class="btn" id="btn-passer-1" style="background:var(--player-x); color:white;">Passer</button>
             </div>
-        </section>
 
-        <section id="s-net-lobby" class="screen">
-            <div class="lobby-box">
-                <h1>Salon Multijoueur</h1>
-                <p class="subtitle">Hébergez ou rejoignez un salon privé via Firebase</p>
+            <div id="bl-actions-2" style="position:absolute; top:75%; left:50%; transform:translate(-50%, 0); display:none; gap:15px; z-index:20; align-items: center;">
+                <div id="bl-suits-container" style="display:flex; gap:10px;"></div>
+                <button class="btn" id="btn-passer-2" style="background:var(--player-x); color:white;">Passer</button>
+            </div>
+
+            <div id="bl-s-n" class="bl-slot"></div>
+            <div id="bl-s-s" class="bl-slot"></div>
+            <div id="bl-s-e" class="bl-slot"></div>
+            <div id="bl-s-w" class="bl-slot"></div>
+        </div>
+        
+        <div id="bl-hand" class="bl-hand"></div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" onclick="App.Belote.initGame()">Nouvelle Partie</button>
+        </div>
+    </section>
+
+    <section id="s-net-lobby" class="screen">
+        <div class="lobby-box">
+            <h1>Arcade Réseau</h1>
+            <p class="subtitle">Jouez avec un ami sur deux appareils distincts.</p>
+            <div style="margin: 40px 0; border-bottom: 2px solid #1e293b; padding-bottom: 40px;">
+                <h3 style="margin-bottom: 15px;">1. Créer une partie</h3>
                 <select id="net-game-select">
-                    <option value="yams">Yams en ligne (2 Joueurs)</option>
-                    <option value="belote_2p">Belote Coop (2 Humains + 2 Bots)</option>
-                    <option value="belote_4p">Belote Royale (4 Joueurs Réels)</option>
-                </select><br><br>
-                <button class="btn" onclick="App.Network.host()">Créer une Table Privée</button>
-                <div style="margin:40px 0; opacity:0.1; height:1px; background:white;"></div>
-                <input type="text" id="net-code-input" placeholder="Entrer le Code" maxlength="4"><br><br>
-                <button class="btn" onclick="App.Network.join()" style="background:var(--player-o); color:white;">Rejoindre un Ami</button>
+                    <option value="sim">Morpion Simple</option>
+                    <option value="ult">Morpion Ultime</option>
+                    <option value="yams">Yams</option>
+                </select><br>
+                <button class="btn" id="btn-create-room" style="margin-top:15px;">Héberger le Salon</button>
             </div>
-        </section>
-
-        <section id="s-net-waiting" class="screen">
-            <div class="lobby-box">
-                <h2>Votre Code Salon :</h2>
-                <div class="room-code-display" id="display-code">----</div>
-                <p id="waiting-msg" style="font-size:1.3rem; font-weight:600;">Partagez ce code. La partie débutera dès que le salon sera plein.</p>
-                <button class="btn" onclick="window.location.reload()" style="background:var(--player-x); color:white; margin-top:40px">Annuler et quitter</button>
+            <div>
+                <h3 style="margin-bottom: 15px;">2. Rejoindre une partie</h3>
+                <input type="text" id="input-room-code" placeholder="Code Secret" maxlength="4"><br>
+                <button class="btn" id="btn-join-room" style="background:var(--player-o); color:white;">Rejoindre l'Ami</button>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section id="s-net-yams" class="screen">
-            <h1>Yams Multijoueur</h1>
-            <div id="net-yams-status" class="bl-info">Synchronisation...</div>
-            <div class="yams-layout">
-                <div class="y-dice-area">
-                    <div id="net-yams-dice" style="display:flex; gap:15px; justify-content:center;"></div>
-                    <button id="net-yams-roll" class="btn" style="margin-top:30px">Lancer les dés</button>
-                </div>
-                <div id="net-yams-scores" class="y-tables"></div>
+    <section id="s-net-waiting" class="screen">
+        <div class="lobby-box">
+            <h2>Code du Salon :</h2>
+            <div class="room-code-display" id="display-room-code">----</div>
+            <p>Donnez ce code à votre adversaire. Le jeu démarrera automatiquement.</p>
+            <button class="btn" style="background:var(--player-x); color:white; margin-top:20px;" onclick="window.location.reload()">Annuler</button>
+        </div>
+    </section>
+
+    <section id="s-net-sim" class="screen">
+        <h1>Morpion En Ligne</h1>
+        <div id="net-sim-status" class="net-status-bar">Synchronisation...</div>
+        <div id="net-sim-board" class="ms-grid"></div>
+        <div style="text-align: center;">
+            <button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button>
+        </div>
+    </section>
+
+    <section id="s-net-ult" class="screen">
+        <h1>Morpion Ultime En Ligne</h1>
+        <div id="net-ult-status" class="net-status-bar">Synchronisation...</div>
+        <div id="net-ult-board" class="mu-container"></div>
+        <div style="text-align: center;">
+            <button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button>
+        </div>
+    </section>
+
+    <section id="s-net-yams" class="screen">
+        <h1>Yams En Ligne</h1>
+        <div id="net-yams-status" class="net-status-bar">Synchronisation...</div>
+        <div class="yams-layout">
+            <div class="y-dice-area">
+                <div id="net-yams-dice" class="y-dice-container"></div>
+                <button id="net-yams-roll-btn" class="btn">Lancer les dés</button>
             </div>
-        </section>
+            <div id="net-yams-scores" class="y-tables"></div>
+        </div>
+        <div style="text-align: center; margin-top:30px;">
+            <button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button>
+        </div>
+    </section>
+</main>
 
-        <section id="s-net-belote" class="screen">
-            <h1 id="net-bl-title">Belote en Ligne</h1>
-            <div class="bl-scoreboard">
-                <span style="color:var(--accent)">NOUS : <span id="net-sc-nous">0</span></span>
-                <span style="color:var(--text-muted); opacity:0.3">|</span>
-                <span style="color:var(--player-x)">EUX : <span id="net-sc-eux">0</span></span>
-            </div>
-            <div id="net-bl-status" class="bl-info">Connexion aux serveurs...</div>
-            
-            <div class="bl-tapis">
-                <div id="net-bl-n-n" class="bl-name pos-n">En attente...</div>
-                <div id="net-bl-n-s" class="bl-name pos-s">Toi</div>
-                <div id="net-bl-n-e" class="bl-name pos-e">En attente...</div>
-                <div id="net-bl-n-w" class="bl-name pos-w">En attente...</div>
-
-                <div id="net-bl-sp-n" class="bl-speech sp-n"></div>
-                <div id="net-bl-sp-s" class="bl-speech sp-s"></div>
-                <div id="net-bl-sp-e" class="bl-speech sp-e"></div>
-                <div id="net-bl-sp-w" class="bl-speech sp-w"></div>
-
-                <div class="bl-atout-hud" id="net-atout-hud">
-                    <div id="net-taker" style="font-size:0.9rem; font-weight:700;"></div>
-                    <div id="net-atout-suit"></div>
-                </div>
-
-                <div class="bl-trick-pts" id="net-trick-pts">Donne : <span>0</span> pts</div>
-
-                <div id="net-bl-center" class="bl-center"></div>
-                <div id="net-actions" class="bl-actions"></div>
-                <div id="net-bl-annonce-msg" class="bl-annonce">BELOTE !</div>
-
-                <div class="bl-slot slot-n" id="net-bl-s-n"></div>
-                <div class="bl-slot slot-s" id="net-bl-s-s"></div>
-                <div class="bl-slot slot-e" id="net-bl-s-e"></div>
-                <div class="bl-slot slot-w" id="net-bl-s-w"></div>
-
-                <div id="net-bl-h-n" class="bl-bot-hand bl-h-n"></div>
-                <div id="net-bl-h-e" class="bl-bot-hand bl-h-e"></div>
-                <div id="net-bl-h-w" class="bl-bot-hand bl-h-w"></div>
-
-                <div id="net-bl-dealer-token" class="bl-dealer" style="display:none;">D</div>
-            </div>
-            <div id="net-hand" class="bl-hand"></div>
-            <div style="text-align:center; margin-top:40px">
-                <button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter la table</button>
-            </div>
-        </section>
-    </main>
-    <script type="module">
+<script type="module">
+    // =========================================================
+    // IMPORTATION DES MODULES FIREBASE (V 12.10.0)
+    // =========================================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getDatabase, ref, set, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-    /* ==========================================================================
-       1. INITIALISATION FIREBASE & CONFIGURATION
-       ========================================================================== */
+    // =========================================================
+    // CONFIGURATION DE LA BASE DE DONNÉES
+    // =========================================================
     const firebaseConfig = {
         apiKey: "AIzaSyD5YeADpzCBrjhiYIgGjZU6ilRipK66NwY",
         authDomain: "arcade-8546c.firebaseapp.com",
@@ -719,1037 +1095,1727 @@
     const fbApp = initializeApp(firebaseConfig);
     const db = getDatabase(fbApp);
 
-    /* ==========================================================================
-       2. LE COEUR DE L'INTERFACE (SYSTEME UI)
-       ========================================================================== */
+    // =========================================================
+    // OBJET GESTIONNAIRE D'INTERFACE (UI)
+    // =========================================================
     window.UI = {
-        modalCallback: null,
-
-        /** Affiche une boîte de dialogue stylisée */
-        showModal(title, desc, callback = null) {
-            const titleEl = document.getElementById('modal-title');
-            titleEl.innerHTML = title;
+        modalCb: null,
+        
+        showModal(title, desc, cb) {
+            document.getElementById('modal-title').innerHTML = title;
             
-            // Gestion dynamique de la couleur du titre selon le contexte
-            if (title.match(/Victoire|Gagné|Félicitations|Réussi/i)) {
-                titleEl.style.color = "var(--accent)";
-            } else if (title.match(/Défaite|Perdu|BOUM|Explosion/i)) {
-                titleEl.style.color = "var(--player-x)";
-            } else {
-                titleEl.style.color = "var(--gold)";
+            let titleColor = 'var(--player-x)';
+            if (title.includes('Victoire') || title.includes('Gagné') || title.includes('Terminée') || title.includes('Réussi') || title.includes('Fin')) {
+                titleColor = 'var(--accent)';
             }
-
+            
+            document.getElementById('modal-title').style.color = titleColor;
             document.getElementById('modal-desc').innerHTML = desc;
-            this.modalCallback = callback;
+            this.modalCb = cb; 
             document.getElementById('modal-overlay').style.display = 'flex';
         },
-
-        /** Ferme la boîte de dialogue et exécute le callback s'il existe */
-        closeModal() {
-            document.getElementById('modal-overlay').style.display = 'none';
-            if (this.modalCallback) {
-                const cb = this.modalCallback;
-                this.modalCallback = null;
-                cb();
+        
+        closeModal() { 
+            document.getElementById('modal-overlay').style.display = 'none'; 
+            if (this.modalCb) {
+                this.modalCb(); 
             }
         },
-
-        /** Change d'écran avec animation et arrêt des processus en cours */
-        switchScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            const target = document.getElementById(screenId);
-            if (target) target.classList.add('active');
-
-            // Nettoyage spécifique (Ex: Timer du démineur)
-            if (screenId !== 's-mine' && window.App.Mine) {
+        
+        switchScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => {
+                s.classList.remove('active');
+            }); 
+            
+            document.getElementById(id).classList.add('active');
+            
+            if (id !== 's-mine') {
                 clearInterval(window.App.Mine.timer);
             }
         }
     };
 
-    // Namespace global pour les applications
     window.App = {};
-    const getEl = (id) => document.getElementById(id);
 
-    /* ==========================================================================
-       3. MOTEUR : MORPION SIMPLE (TIC-TAC-TOE)
-       ========================================================================== */
+    // =========================================================
+    // MOTEUR DE JEU : MORPION SIMPLE
+    // =========================================================
     window.App.Sim = {
-        grid: [],
-        currentPlayer: 'X',
-
+        state: [], 
+        player: 'X',
+        
         init() {
-            const board = getEl('ms-board');
-            board.innerHTML = '';
-            this.grid = Array(9).fill('');
-            this.currentPlayer = 'X';
-
-            for (let i = 0; i < 9; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'ms-cell';
-                cell.dataset.index = i;
-                cell.onclick = () => this.handlePlay(i, cell);
-                board.appendChild(cell);
+            const board = document.getElementById('ms-board'); 
+            board.innerHTML = ''; 
+            this.state = Array(9).fill(''); 
+            this.player = 'X'; 
+            
+            for (let i = 0; i < 9; i++) { 
+                let cell = document.createElement('div'); 
+                cell.className = 'ms-cell'; 
+                cell.onclick = () => this.play(i, cell); 
+                board.appendChild(cell); 
             }
         },
-
-        handlePlay(index, element) {
-            if (this.grid[index] !== '') return;
-
-            this.grid[index] = this.currentPlayer;
-            element.textContent = this.currentPlayer;
-            element.classList.add('taken');
-            element.style.color = this.currentPlayer === 'X' ? 'var(--player-x)' : 'var(--player-o)';
-
-            const winningLine = this.checkWin(this.grid);
-            if (winningLine) {
-                winningLine.forEach(idx => getEl('ms-board').children[idx].classList.add('win'));
+        
+        play(index, element) {
+            if (this.state[index] !== '') {
+                return; 
+            }
+            
+            this.state[index] = this.player; 
+            element.textContent = this.player; 
+            element.style.color = this.player === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
+            element.classList.add('taken'); 
+            
+            const winLine = this.checkWin(this.state); 
+            
+            if (winLine) { 
+                winLine.forEach(idx => {
+                    document.getElementById('ms-board').children[idx].classList.add('win');
+                }); 
+                
                 setTimeout(() => {
-                    window.UI.showModal("Victoire !", `Le joueur <b>${this.currentPlayer}</b> a remporté la partie !`, () => this.init());
-                }, 600);
-            } else if (!this.grid.includes('')) {
+                    window.UI.showModal('Victoire !', `Le joueur <b style="color:${element.style.color}">${this.player}</b> a gagné en local.`, () => this.init());
+                }, 600); 
+                
+            } else if (!this.state.includes('')) {
                 setTimeout(() => {
-                    window.UI.showModal("Match Nul", "Personne n'a gagné sur ce coup.", () => this.init());
-                }, 300);
+                    window.UI.showModal('Égalité', 'Match Nul, la grille est pleine.', () => this.init());
+                }, 200); 
             } else {
-                this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
+                this.player = this.player === 'X' ? 'O' : 'X'; 
             }
         },
-
-        checkWin(g) {
-            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-            return wins.find(l => g[l[0]] && g[l[0]] === g[l[1]] && g[l[0]] === g[l[2]]);
+        
+        checkWin(grid) {
+            const winConditions = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], 
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], 
+                [0, 4, 8], [2, 4, 6]             
+            ]; 
+            
+            return winConditions.find(line => grid[line[0]] && grid[line[0]] === grid[line[1]] && grid[line[0]] === grid[line[2]]);
         }
     };
 
-    /* ==========================================================================
-       4. MOTEUR : MORPION ULTIME (STRATÉGIE)
-       ========================================================================== */
+    // =========================================================
+    // MOTEUR DE JEU : MORPION ULTIME
+    // =========================================================
     window.App.Ult = {
-        bigGrid: [], 
-        smallGrids: [], 
-        player: 'X', 
-        nextGrid: -1,
-
+        bGrid: [], 
+        sGrids: [], 
+        currentPlayer: 'X', 
+        nextActiveGrid: -1,
+        
         init() {
-            const container = getEl('mu-board');
-            container.innerHTML = '';
-            this.bigGrid = Array(9).fill('');
-            this.smallGrids = Array.from({length: 9}, () => Array(9).fill(''));
-            this.player = 'X';
-            this.nextGrid = -1;
-            this.updateStatus();
-
-            for (let b = 0; b < 9; b++) {
-                const subBoard = document.createElement('div');
-                subBoard.className = 'mu-grid';
-                subBoard.id = `mu-sub-${b}`;
-                for (let s = 0; s < 9; s++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'mu-cell';
-                    cell.onclick = () => this.play(b, s, cell);
-                    subBoard.appendChild(cell);
-                }
-                container.appendChild(subBoard);
-            }
-            this.refreshActiveZones();
+            const mainBoard = document.getElementById('mu-board'); 
+            mainBoard.innerHTML = ''; 
+            this.bGrid = Array(9).fill(''); 
+            this.sGrids = Array.from({length: 9}, () => Array(9).fill('')); 
+            this.currentPlayer = 'X'; 
+            this.nextActiveGrid = -1; 
+            this.updateStatusUI(); 
+            
+            for (let bgIndex = 0; bgIndex < 9; bgIndex++) { 
+                let subGrid = document.createElement('div'); 
+                subGrid.className = 'mu-grid'; 
+                subGrid.id = `mu-g-${bgIndex}`; 
+                
+                for (let sgIndex = 0; sgIndex < 9; sgIndex++) { 
+                    let cell = document.createElement('div'); 
+                    cell.className = 'mu-cell'; 
+                    cell.onclick = () => this.play(bgIndex, sgIndex, cell); 
+                    subGrid.appendChild(cell); 
+                } 
+                mainBoard.appendChild(subGrid); 
+            } 
+            this.highlightActiveGrids();
         },
-
-        play(bIdx, sIdx, el) {
-            if (this.smallGrids[bIdx][sIdx] !== '' || this.bigGrid[bIdx] !== '') return;
-            if (this.nextGrid !== -1 && this.nextGrid !== bIdx) return;
-
-            this.smallGrids[bIdx][sIdx] = this.player;
-            el.textContent = this.player;
-            el.style.color = this.player === 'X' ? 'var(--player-x)' : 'var(--player-o)';
-            el.classList.add('taken');
-
-            // On vérifie si la petite grille est gagnée
-            if (window.App.Sim.checkWin(this.smallGrids[bIdx])) {
-                this.bigGrid[bIdx] = this.player;
-                const overlay = document.createElement('div');
-                overlay.className = 'mu-won';
-                overlay.textContent = this.player;
-                overlay.style.color = el.style.color;
-                getEl(`mu-sub-${bIdx}`).appendChild(overlay);
-            } else if (!this.smallGrids[bIdx].includes('')) {
-                this.bigGrid[bIdx] = 'DRAW';
+        
+        play(bgIndex, sgIndex, cellElement) {
+            if (this.sGrids[bgIndex][sgIndex] !== '' || this.bGrid[bgIndex] !== '' || (this.nextActiveGrid !== -1 && this.nextActiveGrid !== bgIndex)) {
+                return; 
             }
-
-            // On vérifie la grande victoire
-            const cleanBig = this.bigGrid.map(v => v === 'DRAW' ? '' : v);
-            if (window.App.Sim.checkWin(cleanBig)) {
+            
+            this.sGrids[bgIndex][sgIndex] = this.currentPlayer; 
+            cellElement.textContent = this.currentPlayer; 
+            cellElement.classList.add('taken'); 
+            cellElement.style.color = this.currentPlayer === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
+            
+            if (window.App.Sim.checkWin(this.sGrids[bgIndex])) { 
+                this.bGrid[bgIndex] = this.currentPlayer; 
+                let cover = document.createElement('div'); 
+                cover.className = 'mu-won'; 
+                cover.textContent = this.currentPlayer; 
+                cover.style.color = cellElement.style.color; 
+                document.getElementById(`mu-g-${bgIndex}`).appendChild(cover); 
+            } else if (!this.sGrids[bgIndex].includes('')) {
+                this.bGrid[bgIndex] = 'D'; 
+            }
+            
+            const cleanBigGrid = this.bGrid.map(val => val === 'D' ? '' : val);
+            
+            if (window.App.Sim.checkWin(cleanBigGrid)) { 
                 setTimeout(() => {
-                    window.UI.showModal("Victoire Ultime !", `Le joueur <b>${this.player}</b> est le grand maître !`, () => this.init());
-                }, 400);
-            } else {
-                this.nextGrid = (this.bigGrid[sIdx] !== '') ? -1 : sIdx;
-                this.player = this.player === 'X' ? 'O' : 'X';
-                this.updateStatus();
-                this.refreshActiveZones();
+                    window.UI.showModal('Victoire Ultime', `Le stratège <b style="color:${cellElement.style.color}">${this.currentPlayer}</b> domine la carte !`, () => this.init());
+                }, 300); 
+                this.nextActiveGrid = 999; 
+            } else { 
+                this.nextActiveGrid = (this.bGrid[sgIndex] !== '') ? -1 : sgIndex; 
+                this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X'; 
+                this.updateStatusUI(); 
+                this.highlightActiveGrids(); 
             }
         },
-
-        refreshActiveZones() {
-            document.querySelectorAll('.mu-grid').forEach((g, i) => {
-                g.classList.remove('mu-active');
-                if (this.bigGrid[i] === '' && (this.nextGrid === -1 || this.nextGrid === i)) {
-                    g.classList.add('mu-active');
+        
+        highlightActiveGrids() {
+            document.querySelectorAll('.mu-grid').forEach((gridElement, index) => { 
+                gridElement.classList.remove('mu-active'); 
+                if ((this.nextActiveGrid === -1 || this.nextActiveGrid === index) && this.bGrid[index] === '') {
+                    gridElement.classList.add('mu-active');
                 }
             });
         },
-
-        updateStatus() {
-            const color = this.player === 'X' ? 'var(--player-x)' : 'var(--player-o)';
-            getEl('mu-status').innerHTML = `Tour : <b style="color:${color}">${this.player}</b>`;
+        
+        updateStatusUI() {
+            const color = this.currentPlayer === 'X' ? 'var(--player-x)' : 'var(--player-o)';
+            document.getElementById('mu-status').innerHTML = `C'est au tour de : <b style="color:${color}">${this.currentPlayer}</b>`;
         }
     };
 
-    /* ==========================================================================
-       5. MOTEUR : DÉMINEUR EXPERT (25x25)
-       ========================================================================== */
+    // =========================================================
+    // MOTEUR DE JEU : DÉMINEUR EXPERT (25x25)
+    // =========================================================
     window.App.Mine = {
-        logic: [], visual: [], mines: 99, 
-        flags: 99, time: 0, timer: null, 
-        isDead: false, isFirst: true,
-
+        grid: [], 
+        opened: [], 
+        flags: 99, 
+        time: 0, 
+        timer: null, 
+        isFirstClick: true,
+        
         init() {
-            const board = getEl('dm-board');
-            board.innerHTML = '';
-            this.logic = Array(625).fill(0);
-            this.visual = Array(625).fill(false);
-            this.flags = 99;
-            this.time = 0;
-            this.isDead = false;
-            this.isFirst = true;
-            clearInterval(this.timer);
-            this.updateStats();
-
-            for (let i = 0; i < 625; i++) {
-                const tile = document.createElement('div');
-                tile.className = 'dm-tile';
-                tile.onmousedown = (e) => this.handleMouse(e, i);
-                tile.oncontextmenu = (e) => e.preventDefault();
-                board.appendChild(tile);
+            const board = document.getElementById('dm-board'); 
+            board.innerHTML = ''; 
+            this.grid = Array(625).fill(0); 
+            this.opened = Array(625).fill(false); 
+            this.flags = 99; 
+            this.time = 0; 
+            this.isFirstClick = true; 
+            
+            clearInterval(this.timer); 
+            this.updateUI(); 
+            
+            for (let i = 0; i < 625; i++) { 
+                let tile = document.createElement('div'); 
+                tile.className = 'dm-tile'; 
+                
+                tile.onmousedown = (e) => { 
+                    if (e.button === 2) { 
+                        e.preventDefault(); 
+                        if (this.opened[i]) {
+                            return; 
+                        }
+                        
+                        if (tile.textContent === '🚩') { 
+                            tile.textContent = ''; 
+                            this.flags++; 
+                        } else if (this.flags > 0) { 
+                            tile.textContent = '🚩'; 
+                            this.flags--; 
+                        } 
+                        this.updateUI(); 
+                    } else { 
+                        if (tile.textContent === '🚩' || this.opened[i]) {
+                            return; 
+                        }
+                        if (this.isFirstClick) {
+                            this.generateMines(i); 
+                        }
+                        this.reveal(i); 
+                    } 
+                }; 
+                
+                tile.oncontextmenu = e => e.preventDefault(); 
+                board.appendChild(tile); 
             }
         },
-
-        handleMouse(e, i) {
-            if (this.isDead || this.visual[i]) return;
-            const tile = getEl('dm-board').children[i];
-
-            if (e.button === 2) { // Droit : Drapeau
-                if (tile.textContent === '🚩') {
-                    tile.textContent = ''; this.flags++;
-                } else if (this.flags > 0) {
-                    tile.textContent = '🚩'; this.flags--;
-                }
-            } else { // Gauche : Révéler
-                if (tile.textContent === '🚩') return;
-                if (this.isFirst) this.start(i);
-                this.reveal(i);
-            }
-            this.updateStats();
+        
+        updateUI() {
+            document.getElementById('dm-flags').textContent = this.flags; 
+            document.getElementById('dm-time').textContent = this.time;
         },
-
-        getNeighbors(i) {
-            const r = Math.floor(i / 25), c = i % 25, res = [];
-            for (let y = -1; y <= 1; y++) {
-                for (let x = -1; x <= 1; x++) {
-                    const nr = r + y, nc = c + x;
-                    if (nr >= 0 && nr < 25 && nc >= 0 && nc < 25 && !(y === 0 && x === 0)) {
-                        res.push(nr * 25 + nc);
+        
+        getNeighbors(index) {
+            let row = Math.floor(index / 25);
+            let col = index % 25;
+            let neighbors = []; 
+            
+            for (let x = -1; x <= 1; x++) {
+                for (let y = -1; y <= 1; y++) {
+                    let newRow = row + x;
+                    let newCol = col + y;
+                    
+                    if (newRow >= 0 && newRow < 25 && newCol >= 0 && newCol < 25) {
+                        neighbors.push(newRow * 25 + newCol);
                     }
                 }
-            }
-            return res;
+            } 
+            return neighbors;
         },
-
-        start(safeIdx) {
-            this.isFirst = false;
-            let mCount = 0;
-            const protectedZone = [safeIdx, ...this.getNeighbors(safeIdx)];
+        
+        generateMines(safeIndex) {
+            this.isFirstClick = false; 
+            let minesPlaced = 0; 
+            const safeZone = [...this.getNeighbors(safeIndex), safeIndex]; 
             
-            while (mCount < 99) {
-                const rnd = Math.floor(Math.random() * 625);
-                if (!protectedZone.includes(rnd) && this.logic[rnd] !== 'M') {
-                    this.logic[rnd] = 'M';
-                    mCount++;
+            while (minesPlaced < 99) { 
+                let randomIndex = Math.floor(Math.random() * 625); 
+                
+                if (!safeZone.includes(randomIndex) && this.grid[randomIndex] !== 'M') { 
+                    this.grid[randomIndex] = 'M'; 
+                    minesPlaced++; 
+                } 
+            } 
+            
+            for (let i = 0; i < 625; i++) {
+                if (this.grid[i] !== 'M') {
+                    this.grid[i] = this.getNeighbors(i).filter(n => this.grid[n] === 'M').length; 
                 }
             }
-
-            for (let i = 0; i < 625; i++) {
-                if (this.logic[i] === 'M') continue;
-                this.logic[i] = this.getNeighbors(i).filter(n => this.logic[n] === 'M').length;
-            }
-
-            this.timer = setInterval(() => {
-                this.time++;
-                getEl('dm-time').textContent = this.time;
+            
+            this.timer = setInterval(() => { 
+                this.time++; 
+                this.updateUI(); 
             }, 1000);
         },
-
-        reveal(i) {
-            if (this.visual[i]) return;
-            this.visual[i] = true;
-            const el = getEl('dm-board').children[i];
-            el.classList.add('open');
-
-            if (this.logic[i] === 'M') {
-                this.isDead = true;
-                el.textContent = '💣';
-                el.style.background = 'var(--player-x)';
-                clearInterval(this.timer);
-                setTimeout(() => window.UI.showModal("BOUM !", "La mine a explosé !"), 400);
-            } else {
-                if (this.logic[i] > 0) {
-                    el.textContent = this.logic[i];
-                    el.classList.add('dm-c' + this.logic[i]);
+        
+        reveal(index) {
+            if (this.opened[index]) {
+                return; 
+            }
+            
+            const tileElement = document.getElementById('dm-board').children[index]; 
+            this.opened[index] = true; 
+            tileElement.classList.add('open'); 
+            
+            if (this.grid[index] === 'M') { 
+                tileElement.classList.add('mine'); 
+                tileElement.textContent = '💣'; 
+                clearInterval(this.timer); 
+                
+                setTimeout(() => {
+                    window.UI.showModal('BOUM !', `Mines déclenchées à ${this.time} secondes.`, () => this.init());
+                }, 300); 
+                
+            } else { 
+                if (this.grid[index] > 0) { 
+                    tileElement.textContent = this.grid[index]; 
+                    tileElement.classList.add('dm-c' + this.grid[index]); 
                 } else {
-                    this.getNeighbors(i).forEach(n => this.reveal(n));
+                    this.getNeighbors(index).forEach(n => this.reveal(n)); 
+                }
+            } 
+            
+            // Si 625 cases - 99 mines = 526 cases ouvertes, c'est gagné
+            if (this.opened.filter(val => val).length === 526) { 
+                clearInterval(this.timer); 
+                
+                setTimeout(() => {
+                    window.UI.showModal('Déminage Réussi !', `Terrain sécurisé en ${this.time}s.`, () => this.init());
+                }, 300); 
+            }
+        }
+    };
+
+    // =========================================================
+    // MOTEUR DE JEU : YAMS CHAMPIONSHIP
+    // =========================================================
+    window.App.Yams = {
+        dice: [1, 1, 1, 1, 1], 
+        kept: [false, false, false, false, false], 
+        rollsLeft: 3, 
+        currentPlayer: 0, 
+        scores: [{}, {}],
+        
+        init() {
+            this.scores = [{}, {}]; 
+            this.currentPlayer = 0; 
+            this.rollsLeft = 3; 
+            this.kept.fill(false); 
+            
+            const container = document.getElementById('y-score-container'); 
+            container.innerHTML = ''; 
+            
+            const categoriesList = [
+                '1', '2', '3', '4', '5', '6', 'Bonus (>62)', 
+                'Brelan', 'Carré', 'Full', 'Petite Suite', 'Grande Suite', 'Yams', 'Chance'
+            ];
+            
+            for (let i = 0; i < 2; i++) { 
+                let tableHTML = `<table class="y-table" id="yt-${i}"><tr><th colspan="2">Joueur ${i+1}</th></tr>`; 
+                
+                categoriesList.forEach(cat => { 
+                    if (cat.includes('Bonus')) {
+                        tableHTML += `<tr style="background:#020617"><td style="color:var(--gold)">${cat}</td><td class="val" id="y-${i}-Bonus">0</td></tr>`; 
+                    } else {
+                        let cleanID = cat.replace(/\s/g, '');
+                        tableHTML += `<tr><td>${cat}</td><td class="val" id="y-${i}-${cleanID}" onclick="window.App.Yams.lockCategory('${cat}', ${i})">-</td></tr>`; 
+                    }
+                }); 
+                
+                tableHTML += `<tr class="total-row"><td>TOTAL</td><td id="y-tot-${i}">0</td></tr></table>`; 
+                container.innerHTML += tableHTML; 
+            } 
+            
+            this.dice = [1, 1, 1, 1, 1]; 
+            this.ui();
+        },
+        
+        roll() {
+            if (this.rollsLeft <= 0) {
+                return; 
+            }
+            
+            this.dice = this.dice.map((val, index) => {
+                return this.kept[index] ? val : Math.floor(Math.random() * 6) + 1;
+            }); 
+            
+            this.rollsLeft--; 
+            this.ui();
+        },
+        
+        ui() {
+            const diceBox = document.getElementById('y-dice'); 
+            diceBox.innerHTML = ''; 
+            
+            this.dice.forEach((val, index) => { 
+                let dieElement = document.createElement('div'); 
+                dieElement.className = 'y-die' + (this.kept[index] ? ' kept' : ''); 
+                
+                if (this.rollsLeft === 3) {
+                    dieElement.style.opacity = '0.3';
                 }
                 
-                // Win Check
-                if (this.visual.filter(v => v).length === 526) {
-                    clearInterval(this.timer);
-                    window.UI.showModal("Félicitations !", `Grille nettoyée en ${this.time} secondes !`);
-                }
+                dieElement.textContent = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'][val - 1]; 
+                
+                dieElement.onclick = () => { 
+                    if (this.rollsLeft < 3 && this.rollsLeft > 0) { 
+                        this.kept[index] = !this.kept[index]; 
+                        this.ui(); 
+                    } 
+                }; 
+                
+                diceBox.appendChild(dieElement); 
+            }); 
+            
+            document.getElementById('y-roll-btn').textContent = `Lancer (${this.rollsLeft})`; 
+            document.getElementById('y-turn').textContent = `C'est au tour du Joueur ${this.currentPlayer + 1}`; 
+            
+            if (this.rollsLeft < 3) {
+                this.calculatePotentials();
             }
         },
-
-        updateStats() {
-            getEl('dm-flags').textContent = this.flags;
-        }
-    };
-        /* ==========================================================================
-       6. MOTEUR : YAMS CHAMPIONSHIP (LOCAL - VERSION ROBUSTE)
-       ========================================================================== */
-    window.App.Yams = {
-        dice: [1, 1, 1, 1, 1],
-        kept: { 0: false, 1: false, 2: false, 3: false, 4: false }, // Objet pour éviter bug Firebase
-        rollsLeft: 3,
-        currentPlayer: 0,
-        scores: [{}, {}],
-
-        init() {
-            this.scores = [{}, {}];
-            this.currentPlayer = 0;
-            this.rollsLeft = 3;
-            this.resetKept();
+        
+        calculatePotentials() {
+            const counts = {}; 
+            this.dice.forEach(x => counts[x] = (counts[x] || 0) + 1); 
             
-            const container = getEl('y-score-container');
-            container.innerHTML = '';
+            const valuesCount = Object.values(counts);
+            const uniqueSet = new Set(this.dice); 
             
-            const cats = ['1', '2', '3', '4', '5', '6', 'Bonus (>62)', 'Brelan', 'Carré', 'Full', 'Petite Suite', 'Grande Suite', 'Yams', 'Chance'];
-            
-            for (let i = 0; i < 2; i++) {
-                let tableHTML = `<table class="y-table" id="yt-${i}"><tr><th colspan="2" style="background:#020617; color:white; padding:15px">Joueur ${i+1}</th></tr>`;
-                cats.forEach(cat => {
-                    const cleanID = cat.replace(/\s/g, '').replace('>', '');
-                    if (cat.includes('Bonus')) {
-                        tableHTML += `<tr style="background:#020617"><td style="color:var(--gold)">${cat}</td><td class="val" id="y-${i}-Bonus">0</td></tr>`;
-                    } else {
-                        tableHTML += `<tr><td style="color:var(--text-muted)">${cat}</td><td class="val" id="y-${i}-${cleanID}" onclick="window.App.Yams.handleLock('${cat}', ${i})">-</td></tr>`;
-                    }
-                });
-                tableHTML += `<tr style="background:#020617; font-weight:900; color:var(--gold)"><td style="padding:15px">TOTAL</td><td id="y-tot-${i}" style="padding:15px">0</td></tr></table>`;
-                container.innerHTML += tableHTML;
-            }
-            this.dice = [1, 1, 1, 1, 1];
-            this.render();
-        },
-
-        resetKept() {
-            this.kept = { 0: false, 1: false, 2: false, 3: false, 4: false };
-        },
-
-        roll() {
-            if (this.rollsLeft <= 0) return;
-            for (let i = 0; i < 5; i++) {
-                if (!this.kept[i]) this.dice[i] = Math.floor(Math.random() * 6) + 1;
-            }
-            this.rollsLeft--;
-            this.render();
-        },
-
-        render() {
-            const container = getEl('y-dice');
-            container.innerHTML = '';
-            const icons = ['', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-
-            this.dice.forEach((val, i) => {
-                const die = document.createElement('div');
-                die.className = 'y-die' + (this.kept[i] ? ' kept' : '');
-                die.textContent = icons[val];
-                if (this.rollsLeft < 3 && this.rollsLeft >= 0) {
-                    die.onclick = () => {
-                        this.kept[i] = !this.kept[i];
-                        this.render();
-                    };
-                } else {
-                    die.style.opacity = "0.5";
-                    die.style.cursor = "default";
-                }
-                container.appendChild(die);
-            });
-
-            getEl('y-roll-btn').textContent = `Lancer (${this.rollsLeft})`;
-            getEl('y-roll-btn').disabled = (this.rollsLeft === 0);
-            getEl('y-turn-info').textContent = `Tour du Joueur ${this.currentPlayer + 1}`;
-            
-            if (this.rollsLeft < 3) this.preview();
-        },
-
-        preview() {
-            const counts = {};
-            this.dice.forEach(x => counts[x] = (counts[x] || 0) + 1);
-            const vals = Object.values(counts);
-            const set = new Set(this.dice);
-
-            const hasSeq = (len) => {
-                let streak = 0, max = 0;
+            const hasSequence = (lengthRequired) => { 
+                let currentStreak = 0;
+                let maxStreak = 0; 
                 for (let i = 1; i <= 6; i++) {
-                    if (set.has(i)) streak++; else streak = 0;
-                    max = Math.max(max, streak);
-                }
-                return max >= len;
-            };
-
+                    if (uniqueSet.has(i)) {
+                        currentStreak++; 
+                    } else {
+                        currentStreak = 0; 
+                    }
+                    maxStreak = Math.max(maxStreak, currentStreak);
+                } 
+                return maxStreak >= lengthRequired; 
+            }; 
+            
             const categories = ['1', '2', '3', '4', '5', '6', 'Brelan', 'Carré', 'Full', 'Petite Suite', 'Grande Suite', 'Yams', 'Chance'];
             
-            categories.forEach(cat => {
-                const cleanID = cat.replace(/\s/g, '').replace('>', '');
-                const cell = getEl(`y-${this.currentPlayer}-${cleanID}`);
-                if (this.scores[this.currentPlayer][cat] !== undefined) return;
-
-                let score = 0;
-                if (!isNaN(cat)) score = (counts[cat] || 0) * parseInt(cat);
-                else if (cat === 'Brelan' && vals.some(v => v >= 3)) score = this.dice.reduce((a,b) => a+b);
-                else if (cat === 'Carré' && vals.some(v => v >= 4)) score = this.dice.reduce((a,b) => a+b);
-                else if (cat === 'Full' && vals.includes(3) && vals.includes(2)) score = 25;
-                else if (cat === 'Petite Suite' && hasSeq(4)) score = 30;
-                else if (cat === 'Grande Suite' && hasSeq(5)) score = 40;
-                else if (cat === 'Yams' && vals.includes(5)) score = 50;
-                else if (cat === 'Chance') score = this.dice.reduce((a,b) => a+b);
-
-                cell.textContent = score;
-                cell.className = 'val pot';
+            categories.forEach(cat => { 
+                let cleanID = cat.replace(/\s/g, ''); 
+                const cellElement = document.getElementById(`y-${this.currentPlayer}-${cleanID}`); 
+                
+                if (this.scores[this.currentPlayer][cat] !== undefined) {
+                    return; 
+                }
+                
+                let potentialPoints = 0; 
+                
+                if (!isNaN(cat)) {
+                    potentialPoints = (counts[cat] || 0) * parseInt(cat); 
+                } else if (cat === 'Brelan' && valuesCount.some(x => x >= 3)) {
+                    potentialPoints = this.dice.reduce((a,b) => a + b); 
+                } else if (cat === 'Carré' && valuesCount.some(x => x >= 4)) {
+                    potentialPoints = this.dice.reduce((a,b) => a + b); 
+                } else if (cat === 'Full' && valuesCount.includes(3) && valuesCount.includes(2)) {
+                    potentialPoints = 25; 
+                } else if (cat === 'Petite Suite' && hasSequence(4)) {
+                    potentialPoints = 30; 
+                } else if (cat === 'Grande Suite' && hasSequence(5)) {
+                    potentialPoints = 40; 
+                } else if (cat === 'Yams' && valuesCount.includes(5)) {
+                    potentialPoints = 50; 
+                } else if (cat === 'Chance') {
+                    potentialPoints = this.dice.reduce((a,b) => a + b); 
+                }
+                
+                cellElement.textContent = potentialPoints; 
+                cellElement.className = 'val pot'; 
             });
         },
-
-        handleLock(cat, playerIdx) {
-            if (this.rollsLeft === 3 || playerIdx !== this.currentPlayer) return;
-            if (this.scores[playerIdx][cat] !== undefined) return;
-
-            const cleanID = cat.replace(/\s/g, '').replace('>', '');
-            const cell = getEl(`y-${playerIdx}-${cleanID}`);
-            
-            this.scores[playerIdx][cat] = parseInt(cell.textContent);
-            cell.className = 'val locked';
-
-            // Calcul Totaux
-            let total = Object.values(this.scores[playerIdx]).reduce((a, b) => a + b, 0);
-            let topSum = ['1','2','3','4','5','6'].reduce((s, k) => s + (this.scores[playerIdx][k] || 0), 0);
-            
-            if (topSum >= 63) {
-                total += 35;
-                getEl(`y-${playerIdx}-Bonus`).textContent = "35";
+        
+        lockCategory(category, playerIndex) {
+            if (this.rollsLeft === 3) {
+                return; 
             }
-            getEl(`y-tot-${playerIdx}`).textContent = total;
-
-            // Next Turn
-            this.currentPlayer = 1 - this.currentPlayer;
-            this.rollsLeft = 3;
-            this.resetKept();
-            this.dice = [1, 1, 1, 1, 1];
+            if (playerIndex !== this.currentPlayer || this.scores[playerIndex][category] !== undefined) {
+                return; 
+            }
             
-            document.querySelectorAll('.pot').forEach(el => { el.textContent = '-'; el.className = 'val'; });
+            let cleanID = category.replace(/\s/g, ''); 
+            const cellElement = document.getElementById(`y-${playerIndex}-${cleanID}`); 
             
-            if (Object.keys(this.scores[1]).length === 13) {
-                const s1 = parseInt(getEl('y-tot-0').textContent);
-                const s2 = parseInt(getEl('y-tot-1').textContent);
-                const winner = s1 > s2 ? "Joueur 1" : (s2 > s1 ? "Joueur 2" : "Égalité");
-                window.UI.showModal("Fin de Partie", `Score final : ${s1} - ${s2}<br>Vainqueur : <b>${winner}</b>`, () => this.init());
+            this.scores[playerIndex][category] = parseInt(cellElement.textContent); 
+            cellElement.className = 'val locked'; 
+            
+            let total = Object.values(this.scores[playerIndex]).reduce((sum, val) => sum + val, 0); 
+            let sumTopSection = ['1', '2', '3', '4', '5', '6'].reduce((sum, key) => sum + (this.scores[playerIndex][key] || 0), 0); 
+            
+            if (sumTopSection >= 63) { 
+                total += 35; 
+                document.getElementById(`y-${playerIndex}-Bonus`).textContent = 35; 
+            } 
+            
+            document.getElementById(`y-tot-${playerIndex}`).textContent = total; 
+            
+            this.currentPlayer = (this.currentPlayer + 1) % 2; 
+            this.rollsLeft = 3; 
+            this.kept.fill(false); 
+            this.dice = [1, 1, 1, 1, 1]; 
+            
+            document.querySelectorAll('.pot').forEach(element => { 
+                element.textContent = '-'; 
+                element.classList.remove('pot'); 
+            }); 
+            
+            if (Object.keys(this.scores[1]).length === 13) { 
+                let totalPlayer1 = parseInt(document.getElementById(`y-tot-0`).textContent);
+                let totalPlayer2 = parseInt(document.getElementById(`y-tot-1`).textContent); 
+                
+                let winnerText = totalPlayer1 > totalPlayer2 ? 'Joueur 1' : (totalPlayer2 > totalPlayer1 ? 'Joueur 2' : 'Égalité parfaite');
+                let message = `Scores finaux :<br>J1 : ${totalPlayer1}<br>J2 : ${totalPlayer2}<br><br>Vainqueur : <b>${winnerText}</b>`;
+                
+                window.UI.showModal('Fin du Championnat !', message, () => this.init()); 
             } else {
-                this.render();
+                this.ui(); 
             }
         }
     };
 
-    /* ==========================================================================
-       7. MOTEUR : LA VRAIE BELOTE (LOCALE - IA COMPLETE)
-       ========================================================================== */
+    // =========================================================
+    // MOTEUR DE JEU : LA VRAIE BELOTE IA INTELLIGENTE ET COMPLÈTE
+    // =========================================================
     window.App.Belote = {
         deck: [], 
-        hands: [[], [], [], []], // 0:Sud, 1:Est, 2:Nord, 3:Ouest
+        hands: [[], [], [], []], // Index 0:Toi(Sud), 1:Est, 2:Nord, 3:Ouest
         scores: { nous: 0, eux: 0 },
-        dealer: 0, turn: 0, phase: 'init', taker: -1, atout: null, trick: [],
-        dealPts: { nous: 0, eux: 0 }, tricksWon: { nous: 0, eux: 0 }, count: 0,
-        beloteTeam: null, litige: 0,
-
-        suits: [{s:'♠',c:'b'},{s:'♣',c:'b'},{s:'♥',c:'r'},{s:'♦',c:'r'}],
-        ranks: ['7','8','9','10','V','D','R','A'],
-        vAtout: {'V':20,'9':14,'A':11,'10':10,'R':4,'D':3,'8':0,'7':0},
-        vNorm: {'A':11,'10':10,'R':4,'D':3,'V':2,'9':0,'8':0,'7':0},
-        oAtout: ['V','9','A','10','R','D','8','7'],
-        oNorm: ['A','10','R','D','V','9','8','7'],
+        litigePot: 0,
+        
+        dealerIndex: -1, 
+        firstPlayerIndex: 0, 
+        currentTurnIndex: 0,
+        
+        phase: 'init', 
+        centerCard: null, 
+        atoutSuit: null, 
+        takerIndex: -1,
+        
+        currentTrick: [], 
+        dealPoints: { nous: 0, eux: 0 },
+        tricksWon: { nous: 0, eux: 0 },
+        tricksPlayedCount: 0,
+        
+        beloteAnnouncedBy: null, 
+        
+        suits: [
+            {s: '♠', color: 'b'}, 
+            {s: '♣', color: 'b'}, 
+            {s: '♥', color: 'r'}, 
+            {s: '♦', color: 'r'}
+        ],
+        ranks: ['7', '8', '9', '10', 'V', 'D', 'R', 'A'],
+        
+        // Hiérarchie Belote
+        valAtout: { 'V':20, '9':14, 'A':11, '10':10, 'R':4, 'D':3, '8':0, '7':0 },
+        valNormal: { 'A':11, '10':10, 'R':4, 'D':3, 'V':2, '9':0, '8':0, '7':0 },
+        ordAtout: ['V', '9', 'A', '10', 'R', 'D', '8', '7'],
+        ordNormal: ['A', '10', 'R', 'D', 'V', '9', '8', '7'],
 
         initGame() {
             this.scores = { nous: 0, eux: 0 };
-            this.dealer = Math.floor(Math.random() * 4);
+            this.litigePot = 0;
+            
+            if (this.dealerIndex === -1) {
+                this.dealerIndex = Math.floor(Math.random() * 4);
+            }
+            
+            this.updateScoreUI();
             this.startDeal();
         },
 
         startDeal() {
-            this.phase = 'bidding_1'; this.trick = []; this.count = 0; this.beloteTeam = null;
-            this.dealPts = { nous: 0, eux: 0 }; this.tricksWon = { nous: 0, eux: 0 };
+            // Nettoyage de l'interface
+            document.querySelectorAll('.bl-slot').forEach(slot => slot.innerHTML = '');
+            document.getElementById('bl-center').innerHTML = '';
+            document.getElementById('bl-hand').innerHTML = '';
+            document.getElementById('bl-actions-1').style.display = 'none';
+            document.getElementById('bl-actions-2').style.display = 'none';
+            document.getElementById('bl-annonce-msg').classList.remove('active');
+            document.getElementById('bl-trick-points').style.display = 'none';
+            document.getElementById('bl-atout-corner').style.display = 'none';
             
-            getEl('loc-sc-nous').textContent = this.scores.nous;
-            getEl('loc-sc-eux').textContent = this.scores.eux;
-            getEl('loc-atout-hud').style.display = 'none';
-            getEl('loc-trick-pts').style.display = 'none';
-            document.querySelectorAll('#s-belote .bl-slot').forEach(s => s.innerHTML = '');
+            this.updatePlayerHighlight(-1); 
 
-            // Mélange
+            // Le donneur tourne
+            this.dealerIndex = (this.dealerIndex + 1) % 4;
+            this.firstPlayerIndex = (this.dealerIndex + 1) % 4;
+            
+            // Jeton Donneur
+            const positions = [
+                {x: 450, y: 420}, // Sud
+                {x: 680, y: 300}, // Est
+                {x: 450, y: 40},  // Nord
+                {x: 100, y: 300}  // Ouest
+            ];
+            
+            const tokenElement = document.getElementById('bl-dealer-token');
+            tokenElement.style.display = 'flex';
+            tokenElement.style.left = positions[this.dealerIndex].x + 'px';
+            tokenElement.style.top = positions[this.dealerIndex].y + 'px';
+
+            // Création du paquet de cartes
             this.deck = [];
-            this.suits.forEach(s => this.ranks.forEach(r => this.deck.push({suit:s, rank:r, red:s.c==='r'})));
-            for(let i=this.deck.length-1; i>0; i--){ 
-                const j=Math.floor(Math.random()*(i+1)); 
-                [this.deck[i],this.deck[j]]=[this.deck[j],this.deck[i]]; 
+            this.suits.forEach(suitObj => { 
+                this.ranks.forEach(rankStr => { 
+                    this.deck.push({ suit: suitObj, rank: rankStr, isRed: suitObj.color === 'r' }); 
+                }); 
+            });
+            
+            // Mélange Parfait 
+            for (let i = this.deck.length - 1; i > 0; i--) { 
+                const j = Math.floor(Math.random() * (i + 1)); 
+                [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; 
             }
-
-            this.hands = [[],[],[],[]];
-            this.dealer = (this.dealer + 1) % 4;
-            let first = (this.dealer + 1) % 4;
-
-            // Distribution 3-2
-            for(let i=0; i<4; i++) {
-                let p = (first + i) % 4;
-                this.hands[p].push(...this.deck.splice(0,3));
-                this.hands[p].push(...this.deck.splice(0,2));
+            
+            this.hands = [[], [], [], []]; 
+            this.currentTrick = []; 
+            this.dealPoints = { nous: 0, eux: 0 };
+            this.tricksWon = { nous: 0, eux: 0 };
+            this.tricksPlayedCount = 0;
+            
+            this.atoutSuit = null; 
+            this.takerIndex = -1;
+            this.beloteAnnouncedBy = null;
+            this.phase = 'bidding_1';
+            
+            // Distribution : 3 cartes, puis 2 cartes
+            for (let p = 0; p < 4; p++) {
+                let targetPlayer = (this.firstPlayerIndex + p) % 4;
+                this.hands[targetPlayer].push(...this.deck.splice(0, 3));
+                this.hands[targetPlayer].push(...this.deck.splice(0, 2));
             }
-
+            
             this.centerCard = this.deck.shift();
-            this.turn = first;
-            this.renderAll();
-            this.processBidding();
-        },
-
-        renderAll() {
+            this.showCenterCard(); 
             this.renderHand();
-            this.renderBots();
-            this.renderCenter();
-            this.updatePlayerHighlight();
+            this.renderBotHands();
+            
+            this.currentTurnIndex = this.firstPlayerIndex;
+            this.processBidding1();
         },
 
-        renderCenter() {
-            const c = getEl('loc-bl-center');
-            if (this.phase.includes('bidding')) {
-                const card = this.centerCard;
-                c.innerHTML = `<div class="bl-card ${card.red?'red':''}"><span>${card.rank}</span><span>${card.suit.s}</span></div>`;
-            } else c.innerHTML = '';
+        showSpeech(playerIndex, textMsg) {
+            const bubble = document.getElementById(`bl-speech-${playerIndex}`);
+            bubble.textContent = textMsg;
+            bubble.style.opacity = 1;
+            
+            setTimeout(() => {
+                bubble.style.opacity = 0;
+            }, 1200);
         },
 
-        renderHand() {
-            const h = getEl('loc-hand'); h.innerHTML = '';
-            // Tri : Atout en premier, puis par couleur
-            this.hands[0].sort((a,b) => {
-                if(this.atout && a.suit.s === this.atout.s) return -1;
-                if(this.atout && b.suit.s === this.atout.s) return 1;
-                return a.suit.s.localeCompare(b.suit.s);
-            });
+        showCenterCard() {
+            const centerArea = document.getElementById('bl-center');
+            const cardElement = document.createElement('div');
+            
+            cardElement.className = `bl-card ${this.centerCard.isRed ? 'red' : ''}`;
+            cardElement.innerHTML = `<span>${this.centerCard.rank}</span><span>${this.centerCard.suit.s}</span>`;
+            
+            centerArea.innerHTML = '';
+            centerArea.appendChild(cardElement);
+        },
 
-            this.hands[0].forEach((card, i) => {
-                const div = document.createElement('div');
-                div.className = `bl-card ${card.red?'red':''}`;
-                const valid = (this.phase === 'playing' && this.turn === 0) ? this.getValid(this.hands[0]) : this.hands[0];
-                if (!valid.includes(card) && this.phase === 'playing') div.classList.add('invalid');
+        // ==========================================
+        // ENCHÈRES : TOUR 1
+        // ==========================================
+        processBidding1() {
+            this.updatePlayerHighlight(this.currentTurnIndex);
+            
+            if (this.currentTurnIndex === 0) {
+                this.updateStatus("TOUR 1 : Voulez-vous prendre cette couleur ?");
+                document.getElementById('bl-actions-1').style.display = 'flex';
                 
-                div.innerHTML = `<span>${card.rank}</span><span>${card.suit.s}</span>`;
-                div.style.setProperty('--angle', (i - this.hands[0].length/2) * 6);
-                div.style.setProperty('--y', Math.abs(i - this.hands[0].length/2) * 4);
+                document.getElementById('btn-prendre-1').onclick = () => {
+                    this.showSpeech(0, "Je prends !");
+                    this.take(0, this.centerCard.suit);
+                };
                 
-                if(!div.classList.contains('invalid') && this.turn === 0 && this.phase === 'playing') {
-                    div.onclick = () => this.playCard(0, i);
-                }
-                h.appendChild(div);
-            });
-        },
-
-        renderBots() {
-            ['n','e','w'].forEach(p => {
-                const el = getEl('loc-bl-h-'+p); el.innerHTML = '';
-                const id = p==='n'?2:(p==='e'?1:3);
-                for(let i=0; i<this.hands[id].length; i++) {
-                    const back = document.createElement('div');
-                    back.className = 'bl-card-back';
-                    el.appendChild(back);
-                }
-            });
-        },
-
-        updatePlayerHighlight() {
-            document.querySelectorAll('#s-belote .bl-name').forEach(n => n.classList.remove('active-turn'));
-            const map = ['s','e','n','w'];
-            getEl('loc-n-'+map[this.turn]).classList.add('active-turn');
-        },
-
-        showSpeech(p, msg) {
-            const map = ['s','e','n','w'];
-            const el = getEl('loc-sp-'+map[p]);
-            el.textContent = msg; el.style.opacity = 1;
-            setTimeout(() => el.style.opacity = 0, 1500);
-        },
-
-        processBidding() {
-            this.updatePlayerHighlight();
-            if (this.turn === 0) {
-                getEl('loc-actions').style.display = 'flex';
-                getEl('loc-actions').innerHTML = `<button class="btn" onclick="App.Belote.take(0)">Prendre</button><button class="btn" style="background:var(--player-x); color:white" onclick="App.Belote.pass()">Passer</button>`;
-                this.updateStatus("Voulez-vous prendre ?");
+                document.getElementById('btn-passer-1').onclick = () => {
+                    this.showSpeech(0, "Passe.");
+                    this.passBidding1();
+                };
             } else {
-                getEl('loc-actions').style.display = 'none';
-                this.updateStatus("L'adversaire réfléchit...");
+                document.getElementById('bl-actions-1').style.display = 'none';
+                let botName = '';
+                if (this.currentTurnIndex === 1) botName = 'Est';
+                if (this.currentTurnIndex === 2) botName = 'Nord';
+                if (this.currentTurnIndex === 3) botName = 'Ouest';
+                
+                this.updateStatus(`${botName} réfléchit...`);
+                
                 setTimeout(() => {
-                    const h = this.hands[this.turn];
-                    const count = h.filter(c => c.suit.s === this.centerCard.suit.s).length;
-                    const hasVal = h.some(c => c.suit.s === this.centerCard.suit.s && (c.rank === 'V' || c.rank === '9'));
-                    if (hasVal || count >= 3) this.take(this.turn);
-                    else this.pass();
-                }, 1000);
+                    let suit = this.centerCard.suit.s;
+                    let rank = this.centerCard.rank;
+                    let hand = this.hands[this.currentTurnIndex];
+                    let suitCards = hand.filter(c => c.suit.s === suit);
+                    
+                    let shouldTake = false;
+                    
+                    if (rank === 'V' || rank === '9') {
+                        shouldTake = true;
+                    } else if (suitCards.length >= 2 && suitCards.some(c => c.rank === 'V' || c.rank === '9')) {
+                        shouldTake = true;
+                    } else if (suitCards.length >= 3) {
+                        shouldTake = true;
+                    }
+
+                    if (shouldTake || Math.random() < 0.05) {
+                        this.showSpeech(this.currentTurnIndex, `Je prends ! (${this.centerCard.suit.s})`);
+                        setTimeout(() => {
+                            this.take(this.currentTurnIndex, this.centerCard.suit);
+                        }, 800);
+                    } else {
+                        this.showSpeech(this.currentTurnIndex, "Passe.");
+                        setTimeout(() => {
+                            this.passBidding1();
+                        }, 800);
+                    }
+                }, 1200);
             }
         },
 
-        pass() {
-            this.showSpeech(this.turn, "Je passe");
-            this.turn = (this.turn + 1) % 4;
-            if (this.turn === (this.dealer + 1) % 4) {
-                this.updateStatus("Tout le monde a passé. Nouvelle donne.");
-                setTimeout(() => this.startDeal(), 1500);
-            } else this.processBidding();
+        passBidding1() {
+            document.getElementById('bl-actions-1').style.display = 'none';
+            this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
+            
+            if (this.currentTurnIndex === this.firstPlayerIndex) {
+                this.phase = 'bidding_2';
+                this.updateStatus("TOUR 2 : Choix d'une autre couleur.");
+                setTimeout(() => {
+                    this.processBidding2();
+                }, 500);
+            } else {
+                this.processBidding1();
+            }
         },
 
-        take(p) {
-            this.taker = p; this.atout = this.centerCard.suit;
-            this.hands[p].push(this.centerCard);
-            this.showSpeech(p, "Je prends !");
-            getEl('loc-actions').style.display = 'none';
+        // ==========================================
+        // ENCHÈRES : TOUR 2
+        // ==========================================
+        processBidding2() {
+            this.updatePlayerHighlight(this.currentTurnIndex);
             
-            // Fin de distribution
-            for(let i=0; i<4; i++) {
-                this.hands[i].push(...this.deck.splice(0, i===this.taker ? 2 : 3));
+            let rejectedSuit = this.centerCard.suit.s;
+            let availableSuits = this.suits.filter(s => s.s !== rejectedSuit);
+
+            if (this.currentTurnIndex === 0) {
+                this.updateStatus("TOUR 2 : Choisissez une couleur ou passez.");
+                document.getElementById('bl-actions-2').style.display = 'flex';
+                
+                const suitsContainer = document.getElementById('bl-suits-container');
+                suitsContainer.innerHTML = '';
+                
+                availableSuits.forEach(suitObj => {
+                    let btn = document.createElement('button');
+                    btn.className = `bl-suit-btn ${suitObj.color === 'r' ? 'red' : 'black'}`;
+                    btn.textContent = suitObj.s;
+                    
+                    btn.onclick = () => {
+                        this.showSpeech(0, `Je prends ! (${suitObj.s})`);
+                        document.getElementById('bl-actions-2').style.display = 'none';
+                        this.take(0, suitObj);
+                    };
+                    suitsContainer.appendChild(btn);
+                });
+
+                document.getElementById('btn-passer-2').onclick = () => {
+                    this.showSpeech(0, "Passe.");
+                    document.getElementById('bl-actions-2').style.display = 'none';
+                    this.passBidding2();
+                };
+            } else {
+                let botName = '';
+                if (this.currentTurnIndex === 1) botName = 'Est';
+                if (this.currentTurnIndex === 2) botName = 'Nord';
+                if (this.currentTurnIndex === 3) botName = 'Ouest';
+                
+                this.updateStatus(`${botName} réfléchit (Tour 2)...`);
+                
+                setTimeout(() => {
+                    let hand = this.hands[this.currentTurnIndex];
+                    let bestSuit = null;
+                    let bestScore = 0;
+
+                    availableSuits.forEach(suitObj => {
+                        let suitCards = hand.filter(c => c.suit.s === suitObj.s);
+                        let score = 0;
+                        if (suitCards.some(c => c.rank === 'V')) score += 3;
+                        if (suitCards.some(c => c.rank === '9')) score += 2;
+                        if (suitCards.some(c => c.rank === 'A')) score += 1;
+                        score += suitCards.length;
+
+                        if (score > bestScore) {
+                            bestScore = score;
+                            bestSuit = suitObj;
+                        }
+                    });
+
+                    if (bestScore >= 4 || (bestScore >= 3 && Math.random() < 0.2)) {
+                        this.showSpeech(this.currentTurnIndex, `Je prends ! (${bestSuit.s})`);
+                        setTimeout(() => {
+                            this.take(this.currentTurnIndex, bestSuit);
+                        }, 800);
+                    } else {
+                        this.showSpeech(this.currentTurnIndex, "Passe.");
+                        setTimeout(() => {
+                            this.passBidding2();
+                        }, 800);
+                    }
+                }, 1200);
             }
+        },
+
+        passBidding2() {
+            this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
             
+            if (this.currentTurnIndex === this.firstPlayerIndex) {
+                this.updateStatus("Tout le monde a passé. Redistribution générale !");
+                setTimeout(() => {
+                    this.startDeal();
+                }, 1500);
+            } else {
+                this.processBidding2();
+            }
+        },
+
+        // ==========================================
+        // VALIDATION DE LA PRISE
+        // ==========================================
+        take(playerIdx, selectedSuit) {
+            document.getElementById('bl-actions-1').style.display = 'none';
+            document.getElementById('bl-actions-2').style.display = 'none';
+            document.getElementById('bl-center').innerHTML = ''; 
+            
+            this.takerIndex = playerIdx;
+            this.atoutSuit = selectedSuit;
+            this.hands[playerIdx].push(this.centerCard); 
+            
+            let nameDisplay = '';
+            if (playerIdx === 0) nameDisplay = "Vous avez";
+            if (playerIdx === 1) nameDisplay = "Est a";
+            if (playerIdx === 2) nameDisplay = "Nord a";
+            if (playerIdx === 3) nameDisplay = "Ouest a";
+            
+            this.updateStatus(`${nameDisplay} pris à <span style="color:${this.atoutSuit.color === 'r' ? '#f43f5e' : 'white'}; font-size:1.5rem;">${this.atoutSuit.s}</span> !`);
+            
+            setTimeout(() => {
+                this.finishDeal();
+            }, 1500);
+        },
+
+        finishDeal() {
             this.phase = 'playing';
-            getEl('loc-atout-hud').style.display = 'block';
-            getEl('loc-atout-suit').textContent = this.atout.s;
-            getEl('loc-atout-suit').style.color = this.atout.c==='r'?'#ef4444':'white';
-            getEl('loc-taker').textContent = "Preneur : " + (p===0?"Toi":(p===2?"Allié":"Adversaire"));
             
-            this.turn = (this.dealer + 1) % 4;
-            this.renderAll();
+            let takerName = '';
+            if (this.takerIndex === 0) takerName = "Toi";
+            if (this.takerIndex === 1) takerName = "Est";
+            if (this.takerIndex === 2) takerName = "Nord";
+            if (this.takerIndex === 3) takerName = "Ouest";
+            
+            document.getElementById('bl-atout-corner').style.display = 'block';
+            document.getElementById('bl-taker-name').innerText = `Preneur : ${takerName}`;
+            document.getElementById('bl-atout-suit').innerText = this.atoutSuit.s;
+            document.getElementById('bl-atout-suit').style.color = this.atoutSuit.color === 'r' ? '#f43f5e' : 'white';
+            
+            document.getElementById('bl-trick-points').style.display = 'block';
+            this.updateTrickPointsUI();
+            
+            for (let p = 0; p < 4; p++) {
+                let targetPlayer = (this.firstPlayerIndex + p) % 4;
+                let numCardsToGive = (targetPlayer === this.takerIndex) ? 2 : 3;
+                this.hands[targetPlayer].push(...this.deck.splice(0, numCardsToGive));
+            }
+            
+            this.currentTurnIndex = this.firstPlayerIndex;
             this.processPlay();
         },
 
-        getValid(hand) {
-            if (this.trick.length === 0) return hand;
-            const lead = this.trick[0].card.suit.s;
-            const trump = this.atout.s;
+        updatePlayerHighlight(index) {
+            document.querySelectorAll('.bl-name').forEach(el => {
+                el.classList.remove('active-turn');
+            });
             
-            const inColor = hand.filter(c => c.suit.s === lead);
-            if (inColor.length > 0) {
-                if (lead === trump) {
-                    const highest = Math.max(...this.trick.filter(t => t.card.suit.s === trump).map(t => this.vAtout[t.card.rank]));
-                    const over = inColor.filter(c => this.vAtout[c.rank] > highest);
-                    return over.length > 0 ? over : inColor;
-                }
-                return inColor;
-            }
+            if (index === 0) document.getElementById('bl-n-s').classList.add('active-turn');
+            if (index === 1) document.getElementById('bl-n-e').classList.add('active-turn');
+            if (index === 2) document.getElementById('bl-n-n').classList.add('active-turn');
+            if (index === 3) document.getElementById('bl-n-w').classList.add('active-turn');
+        },
 
-            const trumps = hand.filter(c => c.suit.s === trump);
-            if (trumps.length > 0) {
-                const partnerWin = (this.getWinner().player === (this.turn + 2) % 4);
-                if (partnerWin) return hand;
-                const highestTrump = Math.max(0, ...this.trick.filter(t => t.card.suit.s === trump).map(t => this.vAtout[t.card.rank]));
-                const overTrump = trumps.filter(c => this.vAtout[c.rank] > highestTrump);
-                return overTrump.length > 0 ? overTrump : trumps;
+        renderBotHands() {
+            const mapId = ['none', 'bl-h-e', 'bl-h-n', 'bl-h-w'];
+            
+            for (let i = 1; i <= 3; i++) {
+                const container = document.getElementById(mapId[i]);
+                container.innerHTML = '';
+                
+                let nbCards = this.hands[i].length;
+                for (let c = 0; c < nbCards; c++) {
+                    let back = document.createElement('div');
+                    back.className = 'bl-card-back';
+                    container.appendChild(back);
+                }
             }
-            return hand;
         },
 
         processPlay() {
-            if (this.count === 8) return;
-            this.updatePlayerHighlight();
-            if (this.turn !== 0) {
+            if (this.tricksPlayedCount === 8) {
+                return; 
+            }
+
+            this.updatePlayerHighlight(this.currentTurnIndex);
+            this.renderHand(); 
+            this.renderBotHands();
+
+            if (this.currentTurnIndex === 0) {
+                this.updateStatus("À vous de jouer !");
+            } else {
+                let botName = '';
+                if (this.currentTurnIndex === 1) botName = "Est";
+                if (this.currentTurnIndex === 2) botName = "Nord";
+                if (this.currentTurnIndex === 3) botName = "Ouest";
+                
+                this.updateStatus(`${botName} joue...`);
+                
                 setTimeout(() => {
-                    const valid = this.getValid(this.hands[this.turn]);
-                    const card = valid[Math.floor(Math.random() * valid.length)];
-                    this.playCard(this.turn, this.hands[this.turn].indexOf(card));
-                }, 1000);
+                    this.botPlay();
+                }, 600);
             }
         },
 
-        playCard(p, idx) {
-            const card = this.hands[p].splice(idx, 1)[0];
-            this.trick.push({ player: p, card: card });
+        getTrickWinner(trickArray) {
+            if (trickArray.length === 0) {
+                return null;
+            }
             
-            const map = ['s','e','n','w'];
-            const slot = getEl('loc-s-'+map[p]);
-            slot.innerHTML = `<div class="bl-card bl-played ${card.red?'red':''}" style="--rand:${Math.random()*20-10}"><span>${card.rank}</span><span>${card.suit.s}</span></div>`;
+            let leadSuitChar = trickArray[0].card.suit.s;
+            let highestCalculatedVal = -1;
+            let winnerIndexInTrick = 0;
             
-            // Check Belote
-            if (card.suit.s === this.atout.s && (card.rank === 'R' || card.rank === 'D')) {
-                const hasOther = this.hands[p].some(c => c.suit.s === this.atout.s && (c.rank === 'R' || c.rank === 'D'));
-                if (hasOther) { 
-                    this.showSpeech(p, "BELOTE !"); 
-                    this.beloteTeam = (p%2===0?'nous':'eux'); 
+            let isAtoutPlayedInTrick = trickArray.some(trickEntry => trickEntry.card.suit.s === this.atoutSuit.s);
+
+            for (let i = 0; i < trickArray.length; i++) {
+                let currentCard = trickArray[i].card;
+                let orderArray = (currentCard.suit.s === this.atoutSuit.s) ? this.ordAtout : this.ordNormal;
+                let valForComparison = 8 - orderArray.indexOf(currentCard.rank); 
+                
+                if (isAtoutPlayedInTrick) { 
+                    if (currentCard.suit.s === this.atoutSuit.s && valForComparison > highestCalculatedVal) { 
+                        highestCalculatedVal = valForComparison; 
+                        winnerIndexInTrick = i; 
+                    } 
+                } else { 
+                    if (currentCard.suit.s === leadSuitChar && valForComparison > highestCalculatedVal) { 
+                        highestCalculatedVal = valForComparison; 
+                        winnerIndexInTrick = i; 
+                    } 
                 }
             }
-
-            this.turn = (this.turn + 1) % 4;
-            if (this.trick.length === 4) setTimeout(() => this.resolveTrick(), 1000);
-            else this.processPlay();
+            
+            return trickArray[winnerIndexInTrick];
         },
 
-        getWinner() {
-            const lead = this.trick[0].card.suit.s;
-            const trump = this.atout.s;
-            let best = -1, winObj = null;
-            this.trick.forEach(t => {
-                let score = 0;
-                if (t.card.suit.s === trump) score = 100 + (8 - this.oAtout.indexOf(t.card.rank));
-                else if (t.card.suit.s === lead) score = (8 - this.oNorm.indexOf(t.card.rank));
-                if (score > best) { best = score; winObj = t; }
+        getValidCards(handArray) {
+            if (this.currentTrick.length === 0) {
+                return handArray;
+            }
+            
+            let leadSuitChar = this.currentTrick[0].card.suit.s;
+            let cardsOfRequestedSuit = handArray.filter(c => c.suit.s === leadSuitChar);
+            let trumpCardsInHand = handArray.filter(c => c.suit.s === this.atoutSuit.s);
+
+            let highestTrumpRankInTrick = -1;
+            
+            this.currentTrick.forEach(trickEntry => {
+                if (trickEntry.card.suit.s === this.atoutSuit.s) {
+                    let val = 8 - this.ordAtout.indexOf(trickEntry.card.rank);
+                    if (val > highestTrumpRankInTrick) {
+                        highestTrumpRankInTrick = val;
+                    }
+                }
             });
-            return winObj;
+
+            if (cardsOfRequestedSuit.length > 0) {
+                if (leadSuitChar === this.atoutSuit.s) {
+                    let higherTrumpsToPlay = cardsOfRequestedSuit.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRankInTrick);
+                    if (higherTrumpsToPlay.length > 0) {
+                        return higherTrumpsToPlay;
+                    }
+                }
+                return cardsOfRequestedSuit; 
+            }
+            
+            let currentWinnerData = this.getTrickWinner(this.currentTrick);
+            let partnerIndex = (this.currentTurnIndex + 2) % 4;
+            let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
+
+            if (trumpCardsInHand.length > 0) {
+                if (isPartnerWinning) {
+                    return handArray; 
+                } else {
+                    let higherTrumpsToPlay = trumpCardsInHand.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRankInTrick);
+                    if (higherTrumpsToPlay.length > 0) {
+                        return higherTrumpsToPlay; 
+                    }
+                    return trumpCardsInHand; 
+                }
+            }
+            
+            return handArray;
+        },
+
+        chooseBotCard(validCardsArray) {
+            if (this.currentTrick.length === 0) {
+                validCardsArray.sort((a, b) => this.getCardValue(b) - this.getCardValue(a));
+                return validCardsArray[0];
+            }
+
+            let currentWinnerData = this.getTrickWinner(this.currentTrick);
+            let partnerIndex = (this.currentTurnIndex + 2) % 4;
+            let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
+
+            if (isPartnerWinning) {
+                validCardsArray.sort((a, b) => this.getCardValue(a) - this.getCardValue(b));
+                return validCardsArray[0];
+            } else {
+                let winningCard = currentWinnerData.card;
+                let winningVal = (winningCard.suit.s === this.atoutSuit.s) ? (8 - this.ordAtout.indexOf(winningCard.rank)) : (8 - this.ordNormal.indexOf(winningCard.rank));
+                
+                let cardsThatBeatWinner = validCardsArray.filter(c => {
+                    if (c.suit.s === this.atoutSuit.s && winningCard.suit.s !== this.atoutSuit.s) {
+                        return true;
+                    }
+                    if (c.suit.s === winningCard.suit.s) {
+                        let order = (c.suit.s === this.atoutSuit.s) ? this.ordAtout : this.ordNormal;
+                        return (8 - order.indexOf(c.rank)) > winningVal;
+                    }
+                    return false;
+                });
+
+                if (cardsThatBeatWinner.length > 0) {
+                    cardsThatBeatWinner.sort((a, b) => this.getCardValue(a) - this.getCardValue(b));
+                    return cardsThatBeatWinner[0];
+                } else {
+                    validCardsArray.sort((a, b) => this.getCardValue(a) - this.getCardValue(b));
+                    return validCardsArray[0];
+                }
+            }
+        },
+        
+        checkBelote(cardObj, playerIndex) {
+            if (cardObj.suit.s === this.atoutSuit.s && (cardObj.rank === 'R' || cardObj.rank === 'D')) {
+                let hand = this.hands[playerIndex];
+                let otherRankToFind = (cardObj.rank === 'R') ? 'D' : 'R';
+                let teamIdentity = (playerIndex === 0 || playerIndex === 2) ? 'nous' : 'eux';
+                
+                let hasOtherInHand = hand.some(c => c.suit.s === this.atoutSuit.s && c.rank === otherRankToFind);
+                
+                if (this.beloteAnnouncedBy === teamIdentity) {
+                    this.showAnnonce("REBELOTE ! (+20)");
+                    this.dealPoints[teamIdentity] += 20; 
+                    this.updateTrickPointsUI();
+                } else if (hasOtherInHand) {
+                    this.beloteAnnouncedBy = teamIdentity;
+                    this.showAnnonce("BELOTE !");
+                }
+            }
+        },
+        
+        showAnnonce(msg) {
+            const annonceEl = document.getElementById('bl-annonce-msg');
+            annonceEl.textContent = msg;
+            annonceEl.classList.remove('active');
+            void annonceEl.offsetWidth; 
+            annonceEl.classList.add('active');
+        },
+
+        renderHand() {
+            const handContainer = document.getElementById('bl-hand'); 
+            handContainer.innerHTML = '';
+            
+            this.hands[0].sort((a, b) => {
+                if (a.suit.s === this.atoutSuit?.s) return -1; 
+                if (b.suit.s === this.atoutSuit?.s) return 1;
+                return a.suit.s.localeCompare(b.suit.s);
+            });
+            
+            let validCardsArray = (this.phase === 'playing' && this.currentTurnIndex === 0) ? this.getValidCards(this.hands[0]) : [];
+
+            this.hands[0].forEach((card, index) => {
+                let cardElement = document.createElement('div');
+                let isValid = validCardsArray.includes(card) || this.phase !== 'playing';
+                
+                cardElement.className = `bl-card ${card.isRed ? 'red' : ''} ${!isValid && this.phase === 'playing' ? 'invalid' : ''}`;
+                cardElement.innerHTML = `<span>${card.rank}</span><span>${card.suit.s}</span>`;
+                
+                if (isValid && this.phase === 'playing' && this.currentTurnIndex === 0) {
+                    cardElement.onclick = () => {
+                        if (this.phase === 'playing' && this.currentTurnIndex === 0) {
+                            this.playCard(index, cardElement);
+                        }
+                    };
+                }
+                
+                handContainer.appendChild(cardElement);
+            });
+        },
+
+        playCard(cardIndex, cardElement) {
+            this.phase = 'resolving'; 
+            
+            let playedCardObj = this.hands[0].splice(cardIndex, 1)[0]; 
+            this.renderHand();
+            
+            this.checkBelote(playedCardObj, 0);
+            
+            let visualCard = cardElement.cloneNode(true); 
+            visualCard.style.setProperty('--rand', Math.random()); 
+            visualCard.className += ' bl-played';
+            document.getElementById('bl-s-s').appendChild(visualCard);
+            
+            this.currentTrick.push({ player: 0, card: playedCardObj }); 
+            this.currentTurnIndex = 1; 
+            
+            if (this.currentTrick.length === 4) {
+                this.resolveTrick(); 
+            } else {
+                this.phase = 'playing';
+                this.processPlay();
+            }
+        },
+
+        botPlay() {
+            let validCardsArray = this.getValidCards(this.hands[this.currentTurnIndex]);
+            let playedCardObj = this.chooseBotCard(validCardsArray); 
+            
+            this.hands[this.currentTurnIndex] = this.hands[this.currentTurnIndex].filter(c => c !== playedCardObj);
+            
+            this.checkBelote(playedCardObj, this.currentTurnIndex);
+            
+            const positionsMap = ['s', 'e', 'n', 'w'];
+            let visualCard = document.createElement('div'); 
+            visualCard.className = `bl-card bl-played ${playedCardObj.isRed ? 'red' : ''}`;
+            visualCard.innerHTML = `<span>${playedCardObj.rank}</span><span>${playedCardObj.suit.s}</span>`;
+            visualCard.style.setProperty('--rand', Math.random()); 
+            
+            document.getElementById('bl-s-' + positionsMap[this.currentTurnIndex]).appendChild(visualCard);
+
+            this.currentTrick.push({ player: this.currentTurnIndex, card: playedCardObj });
+            this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
+            
+            this.renderBotHands(); 
+            
+            if (this.currentTrick.length === 4) {
+                this.resolveTrick(); 
+            } else {
+                this.processPlay();
+            }
+        },
+
+        getCardValue(cardObj) { 
+            if (cardObj.suit.s === this.atoutSuit.s) {
+                return this.valAtout[cardObj.rank];
+            } else {
+                return this.valNormal[cardObj.rank]; 
+            }
         },
 
         resolveTrick() {
-            const winner = this.getWinner();
-            const pts = this.trick.reduce((s, t) => s + (t.card.suit.s === this.atout.s ? this.vAtout[t.card.rank] : this.vNorm[t.card.rank]), 0);
-            const team = (winner.player % 2 === 0) ? 'nous' : 'eux';
+            this.phase = 'resolving'; 
+            this.updatePlayerHighlight(-1);
             
-            this.dealPts[team] += pts;
-            this.tricksWon[team]++;
-            this.count++;
-            if (this.count === 8) this.dealPts[team] += 10; // 10 de der
-
-            getEl('loc-trick-pts').style.display = 'block';
-            getEl('loc-trick-pts').querySelector('span').textContent = this.dealPts.nous;
-
-            document.querySelectorAll('#s-belote .bl-slot').forEach(s => s.innerHTML = '');
-            this.trick = [];
-            this.turn = winner.player;
+            let winnerObject = this.getTrickWinner(this.currentTrick);
+            let pointsInTrick = this.currentTrick.reduce((sum, trickEntry) => sum + this.getCardValue(trickEntry.card), 0);
             
-            if (this.count === 8) this.endManche();
-            else this.processPlay();
-        },
+            let trickWinnerIndex = winnerObject.player;
+            let winningTeam = (trickWinnerIndex === 0 || trickWinnerIndex === 2) ? 'nous' : 'eux';
+            
+            this.tricksPlayedCount++; 
 
-        endManche() {
-            let n = this.dealPts.nous, e = this.dealPts.eux;
-            if (this.beloteTeam === 'nous') n += 20; if (this.beloteTeam === 'eux') e += 20;
+            if (this.tricksPlayedCount === 8) {
+                pointsInTrick += 10; 
+            }
+            
+            this.dealPoints[winningTeam] += pointsInTrick;
+            this.tricksWon[winningTeam] += 1;
+            this.updateTrickPointsUI();
+            
+            let winMessageName = "";
+            if (trickWinnerIndex === 0) winMessageName = "Vous remportez";
+            if (trickWinnerIndex === 1) winMessageName = "Est remporte";
+            if (trickWinnerIndex === 2) winMessageName = "Nord remporte";
+            if (trickWinnerIndex === 3) winMessageName = "Ouest remporte";
+            
+            this.updateStatus(`${winMessageName} le pli ! (+${pointsInTrick} pts)`);
 
-            const takerTeam = (this.taker % 2 === 0 ? 'nous' : 'eux');
-            if (takerTeam === 'nous' && n <= e) { e += n; n = 0; }
-            else if (takerTeam === 'eux' && e <= n) { n += e; e = 0; }
-
-            this.scores.nous += n; this.scores.eux += e;
-            window.UI.showModal("Fin de Donne", `Nous : ${n} pts<br>Eux : ${e} pts`, () => {
-                if (this.scores.nous >= 1000 || this.scores.eux >= 1000) this.initGame();
-                else this.startDeal();
-            });
-        },
-
-        updateStatus(m) { getEl('loc-bl-status').textContent = m; }
-    };
-        /* ==========================================================================
-       8. MOTEUR : RÉSEAU FIREBASE (MULTIJOUEUR INTÉGRAL)
-       ========================================================================== */
-    window.App.Network = {
-        room: null,
-        myId: null, // Index 0 à 3
-        ref: null,
-        gameType: null,
-
-        /** Génération de code salon */
-        gen() {
-            const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-            let r = '';
-            for (let i = 0; i < 4; i++) r += c.charAt(Math.floor(Math.random() * c.length));
-            return r;
-        },
-
-        /** Création du Salon (Hôte) */
-        async host() {
-            this.gameType = getEl('net-game-select').value;
-            this.room = this.gen();
-            this.myId = 0; // L'hôte est toujours Sud (0)
-            this.ref = ref(db, 'rooms/' + this.room);
-
-            const initData = {
-                status: 'waiting',
-                type: this.gameType,
-                turn: 0,
-                lastAction: null,
-                beloteState: {
-                    joined: 1,
-                    max: (this.gameType === 'belote_4p') ? 4 : 2,
-                    hands: { h0: [], h1: [], h2: [], h3: [] },
-                    trick: [],
-                    phase: 'waiting_players',
-                    taker: -1,
-                    atout: null,
-                    scNous: 0,
-                    scEux: 0,
-                    dealPts: { n: 0, e: 0 },
-                    count: 0,
-                    dealer: 0,
-                    msg: "En attente de joueurs..."
-                },
-                yamsState: {
-                    dice: [1, 1, 1, 1, 1],
-                    kept: { k0: false, k1: false, k2: false, k3: false, k4: false },
-                    rolls: 3,
-                    scores: { p0: { init: true }, p1: { init: true } }
+            setTimeout(() => {
+                document.querySelectorAll('.bl-slot').forEach(slot => {
+                    slot.innerHTML = '';
+                });
+                
+                if (trickWinnerIndex === 0 || trickWinnerIndex === 2) {
+                    this.scores.nous += pointsInTrick; 
+                } else {
+                    this.scores.eux += pointsInTrick;
                 }
-            };
+                
+                this.updateScoreUI(); 
+                this.currentTrick = []; 
+                this.currentTurnIndex = trickWinnerIndex; 
+                this.phase = 'playing';
+                
+                if (this.tricksPlayedCount === 8) {
+                    this.endDeal();
+                } else {
+                    this.processPlay();
+                }
+            }, 2500);
+        },
 
+        updateTrickPointsUI() {
+            document.getElementById('bl-trick-pts-val').textContent = this.dealPoints.nous;
+        },
+
+        updateScoreUI() { 
+            document.getElementById('bl-score-nous').textContent = this.scores.nous; 
+            document.getElementById('bl-score-eux').textContent = this.scores.eux; 
+        },
+        
+        endDeal() { 
+            let ptsNous = this.dealPoints.nous;
+            let ptsEux = this.dealPoints.eux;
+            let msg = "";
+
+            if (this.tricksWon.nous === 8) {
+                ptsNous = 250 + (this.beloteAnnouncedBy === 'nous' ? 20 : 0);
+                msg += "<b style='color:var(--accent); font-size:1.3em;'>CAPOT ! (250 pts)</b><br><br>";
+            } else if (this.tricksWon.eux === 8) {
+                ptsEux = 250 + (this.beloteAnnouncedBy === 'eux' ? 20 : 0);
+                msg += "<b style='color:var(--player-x); font-size:1.3em;'>CAPOT ADVERSE ! (250 pts)</b><br><br>";
+            }
+
+            let takerTeam = (this.takerIndex === 0 || this.takerIndex === 2) ? 'nous' : 'eux';
+            
+            if (takerTeam === 'nous' && this.tricksWon.nous !== 8) {
+                if (ptsNous > ptsEux) {
+                    this.scores.nous += ptsNous + this.litigePot;
+                    this.scores.eux += ptsEux;
+                    this.litigePot = 0;
+                    msg += "Contrat rempli !<br>";
+                } else if (ptsNous < ptsEux) {
+                    msg += "<b style='color:var(--player-x);'>CHUTE ! L'adversaire prend 162 pts.</b><br>";
+                    this.scores.eux += 162 + this.litigePot;
+                    this.scores.nous += (this.beloteAnnouncedBy === 'nous' ? 20 : 0); 
+                    this.litigePot = 0;
+                    ptsNous = (this.beloteAnnouncedBy === 'nous' ? 20 : 0); 
+                    ptsEux = 162;
+                } else {
+                    msg += "<b style='color:var(--gold);'>LITIGE (81-81) ! Vos points sont reportés.</b><br>";
+                    this.litigePot += ptsNous;
+                    this.scores.eux += ptsEux;
+                    ptsNous = 0;
+                }
+            } 
+            else if (takerTeam === 'eux' && this.tricksWon.eux !== 8) {
+                if (ptsEux > ptsNous) {
+                    this.scores.eux += ptsEux + this.litigePot;
+                    this.scores.nous += ptsNous;
+                    this.litigePot = 0;
+                    msg += "L'adversaire a rempli son contrat.<br>";
+                } else if (ptsEux < ptsNous) {
+                    msg += "<b style='color:var(--accent);'>ADVERSAIRE DEDANS ! Vous prenez 162 pts.</b><br>";
+                    this.scores.nous += 162 + this.litigePot;
+                    this.scores.eux += (this.beloteAnnouncedBy === 'eux' ? 20 : 0);
+                    this.litigePot = 0;
+                    ptsEux = (this.beloteAnnouncedBy === 'eux' ? 20 : 0);
+                    ptsNous = 162;
+                } else {
+                    msg += "<b style='color:var(--gold);'>LITIGE (81-81) ! Points adverses reportés.</b><br>";
+                    this.litigePot += ptsEux;
+                    this.scores.nous += ptsNous;
+                    ptsEux = 0;
+                }
+            } else if (this.tricksWon.nous === 8 || this.tricksWon.eux === 8) {
+                if (this.tricksWon.nous === 8) { 
+                    this.scores.nous += ptsNous + this.litigePot; 
+                    this.litigePot = 0; 
+                }
+                if (this.tricksWon.eux === 8) { 
+                    this.scores.eux += ptsEux + this.litigePot; 
+                    this.litigePot = 0; 
+                }
+            }
+
+            msg += `<br>Scores de la donne :<br>Nous : ${ptsNous} pts<br>Eux : ${ptsEux} pts`;
+            
+            if (this.scores.nous >= 1000 || this.scores.eux >= 1000) {
+                let winnerTeamText = this.scores.nous >= 1000 ? "VOUS AVEZ" : "ILS ONT";
+                msg = `<span style="font-size:1.5em; color:var(--gold)">PARTIE TERMINÉE !</span><br><br>${winnerTeamText} ATTEINT 1000 POINTS !<br><br>Score Final : Nous ${this.scores.nous} - Eux ${this.scores.eux}`;
+                window.UI.showModal('Fin de la Partie', msg, () => this.initGame());
+            } else {
+                this.updateScoreUI();
+                window.UI.showModal('Bilan de la Manche', msg, () => this.startDeal());
+            }
+        },
+        
+        updateStatus(msgText) { 
+            document.getElementById('bl-status').innerHTML = msgText; 
+        }
+    };
+
+    // =========================================================
+    // MOTEUR: RÉSEAU FIREBASE MULTIJOUEUR
+    // =========================================================
+    window.App.Network = {
+        room: null, 
+        myId: null, 
+        ref: null, 
+        gameType: null,
+        
+        gen() { 
+            let characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let result = '';
+            for (let i = 0; i < 4; i++) {
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return result; 
+        },
+        
+        async host() {
+            this.gameType = document.getElementById('net-game-select').value;
+            this.room = this.gen(); 
+            this.myId = 'X'; 
+            this.ref = ref(db, 'rooms/' + this.room);
+            
+            let initData = { 
+                status: 'waiting', 
+                type: this.gameType, 
+                turn: 'X', 
+                winner: '' 
+            };
+            
+            if (this.gameType === 'sim') { 
+                initData.board = Array(9).fill(''); 
+            }
+            
+            if (this.gameType === 'ult') { 
+                initData.bGrid = Array(9).fill(''); 
+                initData.sGrids = Array.from({length: 9}, () => Array(9).fill('')); 
+                initData.next = -1; 
+            }
+            
+            if (this.gameType === 'yams') { 
+                initData.dice = [1,1,1,1,1]; 
+                initData.kept = [false,false,false,false,false]; 
+                initData.rolls = 3; 
+                initData.scores = { X:{init:true}, O:{init:true} }; 
+            }
+            
             await set(this.ref, initData);
-            getEl('display-code').textContent = this.room;
+            document.getElementById('display-room-code').textContent = this.room;
             window.UI.switchScreen('s-net-waiting');
             this.listen();
         },
-
-        /** Rejoindre un Salon (Client) */
+        
         async join() {
-            const code = getEl('net-code-input').value.toUpperCase().trim();
-            if (code.length !== 4) return window.UI.showModal('Erreur', 'Code à 4 caractères requis.');
-
-            const snap = await get(ref(db, 'rooms/' + code));
-            if (!snap.exists()) return window.UI.showModal('Erreur', 'Salon introuvable.');
-
-            const data = snap.val();
-            this.room = code;
-            this.ref = ref(db, 'rooms/' + code);
-            this.gameType = data.type;
-
-            // Logique spécifique Belote
-            if (data.beloteState.joined < data.beloteState.max) {
-                // En mode 2 joueurs coop, l'invité prend la place 2 (Nord)
-                this.myId = (this.gameType === 'belote_2p') ? 2 : data.beloteState.joined;
-
-                let updates = { 'beloteState/joined': data.beloteState.joined + 1 };
-                if (data.beloteState.joined + 1 === data.beloteState.max) {
-                    updates.status = 'playing';
-                    updates['beloteState/phase'] = 'ready';
-                    updates['beloteState/msg'] = "La table est complète !";
-                }
-                await update(this.ref, updates);
+            const codeInput = document.getElementById('input-room-code').value.toUpperCase().trim();
+            
+            if (codeInput.length !== 4) {
+                return window.UI.showModal('Erreur', 'Code invalide. Le code doit comporter 4 caractères.', null);
+            }
+            
+            const snapshot = await get(ref(db, 'rooms/' + codeInput));
+            
+            if (snapshot.exists() && snapshot.val().status === 'waiting') {
+                this.room = codeInput; 
+                this.myId = 'O'; 
+                this.ref = ref(db, 'rooms/' + this.room);
+                this.gameType = snapshot.val().type; 
+                
+                await update(this.ref, { status: 'playing' }); 
                 this.listen();
             } else {
-                window.UI.showModal('Erreur', 'Ce salon est complet.');
+                window.UI.showModal('Erreur', 'Salon introuvable, déjà plein, ou terminé.', null);
             }
         },
 
-        /** Écouteur temps réel */
         listen() {
-            onValue(this.ref, (snap) => {
-                const data = snap.val();
-                if (!data) return;
-
-                if (data.status === 'waiting') {
-                    getEl('waiting-msg').textContent = `Joueurs : ${data.beloteState.joined} / ${data.beloteState.max}`;
+            onValue(this.ref, (snapshot) => {
+                const data = snapshot.val();
+                
+                if (!data) { 
+                    window.UI.showModal('Fermé', 'Le salon a été fermé par l\'hôte.', () => window.location.reload()); 
+                    return; 
                 }
-
+                
                 if (data.status === 'playing') {
-                    if (this.gameType === 'yams') {
-                        window.UI.switchScreen('s-net-yams');
-                        this.renderYamsNet(data);
-                    } else if (this.gameType.includes('belote')) {
-                        window.UI.switchScreen('s-net-belote');
-                        this.renderBeloteNet(data.beloteState);
-
-                        // --- LOGIQUE SERVEUR (HÔTE SEULEMENT) ---
-                        if (this.myId === 0) {
-                            // Initialisation de la partie
-                            if (data.beloteState.phase === 'ready') {
-                                this.initBeloteServer();
-                            }
-                            // Traitement des actions clients
-                            if (data.lastAction && data.lastAction.player !== undefined) {
-                                this.handleBeloteActionServer(data.lastAction);
-                                update(this.ref, { lastAction: null });
-                            }
-                        }
+                    if (this.gameType === 'sim') { 
+                        window.UI.switchScreen('s-net-sim'); 
+                        this.renderSim(data); 
+                    }
+                    if (this.gameType === 'ult') { 
+                        window.UI.switchScreen('s-net-ult'); 
+                        this.renderUlt(data); 
+                    }
+                    if (this.gameType === 'yams') { 
+                        window.UI.switchScreen('s-net-yams'); 
+                        this.renderYams(data); 
                     }
                 }
             });
         },
 
-        /* ---------------------------------------------------------
-           BELOTE RÉSEAU : LOGIQUE SERVEUR (HÔTE)
-           --------------------------------------------------------- */
-        initBeloteServer() {
-            // L'hôte utilise le moteur App.Belote en mode "Serveur"
-            // On injecte les fonctions pour qu'elles écrivent dans Firebase
-            App.Belote.prefix = 'net-bl-';
-            App.Belote.isNet = true;
-            App.Belote.initGame();
-            this.syncBeloteToFirebase();
-        },
-
-        syncBeloteToFirebase() {
-            if (this.myId !== 0) return;
-            // On convertit les tableaux de mains en objets pour Firebase
-            const fbHands = {};
-            App.Belote.hands.forEach((h, i) => fbHands['h' + i] = h);
-
-            update(this.ref, {
-                'beloteState/hands': fbHands,
-                'beloteState/phase': App.Belote.phase,
-                'beloteState/turn': App.Belote.turn,
-                'beloteState/atout': App.Belote.atout,
-                'beloteState/taker': App.Belote.taker,
-                'beloteState/trick': App.Belote.trick,
-                'beloteState/scNous': App.Belote.scores.nous,
-                'beloteState/scEux': App.Belote.scores.eux,
-                'beloteState/dealPts': App.Belote.dealPts,
-                'beloteState/msg': getEl('loc-bl-status').textContent,
-                'beloteState/dealer': App.Belote.dealer
-            });
-        },
-
-        handleBeloteActionServer(action) {
-            if (App.Belote.turn !== action.player) return;
-
-            if (action.type === 'take') App.Belote.take(action.player);
-            if (action.type === 'pass') App.Belote.pass();
-            if (action.type === 'play') App.Belote.playCard(action.player, action.idx);
-
-            this.syncBeloteToFirebase();
-        },
-
-        /* ---------------------------------------------------------
-           BELOTE RÉSEAU : LOGIQUE CLIENT (TOUT LE MONDE)
-           --------------------------------------------------------- */
-        renderBeloteNet(s) {
-            const p = 'net-';
-            getEl(p + 'bl-status').textContent = s.msg;
-            getEl(p + 'sc-nous').textContent = s.scNous;
-            getEl(p + 'sc-eux').textContent = s.scEux;
-
-            // Rotation de table : localId est toujours SUD
-            const getRelPos = (id) => ['s', 'e', 'n', 'w'][(id - this.myId + 4) % 4];
-
-            // Noms et tours
-            for (let i = 0; i < 4; i++) {
-                let pos = getRelPos(i);
-                let el = getEl(p + 'bl-n-' + pos);
-                if (i === this.myId) el.textContent = "TOI";
-                else if (this.gameType === 'belote_2p' && (i === 1 || i === 3)) el.textContent = "BOT (IA)";
-                else el.textContent = "JOUEUR " + (i + 1);
-
-                if (i === s.turn) el.classList.add('active-turn'); else el.classList.remove('active-turn');
-            }
-
-            // Atout HUD
-            if (s.atout) {
-                getEl(p + 'atout-hud').style.display = 'block';
-                getEl(p + 'atout-suit').textContent = s.atout.s;
-                getEl(p + 'atout-suit').style.color = s.atout.c === 'r' ? '#ef4444' : 'white';
-                getEl(p + 'taker').textContent = "Preneur: " + getRelPos(s.taker).toUpperCase();
-            }
-
-            // Table (Plis)
-            ['s', 'e', 'n', 'w'].forEach(x => getEl(p + 'bl-s-' + x).innerHTML = '');
-            if (s.trick) s.trick.forEach(it => {
-                let c = it.card;
-                getEl(p + 'bl-s-' + getRelPos(it.player)).innerHTML = `<div class="bl-card ${c.red ? 'red' : ''}"><span>${c.rank}</span><span>${c.suit.s}</span></div>`;
-            });
-
-            // Main locale
-            const handEl = getEl(p + 'hand'); handEl.innerHTML = '';
-            let myHand = s.hands['h' + this.myId] || [];
-            myHand.forEach((c, idx) => {
-                let div = document.createElement('div');
-                div.className = `bl-card ${c.red ? 'red' : ''}`;
-                div.innerHTML = `<span>${c.rank}</span><span>${c.suit.s}</span>`;
-                if (s.turn === this.myId && s.phase === 'playing') {
-                    div.onclick = () => this.sendBeloteAction('play', { idx: idx });
-                }
-                handEl.appendChild(div);
-            });
-
-            // Boutons Enchères
-            const act = getEl(p + 'actions');
-            if (s.turn === this.myId && s.phase === 'bidding_1') {
-                act.style.display = 'flex';
-                act.innerHTML = `<button class="btn" onclick="App.Network.sendBeloteAction('take')">Prendre</button>
-                                 <button class="btn" style="background:var(--player-x)" onclick="App.Network.sendBeloteAction('pass')">Passer</button>`;
-            } else act.style.display = 'none';
-        },
-
-        sendBeloteAction(type, extra = {}) {
-            update(this.ref, { lastAction: { type: type, player: this.myId, ...extra, ts: Date.now() } });
-        },
-
-        /* ---------------------------------------------------------
-           YAMS RÉSEAU (CORRIGÉ)
-           --------------------------------------------------------- */
-        renderYamsNet(data) {
-            const s = data.yamsState;
-            const p = 'net-yams-';
-            const diceBox = getEl(p + 'dice'); diceBox.innerHTML = '';
+        renderSim(data) {
+            const boardContainer = document.getElementById('net-sim-board'); 
+            boardContainer.innerHTML = ''; 
+            const currentBoard = data.board || Array(9).fill('');
             
-            s.dice.forEach((v, i) => {
-                let die = document.createElement('div');
-                die.className = 'y-die' + (s.kept['k' + i] ? ' kept' : '');
-                die.textContent = ['', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'][v];
-                if (data.turn === (this.myId === 'X' ? 0 : 1)) {
-                    die.onclick = () => {
-                        let nk = { ...s.kept }; nk['k' + i] = !nk['k' + i];
-                        update(this.ref, { 'yamsState/kept': nk });
-                    };
+            for (let i = 0; i < 9; i++) { 
+                let cell = document.createElement('div'); 
+                cell.className = 'ms-cell' + (currentBoard[i] !== '' ? ' taken' : ''); 
+                cell.textContent = currentBoard[i] || ''; 
+                
+                if (currentBoard[i]) {
+                    cell.style.color = currentBoard[i] === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
                 }
-                diceBox.appendChild(die);
+                
+                cell.onclick = async () => { 
+                    if (currentBoard[i] === '' && data.winner === '' && data.turn === this.myId) { 
+                        let newBoard = [...currentBoard]; 
+                        newBoard[i] = this.myId; 
+                        let winPlayer = window.App.Sim.checkWin(newBoard); 
+                        
+                        await update(this.ref, { 
+                            board: newBoard, 
+                            turn: (this.myId === 'X' ? 'O' : 'X'), 
+                            winner: winPlayer ? this.myId : (!newBoard.includes('') ? 'Draw' : '') 
+                        }); 
+                    } 
+                }; 
+                boardContainer.appendChild(cell); 
+            }
+            
+            this.statusUI('net-sim-status', data, () => {
+                update(this.ref, { board: Array(9).fill(''), turn: 'X', winner: '' });
             });
-
-            const rollBtn = getEl(p + 'roll');
-            rollBtn.textContent = `Lancer (${s.rolls})`;
-            rollBtn.disabled = (data.turn !== (this.myId === 'X' ? 0 : 1) || s.rolls === 0);
-            rollBtn.onclick = () => {
-                let nd = s.dice.map((v, i) => s.kept['k' + i] ? v : Math.floor(Math.random() * 6) + 1);
-                update(this.ref, { 'yamsState/dice': nd, 'yamsState/rolls': s.rolls - 1 });
-            };
         },
 
-        leave() {
-            if (this.myId === 0 && this.ref) remove(this.ref);
-            window.location.reload();
+        renderUlt(data) {
+            const boardContainer = document.getElementById('net-ult-board'); 
+            boardContainer.innerHTML = '';
+            
+            for (let i = 0; i < 9; i++) { 
+                let subGrid = document.createElement('div'); 
+                subGrid.className = 'mu-grid'; 
+                
+                if ((data.next === -1 || data.next === i) && data.bGrid[i] === '') {
+                    subGrid.classList.add('mu-active'); 
+                }
+                
+                for (let j = 0; j < 9; j++) { 
+                    let cell = document.createElement('div'); 
+                    cell.className = 'mu-cell' + (data.sGrids[i][j] !== '' ? ' taken' : ''); 
+                    cell.textContent = data.sGrids[i][j]; 
+                    
+                    if (data.sGrids[i][j]) {
+                        cell.style.color = data.sGrids[i][j] === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
+                    }
+                    
+                    cell.onclick = async () => { 
+                        if (data.sGrids[i][j] === '' && data.bGrid[i] === '' && data.winner === '' && data.turn === this.myId && (data.next === -1 || data.next === i)) { 
+                            let newSGrids = JSON.parse(JSON.stringify(data.sGrids)); 
+                            let newBGrid = [...data.bGrid]; 
+                            newSGrids[i][j] = this.myId; 
+                            
+                            if (window.App.Sim.checkWin(newSGrids[i])) {
+                                newBGrid[i] = this.myId; 
+                            } else if (!newSGrids[i].includes('')) {
+                                newBGrid[i] = 'D'; 
+                            }
+                            
+                            let winPlayer = window.App.Sim.checkWin(newBGrid.map(v => v === 'D' ? '' : v)) ? this.myId : (!newBGrid.includes('') ? 'Draw' : ''); 
+                            
+                            await update(this.ref, { 
+                                sGrids: newSGrids, 
+                                bGrid: newBGrid, 
+                                next: (newBGrid[j] !== '' ? -1 : j), 
+                                turn: (this.myId === 'X' ? 'O' : 'X'), 
+                                winner: winPlayer 
+                            }); 
+                        } 
+                    }; 
+                    subGrid.appendChild(cell); 
+                } 
+                
+                if (data.bGrid[i] !== '' && data.bGrid[i] !== 'D') { 
+                    let cover = document.createElement('div'); 
+                    cover.className = 'mu-won'; 
+                    cover.textContent = data.bGrid[i]; 
+                    cover.style.color = data.bGrid[i] === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
+                    subGrid.appendChild(cover); 
+                } 
+                boardContainer.appendChild(subGrid); 
+            }
+            
+            this.statusUI('net-ult-status', data, () => {
+                update(this.ref, { 
+                    bGrid: Array(9).fill(''), 
+                    sGrids: Array.from({length: 9}, () => Array(9).fill('')), 
+                    next: -1, 
+                    turn: 'X', 
+                    winner: '' 
+                });
+            });
+        },
+
+        renderYams(data) {
+            const diceBox = document.getElementById('net-yams-dice'); 
+            diceBox.innerHTML = ''; 
+            
+            data.dice.forEach((dieVal, index) => { 
+                let el = document.createElement('div'); 
+                el.className = 'y-die' + (data.kept[index] ? ' kept' : ''); 
+                el.textContent = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'][dieVal - 1]; 
+                
+                el.onclick = async () => { 
+                    if (data.turn === this.myId && data.rolls < 3 && data.winner === '') { 
+                        let newKept = [...data.kept]; 
+                        newKept[index] = !newKept[index]; 
+                        await update(this.ref, { kept: newKept }); 
+                    }
+                }; 
+                diceBox.appendChild(el); 
+            });
+            
+            let rollBtn = document.getElementById('net-yams-roll-btn'); 
+            rollBtn.textContent = `Lancer (${data.rolls})`; 
+            
+            rollBtn.onclick = async () => { 
+                if (data.turn === this.myId && data.rolls > 0 && data.winner === '') { 
+                    let newDice = data.dice.map((v, i) => data.kept[i] ? v : Math.floor(Math.random() * 6) + 1); 
+                    await update(this.ref, { dice: newDice, rolls: data.rolls - 1 }); 
+                } 
+            }; 
+            
+            rollBtn.disabled = (data.turn !== this.myId || data.rolls === 0);
+            
+            const scoresContainer = document.getElementById('net-yams-scores'); 
+            scoresContainer.innerHTML = ''; 
+            
+            const countObj = {}; 
+            data.dice.forEach(x => countObj[x] = (countObj[x] || 0) + 1); 
+            
+            const valuesCount = Object.values(countObj); 
+            const uniqueSet = new Set(data.dice); 
+            
+            const hasSequence = (lengthRequired) => { 
+                let st = 0;
+                let mx = 0; 
+                for (let i = 1; i <= 6; i++) { 
+                    if (uniqueSet.has(i)) {
+                        st++; 
+                    } else {
+                        st = 0; 
+                    }
+                    mx = Math.max(mx, st); 
+                } 
+                return mx >= lengthRequired; 
+            };
+            
+            ['X', 'O'].forEach((playerID, idx) => { 
+                let tableHTML = `<table class="y-table"><tr><th colspan="2">Joueur ${idx+1} (${playerID})</th></tr>`; 
+                let categories = ['1', '2', '3', '4', '5', '6', 'Bonus (>62)', 'Brelan', 'Carré', 'Full', 'Petite Suite', 'Grande Suite', 'Yams', 'Chance'];
+                
+                categories.forEach(cat => { 
+                    let val = data.scores[playerID][cat] !== undefined ? data.scores[playerID][cat] : '-'; 
+                    let isPotential = false; 
+                    
+                    if (data.turn === this.myId && playerID === this.myId && val === '-' && data.rolls < 3 && !cat.includes('Bonus')) { 
+                        isPotential = true; 
+                        
+                        if (!isNaN(cat)) {
+                            val = (countObj[cat] || 0) * parseInt(cat); 
+                        } else if (cat === 'Brelan' && valuesCount.some(x => x >= 3)) {
+                            val = data.dice.reduce((a,b) => a + b); 
+                        } else if (cat === 'Carré' && valuesCount.some(x => x >= 4)) {
+                            val = data.dice.reduce((a,b) => a + b); 
+                        } else if (cat === 'Full' && valuesCount.includes(3) && valuesCount.includes(2)) {
+                            val = 25; 
+                        } else if (cat === 'Petite Suite' && seq(4)) {
+                            val = 30; 
+                        } else if (cat === 'Grande Suite' && seq(5)) {
+                            val = 40; 
+                        } else if (cat === 'Yams' && valuesCount.includes(5)) {
+                            val = 50; 
+                        } else if (cat === 'Chance') {
+                            val = data.dice.reduce((a,b) => a + b); 
+                        } else {
+                            val = 0; 
+                        }
+                    } 
+                    
+                    if (cat.includes('Bonus')) {
+                        tableHTML += `<tr style="background:#020617"><td style="color:var(--gold)">${cat}</td><td class="val">${val}</td></tr>`; 
+                    } else {
+                        tableHTML += `<tr><td>${cat}</td><td class="val ${val !== '-' && !isPotential ? 'locked' : ''} ${isPotential ? 'pot' : ''}" ${isPotential ? `data-action="${cat}" data-pts="${val}"` : ''}>${val}</td></tr>`; 
+                    }
+                }); 
+                
+                let sumTopSection = ['1', '2', '3', '4', '5', '6'].reduce((sm, k) => sm + (data.scores[playerID][k] || 0), 0); 
+                let totalPoints = Object.values(data.scores[playerID]).reduce((a, b) => typeof b === 'number' ? a + b : a, 0); 
+                
+                if (sumTopSection >= 63) {
+                    totalPoints += 35; 
+                }
+                
+                tableHTML += `<tr class="total-row"><td>TOTAL</td><td>${totalPoints}</td></tr></table>`; 
+                scoresContainer.innerHTML += tableHTML; 
+            });
+
+            document.querySelectorAll('.pot').forEach(element => { 
+                element.onclick = async () => { 
+                    let categoryChosen = element.dataset.action; 
+                    let pointsEarned = parseInt(element.dataset.pts); 
+                    
+                    let newScores = JSON.parse(JSON.stringify(data.scores)); 
+                    newScores[this.myId][categoryChosen] = pointsEarned; 
+                    
+                    let winPlayer = ''; 
+                    
+                    if (Object.keys(newScores['X']).length === 14 && Object.keys(newScores['O']).length === 14) { 
+                        let totalX = Object.values(newScores['X']).reduce((a,b) => typeof b === 'number' ? a + b : a, 0) + (['1','2','3','4','5','6'].reduce((s,k) => s + (newScores['X'][k] || 0), 0) >= 63 ? 35 : 0); 
+                        let totalO = Object.values(newScores['O']).reduce((a,b) => typeof b === 'number' ? a + b : a, 0) + (['1','2','3','4','5','6'].reduce((s,k) => s + (newScores['O'][k] || 0), 0) >= 63 ? 35 : 0); 
+                        
+                        winPlayer = totalX > totalO ? 'X' : (totalO > totalX ? 'O' : 'Draw'); 
+                    } 
+                    
+                    await update(this.ref, { 
+                        scores: newScores, 
+                        turn: (this.myId === 'X' ? 'O' : 'X'), 
+                        rolls: 3, 
+                        kept: [false,false,false,false,false], 
+                        dice: data.dice.map(() => Math.floor(Math.random() * 6) + 1), 
+                        winner: winPlayer 
+                    }); 
+                }; 
+            });
+
+            this.statusUI('net-yams-status', data, () => {
+                update(this.ref, { 
+                    scores: { X: {init: true}, O: {init: true} }, 
+                    turn: 'X', 
+                    winner: '', 
+                    rolls: 3, 
+                    kept: [false,false,false,false,false] 
+                });
+            });
+        },
+
+        statusUI(id, data, replayCb) { 
+            const statusBar = document.getElementById(id); 
+            
+            if (data.winner !== '') { 
+                if (data.winner === 'Draw') {
+                    statusBar.innerHTML = "Égalité !"; 
+                } else if (data.winner === this.myId) {
+                    statusBar.innerHTML = "<span style='color:var(--accent)'>VICTOIRE ! 🎉</span>"; 
+                } else {
+                    statusBar.innerHTML = `<span style='color:${this.myId === 'X' ? 'var(--player-o)' : 'var(--player-x)'}'>DÉFAITE...</span>`; 
+                }
+                
+                if (this.myId === 'X') { 
+                    statusBar.innerHTML += `<br><button class="btn" style="margin-top:10px;" id="br-${id}">Rejouer</button>`; 
+                    document.getElementById(`br-${id}`).onclick = replayCb; 
+                } else {
+                    statusBar.innerHTML += `<br><small style="color:var(--text-muted)">Attente de l'hôte...</small>`; 
+                }
+            } else {
+                statusBar.innerHTML = data.turn === this.myId ? `<span style='color:var(--accent)'>À ton tour ! (${this.myId})</span>` : `Tour de l'adversaire...`; 
+            }
+        },
+        
+        leave() { 
+            if (this.myId === 'X' && this.ref) {
+                remove(this.ref); 
+            }
+            window.location.reload(); 
         }
     };
 
-    /* ==========================================================================
-       9. INITIALISATION GLOBALE
-       ========================================================================== */
-    document.querySelectorAll('#nav-menu li').forEach(li => {
-        li.onclick = (e) => {
-            const target = e.currentTarget.dataset.target;
-            document.querySelectorAll('#nav-menu li').forEach(i => i.classList.remove('active'));
-            e.currentTarget.classList.add('active');
-            window.UI.switchScreen(target);
-
-            if (target === 's-sim') App.Sim.init();
-            if (target === 's-ult') App.Ult.init();
-            if (target === 's-mine') App.Mine.init();
-            if (target === 's-yams') App.Yams.init();
-            if (target === 's-belote') App.Belote.initGame();
-        };
+    // =========================================================
+    // ÉCOUTEURS D'ÉVÉNEMENTS INITIAUX
+    // =========================================================
+    
+    document.getElementById('btn-create-room').onclick = () => window.App.Network.host(); 
+    document.getElementById('btn-join-room').onclick = () => window.App.Network.join();
+    
+    document.querySelectorAll('#nav-menu li').forEach(li => { 
+        li.onclick = (e) => { 
+            document.querySelectorAll('#nav-menu li').forEach(i => i.classList.remove('active')); 
+            e.currentTarget.classList.add('active'); 
+            
+            let targetID = e.currentTarget.dataset.target; 
+            window.UI.switchScreen(targetID); 
+            
+            if (targetID === 's-sim') window.App.Sim.init(); 
+            if (targetID === 's-ult') window.App.Ult.init(); 
+            if (targetID === 's-mine') window.App.Mine.init(); 
+            if (targetID === 's-yams') window.App.Yams.init(); 
+            if (targetID === 's-belote') window.App.Belote.initGame(); 
+        }; 
     });
 
-    // Lancement par défaut
-    App.Sim.init();
-
+    // Lancement initial
+    window.App.Sim.init();
 </script>
 </body>
 </html>
