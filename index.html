@@ -63,17 +63,8 @@
             max-width: 450px; 
         }
 
-        .modal-box h2 { 
-            font-size: 2.2rem; 
-            margin-bottom: 15px; 
-        }
-
-        .modal-box p { 
-            font-size: 1.2rem; 
-            color: var(--text-muted); 
-            margin-bottom: 30px; 
-            line-height: 1.5; 
-        }
+        .modal-box h2 { font-size: 2.2rem; margin-bottom: 15px; }
+        .modal-box p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 30px; line-height: 1.5; }
         
         @keyframes modalPop { 
             0% { transform: scale(0.7) translateY(30px); opacity: 0; } 
@@ -82,151 +73,30 @@
 
         /* Navigation latérale */
         nav { 
-            width: 270px; 
-            background: #020617; 
-            padding: 30px 20px; 
-            border-right: 1px solid #1e293b; 
-            display: flex; 
-            flex-direction: column; 
-            z-index: 100; 
-            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5); 
+            width: 270px; background: #020617; padding: 30px 20px; border-right: 1px solid #1e293b; 
+            display: flex; flex-direction: column; z-index: 100; box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5); 
         }
 
-        nav h2 { 
-            color: var(--accent); 
-            text-transform: uppercase; 
-            letter-spacing: 3px; 
-            text-align: center; 
-            font-size: 1.1rem; 
-            margin-bottom: 30px; 
-        }
-
-        nav ul { 
-            list-style: none; 
-            overflow-y: auto; 
-        }
-        
-        nav li { 
-            padding: 15px; 
-            cursor: pointer; 
-            border-radius: 12px; 
-            margin-bottom: 10px; 
-            background: var(--panel-bg); 
-            transition: 0.3s; 
-            font-weight: 600; 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
-            border: 1px solid transparent; 
-        }
-
-        nav li:hover { 
-            background: var(--panel-hover); 
-            transform: translateX(5px); 
-        }
-        
-        nav li.active { 
-            background: var(--accent); 
-            color: #000; 
-            box-shadow: 0 0 20px var(--accent-glow); 
-            border-color: var(--accent); 
-        }
-        
-        .nav-divider { 
-            height: 2px; 
-            background: #1e293b; 
-            margin: 15px 0; 
-            border-radius: 2px; 
-        }
+        nav h2 { color: var(--accent); text-transform: uppercase; letter-spacing: 3px; text-align: center; font-size: 1.1rem; margin-bottom: 30px; }
+        nav ul { list-style: none; overflow-y: auto; }
+        nav li { padding: 15px; cursor: pointer; border-radius: 12px; margin-bottom: 10px; background: var(--panel-bg); transition: 0.3s; font-weight: 600; display: flex; align-items: center; gap: 15px; border: 1px solid transparent; }
+        nav li:hover { background: var(--panel-hover); transform: translateX(5px); }
+        nav li.active { background: var(--accent); color: #000; box-shadow: 0 0 20px var(--accent-glow); border-color: var(--accent); }
+        .nav-divider { height: 2px; background: #1e293b; margin: 15px 0; border-radius: 2px; }
 
         /* Écrans Principaux */
-        main { 
-            flex-grow: 1; 
-            padding: 40px; 
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            position: relative; 
-            scroll-behavior: smooth; 
-        }
-
-        .screen { 
-            display: none; 
-            width: 100%; 
-            max-width: 1100px; 
-            animation: screenFade 0.4s ease-out; 
-        }
-
-        .screen.active { 
-            display: block; 
-        }
+        main { flex-grow: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; position: relative; scroll-behavior: smooth; }
+        .screen { display: none; width: 100%; max-width: 1100px; animation: screenFade 0.4s ease-out; }
+        .screen.active { display: block; }
+        @keyframes screenFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
-        @keyframes screenFade { 
-            from { opacity: 0; transform: translateY(15px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
-        
-        h1 { 
-            text-align: center; 
-            margin-bottom: 10px; 
-            font-size: 2.8rem; 
-            font-weight: 800; 
-            background: linear-gradient(to right, var(--accent), #34d399); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-        }
-        
-        .subtitle { 
-            text-align: center; 
-            color: var(--text-muted); 
-            margin-bottom: 40px; 
-            font-size: 1.1rem; 
-        }
-        
-        .btn { 
-            padding: 12px 28px; 
-            background: var(--accent); 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 1.1rem; 
-            color: #000; 
-            transition: 0.2s; 
-            text-transform: uppercase; 
-            letter-spacing: 1px; 
-            margin: 5px; 
-        }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 2.8rem; font-weight: 800; background: linear-gradient(to right, var(--accent), #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 40px; font-size: 1.1rem; }
+        .btn { padding: 12px 28px; background: var(--accent); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; color: #000; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; margin: 5px; }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--accent-glow); }
+        .btn:disabled { background: #334155; color: #94a3b8; cursor: not-allowed; box-shadow: none; transform: none; }
 
-        .btn:hover { 
-            transform: scale(1.05); 
-            box-shadow: 0 0 15px var(--accent-glow); 
-        }
-
-        .btn:disabled { 
-            background: #334155; 
-            color: #94a3b8; 
-            cursor: not-allowed; 
-            box-shadow: none; 
-            transform: none; 
-        }
-
-        input[type="text"], select { 
-            padding: 15px; 
-            font-size: 1.2rem; 
-            border-radius: 8px; 
-            border: 2px solid #334155; 
-            background: #020617; 
-            color: white; 
-            text-align: center; 
-            margin: 10px; 
-            text-transform: uppercase; 
-            width: 250px; 
-            font-weight: bold; 
-            outline: none; 
-        }
-
+        input[type="text"], select { padding: 15px; font-size: 1.2rem; border-radius: 8px; border: 2px solid #334155; background: #020617; color: white; text-align: center; margin: 10px; text-transform: uppercase; width: 250px; font-weight: bold; outline: none; }
         select { cursor: pointer; text-transform: none; }
 
         /* =========================================
@@ -392,11 +262,11 @@
 <nav>
     <h2>Arcade 2026</h2>
     <ul id="nav-menu">
-        <li data-target="s-sim" class="active"><span>✖️</span> Morpion</li>
+        <li data-target="s-sim" class="active"><span>✖️</span> Morpion Local</li>
         <li data-target="s-ult"><span>🔥</span> Morpion Ultime</li>
-        <li data-target="s-mine"><span>💣</span> Démineur</li>
-        <li data-target="s-yams"><span>🎲</span> Yams</li>
-        <li data-target="s-belote"><span>🃏</span> Belote</li>
+        <li data-target="s-mine"><span>💣</span> Démineur Expert</li>
+        <li data-target="s-yams"><span>🎲</span> Yams Complet</li>
+        <li data-target="s-belote"><span>🃏</span> Belote Pro</li>
         <li data-target="s-p4"><span>🔴</span> Puissance 4</li>
         <li data-target="s-bj"><span>♠️</span> Blackjack 21</li>
         <li data-target="s-mm"><span>🧠</span> Mastermind</li>
@@ -530,7 +400,7 @@
             </div>
             <div class="bn-grid-wrapper">
                 <h2 style="color:var(--player-x); margin-bottom:15px;">Flotte Ennemie</h2>
-                <div id="bn-bot-grid" class="bn-grid"></div>
+                <div id="bn-bot-grid" class="bn-grid" style="opacity:0.5; pointer-events:none;"></div>
             </div>
         </div>
         <div style="text-align: center; margin-top: 30px;" id="bn-setup-actions">
@@ -643,7 +513,7 @@
 
     window.App = {};
 
-    // --- MORPION SIMPLE (BOT IA) ---
+    // --- MORPION SIMPLE (BOT IA EXPERT - MINIMAX) ---
     window.App.Sim = {
         state: [], player: 'X',
         init() {
@@ -676,19 +546,37 @@
             }
         },
         botPlay() {
-            let b = this.state, move = -1;
-            const winLines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-            // 1. Essayer de gagner
-            for(let l of winLines) { if(b[l[0]]==='O'&&b[l[1]]==='O'&&!b[l[2]]) move=l[2]; else if(b[l[0]]==='O'&&!b[l[1]]&&b[l[2]]==='O') move=l[1]; else if(!b[l[0]]&&b[l[1]]==='O'&&b[l[2]]==='O') move=l[0]; if(move!==-1) break; }
-            // 2. Bloquer
-            if(move === -1) for(let l of winLines) { if(b[l[0]]==='X'&&b[l[1]]==='X'&&!b[l[2]]) move=l[2]; else if(b[l[0]]==='X'&&!b[l[1]]&&b[l[2]]==='X') move=l[1]; else if(!b[l[0]]&&b[l[1]]==='X'&&b[l[2]]==='X') move=l[0]; if(move!==-1) break; }
-            // 3. Centre
-            if(move === -1 && !b[4]) move = 4;
-            // 4. Coins ou Hasard
-            if(move === -1) { let c = [0,2,6,8].filter(i=>!b[i]); if(c.length>0) move = c[Math.floor(Math.random()*c.length)]; }
-            if(move === -1) { let c = [1,3,5,7].filter(i=>!b[i]); if(c.length>0) move = c[Math.floor(Math.random()*c.length)]; }
-            
+            let bestScore = -Infinity, move = -1;
+            for(let i=0; i<9; i++) {
+                if(this.state[i] === '') {
+                    this.state[i] = 'O';
+                    let score = this.minimax(this.state, 0, false);
+                    this.state[i] = '';
+                    if(score > bestScore) { bestScore = score; move = i; }
+                }
+            }
             if(move !== -1) { let el = document.getElementById('ms-board').children[move]; this.executePlay(move, el); }
+        },
+        minimax(board, depth, isMaximizing) {
+            let win = this.checkWin(board);
+            if(win) return board[win[0]] === 'O' ? 10 - depth : depth - 10;
+            if(!board.includes('')) return 0;
+            
+            if(isMaximizing) {
+                let bestScore = -Infinity;
+                for(let i=0; i<9; i++) {
+                    if(board[i] === '') {
+                        board[i] = 'O'; bestScore = Math.max(bestScore, this.minimax(board, depth+1, false)); board[i] = '';
+                    }
+                } return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for(let i=0; i<9; i++) {
+                    if(board[i] === '') {
+                        board[i] = 'X'; bestScore = Math.min(bestScore, this.minimax(board, depth+1, true)); board[i] = '';
+                    }
+                } return bestScore;
+            }
         },
         checkWin(grid) {
             const winConditions = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]; 
@@ -696,7 +584,7 @@
         }
     };
 
-    // --- MORPION ULTIME (BOT IA) ---
+    // --- MORPION ULTIME (BOT IA EXPERT) ---
     window.App.Ult = {
         bGrid: [], sGrids: [], currentPlayer: 'X', nextActiveGrid: -1,
         init() {
@@ -745,12 +633,28 @@
             }
             if(validMoves.length === 0) return;
             
-            let move = validMoves.find(m => this.simWin(m.bg, m.sg, 'O')); // Gagner sous-grille
-            if(!move) move = validMoves.find(m => this.simWin(m.bg, m.sg, 'X')); // Bloquer
-            if(!move) move = validMoves[Math.floor(Math.random()*validMoves.length)]; // Random
-            
-            let cell = document.getElementById(`mu-g-${move.bg}`).children[move.sg];
-            this.executePlay(move.bg, move.sg, cell);
+            let bestMove = null, bestScore = -Infinity;
+            for (let m of validMoves) {
+                let score = 0;
+                if (this.simWin(m.bg, m.sg, 'O')) score += 1000;
+                if (this.simWin(m.bg, m.sg, 'X')) score += 500;
+                
+                // Ne pas envoyer l'adversaire sur une grille pleine/gagnée (coup gratuit pour lui)
+                if (this.bGrid[m.sg] !== '') score -= 2000;
+                else {
+                    let opponentCanWin = false;
+                    for (let j=0; j<9; j++) if (this.sGrids[m.sg][j] === '' && this.simWin(m.sg, j, 'X')) opponentCanWin = true;
+                    if (opponentCanWin) score -= 800;
+                }
+                
+                if (m.sg === 4) score += 50;
+                if ([0,2,6,8].includes(m.sg)) score += 10;
+
+                if (score > bestScore) { bestScore = score; bestMove = m; }
+                else if (score === bestScore && Math.random() < 0.5) bestMove = m;
+            }
+            let cell = document.getElementById(`mu-g-${bestMove.bg}`).children[bestMove.sg];
+            this.executePlay(bestMove.bg, bestMove.sg, cell);
         },
         simWin(bg, sg, p) {
             this.sGrids[bg][sg] = p; let w = window.App.Sim.checkWin(this.sGrids[bg]); this.sGrids[bg][sg] = ''; return w;
@@ -825,7 +729,7 @@
         }
     };
 
-    // --- YAMS (BOT IA) ---
+    // --- YAMS (BOT IA EXPERT) ---
     window.App.Yams = {
         dice: [1, 1, 1, 1, 1], kept: [false, false, false, false, false], rollsLeft: 3, currentPlayer: 0, scores: [{}, {}],
         init() {
@@ -845,7 +749,7 @@
             } 
         },
         roll() {
-            if (this.rollsLeft <= 0 || this.currentPlayer === 1) return; // Humain seulement
+            if (this.rollsLeft <= 0 || this.currentPlayer === 1) return; 
             this.executeRoll();
         },
         executeRoll() {
@@ -912,35 +816,41 @@
             }
         },
         botTurn() {
-            this.executeRoll(); // Tour 1
+            this.executeRoll(); 
             setTimeout(() => {
-                this.botDecideKeeps(); this.executeRoll(); // Tour 2
+                this.botDecideKeeps(); this.executeRoll();
                 setTimeout(() => {
-                    this.botDecideKeeps(); this.executeRoll(); // Tour 3
+                    this.botDecideKeeps(); this.executeRoll();
                     setTimeout(() => { this.botChooseCategory(); }, 1000);
                 }, 1000);
             }, 1000);
         },
         botDecideKeeps() {
             let counts = {}; this.dice.forEach(x => counts[x] = (counts[x]||0)+1);
-            let bestVal = this.dice[0], maxCount = 0;
-            for(let v in counts) { if(counts[v] > maxCount) { maxCount = counts[v]; bestVal = parseInt(v); } }
-            if(maxCount === 1) bestVal = Math.max(...this.dice);
-            this.dice.forEach((v, i) => { this.kept[i] = (v === bestVal); });
+            let maxC = Math.max(...Object.values(counts));
+            
+            if(maxC >= 3) {
+                let num = Object.keys(counts).find(k => counts[k] === maxC);
+                this.dice.forEach((v, i) => this.kept[i] = (v == num));
+            } else if (new Set(this.dice).size >= 4 && this.scores[1]['GrandeSuite'] === undefined) {
+                 let seen = new Set();
+                 this.dice.forEach((v, i) => { if(!seen.has(v)) { this.kept[i] = true; seen.add(v); } else this.kept[i] = false; });
+            } else if (maxC === 2) {
+                let num = Object.keys(counts).find(k => counts[k] === maxC);
+                this.dice.forEach((v, i) => this.kept[i] = (v == num));
+            } else {
+                this.dice.forEach((v, i) => this.kept[i] = (v >= 4));
+            }
             this.ui();
         },
         botChooseCategory() {
             this.calculatePotentials();
             const cats = ['Yams', 'Grande Suite', 'Petite Suite', 'Full', 'Carré', 'Brelan', '6', '5', '4', '3', '2', '1', 'Chance'];
             let chosenCat = null, bestScore = -1;
-            
             for(let cat of cats) {
                 if(this.scores[1][cat] !== undefined) continue;
                 let el = document.getElementById(`y-1-${cat.replace(/\s/g, '')}`);
-                if(el && el.classList.contains('pot')) {
-                    let pts = parseInt(el.textContent);
-                    if(pts > bestScore) { bestScore = pts; chosenCat = cat; }
-                }
+                if(el && el.classList.contains('pot')) { let pts = parseInt(el.textContent); if(pts > bestScore) { bestScore = pts; chosenCat = cat; } }
             }
             if(bestScore <= 0 || !chosenCat) {
                 let sac = ['1','2','3','Chance','4','5','Petite Suite','Brelan','Full','Carré','Grande Suite','Yams','6'];
@@ -950,7 +860,7 @@
         }
     };
 
-    // --- BELOTE ---
+    // --- BELOTE (IA EXPERTE) ---
     window.App.Belote = {
         deck: [], hands: [[], [], [], []], scores: { nous: 0, eux: 0 }, litigePot: 0,
         dealerIndex: -1, firstPlayerIndex: 0, currentTurnIndex: 0, phase: 'init', centerCard: null, atoutSuit: null, takerIndex: -1, currentTrick: [], dealPoints: { nous: 0, eux: 0 }, tricksWon: { nous: 0, eux: 0 }, tricksPlayedCount: 0, beloteAnnouncedBy: null, activeModal: null,
@@ -1183,7 +1093,7 @@
         updateStatus(msgText) { document.getElementById('bl-status').innerHTML = msgText; }
     };
 
-    // --- PUISSANCE 4 (BOT IA) ---
+    // --- PUISSANCE 4 (BOT IA EXPERT) ---
     window.App.P4 = {
         grid: [], player: 1,
         init() {
@@ -1225,16 +1135,19 @@
             if(validCols.length === 0) return;
             
             let bestCol = -1;
-            for(let c of validCols) if(this.simWin(c, 2)) { bestCol = c; break; } // Gagner
-            if(bestCol === -1) for(let c of validCols) if(this.simWin(c, 1)) { bestCol = c; break; } // Bloquer
+            for(let c of validCols) if(this.simWin(c, 2)) { bestCol = c; break; } // Gagner immédiatement
+            if(bestCol === -1) for(let c of validCols) if(this.simWin(c, 1)) { bestCol = c; break; } // Bloquer le joueur
             if(bestCol === -1) {
-                let pref = [3,2,4,1,5,0,6].filter(c => validCols.includes(c)); // Centre
-                bestCol = pref[0];
+                // Stratégie de contrôle du centre
+                let scores = [0, 1, 2, 3, 2, 1, 0];
+                validCols.sort((a,b) => scores[b] - scores[a]);
+                bestCol = validCols[0];
             }
             this.executePlay(bestCol);
         },
         simWin(c, p) {
             let r = 5; while(r>=0 && this.grid[r][c]!==0) r--;
+            if(r<0) return false;
             this.grid[r][c] = p; let w = this.checkWin(r, c, p); this.grid[r][c] = 0; return w;
         },
         checkWin(r, c, p) {
@@ -1553,9 +1466,7 @@
         statusUI(id, data, replayCb) { 
             const statusBar = document.getElementById(id); 
             if (data.winner !== '') { 
-                if (data.winner === 'Draw') statusBar.innerHTML = "Égalité !"; 
-                else if (data.winner === this.myId) statusBar.innerHTML = "<span style='color:var(--accent)'>VICTOIRE ! 🎉</span>"; 
-                else statusBar.innerHTML = `<span style='color:${this.myId === 'X' ? 'var(--player-o)' : 'var(--player-x)'}'>DÉFAITE...</span>`; 
+                if (data.winner === 'Draw') statusBar.innerHTML = "Égalité !"; else if (data.winner === this.myId) statusBar.innerHTML = "<span style='color:var(--accent)'>VICTOIRE ! 🎉</span>"; else statusBar.innerHTML = `<span style='color:${this.myId === 'X' ? 'var(--player-o)' : 'var(--player-x)'}'>DÉFAITE...</span>`; 
                 if (this.myId === 'X') { statusBar.innerHTML += `<br><button class="btn" style="margin-top:10px;" id="br-${id}">Rejouer</button>`; document.getElementById(`br-${id}`).onclick = replayCb; } else statusBar.innerHTML += `<br><small style="color:var(--text-muted)">Attente de l'hôte...</small>`; 
             } else { statusBar.innerHTML = data.turn === this.myId ? `<span style='color:var(--accent)'>À ton tour ! (${this.myId})</span>` : `Tour de l'adversaire...`; }
         },
