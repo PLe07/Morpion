@@ -547,7 +547,7 @@
         },
         botPlay() {
             // 25% de chance de faire une "erreur" (jouer aléatoirement)
-            if (Math.random() < 0.25) {
+            if (Math.random() < 0.15) {
                 let emptyIndices = [];
                 for(let i=0; i<9; i++) if(this.state[i] === '') emptyIndices.push(i);
                 let move = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
