@@ -262,11 +262,11 @@
 <nav>
     <h2>Arcade 2026</h2>
     <ul id="nav-menu">
-        <li data-target="s-sim" class="active"><span>✖️</span> Morpion Local</li>
+        <li data-target="s-sim" class="active"><span>✖️</span> Morpion</li>
         <li data-target="s-ult"><span>🔥</span> Morpion Ultime</li>
-        <li data-target="s-mine"><span>💣</span> Démineur Expert</li>
-        <li data-target="s-yams"><span>🎲</span> Yams Complet</li>
-        <li data-target="s-belote"><span>🃏</span> Belote Pro</li>
+        <li data-target="s-mine"><span>💣</span> Démineur</li>
+        <li data-target="s-yams"><span>🎲</span> Yams</li>
+        <li data-target="s-belote"><span>🃏</span> Belote</li>
         <li data-target="s-p4"><span>🔴</span> Puissance 4</li>
         <li data-target="s-bj"><span>♠️</span> Blackjack 21</li>
         <li data-target="s-mm"><span>🧠</span> Mastermind</li>
@@ -513,7 +513,7 @@
 
     window.App = {};
 
-    // --- MORPION SIMPLE (BOT IA EXPERT - MINIMAX) ---
+    // --- MORPION SIMPLE (BOT BRIDÉ - 25% Aléatoire) ---
     window.App.Sim = {
         state: [], player: 'X',
         init() {
@@ -546,6 +546,17 @@
             }
         },
         botPlay() {
+            // 25% de chance de faire une "erreur" (jouer aléatoirement)
+            if (Math.random() < 0.25) {
+                let emptyIndices = [];
+                for(let i=0; i<9; i++) if(this.state[i] === '') emptyIndices.push(i);
+                let move = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+                let el = document.getElementById('ms-board').children[move];
+                this.executePlay(move, el);
+                return;
+            }
+
+            // Sinon, Intelligence maximale (Minimax)
             let bestScore = -Infinity, move = -1;
             for(let i=0; i<9; i++) {
                 if(this.state[i] === '') {
@@ -584,7 +595,7 @@
         }
     };
 
-    // --- MORPION ULTIME (BOT IA EXPERT) ---
+    // --- MORPION ULTIME (BOT IA LÉGÈREMENT BUFFÉ) ---
     window.App.Ult = {
         bGrid: [], sGrids: [], currentPlayer: 'X', nextActiveGrid: -1,
         init() {
@@ -639,12 +650,18 @@
                 if (this.simWin(m.bg, m.sg, 'O')) score += 1000;
                 if (this.simWin(m.bg, m.sg, 'X')) score += 500;
                 
-                // Ne pas envoyer l'adversaire sur une grille pleine/gagnée (coup gratuit pour lui)
+                // Ne pas envoyer l'adversaire sur une grille pleine/gagnée
                 if (this.bGrid[m.sg] !== '') score -= 2000;
                 else {
                     let opponentCanWin = false;
                     for (let j=0; j<9; j++) if (this.sGrids[m.sg][j] === '' && this.simWin(m.sg, j, 'X')) opponentCanWin = true;
                     if (opponentCanWin) score -= 800;
+                    
+                    // Si on peut gagner la sous grille où on envoie l'adversaire
+                    if (this.simWin(m.bg, m.sg, 'O')) score += 1000;
+                    
+                    // Donner le centre de la prochaine grille est dangereux
+                    if (m.sg === 4) score += 200; 
                 }
                 
                 if (m.sg === 4) score += 50;
@@ -729,7 +746,7 @@
         }
     };
 
-    // --- YAMS (BOT IA EXPERT) ---
+    // --- YAMS (BOT IA LÉGÈREMENT BUFFÉ) ---
     window.App.Yams = {
         dice: [1, 1, 1, 1, 1], kept: [false, false, false, false, false], rollsLeft: 3, currentPlayer: 0, scores: [{}, {}],
         init() {
@@ -827,19 +844,37 @@
         },
         botDecideKeeps() {
             let counts = {}; this.dice.forEach(x => counts[x] = (counts[x]||0)+1);
+            let vals = Object.keys(counts).map(Number);
             let maxC = Math.max(...Object.values(counts));
+            let uniqueSet = new Set(this.dice);
             
+            // Priorité : Brelan / Carré / Yams
             if(maxC >= 3) {
-                let num = Object.keys(counts).find(k => counts[k] === maxC);
+                let num = vals.find(k => counts[k] === maxC);
                 this.dice.forEach((v, i) => this.kept[i] = (v == num));
-            } else if (new Set(this.dice).size >= 4 && this.scores[1]['GrandeSuite'] === undefined) {
+            } 
+            // Suites : Tentative si on a 4 dés différents
+            else if (uniqueSet.size >= 4 && this.scores[1]['GrandeSuite'] === undefined) {
                  let seen = new Set();
-                 this.dice.forEach((v, i) => { if(!seen.has(v)) { this.kept[i] = true; seen.add(v); } else this.kept[i] = false; });
-            } else if (maxC === 2) {
-                let num = Object.keys(counts).find(k => counts[k] === maxC);
+                 this.dice.forEach((v, i) => { 
+                     if(!seen.has(v) && v !== 1 && v !== 6) { this.kept[i] = true; seen.add(v); } 
+                     else if(!seen.has(v)) { this.kept[i] = true; seen.add(v); }
+                     else this.kept[i] = false; 
+                 });
+            } 
+            // Full House (Deux Paires)
+            else if (vals.length === 3 && maxC === 2) {
+                this.dice.forEach((v, i) => this.kept[i] = (counts[v] === 2));
+            }
+            // Petite Paire
+            else if (maxC === 2) {
+                let num = vals.find(k => counts[k] === maxC);
                 this.dice.forEach((v, i) => this.kept[i] = (v == num));
-            } else {
-                this.dice.forEach((v, i) => this.kept[i] = (v >= 4));
+            } 
+            // Rien du tout -> On garde le plus grand
+            else {
+                let maxVal = Math.max(...this.dice);
+                this.dice.forEach((v, i) => this.kept[i] = (v === maxVal));
             }
             this.ui();
         },
@@ -860,7 +895,7 @@
         }
     };
 
-    // --- BELOTE (IA EXPERTE) ---
+    // --- BELOTE ---
     window.App.Belote = {
         deck: [], hands: [[], [], [], []], scores: { nous: 0, eux: 0 }, litigePot: 0,
         dealerIndex: -1, firstPlayerIndex: 0, currentTurnIndex: 0, phase: 'init', centerCard: null, atoutSuit: null, takerIndex: -1, currentTrick: [], dealPoints: { nous: 0, eux: 0 }, tricksWon: { nous: 0, eux: 0 }, tricksPlayedCount: 0, beloteAnnouncedBy: null, activeModal: null,
@@ -1093,7 +1128,7 @@
         updateStatus(msgText) { document.getElementById('bl-status').innerHTML = msgText; }
     };
 
-    // --- PUISSANCE 4 (BOT IA EXPERT) ---
+    // --- PUISSANCE 4 (BOT IA EXPERT - ANTICIPATION) ---
     window.App.P4 = {
         grid: [], player: 1,
         init() {
@@ -1134,21 +1169,39 @@
             for(let c=0; c<7; c++) if(this.grid[0][c] === 0) validCols.push(c);
             if(validCols.length === 0) return;
             
-            let bestCol = -1;
-            for(let c of validCols) if(this.simWin(c, 2)) { bestCol = c; break; } // Gagner immédiatement
-            if(bestCol === -1) for(let c of validCols) if(this.simWin(c, 1)) { bestCol = c; break; } // Bloquer le joueur
-            if(bestCol === -1) {
-                // Stratégie de contrôle du centre
-                let scores = [0, 1, 2, 3, 2, 1, 0];
-                validCols.sort((a,b) => scores[b] - scores[a]);
-                bestCol = validCols[0];
+            // 1. Essayer de gagner immédiatement
+            for(let c of validCols) {
+                let r = this.getDropRow(c);
+                this.grid[r][c] = 2; let win = this.checkWin(r, c, 2); this.grid[r][c] = 0;
+                if(win) { this.executePlay(c); return; }
             }
-            this.executePlay(bestCol);
+            // 2. Bloquer une victoire immédiate du joueur
+            for(let c of validCols) {
+                let r = this.getDropRow(c);
+                this.grid[r][c] = 1; let win = this.checkWin(r, c, 1); this.grid[r][c] = 0;
+                if(win) { this.executePlay(c); return; }
+            }
+            // 3. Filtrer les "pièges" (Jouer une case qui donne la victoire au joueur juste au-dessus)
+            let safeCols = validCols.filter(c => {
+                let r = this.getDropRow(c);
+                if(r > 0) {
+                    this.grid[r-1][c] = 1; let givesWin = this.checkWin(r-1, c, 1); this.grid[r-1][c] = 0;
+                    if(givesWin) return false;
+                }
+                return true;
+            });
+            if(safeCols.length === 0) safeCols = validCols; // Plus le choix
+
+            // 4. Contrôle du centre par priorité
+            let scores = [0, 2, 4, 7, 4, 2, 0];
+            safeCols.sort((a,b) => scores[b] - scores[a]);
+            let bestCol = safeCols[0];
+            let tops = safeCols.filter(c => scores[c] === scores[bestCol]);
+            
+            this.executePlay(tops[Math.floor(Math.random()*tops.length)]);
         },
-        simWin(c, p) {
-            let r = 5; while(r>=0 && this.grid[r][c]!==0) r--;
-            if(r<0) return false;
-            this.grid[r][c] = p; let w = this.checkWin(r, c, p); this.grid[r][c] = 0; return w;
+        getDropRow(col) {
+            let r = 5; while(r>=0 && this.grid[r][col]!==0) r--; return r;
         },
         checkWin(r, c, p) {
             const g = this.grid, count = (dr, dc) => { let i = 1, res = 0; while (r+dr*i >= 0 && r+dr*i < 6 && c+dc*i >= 0 && c+dc*i < 7 && g[r+dr*i][c+dc*i] === p) { res++; i++; } return res; };
