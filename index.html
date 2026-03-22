@@ -22,61 +22,41 @@
         }
 
         * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
-            user-select: none; 
-            -webkit-tap-highlight-color: transparent; 
+            box-sizing: border-box; margin: 0; padding: 0; 
+            user-select: none; -webkit-tap-highlight-color: transparent; 
         }
 
         body { 
             font-family: 'Segoe UI', system-ui, sans-serif; 
-            background: var(--bg-color); 
-            color: var(--text-main); 
-            display: flex; 
-            height: 100vh; 
-            overflow: hidden; 
+            background: var(--bg-color); color: var(--text-main); 
+            display: flex; height: 100vh; overflow: hidden; 
         }
 
         /* =========================================
            2. COMPOSANTS D'INTERFACE (UI)
            ========================================= */
         #modal-overlay { 
-            display: none; 
-            position: fixed; 
-            inset: 0; 
-            background: rgba(0, 0, 0, 0.85); 
-            z-index: 9999; 
-            align-items: center; 
-            justify-content: center; 
-            backdrop-filter: blur(8px); 
+            display: none; position: fixed; inset: 0; 
+            background: rgba(0, 0, 0, 0.85); z-index: 9999; 
+            align-items: center; justify-content: center; backdrop-filter: blur(8px); 
         }
 
         .modal-box { 
-            background: var(--panel-bg); 
-            padding: 40px; 
-            border-radius: 20px; 
-            text-align: center; 
-            border: 2px solid var(--accent); 
+            background: var(--panel-bg); padding: 40px; border-radius: 20px; 
+            text-align: center; border: 2px solid var(--accent); 
             box-shadow: 0 15px 50px var(--accent-glow); 
-            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            max-width: 450px; 
+            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-width: 450px; 
         }
-
         .modal-box h2 { font-size: 2.2rem; margin-bottom: 15px; }
         .modal-box p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 30px; line-height: 1.5; }
         
-        @keyframes modalPop { 
-            0% { transform: scale(0.7) translateY(30px); opacity: 0; } 
-            100% { transform: scale(1) translateY(0); opacity: 1; } 
-        }
+        @keyframes modalPop { 0% { transform: scale(0.7) translateY(30px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
 
         /* Navigation latérale */
         nav { 
             width: 270px; background: #020617; padding: 30px 20px; border-right: 1px solid #1e293b; 
             display: flex; flex-direction: column; z-index: 100; box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5); 
         }
-
         nav h2 { color: var(--accent); text-transform: uppercase; letter-spacing: 3px; text-align: center; font-size: 1.1rem; margin-bottom: 30px; }
         nav ul { list-style: none; overflow-y: auto; }
         nav li { padding: 15px; cursor: pointer; border-radius: 12px; margin-bottom: 10px; background: var(--panel-bg); transition: 0.3s; font-weight: 600; display: flex; align-items: center; gap: 15px; border: 1px solid transparent; }
@@ -96,7 +76,7 @@
         .btn:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--accent-glow); }
         .btn:disabled { background: #334155; color: #94a3b8; cursor: not-allowed; box-shadow: none; transform: none; }
 
-        input[type="text"], select { padding: 15px; font-size: 1.2rem; border-radius: 8px; border: 2px solid #334155; background: #020617; color: white; text-align: center; margin: 10px; text-transform: uppercase; width: 250px; font-weight: bold; outline: none; }
+        input[type="text"], input[type="number"], select { padding: 15px; font-size: 1.2rem; border-radius: 8px; border: 2px solid #334155; background: #020617; color: white; text-align: center; margin: 10px; text-transform: uppercase; outline: none; }
         select { cursor: pointer; text-transform: none; }
 
         /* =========================================
@@ -209,8 +189,8 @@
 
         .bn-container { display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
         .bn-grid-wrapper { text-align: center; }
-        .bn-grid { display: grid; grid-template-columns: repeat(10, 35px); gap: 2px; background: #334155; padding: 4px; border: 4px solid #1e293b; border-radius: 8px; }
-        .bn-cell { width: 35px; height: 35px; background: var(--bg-color); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .bn-grid { display: grid; grid-template-columns: repeat(12, 28px); gap: 2px; background: #334155; padding: 4px; border: 4px solid #1e293b; border-radius: 8px; }
+        .bn-cell { width: 28px; height: 28px; background: var(--bg-color); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
         .bn-cell:hover:not(.shot) { background: var(--panel-hover); }
         .bn-ship { background: var(--text-muted); }
         .bn-hit { background: var(--player-x); animation: pulseWin 1s infinite alternate; }
@@ -272,7 +252,7 @@
         <li data-target="s-mm"><span>🧠</span> Mastermind</li>
         <li data-target="s-bn"><span>🚢</span> Bataille Navale</li>
         <div class="nav-divider"></div>
-        <li data-target="s-net-lobby" style="color:var(--accent); border-color:var(--accent);"><span>🌐</span> Salon Multijoueur</li>
+        <li data-target="s-net-lobby" style="color:var(--accent); border-color:var(--accent);"><span>🌐</span> Multijoueur</li>
     </ul>
 </nav>
 
@@ -364,6 +344,13 @@
 
     <section id="s-bj" class="screen">
         <h1>Blackjack 21</h1>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h2 style="color:var(--gold)">Solde: <span id="bj-balance">1000</span> €</h2>
+            <div style="margin-top: 10px;" id="bj-bet-container">
+                Mise: <input type="number" id="bj-bet" value="50" min="1" max="1000" style="width: 100px; padding: 10px; font-size: 1.2rem; background:#020617; color:white; border: 2px solid #334155; border-radius:8px;">
+                <button class="btn" id="bj-start-btn" onclick="App.BJ.start()">Jouer</button>
+            </div>
+        </div>
         <div class="bj-table">
             <h2 style="color:var(--text-muted)">Croupier <span id="bj-dealer-score" style="color:var(--gold)">0</span></h2>
             <div id="bj-dealer-hand" class="bj-hand"></div>
@@ -372,11 +359,10 @@
             <h2 style="color:var(--accent)">Toi <span id="bj-player-score" style="color:var(--gold)">0</span></h2>
             <div id="bj-player-hand" class="bj-hand"></div>
         </div>
-        <div id="bj-actions" style="text-align: center; gap: 15px; display: flex; justify-content: center;">
+        <div id="bj-actions" style="text-align: center; gap: 15px; display: flex; justify-content: center; display:none;">
             <button class="btn" onclick="App.BJ.hit()">Carte</button>
             <button class="btn" style="background:var(--player-x); color:white;" onclick="App.BJ.stand()">Rester</button>
         </div>
-        <div style="text-align: center; margin-top: 30px;"><button class="btn" onclick="App.BJ.init()">Nouvelle Main</button></div>
     </section>
 
     <section id="s-mm" class="screen">
@@ -391,7 +377,7 @@
     </section>
 
     <section id="s-bn" class="screen">
-        <h1>Bataille Navale</h1>
+        <h1>Bataille Navale (12x12)</h1>
         <p class="subtitle" id="bn-status">Génère ta flotte pour commencer.</p>
         <div class="bn-container">
             <div class="bn-grid-wrapper">
@@ -419,6 +405,7 @@
                 <select id="net-game-select">
                     <option value="sim">Morpion Simple</option>
                     <option value="ult">Morpion Ultime</option>
+                    <option value="p4">Puissance 4</option>
                     <option value="yams">Yams</option>
                     <option value="belote">Belote Coop (En Ligne)</option>
                 </select><br>
@@ -452,6 +439,13 @@
         <h1>Morpion Ultime En Ligne</h1>
         <div id="net-ult-status" class="net-status-bar">Synchronisation...</div>
         <div id="net-ult-board" class="mu-container"></div>
+        <div style="text-align: center;"><button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button></div>
+    </section>
+
+    <section id="s-net-p4" class="screen">
+        <h1>Puissance 4 En Ligne</h1>
+        <div id="net-p4-status" class="net-status-bar">Synchronisation...</div>
+        <div id="net-p4-board" class="p4-grid"></div>
         <div style="text-align: center;"><button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button></div>
     </section>
 
@@ -513,7 +507,7 @@
 
     window.App = {};
 
-    // --- MORPION SIMPLE (BOT BRIDÉ - 25% Aléatoire) ---
+    // --- MORPION SIMPLE (BOT IA LÉGÈREMENT BRIDÉ - 10% Aléatoire) ---
     window.App.Sim = {
         state: [], player: 'X',
         init() {
@@ -546,7 +540,8 @@
             }
         },
         botPlay() {
-            if (Math.random() < 0.25) {
+            // 10% d'erreur pour te laisser une chance
+            if (Math.random() < 0.10) {
                 let emptyIndices = [];
                 for(let i=0; i<9; i++) if(this.state[i] === '') emptyIndices.push(i);
                 let move = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
@@ -749,7 +744,7 @@
         }
     };
 
-    // --- YAMS (BOT IA BUFFÉ) ---
+    // --- YAMS (BOT IA INTELLIGENT) ---
     window.App.Yams = {
         dice: [1, 1, 1, 1, 1], kept: [false, false, false, false, false], rollsLeft: 3, currentPlayer: 0, scores: [{}, {}],
         init() {
@@ -893,17 +888,16 @@
                     let weight = pts;
                     
                     if(pts === 0) {
-                        if(cat==='Yams') weight = -1;
-                        else if(cat==='Grande Suite') weight = -2;
-                        else if(cat==='Petite Suite') weight = -3;
-                        else if(cat==='Carré') weight = -4;
-                        else if(cat==='1') weight = -5;
-                        else if(cat==='2') weight = -6;
-                        else weight = -100; 
+                        // Moins de pénalités pour rayer les petites cases
+                        if(cat==='1') weight = -1;
+                        else if(cat==='2') weight = -2;
+                        else if(cat==='Yams') weight = -15; // Éviter de rayer le Yams si possible
+                        else if(cat==='Grande Suite') weight = -10;
+                        else weight = -5; 
                     } else {
                         if(['1','2','3','4','5','6'].includes(cat)) {
                             let target = parseInt(cat)*3;
-                            if(pts >= target) weight += 20; 
+                            if(pts >= target) weight += 30; // Viser le bonus
                         }
                         if(cat === 'Chance' && pts < 22) weight -= 15; 
                         if(cat === 'Yams') weight += 50;
@@ -914,8 +908,8 @@
             }
             
             if(!chosenCat) {
-                for(let cat of ['Yams','Grande Suite','Petite Suite','Carré','1','2','3','Chance','4','5','Full','Brelan','6']) 
-                    if(this.scores[1][cat] === undefined) { chosenCat = cat; break; }
+                let sac = ['1','2','3','Chance','4','5','Petite Suite','Brelan','Full','Carré','Grande Suite','Yams','6'];
+                for(let cat of sac) if(this.scores[1][cat] === undefined) { chosenCat = cat; break; }
             }
             if(chosenCat) this.lockCategory(chosenCat, 1);
         }
@@ -1154,7 +1148,7 @@
         updateStatus(msgText) { document.getElementById('bl-status').innerHTML = msgText; }
     };
 
-    // --- PUISSANCE 4 (BOT IA EXPERT - ANTICIPATION DEPTH 5) ---
+    // --- PUISSANCE 4 (BOT IA EXPERT - ANTICIPATION PROFONDEUR 4) ---
     window.App.P4 = {
         grid: [], player: 1,
         init() {
@@ -1191,16 +1185,32 @@
             }
         },
         botPlay() {
-            let bestScore = -Infinity, bestCol = -1, validCols = [];
+            let validCols = [];
             for(let c=0; c<7; c++) if(this.grid[0][c] === 0) validCols.push(c);
             if(validCols.length === 0) return;
             
+            // 15% de chance de faire une petite erreur (pour le laisser humain)
+            if (Math.random() < 0.15) {
+                let safeCols = validCols.filter(c => {
+                    let r = this.getDropRowGrid(this.grid, c);
+                    if(r > 0) {
+                        this.grid[r-1][c] = 1; let givesWin = this.checkWinGrid(this.grid, 1); this.grid[r-1][c] = 0;
+                        if(givesWin) return false;
+                    } return true;
+                });
+                if(safeCols.length === 0) safeCols = validCols;
+                this.executePlay(safeCols[Math.floor(Math.random() * safeCols.length)]);
+                return;
+            }
+
             validCols.sort((a,b) => Math.abs(3-a) - Math.abs(3-b)); 
+            let bestScore = -Infinity, bestCol = validCols[0];
 
             for(let c of validCols) {
                 let r = this.getDropRowGrid(this.grid, c);
                 this.grid[r][c] = 2;
-                let score = this.minimax(this.grid, 5, -Infinity, Infinity, false);
+                // Profondeur 3 pour un niveau expert mais jouable
+                let score = this.minimax(this.grid, 3, -Infinity, Infinity, false); 
                 this.grid[r][c] = 0;
                 if(score > bestScore) { bestScore = score; bestCol = c; }
             }
@@ -1225,8 +1235,7 @@
                     grid[r][c] = 2; let ev = this.minimax(grid, depth-1, alpha, beta, false); grid[r][c] = 0;
                     maxEval = Math.max(maxEval, ev); alpha = Math.max(alpha, ev);
                     if(beta <= alpha) break;
-                }
-                return maxEval;
+                } return maxEval;
             } else {
                 let minEval = Infinity;
                 for(let c of validCols) {
@@ -1234,8 +1243,7 @@
                     grid[r][c] = 1; let ev = this.minimax(grid, depth-1, alpha, beta, true); grid[r][c] = 0;
                     minEval = Math.min(minEval, ev); beta = Math.min(beta, ev);
                     if(beta <= alpha) break;
-                }
-                return minEval;
+                } return minEval;
             }
         },
         getDropRowGrid(grid, col) { let r = 5; while(r>=0 && grid[r][col]!==0) r--; return r; },
@@ -1257,21 +1265,42 @@
         }
     };
 
-    // --- BLACKJACK ---
+    // --- BLACKJACK (SYSTÈME DE MISE) ---
     window.App.BJ = {
-        deck: [], playerHand: [], dealerHand: [],
+        deck: [], playerHand: [], dealerHand: [], balance: 1000, currentBet: 50,
         init() {
+            document.getElementById('bj-actions').style.display = 'none';
+            document.getElementById('bj-bet-container').style.display = 'block';
+            document.getElementById('bj-player-hand').innerHTML = '';
+            document.getElementById('bj-dealer-hand').innerHTML = '';
+            document.getElementById('bj-player-score').textContent = '0';
+            document.getElementById('bj-dealer-score').textContent = '0';
+            document.getElementById('bj-balance').textContent = this.balance;
+        },
+        start() {
+            let bet = parseInt(document.getElementById('bj-bet').value);
+            if (isNaN(bet) || bet <= 0 || bet > this.balance) return window.UI.showModal('Erreur', 'Mise invalide ou solde insuffisant.', null);
+            this.currentBet = bet; this.balance -= bet;
+            document.getElementById('bj-balance').textContent = this.balance;
+            document.getElementById('bj-bet-container').style.display = 'none';
+            
             this.deck = []; ['♠','♣','♥','♦'].forEach(s => { ['2','3','4','5','6','7','8','9','10','V','D','R','A'].forEach(r => this.deck.push({s, r, isRed: s==='♥'||s==='♦'})); });
-            this.deck.sort(() => Math.random() - 0.5); this.playerHand = [this.deck.pop(), this.deck.pop()]; this.dealerHand = [this.deck.pop()]; 
+            this.deck.sort(() => Math.random() - 0.5); 
+            this.playerHand = [this.deck.pop(), this.deck.pop()]; this.dealerHand = [this.deck.pop()]; 
             document.getElementById('bj-actions').style.display = 'flex'; this.render();
         },
         val(hand) { let score = 0, aces = 0; hand.forEach(c => { if (['V','D','R'].includes(c.r)) score += 10; else if (c.r === 'A') { score += 11; aces++; } else score += parseInt(c.r); }); while (score > 21 && aces > 0) { score -= 10; aces--; } return score; },
-        hit() { this.playerHand.push(this.deck.pop()); this.render(); if (this.val(this.playerHand) > 21) this.end("Bust ! Tu as dépassé 21."); },
+        hit() { this.playerHand.push(this.deck.pop()); this.render(); if (this.val(this.playerHand) > 21) this.end("Bust ! Tu as dépassé 21.", 'lose'); },
         stand() {
             document.getElementById('bj-actions').style.display = 'none';
             const drawDealer = () => {
                 if (this.val(this.dealerHand) < 17) { this.dealerHand.push(this.deck.pop()); this.render(); setTimeout(drawDealer, 800); } 
-                else { let pScore = this.val(this.playerHand), dScore = this.val(this.dealerHand); if (dScore > 21 || pScore > dScore) this.end("Gagné ! Le croupier est battu."); else if (pScore === dScore) this.end("Égalité !"); else this.end("Perdu ! Le croupier l'emporte."); }
+                else { 
+                    let pScore = this.val(this.playerHand), dScore = this.val(this.dealerHand); 
+                    if (dScore > 21 || pScore > dScore) this.end("Gagné ! Le croupier est battu.", 'win'); 
+                    else if (pScore === dScore) this.end("Égalité !", 'tie'); 
+                    else this.end("Perdu ! Le croupier l'emporte.", 'lose'); 
+                }
             }; drawDealer();
         },
         render() {
@@ -1279,7 +1308,13 @@
             const draw = (hand, elId) => { const el = document.getElementById(elId); el.innerHTML = ''; hand.forEach(c => { el.innerHTML += `<div class="bl-card ${c.isRed ? 'red' : ''}" style="box-shadow: 2px 2px 10px rgba(0,0,0,0.5);"><span>${c.r}</span><span>${c.s}</span></div>`; }); };
             draw(this.playerHand, 'bj-player-hand'); draw(this.dealerHand, 'bj-dealer-hand');
         },
-        end(msg) { document.getElementById('bj-actions').style.display = 'none'; setTimeout(() => window.UI.showModal('Fin de la main', msg, () => this.init()), 500); }
+        end(msg, res) { 
+            if (res === 'win') this.balance += this.currentBet * 2;
+            if (res === 'tie') this.balance += this.currentBet;
+            document.getElementById('bj-balance').textContent = this.balance;
+            document.getElementById('bj-actions').style.display = 'none'; 
+            setTimeout(() => window.UI.showModal('Fin de la main', msg, () => this.init()), 500); 
+        }
     };
 
     // --- MASTERMIND (9 essais) ---
@@ -1345,12 +1380,12 @@
         }
     };
 
-    // --- BATAILLE NAVALE (BOT IA TRAQUEUR) ---
+    // --- BATAILLE NAVALE (12x12 - BOT IA TRAQUEUR) ---
     window.App.BN = {
-        pGrid: [], bGrid: [], phase: 'setup', ships: [5, 4, 3, 3, 2], currentShipIndex: 0, isHorizontal: true, botQueue: [],
+        pGrid: [], bGrid: [], phase: 'setup', ships: [5, 4, 3, 3, 2, 2], currentShipIndex: 0, isHorizontal: true, botQueue: [],
         init() {
-            this.pGrid = Array.from({length:10}, () => Array(10).fill(0));
-            this.bGrid = Array.from({length:10}, () => Array(10).fill(0));
+            this.pGrid = Array.from({length:12}, () => Array(12).fill(0));
+            this.bGrid = Array.from({length:12}, () => Array(12).fill(0));
             this.phase = 'setup'; this.currentShipIndex = 0; this.isHorizontal = true; this.botQueue = [];
             document.getElementById('bn-bot-grid').style.opacity = '0.5';
             document.getElementById('bn-bot-grid').style.pointerEvents = 'none';
@@ -1370,15 +1405,15 @@
         },
         drawGrid(id, grid, isBot) {
             const el = document.getElementById(id); el.innerHTML = '';
-            for(let r=0; r<10; r++) {
-                for(let c=0; c<10; c++) {
+            for(let r=0; r<12; r++) {
+                for(let c=0; c<12; c++) {
                     let cell = document.createElement('div'); cell.className = 'bn-cell';
                     if(!isBot && grid[r][c] === 1) cell.classList.add('bn-ship');
                     if(grid[r][c] === 'H') { cell.classList.add('bn-hit', 'shot'); cell.textContent = '💥'; }
                     if(grid[r][c] === 'M') { cell.classList.add('bn-miss', 'shot'); cell.textContent = '🌊'; }
                     
                     if (!isBot && this.phase === 'setup') cell.onclick = () => this.placeManual(r, c);
-                    // On ne permet le tir que si c'est la grille ennemie ET qu'on est en phase de jeu
+                    // Autorise le tir uniquement si la phase est "play" et sur la grille du bot
                     if (isBot && this.phase === 'play') cell.onclick = () => this.shoot(r, c);
                     el.appendChild(cell);
                 }
@@ -1389,7 +1424,7 @@
             let len = this.ships[this.currentShipIndex], dir = this.isHorizontal ? 0 : 1, valid = true;
             for (let i = 0; i < len; i++) {
                 let nr = r + (dir ? i : 0), nc = c + (dir ? 0 : i);
-                if (nr >= 10 || nc >= 10 || this.pGrid[nr][nc] !== 0) { valid = false; break; }
+                if (nr >= 12 || nc >= 12 || this.pGrid[nr][nc] !== 0) { valid = false; break; }
             }
             if (valid) {
                 for (let i = 0; i < len; i++) this.pGrid[r + (dir ? i : 0)][c + (dir ? 0 : i)] = 1;
@@ -1402,8 +1437,8 @@
             this.ships.forEach(len => {
                 let placed = false;
                 while(!placed) {
-                    let r = Math.floor(Math.random()*10), c = Math.floor(Math.random()*10), dir = Math.random()>0.5?1:0, valid = true;
-                    for(let i=0; i<len; i++) { let nr = r + (dir?i:0), nc = c + (dir?0:i); if(nr>=10 || nc>=10 || grid[nr][nc]!==0) { valid=false; break; } }
+                    let r = Math.floor(Math.random()*12), c = Math.floor(Math.random()*12), dir = Math.random()>0.5?1:0, valid = true;
+                    for(let i=0; i<len; i++) { let nr = r + (dir?i:0), nc = c + (dir?0:i); if(nr>=12 || nc>=12 || grid[nr][nc]!==0) { valid=false; break; } }
                     if(valid) { for(let i=0; i<len; i++) grid[r + (dir?i:0)][c + (dir?0:i)] = 1; placed = true; }
                 }
             });
@@ -1415,12 +1450,15 @@
         startGame() {
             this.phase = 'play';
             this.placeShipsRandomly(this.bGrid); this.drawGrid('bn-bot-grid', this.bGrid, true);
-            document.getElementById('bn-bot-grid').style.opacity = '1'; document.getElementById('bn-bot-grid').style.pointerEvents = 'auto';
-            document.getElementById('bn-rotate-btn').style.display = 'none'; document.getElementById('bn-action-btn').style.display = 'none'; 
+            document.getElementById('bn-bot-grid').style.opacity = '1';
+            document.getElementById('bn-bot-grid').style.pointerEvents = 'auto';
+            document.getElementById('bn-rotate-btn').style.display = 'none';
+            document.getElementById('bn-action-btn').style.display = 'none'; 
             this.updateStatus();
         },
         shoot(r, c) {
             if(this.bGrid[r][c] === 'H' || this.bGrid[r][c] === 'M') return;
+            
             if(this.bGrid[r][c] === 1) { 
                 this.bGrid[r][c] = 'H'; document.getElementById('bn-status').textContent = "Touché !"; 
             } else { 
@@ -1432,23 +1470,21 @@
             if(this.checkWin(this.bGrid)) setTimeout(() => window.UI.showModal('Victoire !', 'Flotte ennemie détruite !', () => this.init()), 500);
         },
         botShoot() {
-            let r, c;
-            let validShot = false;
+            let r, c, validShot = false;
             
+            // Le bot traque s'il a touché un bateau
             while(this.botQueue.length > 0 && !validShot) {
                 let target = this.botQueue.pop();
                 r = target.r; c = target.c;
-                if(r>=0 && r<10 && c>=0 && c<10 && this.pGrid[r][c] !== 'H' && this.pGrid[r][c] !== 'M') {
-                    validShot = true;
-                }
+                if(r>=0 && r<12 && c>=0 && c<12 && this.pGrid[r][c] !== 'H' && this.pGrid[r][c] !== 'M') validShot = true;
             }
             
+            // Sinon, il cherche en damier
             if(!validShot) {
                 let attempts = 0;
                 do { 
-                    r = Math.floor(Math.random()*10); c = Math.floor(Math.random()*10); 
-                    attempts++;
-                } while( this.pGrid[r][c] === 'H' || this.pGrid[r][c] === 'M' || ((r+c)%2 !== 0 && attempts < 50) );
+                    r = Math.floor(Math.random()*12); c = Math.floor(Math.random()*12); attempts++;
+                } while( this.pGrid[r][c] === 'H' || this.pGrid[r][c] === 'M' || ((r+c)%2 !== 0 && attempts < 100) );
             }
             
             if(this.pGrid[r][c] === 1) {
@@ -1463,7 +1499,7 @@
             this.drawGrid('bn-player-grid', this.pGrid, false);
             if(this.checkWin(this.pGrid)) setTimeout(() => window.UI.showModal('Défaite...', 'Ta flotte a coulé.', () => this.init()), 500);
         },
-        checkWin(grid) { for(let r=0; r<10; r++) for(let c=0; c<10; c++) if(grid[r][c] === 1) return false; return true; }
+        checkWin(grid) { for(let r=0; r<12; r++) for(let c=0; c<12; c++) if(grid[r][c] === 1) return false; return true; }
     };
 
     // =========================================================
@@ -1476,10 +1512,13 @@
             this.gameType = document.getElementById('net-game-select').value;
             this.room = this.gen(); this.myId = 'X'; this.ref = ref(db, 'rooms/' + this.room);
             let initData = { status: 'waiting', type: this.gameType, turn: 'X', winner: '' };
+            
             if (this.gameType === 'sim') { initData.board = Array(9).fill(''); }
             if (this.gameType === 'ult') { initData.bGrid = Array(9).fill(''); initData.sGrids = Array.from({length: 9}, () => Array(9).fill('')); initData.next = -1; }
             if (this.gameType === 'yams') { initData.dice = [1,1,1,1,1]; initData.kept = [false,false,false,false,false]; initData.rolls = 3; initData.scores = { X:{init:true}, O:{init:true} }; }
+            if (this.gameType === 'p4') { initData.grid = Array.from({length: 6}, () => Array(7).fill(0)); }
             if (this.gameType === 'belote') { initData.blState = { status: 'waiting' }; initData.guestAction = null; }
+            
             await set(this.ref, initData);
             document.getElementById('display-room-code').textContent = this.room; window.UI.switchScreen('s-net-waiting'); this.listen();
         },
@@ -1500,6 +1539,7 @@
                     if (this.gameType === 'sim') { window.UI.switchScreen('s-net-sim'); this.renderSim(data); }
                     if (this.gameType === 'ult') { window.UI.switchScreen('s-net-ult'); this.renderUlt(data); }
                     if (this.gameType === 'yams') { window.UI.switchScreen('s-net-yams'); this.renderYams(data); }
+                    if (this.gameType === 'p4') { window.UI.switchScreen('s-net-p4'); this.renderP4(data); }
                     if (this.gameType === 'belote') { 
                         window.UI.switchScreen('s-belote');
                         if (this.myId === 'X') {
@@ -1545,6 +1585,26 @@
                 } boardContainer.appendChild(subGrid); 
             }
             this.statusUI('net-ult-status', data, () => { update(this.ref, { bGrid: Array(9).fill(''), sGrids: Array.from({length: 9}, () => Array(9).fill('')), next: -1, turn: 'X', winner: '' }); });
+        },
+        renderP4(data) {
+            const boardContainer = document.getElementById('net-p4-board'); boardContainer.innerHTML = ''; 
+            const currentGrid = data.grid || Array.from({length: 6}, () => Array(7).fill(0));
+            for (let r = 0; r < 6; r++) {
+                for (let c = 0; c < 7; c++) {
+                    let cell = document.createElement('div'); cell.className = 'p4-cell'; 
+                    if (currentGrid[r][c] !== 0) cell.classList.add('taken', currentGrid[r][c] === 'X' ? 'p4-red' : 'p4-yellow');
+                    cell.onclick = async () => { 
+                        if (currentGrid[r][c] === 0 && data.winner === '' && data.turn === this.myId) { 
+                            let dropR = 5; while(dropR>=0 && currentGrid[dropR][c]!==0) dropR--;
+                            if(dropR < 0) return;
+                            let newGrid = JSON.parse(JSON.stringify(currentGrid)); newGrid[dropR][c] = this.myId; 
+                            let winPlayer = window.App.P4.checkWinGrid(newGrid, this.myId) ? this.myId : (newGrid[0].every(col => col !== 0) ? 'Draw' : ''); 
+                            await update(this.ref, { grid: newGrid, turn: (this.myId === 'X' ? 'O' : 'X'), winner: winPlayer }); 
+                        } 
+                    }; boardContainer.appendChild(cell); 
+                }
+            }
+            this.statusUI('net-p4-status', data, () => { update(this.ref, { grid: Array.from({length: 6}, () => Array(7).fill(0)), turn: 'X', winner: '' }); });
         },
         renderYams(data) {
             const diceBox = document.getElementById('net-yams-dice'); diceBox.innerHTML = ''; 
