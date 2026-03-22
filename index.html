@@ -381,7 +381,7 @@
 
     <section id="s-mm" class="screen">
         <h1>Mastermind</h1>
-        <p class="subtitle" id="mm-status">Craque le code à 4 couleurs en 10 essais !</p>
+        <p class="subtitle" id="mm-status">Craque le code à 4 couleurs en 9 essais !</p>
         <div id="mm-board" class="mm-board"></div>
         <div class="mm-colors" id="mm-color-picker"></div>
         <div style="text-align: center; margin-top: 20px; display:flex; justify-content:center; gap:10px;">
@@ -546,8 +546,7 @@
             }
         },
         botPlay() {
-            // 25% de chance de faire une "erreur" (jouer aléatoirement)
-            if (Math.random() < 0.15) {
+            if (Math.random() < 0.25) {
                 let emptyIndices = [];
                 for(let i=0; i<9; i++) if(this.state[i] === '') emptyIndices.push(i);
                 let move = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
@@ -556,7 +555,6 @@
                 return;
             }
 
-            // Sinon, Intelligence maximale (Minimax)
             let bestScore = -Infinity, move = -1;
             for(let i=0; i<9; i++) {
                 if(this.state[i] === '') {
@@ -595,7 +593,7 @@
         }
     };
 
-    // --- MORPION ULTIME (BOT IA LÉGÈREMENT BUFFÉ) ---
+    // --- MORPION ULTIME (BOT IA EXPERT) ---
     window.App.Ult = {
         bGrid: [], sGrids: [], currentPlayer: 'X', nextActiveGrid: -1,
         init() {
@@ -647,25 +645,30 @@
             let bestMove = null, bestScore = -Infinity;
             for (let m of validMoves) {
                 let score = 0;
-                if (this.simWin(m.bg, m.sg, 'O')) score += 1000;
-                if (this.simWin(m.bg, m.sg, 'X')) score += 500;
+                let winSub = this.simWin(m.bg, m.sg, 'O');
+                if (winSub) {
+                    score += 1000;
+                    let bCopy = [...this.bGrid]; bCopy[m.bg] = 'O';
+                    if(window.App.Sim.checkWin(bCopy)) score += 50000;
+                }
                 
-                // Ne pas envoyer l'adversaire sur une grille pleine/gagnée
-                if (this.bGrid[m.sg] !== '') score -= 2000;
-                else {
-                    let opponentCanWin = false;
-                    for (let j=0; j<9; j++) if (this.sGrids[m.sg][j] === '' && this.simWin(m.sg, j, 'X')) opponentCanWin = true;
-                    if (opponentCanWin) score -= 800;
-                    
-                    // Si on peut gagner la sous grille où on envoie l'adversaire
-                    if (this.simWin(m.bg, m.sg, 'O')) score += 1000;
-                    
-                    // Donner le centre de la prochaine grille est dangereux
-                    if (m.sg === 4) score += 200; 
+                if (this.simWin(m.bg, m.sg, 'X')) score += 800;
+                
+                if (this.bGrid[m.sg] !== '') {
+                    score -= 2000; 
+                } else {
+                    let opponentCanWinSub = false;
+                    for (let j=0; j<9; j++) if (this.sGrids[m.sg][j] === '' && this.simWin(m.sg, j, 'X')) opponentCanWinSub = true;
+                    if (opponentCanWinSub) {
+                        score -= 500;
+                        let bCopy = [...this.bGrid]; bCopy[m.sg] = 'X';
+                        if(window.App.Sim.checkWin(bCopy)) score -= 20000;
+                    }
                 }
                 
                 if (m.sg === 4) score += 50;
-                if ([0,2,6,8].includes(m.sg)) score += 10;
+                if ([0,2,6,8].includes(m.sg)) score += 20;
+                if (m.bg === 4) score += 30; 
 
                 if (score > bestScore) { bestScore = score; bestMove = m; }
                 else if (score === bestScore && Math.random() < 0.5) bestMove = m;
@@ -746,7 +749,7 @@
         }
     };
 
-    // --- YAMS (BOT IA LÉGÈREMENT BUFFÉ) ---
+    // --- YAMS (BOT IA BUFFÉ) ---
     window.App.Yams = {
         dice: [1, 1, 1, 1, 1], kept: [false, false, false, false, false], rollsLeft: 3, currentPlayer: 0, scores: [{}, {}],
         init() {
@@ -848,33 +851,31 @@
             let maxC = Math.max(...Object.values(counts));
             let uniqueSet = new Set(this.dice);
             
-            // Priorité : Brelan / Carré / Yams
             if(maxC >= 3) {
                 let num = vals.find(k => counts[k] === maxC);
                 this.dice.forEach((v, i) => this.kept[i] = (v == num));
             } 
-            // Suites : Tentative si on a 4 dés différents
             else if (uniqueSet.size >= 4 && this.scores[1]['GrandeSuite'] === undefined) {
                  let seen = new Set();
                  this.dice.forEach((v, i) => { 
                      if(!seen.has(v) && v !== 1 && v !== 6) { this.kept[i] = true; seen.add(v); } 
-                     else if(!seen.has(v)) { this.kept[i] = true; seen.add(v); }
+                     else if(!seen.has(v) && uniqueSet.size === 5) { this.kept[i] = true; seen.add(v); }
                      else this.kept[i] = false; 
                  });
             } 
-            // Full House (Deux Paires)
-            else if (vals.length === 3 && maxC === 2) {
+            else if (vals.length === 3 && maxC === 2 && this.scores[1]['Full'] === undefined) {
                 this.dice.forEach((v, i) => this.kept[i] = (counts[v] === 2));
             }
-            // Petite Paire
             else if (maxC === 2) {
                 let num = vals.find(k => counts[k] === maxC);
-                this.dice.forEach((v, i) => this.kept[i] = (v == num));
+                if (num >= 4 || this.scores[1][num.toString()] === undefined) {
+                    this.dice.forEach((v, i) => this.kept[i] = (v == num));
+                } else {
+                    this.dice.forEach((v, i) => this.kept[i] = (v >= 5));
+                }
             } 
-            // Rien du tout -> On garde le plus grand
             else {
-                let maxVal = Math.max(...this.dice);
-                this.dice.forEach((v, i) => this.kept[i] = (v === maxVal));
+                this.dice.forEach((v, i) => this.kept[i] = (v >= 5));
             }
             this.ui();
         },
@@ -895,7 +896,7 @@
         }
     };
 
-    // --- BELOTE ---
+    // --- BELOTE (IA EXPERTE) ---
     window.App.Belote = {
         deck: [], hands: [[], [], [], []], scores: { nous: 0, eux: 0 }, litigePot: 0,
         dealerIndex: -1, firstPlayerIndex: 0, currentTurnIndex: 0, phase: 'init', centerCard: null, atoutSuit: null, takerIndex: -1, currentTrick: [], dealPoints: { nous: 0, eux: 0 }, tricksWon: { nous: 0, eux: 0 }, tricksPlayedCount: 0, beloteAnnouncedBy: null, activeModal: null,
@@ -1032,9 +1033,14 @@
         },
         chooseBotCard(validCardsArray) {
             if (this.currentTrick.length === 0) {
-                if (this.takerIndex === this.currentTurnIndex) { let trumps = validCardsArray.filter(c => c.suit.s === this.atoutSuit.s); if (trumps.length > 0) { trumps.sort((a, b) => this.getCardValue(b) - this.getCardValue(a)); return trumps[0]; } }
-                let aces = validCardsArray.filter(c => c.rank === 'A' && c.suit.s !== this.atoutSuit.s); if (aces.length > 0) return aces[0];
-                validCardsArray.sort((a, b) => this.getCardValue(b) - this.getCardValue(a)); return validCardsArray[0];
+                if (this.takerIndex === this.currentTurnIndex) {
+                    let trumps = validCardsArray.filter(c => c.suit.s === this.atoutSuit.s);
+                    if (trumps.length > 0) { trumps.sort((a, b) => this.getCardValue(b) - this.getCardValue(a)); return trumps[0]; }
+                }
+                let maitres = validCardsArray.filter(c => (c.rank === 'A' || c.rank === '10') && c.suit.s !== this.atoutSuit.s);
+                if (maitres.length > 0) return maitres[0];
+                validCardsArray.sort((a, b) => this.getCardValue(a) - this.getCardValue(b));
+                return validCardsArray[0];
             }
             let currentWinnerData = this.getTrickWinner(this.currentTrick), partnerIndex = (this.currentTurnIndex + 2) % 4, isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
             if (isPartnerWinning) {
@@ -1190,18 +1196,42 @@
                 }
                 return true;
             });
-            if(safeCols.length === 0) safeCols = validCols; // Plus le choix
+            if(safeCols.length === 0) safeCols = validCols;
 
             // 4. Contrôle du centre par priorité
-            let scores = [0, 2, 4, 7, 4, 2, 0];
-            safeCols.sort((a,b) => scores[b] - scores[a]);
+            let scores = [0, 2, 5, 8, 5, 2, 0];
             let bestCol = safeCols[0];
-            let tops = safeCols.filter(c => scores[c] === scores[bestCol]);
+            let bestScore = -Infinity;
             
-            this.executePlay(tops[Math.floor(Math.random()*tops.length)]);
+            for(let c of safeCols) {
+                let r = this.getDropRow(c);
+                this.grid[r][c] = 2;
+                let score = scores[c];
+                
+                let oppCanWin = false;
+                for(let oc of validCols) {
+                    if(this.grid[0][oc] === 0 && this.simWin(oc, 1)) { oppCanWin = true; break; }
+                }
+                
+                if(oppCanWin) score -= 1000;
+                else {
+                    let myThreats = 0;
+                    for(let mc of validCols) { if(this.grid[0][mc] === 0 && this.simWin(mc, 2)) myThreats++; }
+                    score += myThreats * 100;
+                }
+                
+                if(score > bestScore) { bestScore = score; bestCol = c; }
+                else if (score === bestScore && Math.random() < 0.5) bestCol = c;
+                this.grid[r][c] = 0;
+            }
+            this.executePlay(bestCol);
         },
         getDropRow(col) {
             let r = 5; while(r>=0 && this.grid[r][col]!==0) r--; return r;
+        },
+        simWin(c, p) {
+            let r = this.getDropRow(c); if(r<0) return false;
+            this.grid[r][c] = p; let w = this.checkWin(r, c, p); this.grid[r][c] = 0; return w;
         },
         checkWin(r, c, p) {
             const g = this.grid, count = (dr, dc) => { let i = 1, res = 0; while (r+dr*i >= 0 && r+dr*i < 6 && c+dc*i >= 0 && c+dc*i < 7 && g[r+dr*i][c+dc*i] === p) { res++; i++; } return res; };
@@ -1239,7 +1269,7 @@
         end(msg) { document.getElementById('bj-actions').style.display = 'none'; setTimeout(() => window.UI.showModal('Fin de la main', msg, () => this.init()), 500); }
     };
 
-    // --- MASTERMIND ---
+    // --- MASTERMIND (9 essais) ---
     window.App.MM = {
         colors: ['#ef4444', '#3b82f6', '#10b981', '#eab308', '#a855f7', '#f97316'],
         secret: [], currentRow: 0, guess: [], selectedColor: '#ef4444', history: [],
@@ -1247,7 +1277,7 @@
             this.secret = Array.from({length: 4}, () => this.colors[Math.floor(Math.random() * 6)]);
             this.currentRow = 0; this.guess = [null, null, null, null]; this.history = [];
             this.renderPicker(); this.renderBoard();
-            document.getElementById('mm-status').textContent = "Trouve le code secret à 4 couleurs !";
+            document.getElementById('mm-status').textContent = "Trouve le code secret à 4 couleurs en 9 coups !";
         },
         renderPicker() {
             const p = document.getElementById('mm-color-picker'); p.innerHTML = '';
@@ -1260,7 +1290,7 @@
         },
         renderBoard() {
             const b = document.getElementById('mm-board'); b.innerHTML = '';
-            for(let i=0; i<10; i++) {
+            for(let i=0; i<9; i++) {
                 let row = document.createElement('div'); row.className = 'mm-row'; row.style.opacity = i === this.currentRow ? '1' : '0.4';
                 let pegs = document.createElement('div'); pegs.className = 'mm-pegs';
                 
@@ -1297,7 +1327,7 @@
             this.history.push({guess: [...this.guess], exact, color}); 
             
             if(exact === 4) { this.renderBoard(); setTimeout(() => window.UI.showModal("Gagné !", "Tu as craqué le code !", () => this.init()), 300); } 
-            else if(this.currentRow === 9) { this.renderBoard(); setTimeout(() => window.UI.showModal("Perdu...", "Le code était caché à jamais.", () => this.init()), 300); } 
+            else if(this.currentRow === 8) { this.renderBoard(); setTimeout(() => window.UI.showModal("Perdu...", "Le code était caché à jamais.", () => this.init()), 300); } 
             else { this.currentRow++; this.guess = [null, null, null, null]; this.renderBoard(); }
         }
     };
@@ -1368,8 +1398,8 @@
             this.startGame();
         },
         startGame() {
-            this.placeShipsRandomly(this.bGrid); this.drawGrid('bn-bot-grid', this.bGrid, true);
             this.phase = 'play';
+            this.placeShipsRandomly(this.bGrid); this.drawGrid('bn-bot-grid', this.bGrid, true);
             document.getElementById('bn-bot-grid').style.opacity = '1'; document.getElementById('bn-bot-grid').style.pointerEvents = 'auto';
             document.getElementById('bn-rotate-btn').style.display = 'none'; document.getElementById('bn-action-btn').style.display = 'none'; 
             this.updateStatus();
