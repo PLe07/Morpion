@@ -376,6 +376,36 @@
         </div>
     </section>
 
+    <section id="s-net-mm" class="screen">
+        <h1>Mastermind En Ligne</h1>
+        <div id="net-mm-status" class="net-status-bar">Synchronisation...</div>
+        
+        <div id="net-mm-maker-ui" style="display:none; text-align:center;">
+            <h3 style="margin-bottom:15px; color:var(--accent)">1. Choisis ton Code Secret</h3>
+            <div id="net-mm-maker-secret" class="mm-pegs" style="justify-content:center; margin-bottom:20px;"></div>
+            <button class="btn" id="net-mm-maker-btn" onclick="App.Network.MM.submitSecret()">Valider le Code</button>
+            
+            <div id="net-mm-maker-hints-ui" style="display:none; margin-top:30px; border-top:2px solid #334155; padding-top:20px;">
+                <h3 style="color:var(--gold); margin-bottom:15px;">2. Donne tes indices</h3>
+                <p style="color:var(--text-muted); margin-bottom:15px;">Clique pour changer : Vide -> Rouge (Exact) -> Blanc (Couleur)</p>
+                <div id="net-mm-maker-hints-pegs" class="mm-hints" style="justify-content:center; margin-bottom:20px; transform:scale(2);"></div>
+                <button class="btn" id="net-mm-hint-btn" onclick="App.Network.MM.submitHints()">Valider les Indices</button>
+            </div>
+        </div>
+
+        <div id="net-mm-breaker-ui" style="display:none; text-align:center;">
+            <div id="net-mm-breaker-board" class="mm-board"></div>
+            <div id="net-mm-breaker-picker" class="mm-colors" style="display:none;"></div>
+            <div style="margin-top: 20px;">
+                <button class="btn" id="net-mm-breaker-btn" style="display:none;" onclick="App.Network.MM.submitGuess()">Valider ma tentative</button>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button>
+        </div>
+    </section>
+
     <section id="s-bn" class="screen">
         <h1>Bataille Navale (12x12)</h1>
         <p class="subtitle" id="bn-status">Génère ta flotte pour commencer.</p>
@@ -396,6 +426,36 @@
         </div>
     </section>
 
+    <section id="s-net-bn" class="screen">
+        <h1>Bataille Navale En Ligne</h1>
+        <div id="net-bn-status" class="net-status-bar">Synchronisation...</div>
+        
+        <div id="net-bn-setup" style="display:none; text-align:center;">
+            <p class="subtitle">Place tes bateaux pour commencer le combat.</p>
+            <div style="display:flex; justify-content:center; margin-bottom:20px;">
+                <div id="net-bn-setup-grid" class="bn-grid"></div>
+            </div>
+            <button class="btn" id="net-bn-rotate-btn" onclick="App.Network.BN.toggleRotation()">Pivoter : Horizontal</button>
+            <button class="btn" onclick="App.Network.BN.autoPlace()">Placement Auto</button>
+            <button class="btn" style="background:var(--gold); color:black;" onclick="App.Network.BN.ready()">Prêt pour la bataille !</button>
+        </div>
+
+        <div id="net-bn-play" class="bn-container" style="display:none;">
+            <div class="bn-grid-wrapper">
+                <h2 style="color:var(--player-x); margin-bottom:15px;">Flotte Ennemie</h2>
+                <div id="net-bn-opp-grid" class="bn-grid"></div>
+            </div>
+            <div class="bn-grid-wrapper">
+                <h2 style="color:var(--accent); margin-bottom:15px;">Ta Flotte</h2>
+                <div id="net-bn-my-grid" class="bn-grid" style="pointer-events:none;"></div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button>
+        </div>
+    </section>
+
     <section id="s-net-lobby" class="screen">
         <div class="lobby-box">
             <h1>Arcade Réseau</h1>
@@ -408,6 +468,8 @@
                     <option value="p4">Puissance 4</option>
                     <option value="yams">Yams</option>
                     <option value="belote">Belote Coop (En Ligne)</option>
+                    <option value="mm">Mastermind (1v1)</option>
+                    <option value="bn">Bataille Navale</option>
                 </select><br>
                 <button class="btn" id="btn-create-room" style="margin-top:15px;">Héberger le Salon</button>
             </div>
@@ -540,7 +602,6 @@
             }
         },
         botPlay() {
-            // 10% d'erreur pour te laisser une chance
             if (Math.random() < 0.10) {
                 let emptyIndices = [];
                 for(let i=0; i<9; i++) if(this.state[i] === '') emptyIndices.push(i);
@@ -649,9 +710,9 @@
                 
                 if (this.simWin(m.bg, m.sg, 'X')) score += 800;
                 
-                // Ne pas envoyer l'adversaire sur une grille pleine/gagnée
-                if (this.bGrid[m.sg] !== '') score -= 2000;
-                else {
+                if (this.bGrid[m.sg] !== '') {
+                    score -= 2000; 
+                } else {
                     let opponentCanWinSub = false;
                     for (let j=0; j<9; j++) if (this.sGrids[m.sg][j] === '' && this.simWin(m.sg, j, 'X')) opponentCanWinSub = true;
                     if (opponentCanWinSub) {
@@ -744,7 +805,7 @@
         }
     };
 
-    // --- YAMS (BOT IA INTELLIGENT) ---
+    // --- YAMS (BOT IA BUFFÉ) ---
     window.App.Yams = {
         dice: [1, 1, 1, 1, 1], kept: [false, false, false, false, false], rollsLeft: 3, currentPlayer: 0, scores: [{}, {}],
         init() {
@@ -888,16 +949,17 @@
                     let weight = pts;
                     
                     if(pts === 0) {
-                        // Moins de pénalités pour rayer les petites cases
-                        if(cat==='1') weight = -1;
-                        else if(cat==='2') weight = -2;
-                        else if(cat==='Yams') weight = -15; // Éviter de rayer le Yams si possible
-                        else if(cat==='Grande Suite') weight = -10;
-                        else weight = -5; 
+                        if(cat==='Yams') weight = -1;
+                        else if(cat==='Grande Suite') weight = -2;
+                        else if(cat==='Petite Suite') weight = -3;
+                        else if(cat==='Carré') weight = -4;
+                        else if(cat==='1') weight = -5;
+                        else if(cat==='2') weight = -6;
+                        else weight = -100; 
                     } else {
                         if(['1','2','3','4','5','6'].includes(cat)) {
                             let target = parseInt(cat)*3;
-                            if(pts >= target) weight += 30; // Viser le bonus
+                            if(pts >= target) weight += 20; 
                         }
                         if(cat === 'Chance' && pts < 22) weight -= 15; 
                         if(cat === 'Yams') weight += 50;
@@ -908,8 +970,8 @@
             }
             
             if(!chosenCat) {
-                let sac = ['1','2','3','Chance','4','5','Petite Suite','Brelan','Full','Carré','Grande Suite','Yams','6'];
-                for(let cat of sac) if(this.scores[1][cat] === undefined) { chosenCat = cat; break; }
+                for(let cat of ['Yams','Grande Suite','Petite Suite','Carré','1','2','3','Chance','4','5','Full','Brelan','6']) 
+                    if(this.scores[1][cat] === undefined) { chosenCat = cat; break; }
             }
             if(chosenCat) this.lockCategory(chosenCat, 1);
         }
@@ -1209,8 +1271,8 @@
             for(let c of validCols) {
                 let r = this.getDropRowGrid(this.grid, c);
                 this.grid[r][c] = 2;
-                // Profondeur 3 pour un niveau expert mais jouable
-                let score = this.minimax(this.grid, 3, -Infinity, Infinity, false); 
+                // Profondeur 4 pour un niveau expert !
+                let score = this.minimax(this.grid, 4, -Infinity, Infinity, false); 
                 this.grid[r][c] = 0;
                 if(score > bestScore) { bestScore = score; bestCol = c; }
             }
@@ -1235,7 +1297,8 @@
                     grid[r][c] = 2; let ev = this.minimax(grid, depth-1, alpha, beta, false); grid[r][c] = 0;
                     maxEval = Math.max(maxEval, ev); alpha = Math.max(alpha, ev);
                     if(beta <= alpha) break;
-                } return maxEval;
+                }
+                return maxEval;
             } else {
                 let minEval = Infinity;
                 for(let c of validCols) {
@@ -1243,7 +1306,8 @@
                     grid[r][c] = 1; let ev = this.minimax(grid, depth-1, alpha, beta, true); grid[r][c] = 0;
                     minEval = Math.min(minEval, ev); beta = Math.min(beta, ev);
                     if(beta <= alpha) break;
-                } return minEval;
+                }
+                return minEval;
             }
         },
         getDropRowGrid(grid, col) { let r = 5; while(r>=0 && grid[r][col]!==0) r--; return r; },
