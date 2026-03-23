@@ -389,12 +389,12 @@
             </div>
             
             <div id="net-mm-maker-hints-ui" style="display:none; margin-top:30px; border-top:2px solid #334155; padding-top:20px;">
-                <h3 style="color:var(--gold); margin-bottom:15px;">2. Donne tes indices</h3>
+                <h3 style="color:var(--gold); margin-bottom:15px;">2. Validation de la proposition</h3>
                 <p style="color:var(--text-muted); margin-bottom:15px;">L'adversaire a joué ceci :</p>
                 <div id="net-mm-maker-guess" class="mm-pegs" style="justify-content:center; margin-bottom:20px;"></div>
-                <p style="color:var(--text-muted); margin-bottom:15px;">Clique pour changer : Vide -> Rouge (Exact) -> Blanc (Couleur)</p>
+                <p style="color:var(--text-muted); margin-bottom:15px;">Voici la correction automatique générée (Anti-Triche) :</p>
                 <div id="net-mm-maker-hint-pegs" class="mm-hints" style="justify-content:center; transform:scale(2); margin-bottom:30px; margin-left:25px;"></div>
-                <button class="btn" onclick="App.Network.MM.submitHints()">Envoyer les indices</button>
+                <button class="btn" onclick="App.Network.MM.submitHints()">Envoyer la correction</button>
             </div>
         </div>
 
@@ -574,7 +574,7 @@
 
     window.App = {};
 
-    // --- MORPION SIMPLE (BOT IA EXPERT LÉGÈREMENT BRIDÉ - 10% Aléatoire) ---
+    // --- MORPION SIMPLE (BOT IA LÉGÈREMENT BRIDÉ - 10% Aléatoire) ---
     window.App.Sim = {
         state: [], player: 'X', isBotThinking: false,
         init() {
@@ -812,7 +812,7 @@
         }
     };
 
-    // --- YAMS (BOT IA OPTIMISÉ) ---
+    // --- YAMS (BOT IA BUFFÉ) ---
     window.App.Yams = {
         dice: [1, 1, 1, 1, 1], kept: [false, false, false, false, false], rollsLeft: 3, currentPlayer: 0, scores: [{}, {}],
         init() {
@@ -956,7 +956,6 @@
                     let weight = pts;
                     
                     if(pts === 0) {
-                        // Le bot sacrifie intelligemment
                         if(cat==='Yams') weight = -1;
                         else if(cat==='Grande Suite') weight = -2;
                         else if(cat==='Petite Suite') weight = -3;
@@ -978,14 +977,14 @@
             }
             
             if(!chosenCat) {
-                let sac = ['Yams','Grande Suite','Petite Suite','Carré','1','2','3','Chance','4','5','Full','Brelan','6'];
+                let sac = ['1','2','3','Chance','4','5','Petite Suite','Brelan','Full','Carré','Grande Suite','Yams','6'];
                 for(let cat of sac) if(this.scores[1][cat] === undefined) { chosenCat = cat; break; }
             }
             if(chosenCat) this.lockCategory(chosenCat, 1);
         }
     };
 
-    // --- BELOTE (IA EXPERTE) ---
+    // --- BELOTE ---
     window.App.Belote = {
         deck: [], hands: [[], [], [], []], scores: { nous: 0, eux: 0 }, litigePot: 0,
         dealerIndex: -1, firstPlayerIndex: 0, currentTurnIndex: 0, phase: 'init', centerCard: null, atoutSuit: null, takerIndex: -1, currentTrick: [], dealPoints: { nous: 0, eux: 0 }, tricksWon: { nous: 0, eux: 0 }, tricksPlayedCount: 0, beloteAnnouncedBy: null, activeModal: null,
@@ -1270,7 +1269,6 @@
             for(let c of validCols) {
                 let r = this.getDropRowGrid(this.grid, c);
                 this.grid[r][c] = 2;
-                // Profondeur 5 pour un niveau vraiment difficile !
                 let score = this.minimax(this.grid, 5, -Infinity, Infinity, false); 
                 this.grid[r][c] = 0;
                 if(score > bestScore) { bestScore = score; bestCol = c; }
@@ -1474,7 +1472,6 @@
                     if(grid[r][c] === 'M') { cell.classList.add('bn-miss', 'shot'); cell.textContent = '🌊'; }
                     
                     if (!isBot && this.phase === 'setup') cell.onclick = () => this.placeManual(r, c);
-                    // Autorise le tir uniquement si la phase est "play", si c'est la grille du bot, et que le bot n'est pas en train de jouer
                     if (isBot && this.phase === 'play' && !this.isBotThinking) cell.onclick = () => this.shoot(r, c);
                     el.appendChild(cell);
                 }
@@ -1533,14 +1530,12 @@
         botShoot() {
             let r, c, validShot = false;
             
-            // Le bot traque s'il a touché un bateau
             while(this.botQueue.length > 0 && !validShot) {
                 let target = this.botQueue.pop();
                 r = target.r; c = target.c;
                 if(r>=0 && r<12 && c>=0 && c<12 && this.pGrid[r][c] !== 'H' && this.pGrid[r][c] !== 'M') validShot = true;
             }
             
-            // Sinon, il cherche en damier
             if(!validShot) {
                 let attempts = 0;
                 do { 
@@ -1572,7 +1567,9 @@
         async host() {
             this.gameType = document.getElementById('net-game-select').value;
             this.room = this.gen(); this.myId = 'X'; this.ref = ref(db, 'rooms/' + this.room);
-            let initData = { status: 'waiting', type: this.gameType, turn: 'X', winner: '' };
+            
+            let startPlayer = Math.random() < 0.5 ? 'X' : 'O'; // Tirage au sort du joueur 1 !
+            let initData = { status: 'waiting', type: this.gameType, turn: startPlayer, winner: '' };
             
             if (this.gameType === 'sim') { initData.board = Array(9).fill(''); }
             if (this.gameType === 'ult') { initData.bGrid = Array(9).fill(''); initData.sGrids = Array.from({length: 9}, () => Array(9).fill('')); initData.next = -1; }
@@ -1603,14 +1600,12 @@
                     if (this.gameType === 'ult') { window.UI.switchScreen('s-net-ult'); this.renderUlt(data); }
                     if (this.gameType === 'yams') { window.UI.switchScreen('s-net-yams'); this.renderYams(data); }
                     if (this.gameType === 'p4') { window.UI.switchScreen('s-net-p4'); this.renderP4(data); }
-                    
                     if (this.gameType === 'belote') { 
                         window.UI.switchScreen('s-belote');
                         if (this.myId === 'X') {
                             if (data.guestAction && data.guestAction.id !== window.App.Belote.lastActionId) { window.App.Belote.lastActionId = data.guestAction.id; window.App.Belote.executeGuestAction(data.guestAction); }
                         } else window.App.Belote.renderFromNetwork(data.blState);
                     }
-                    
                     if (this.gameType === 'mm') { window.UI.switchScreen('s-net-mm'); window.App.Network.MM.render(data); }
                     if (this.gameType === 'bn') { window.UI.switchScreen('s-net-bn'); window.App.Network.BN.render(data); }
                 }
@@ -1628,7 +1623,7 @@
                     } 
                 }; boardContainer.appendChild(cell); 
             }
-            this.statusUI('net-sim-status', data, () => { update(this.ref, { board: Array(9).fill(''), turn: 'X', winner: '' }); });
+            this.statusUI('net-sim-status', data, () => { update(this.ref, { board: Array(9).fill(''), turn: Math.random() < 0.5 ? 'X' : 'O', winner: '' }); });
         },
         renderUlt(data) {
             const boardContainer = document.getElementById('net-ult-board'); boardContainer.innerHTML = '';
@@ -1651,7 +1646,7 @@
                     let cover = document.createElement('div'); cover.className = 'mu-won'; cover.textContent = data.bGrid[i]; cover.style.color = data.bGrid[i] === 'X' ? 'var(--player-x)' : 'var(--player-o)'; subGrid.appendChild(cover); 
                 } boardContainer.appendChild(subGrid); 
             }
-            this.statusUI('net-ult-status', data, () => { update(this.ref, { bGrid: Array(9).fill(''), sGrids: Array.from({length: 9}, () => Array(9).fill('')), next: -1, turn: 'X', winner: '' }); });
+            this.statusUI('net-ult-status', data, () => { update(this.ref, { bGrid: Array(9).fill(''), sGrids: Array.from({length: 9}, () => Array(9).fill('')), next: -1, turn: Math.random() < 0.5 ? 'X' : 'O', winner: '' }); });
         },
         renderP4(data) {
             const boardContainer = document.getElementById('net-p4-board'); boardContainer.innerHTML = ''; 
@@ -1671,7 +1666,7 @@
                     }; boardContainer.appendChild(cell); 
                 }
             }
-            this.statusUI('net-p4-status', data, () => { update(this.ref, { grid: Array.from({length: 6}, () => Array(7).fill(0)), turn: 'X', winner: '' }); });
+            this.statusUI('net-p4-status', data, () => { update(this.ref, { grid: Array.from({length: 6}, () => Array(7).fill(0)), turn: Math.random() < 0.5 ? 'X' : 'O', winner: '' }); });
         },
         renderYams(data) {
             const diceBox = document.getElementById('net-yams-dice'); diceBox.innerHTML = ''; 
@@ -1706,7 +1701,7 @@
                     await update(this.ref, { scores: newScores, turn: (this.myId === 'X' ? 'O' : 'X'), rolls: 3, kept: [false,false,false,false,false], dice: data.dice.map(() => Math.floor(Math.random() * 6) + 1), winner: winPlayer }); 
                 }; 
             });
-            this.statusUI('net-yams-status', data, () => { update(this.ref, { scores: { X: {init: true}, O: {init: true} }, turn: 'X', winner: '', rolls: 3, kept: [false,false,false,false,false] }); });
+            this.statusUI('net-yams-status', data, () => { update(this.ref, { scores: { X: {init: true}, O: {init: true} }, turn: Math.random() < 0.5 ? 'X' : 'O', winner: '', rolls: 3, kept: [false,false,false,false,false] }); });
         },
         statusUI(id, data, replayCb) { 
             const statusBar = document.getElementById(id); 
@@ -1718,6 +1713,163 @@
         leave() { if (this.myId === 'X' && this.ref) remove(this.ref); window.location.reload(); }
     };
     
+    // =========================================================
+    // INJECTION : RÉSEAU BATAILLE NAVALE
+    // =========================================================
+    window.App.Network.BN = {
+        render(data) {
+            if (data.winner !== '') {
+                document.getElementById('net-bn-setup').style.display = 'none'; document.getElementById('net-bn-play').style.display = 'none';
+                document.getElementById('net-bn-status').innerHTML = `<span style='color:var(--accent)'>FIN DU JEU : ${data.winner === window.App.Network.myId ? 'VICTOIRE !' : 'DÉFAITE...'}</span>`;
+                if(window.App.Network.myId === 'X') {
+                    document.getElementById('net-bn-status').innerHTML += `<br><button class="btn" style="margin-top:10px;" id="btn-replay-bn">Rejouer</button>`;
+                    document.getElementById('btn-replay-bn').onclick = () => {
+                        window.App.Network.BN.myGrid = Array.from({length:12}, () => Array(12).fill(0)); 
+                        window.App.Network.BN.currentShipIndex = 0;
+                        update(window.App.Network.ref, { bn: { phase: 'setup', readyX: false, readyO: false, gridX: null, gridO: null, shotsX: Array.from({length:12}, () => Array(12).fill(0)), shotsO: Array.from({length:12}, () => Array(12).fill(0)) }, winner: '', turn: Math.random() < 0.5 ? 'X' : 'O' }); 
+                    };
+                }
+                return;
+            }
+
+            if (data.bn.phase === 'setup') {
+                document.getElementById('net-bn-setup').style.display = 'block'; document.getElementById('net-bn-play').style.display = 'none';
+                let amIReady = data.bn['ready' + window.App.Network.myId];
+                if (amIReady) { document.getElementById('net-bn-status').textContent = "Attente de l'adversaire..."; document.getElementById('net-bn-setup-grid').style.opacity = '0.5'; document.getElementById('net-bn-setup-grid').style.pointerEvents = 'none'; } 
+                else { document.getElementById('net-bn-status').textContent = `Place tes navires : Taille ${window.App.BN.ships[window.App.Network.BN.currentShipIndex] || 'Terminé'}`; window.App.Network.BN.drawSetupGrid(); 
+                    if (window.App.Network.myId === 'X' && data.bn.readyX && data.bn.readyO) update(window.App.Network.ref, { 'bn/phase': 'play' });
+                }
+            } else if (data.bn.phase === 'play') {
+                document.getElementById('net-bn-setup').style.display = 'none'; document.getElementById('net-bn-play').style.display = 'flex';
+                document.getElementById('net-bn-status').textContent = data.turn === window.App.Network.myId ? "À l'attaque !" : "L'adversaire tire...";
+                document.getElementById('net-bn-status').style.color = data.turn === window.App.Network.myId ? "var(--accent)" : "white";
+                window.App.Network.BN.drawPlayGrids(data);
+            }
+        },
+        myGrid: Array.from({length:12}, () => Array(12).fill(0)), currentShipIndex: 0, isHorizontal: true,
+        toggleRotation() { this.isHorizontal = !this.isHorizontal; document.getElementById('net-bn-rotate-btn').textContent = `Pivoter : ${this.isHorizontal ? 'Horizontal' : 'Vertical'}`; },
+        drawSetupGrid() {
+            const el = document.getElementById('net-bn-setup-grid'); el.innerHTML = '';
+            for(let r=0; r<12; r++) { for(let c=0; c<12; c++) { let cell = document.createElement('div'); cell.className = 'bn-cell'; if(this.myGrid[r][c] === 1) cell.classList.add('bn-ship');
+                    cell.onclick = () => {
+                        if(this.currentShipIndex >= window.App.BN.ships.length) return;
+                        let len = window.App.BN.ships[this.currentShipIndex], dir = this.isHorizontal ? 0 : 1, valid = true;
+                        for (let i = 0; i < len; i++) { let nr = r + (dir ? i : 0), nc = c + (dir ? 0 : i); if (nr >= 12 || nc >= 12 || this.myGrid[nr][nc] !== 0) { valid = false; break; } }
+                        if (valid) { for (let i = 0; i < len; i++) this.myGrid[r + (dir ? i : 0)][c + (dir ? 0 : i)] = 1; this.currentShipIndex++; this.drawSetupGrid(); document.getElementById('net-bn-status').textContent = `Place tes navires : Taille ${window.App.BN.ships[this.currentShipIndex] || 'Terminé. Clique sur Prêt !'}`; }
+                    }; el.appendChild(cell); } }
+        },
+        autoPlace() {
+            this.myGrid.forEach(row => row.fill(0));
+            window.App.BN.ships.forEach(len => { let placed = false; while(!placed) { let r = Math.floor(Math.random()*12), c = Math.floor(Math.random()*12), dir = Math.random()>0.5?1:0, valid = true; for(let i=0; i<len; i++) { let nr = r + (dir?i:0), nc = c + (dir?0:i); if(nr>=12 || nc>=12 || this.myGrid[nr][nc]!==0) { valid=false; break; } } if(valid) { for(let i=0; i<len; i++) this.myGrid[r + (dir?i:0)][c + (dir?0:i)] = 1; placed = true; } } });
+            this.currentShipIndex = window.App.BN.ships.length; this.drawSetupGrid(); document.getElementById('net-bn-status').textContent = "Flotte placée. Clique sur Prêt !";
+        },
+        async ready() {
+            if(this.currentShipIndex < window.App.BN.ships.length) return window.UI.showModal('Erreur', 'Place tous tes bateaux !', null);
+            let updates = {}; updates[`bn/grid${window.App.Network.myId}`] = this.myGrid; updates[`bn/ready${window.App.Network.myId}`] = true;
+            let snap = await get(window.App.Network.ref); let data = snap.val();
+            if (window.App.Network.myId === 'X' && data.bn.readyO) updates['bn/phase'] = 'play';
+            if (window.App.Network.myId === 'O' && data.bn.readyX) updates['bn/phase'] = 'play';
+            await update(window.App.Network.ref, updates);
+        },
+        drawPlayGrids(data) {
+            let myShots = data.bn['shots' + window.App.Network.myId] || Array.from({length:12}, () => Array(12).fill(0)), oppShots = data.bn['shots' + (window.App.Network.myId === 'X' ? 'O' : 'X')] || Array.from({length:12}, () => Array(12).fill(0));
+            const oppGridEl = document.getElementById('net-bn-opp-grid'); oppGridEl.innerHTML = ''; oppGridEl.style.opacity = data.turn === window.App.Network.myId ? '1' : '0.5'; oppGridEl.style.pointerEvents = data.turn === window.App.Network.myId ? 'auto' : 'none';
+            for(let r=0; r<12; r++) { for(let c=0; c<12; c++) { let cell = document.createElement('div'); cell.className = 'bn-cell'; if(myShots[r][c] === 'H') { cell.classList.add('bn-hit', 'shot'); cell.textContent = '💥'; } if(myShots[r][c] === 'M') { cell.classList.add('bn-miss', 'shot'); cell.textContent = '🌊'; } cell.onclick = () => this.shoot(r, c, data); oppGridEl.appendChild(cell); } }
+            const myGridEl = document.getElementById('net-bn-my-grid'); myGridEl.innerHTML = ''; let trueMyGrid = data.bn['grid' + window.App.Network.myId];
+            for(let r=0; r<12; r++) { for(let c=0; c<12; c++) { let cell = document.createElement('div'); cell.className = 'bn-cell'; if(trueMyGrid[r][c] === 1) cell.classList.add('bn-ship'); if(oppShots[r][c] === 'H') { cell.classList.add('bn-hit', 'shot'); cell.textContent = '💥'; } if(oppShots[r][c] === 'M') { cell.classList.add('bn-miss', 'shot'); cell.textContent = '🌊'; } myGridEl.appendChild(cell); } }
+        },
+        async shoot(r, c, data) {
+            if(data.turn !== window.App.Network.myId || data.winner !== '') return;
+            let oppGridKey = 'grid' + (window.App.Network.myId === 'X' ? 'O' : 'X'), oppGrid = data.bn[oppGridKey], myShotsKey = 'shots' + window.App.Network.myId, myShots = data.bn[myShotsKey] || Array.from({length:12}, () => Array(12).fill(0));
+            if(myShots[r][c] !== 0) return; 
+            let isHit = oppGrid[r][c] === 1; myShots[r][c] = isHit ? 'H' : 'M';
+            let win = true; for(let ir=0; ir<12; ir++) { for(let ic=0; ic<12; ic++) { if(oppGrid[ir][ic] === 1 && myShots[ir][ic] !== 'H') { win = false; break; } } if(!win) break; }
+            let updates = {}; updates['bn/' + myShotsKey] = myShots;
+            if(win) updates['winner'] = window.App.Network.myId; else if(!isHit) updates['turn'] = window.App.Network.myId === 'X' ? 'O' : 'X';
+            await update(window.App.Network.ref, updates);
+        }
+    };
+
+    // =========================================================
+    // INJECTION : RÉSEAU MASTERMIND (HÔTE CODEUR / INVITÉ DEVINEUR)
+    // =========================================================
+    window.App.Network.MM = {
+        mySecret: [null, null, null, null], myGuess: [null, null, null, null], selectedColor: '#ef4444', myHints: [0, 0, 0, 0],
+        render(data) {
+            const status = document.getElementById('net-mm-status'), makerUI = document.getElementById('net-mm-maker-ui'), breakerUI = document.getElementById('net-mm-breaker-ui');
+            if (data.winner !== '') {
+                makerUI.style.display = 'none'; breakerUI.style.display = 'none';
+                let winMsg = data.winner === 'O' ? "Le Devineur a trouvé le code !" : "L'Hôte a gagné, le code était introuvable.";
+                status.innerHTML = `<span style='color:var(--accent)'>FIN DU JEU : ${winMsg}</span>`;
+                if (window.App.Network.myId === 'X') {
+                    status.innerHTML += `<br><button class="btn" style="margin-top:10px;" id="btn-replay-mm">Rejouer</button>`;
+                    document.getElementById('btn-replay-mm').onclick = () => { update(window.App.Network.ref, { 'mm': { phase: 'set_secret', secret: [null,null,null,null], currentGuess: null, history: [] }, winner: '' }); };
+                }
+                return;
+            }
+            if (window.App.Network.myId === 'X') {
+                makerUI.style.display = 'block'; breakerUI.style.display = 'none';
+                if (data.mm.phase === 'set_secret') { status.textContent = "Choisis ton code secret pour ton ami."; document.getElementById('net-mm-maker-setup').style.display = 'block'; document.getElementById('net-mm-maker-hints-ui').style.display = 'none'; this.renderMakerSecret(); } 
+                else if (data.mm.phase === 'guess') { document.getElementById('net-mm-maker-setup').style.display = 'none'; document.getElementById('net-mm-maker-hints-ui').style.display = 'none'; status.textContent = "Ton ami réfléchit à une combinaison..."; } 
+                else if (data.mm.phase === 'hint') { status.textContent = "À toi d'envoyer la correction !"; document.getElementById('net-mm-maker-setup').style.display = 'none'; document.getElementById('net-mm-maker-hints-ui').style.display = 'block'; this.renderMakerHints(data.mm.currentGuess); }
+            } else {
+                makerUI.style.display = 'none'; breakerUI.style.display = 'block';
+                if (data.mm.phase === 'set_secret') { status.textContent = "Attente que l'Hôte choisisse son code secret..."; document.getElementById('net-mm-breaker-picker').style.display = 'none'; document.getElementById('net-mm-breaker-btn').style.display = 'none'; this.renderBreakerBoard(data.mm.history, false); } 
+                else if (data.mm.phase === 'guess') { status.textContent = "À toi de deviner !"; document.getElementById('net-mm-breaker-picker').style.display = 'flex'; document.getElementById('net-mm-breaker-btn').style.display = 'inline-block'; this.renderBreakerBoard(data.mm.history, true); this.renderBreakerPicker(); } 
+                else if (data.mm.phase === 'hint') { status.textContent = "L'Hôte valide ta proposition..."; document.getElementById('net-mm-breaker-picker').style.display = 'none'; document.getElementById('net-mm-breaker-btn').style.display = 'none'; this.renderBreakerBoard(data.mm.history, false); }
+            }
+        },
+        renderMakerSecret() {
+            let pegsDiv = document.getElementById('net-mm-maker-secret'); pegsDiv.innerHTML = ''; let pickDiv = document.getElementById('net-mm-maker-picker'); pickDiv.innerHTML = '';
+            for(let i=0; i<4; i++) { let peg = document.createElement('div'); peg.className = 'mm-peg'; if(this.mySecret[i]) peg.style.background = this.mySecret[i]; peg.onclick = () => { this.mySecret[i] = this.selectedColor; this.renderMakerSecret(); }; pegsDiv.appendChild(peg); }
+            window.App.MM.colors.forEach(c => { let btn = document.createElement('div'); btn.className = 'mm-color-btn'; btn.style.background = c; if(c === this.selectedColor) btn.classList.add('selected'); btn.onclick = () => { this.selectedColor = c; this.renderMakerSecret(); }; pickDiv.appendChild(btn); });
+        },
+        async submitSecret() { if(this.mySecret.includes(null)) return window.UI.showModal("Erreur", "Remplissez les 4 trous.", null); await update(window.App.Network.ref, { 'mm/secret': this.mySecret, 'mm/phase': 'guess' }); },
+        renderMakerHints(guess) {
+            let gDiv = document.getElementById('net-mm-maker-guess'); gDiv.innerHTML = ''; guess.forEach(c => { let peg = document.createElement('div'); peg.className = 'mm-peg'; peg.style.background = c; gDiv.appendChild(peg); });
+            let hDiv = document.getElementById('net-mm-maker-hint-pegs'); hDiv.innerHTML = '';
+            
+            // Calcul automatique Anti-Triche
+            let exact = 0, color = 0, secretCopy = [...this.mySecret], guessCopy = [...guess];
+            for(let i=0; i<4; i++) { if(guessCopy[i] === secretCopy[i]) { exact++; secretCopy[i] = null; guessCopy[i] = null; } }
+            for(let i=0; i<4; i++) { if(guessCopy[i] && secretCopy.includes(guessCopy[i])) { color++; secretCopy[secretCopy.indexOf(guessCopy[i])] = null; } }
+            
+            this.myHints = [];
+            for(let i=0; i<exact; i++) this.myHints.push(1);
+            for(let i=0; i<color; i++) this.myHints.push(2);
+            while(this.myHints.length < 4) this.myHints.push(0);
+
+            for(let i=0; i<4; i++) { 
+                let hint = document.createElement('div'); hint.className = 'mm-hint'; 
+                if(this.myHints[i] === 1) hint.style.background = '#ef4444'; 
+                else if(this.myHints[i] === 2) hint.style.background = '#f8fafc'; 
+                else hint.style.background = '#1e293b'; 
+                hDiv.appendChild(hint); 
+            }
+        },
+        async submitHints() {
+            let exact = this.myHints.filter(h => h===1).length, color = this.myHints.filter(h => h===2).length;
+            let snap = await get(window.App.Network.ref); let data = snap.val(); let history = data.mm.history || []; history.push({ guess: data.mm.currentGuess, exact: exact, color: color });
+            let win = ''; if (exact === 4) win = 'O'; else if (history.length >= 9) win = 'X';
+            this.myHints = [0,0,0,0]; await update(window.App.Network.ref, { 'mm/history': history, 'mm/phase': 'guess', winner: win });
+        },
+        renderBreakerPicker() {
+            const p = document.getElementById('net-mm-breaker-picker'); p.innerHTML = '';
+            window.App.MM.colors.forEach(c => { let btn = document.createElement('div'); btn.className = 'mm-color-btn'; btn.style.background = c; if(c === this.selectedColor) btn.classList.add('selected'); btn.onclick = () => { this.selectedColor = c; this.renderBreakerPicker(); }; p.appendChild(btn); });
+        },
+        renderBreakerBoard(historyArr, canPlay) {
+            let history = historyArr || []; const b = document.getElementById('net-mm-breaker-board'); b.innerHTML = '';
+            for(let i=0; i<9; i++) {
+                let row = document.createElement('div'); row.className = 'mm-row'; row.style.opacity = i === history.length ? '1' : '0.4'; let pegs = document.createElement('div'); pegs.className = 'mm-pegs';
+                for(let j=0; j<4; j++) { let peg = document.createElement('div'); peg.className = 'mm-peg'; if(i < history.length) { peg.style.background = history[i].guess[j]; } else if(i === history.length && this.myGuess[j]) { peg.style.background = this.myGuess[j]; } if(i === history.length && canPlay) peg.onclick = () => { this.myGuess[j] = this.selectedColor; this.renderBreakerBoard(history, canPlay); }; pegs.appendChild(peg); }
+                let hints = document.createElement('div'); hints.className = 'mm-hints'; let pastHints = i < history.length ? history[i] : null; let hIndex = 0;
+                for(let j=0; j<4; j++) { let hint = document.createElement('div'); hint.className = 'mm-hint'; if (pastHints) { if (hIndex < pastHints.exact) hint.style.background = '#ef4444'; else if (hIndex < pastHints.exact + pastHints.color) hint.style.background = '#f8fafc'; hIndex++; } hints.appendChild(hint); }
+                row.appendChild(pegs); row.appendChild(hints); b.appendChild(row);
+            }
+        },
+        async submitGuess() { if(this.myGuess.includes(null)) return window.UI.showModal("Erreur", "Remplissez les 4 trous.", null); let g = [...this.myGuess]; this.myGuess = [null,null,null,null]; await update(window.App.Network.ref, { 'mm/currentGuess': g, 'mm/phase': 'hint' }); }
+    };
+
     // =========================================================
     // INJECTION : RÉSEAU BELOTE
     // =========================================================
@@ -1784,146 +1936,6 @@
 
     const originalUpdateStatus = window.App.Belote.updateStatus; window.App.Belote.updateStatus = function(t) { originalUpdateStatus.apply(this, [t]); this.syncNetwork(); };
     const originalResolveTrick = window.App.Belote.resolveTrick; window.App.Belote.resolveTrick = function() { originalResolveTrick.apply(this); this.syncNetwork(); };
-
-    // =========================================================
-    // INJECTION : RÉSEAU MASTERMIND
-    // =========================================================
-    window.App.Network.MM = {
-        mySecret: [null, null, null, null], myGuess: [null, null, null, null], selectedColor: '#ef4444', myHints: [0, 0, 0, 0],
-        render(data) {
-            const status = document.getElementById('net-mm-status'), makerUI = document.getElementById('net-mm-maker-ui'), breakerUI = document.getElementById('net-mm-breaker-ui');
-            if (data.winner !== '') {
-                makerUI.style.display = 'none'; breakerUI.style.display = 'none';
-                let winMsg = data.winner === 'O' ? "Le Devineur a trouvé le code !" : "L'Hôte a gagné, le code était introuvable.";
-                status.innerHTML = `<span style='color:var(--accent)'>FIN DU JEU : ${winMsg}</span>`;
-                if (window.App.Network.myId === 'X') {
-                    status.innerHTML += `<br><button class="btn" style="margin-top:10px;" id="btn-replay-mm">Rejouer</button>`;
-                    document.getElementById('btn-replay-mm').onclick = () => { update(window.App.Network.ref, { 'mm': { phase: 'set_secret', secret: [null,null,null,null], currentGuess: null, history: [] }, winner: '' }); };
-                }
-                return;
-            }
-            if (window.App.Network.myId === 'X') {
-                makerUI.style.display = 'block'; breakerUI.style.display = 'none';
-                if (data.mm.phase === 'set_secret') { status.textContent = "Choisis ton code secret pour ton ami."; document.getElementById('net-mm-maker-setup').style.display = 'block'; document.getElementById('net-mm-maker-hints-ui').style.display = 'none'; this.renderMakerSecret(); } 
-                else if (data.mm.phase === 'guess') { document.getElementById('net-mm-maker-setup').style.display = 'none'; document.getElementById('net-mm-maker-hints-ui').style.display = 'none'; status.textContent = "Ton ami réfléchit à une combinaison..."; } 
-                else if (data.mm.phase === 'hint') { status.textContent = "À toi de donner les indices !"; document.getElementById('net-mm-maker-setup').style.display = 'none'; document.getElementById('net-mm-maker-hints-ui').style.display = 'block'; this.renderMakerHints(data.mm.currentGuess); }
-            } else {
-                makerUI.style.display = 'none'; breakerUI.style.display = 'block';
-                if (data.mm.phase === 'set_secret') { status.textContent = "Attente que l'Hôte choisisse son code secret..."; document.getElementById('net-mm-breaker-picker').style.display = 'none'; document.getElementById('net-mm-breaker-btn').style.display = 'none'; this.renderBreakerBoard(data.mm.history, false); } 
-                else if (data.mm.phase === 'guess') { status.textContent = "À toi de deviner !"; document.getElementById('net-mm-breaker-picker').style.display = 'flex'; document.getElementById('net-mm-breaker-btn').style.display = 'inline-block'; this.renderBreakerBoard(data.mm.history, true); this.renderBreakerPicker(); } 
-                else if (data.mm.phase === 'hint') { status.textContent = "L'Hôte corrige ta proposition..."; document.getElementById('net-mm-breaker-picker').style.display = 'none'; document.getElementById('net-mm-breaker-btn').style.display = 'none'; this.renderBreakerBoard(data.mm.history, false); }
-            }
-        },
-        renderMakerSecret() {
-            let pegsDiv = document.getElementById('net-mm-maker-secret'); pegsDiv.innerHTML = ''; let pickDiv = document.getElementById('net-mm-maker-picker'); pickDiv.innerHTML = '';
-            for(let i=0; i<4; i++) { let peg = document.createElement('div'); peg.className = 'mm-peg'; if(this.mySecret[i]) peg.style.background = this.mySecret[i]; peg.onclick = () => { this.mySecret[i] = this.selectedColor; this.renderMakerSecret(); }; pegsDiv.appendChild(peg); }
-            window.App.MM.colors.forEach(c => { let btn = document.createElement('div'); btn.className = 'mm-color-btn'; btn.style.background = c; if(c === this.selectedColor) btn.classList.add('selected'); btn.onclick = () => { this.selectedColor = c; this.renderMakerSecret(); }; pickDiv.appendChild(btn); });
-        },
-        async submitSecret() { if(this.mySecret.includes(null)) return window.UI.showModal("Erreur", "Remplissez les 4 trous.", null); await update(window.App.Network.ref, { 'mm/secret': this.mySecret, 'mm/phase': 'guess' }); },
-        renderMakerHints(guess) {
-            let gDiv = document.getElementById('net-mm-maker-guess'); gDiv.innerHTML = ''; guess.forEach(c => { let peg = document.createElement('div'); peg.className = 'mm-peg'; peg.style.background = c; gDiv.appendChild(peg); });
-            let hDiv = document.getElementById('net-mm-maker-hint-pegs'); hDiv.innerHTML = '';
-            for(let i=0; i<4; i++) { let hint = document.createElement('div'); hint.className = 'mm-hint'; if(this.myHints[i] === 1) hint.style.background = '#ef4444'; else if(this.myHints[i] === 2) hint.style.background = '#f8fafc'; else hint.style.background = '#1e293b'; hint.onclick = () => { this.myHints[i] = (this.myHints[i] + 1) % 3; this.renderMakerHints(guess); }; hDiv.appendChild(hint); }
-        },
-        async submitHints() {
-            let exact = this.myHints.filter(h => h===1).length, color = this.myHints.filter(h => h===2).length;
-            let snap = await get(window.App.Network.ref); let data = snap.val(); let history = data.mm.history || []; history.push({ guess: data.mm.currentGuess, exact: exact, color: color });
-            let win = ''; if (exact === 4) win = 'O'; else if (history.length >= 9) win = 'X';
-            this.myHints = [0,0,0,0]; await update(window.App.Network.ref, { 'mm/history': history, 'mm/phase': 'guess', winner: win });
-        },
-        renderBreakerPicker() {
-            const p = document.getElementById('net-mm-breaker-picker'); p.innerHTML = '';
-            window.App.MM.colors.forEach(c => { let btn = document.createElement('div'); btn.className = 'mm-color-btn'; btn.style.background = c; if(c === this.selectedColor) btn.classList.add('selected'); btn.onclick = () => { this.selectedColor = c; this.renderBreakerPicker(); }; p.appendChild(btn); });
-        },
-        renderBreakerBoard(historyArr, canPlay) {
-            let history = historyArr || []; const b = document.getElementById('net-mm-breaker-board'); b.innerHTML = '';
-            for(let i=0; i<9; i++) {
-                let row = document.createElement('div'); row.className = 'mm-row'; row.style.opacity = i === history.length ? '1' : '0.4'; let pegs = document.createElement('div'); pegs.className = 'mm-pegs';
-                for(let j=0; j<4; j++) { let peg = document.createElement('div'); peg.className = 'mm-peg'; if(i < history.length) { peg.style.background = history[i].guess[j]; } else if(i === history.length && this.myGuess[j]) { peg.style.background = this.myGuess[j]; } if(i === history.length && canPlay) peg.onclick = () => { this.myGuess[j] = this.selectedColor; this.renderBreakerBoard(history, canPlay); }; pegs.appendChild(peg); }
-                let hints = document.createElement('div'); hints.className = 'mm-hints'; let pastHints = i < history.length ? history[i] : null; let hIndex = 0;
-                for(let j=0; j<4; j++) { let hint = document.createElement('div'); hint.className = 'mm-hint'; if (pastHints) { if (hIndex < pastHints.exact) hint.style.background = '#ef4444'; else if (hIndex < pastHints.exact + pastHints.color) hint.style.background = '#f8fafc'; hIndex++; } hints.appendChild(hint); }
-                row.appendChild(pegs); row.appendChild(hints); b.appendChild(row);
-            }
-        },
-        async submitGuess() { if(this.myGuess.includes(null)) return window.UI.showModal("Erreur", "Remplissez les 4 trous.", null); let g = [...this.myGuess]; this.myGuess = [null,null,null,null]; await update(window.App.Network.ref, { 'mm/currentGuess': g, 'mm/phase': 'hint' }); }
-    };
-
-    // =========================================================
-    // INJECTION : RÉSEAU BATAILLE NAVALE
-    // =========================================================
-    window.App.Network.BN = {
-        render(data) {
-            if (data.winner !== '') {
-                document.getElementById('net-bn-setup').style.display = 'none'; document.getElementById('net-bn-play').style.display = 'none';
-                document.getElementById('net-bn-status').innerHTML = `<span style='color:var(--accent)'>FIN DU JEU : ${data.winner === window.App.Network.myId ? 'VICTOIRE !' : 'DÉFAITE...'}</span>`;
-                if(window.App.Network.myId === 'X') {
-                    document.getElementById('net-bn-status').innerHTML += `<br><button class="btn" style="margin-top:10px;" id="btn-replay-bn">Rejouer</button>`;
-                    document.getElementById('btn-replay-bn').onclick = () => {
-                        window.App.Network.BN.myGrid = Array.from({length:12}, () => Array(12).fill(0)); 
-                        window.App.Network.BN.currentShipIndex = 0;
-                        update(window.App.Network.ref, { bn: { phase: 'setup', readyX: false, readyO: false, gridX: null, gridO: null, shotsX: Array.from({length:12}, () => Array(12).fill(0)), shotsO: Array.from({length:12}, () => Array(12).fill(0)) }, winner: '', turn: 'X' }); 
-                    };
-                }
-                return;
-            }
-
-            if (data.bn.phase === 'setup') {
-                document.getElementById('net-bn-setup').style.display = 'block'; document.getElementById('net-bn-play').style.display = 'none';
-                let amIReady = data.bn['ready' + window.App.Network.myId];
-                if (amIReady) { document.getElementById('net-bn-status').textContent = "Attente de l'adversaire..."; document.getElementById('net-bn-setup-grid').style.opacity = '0.5'; document.getElementById('net-bn-setup-grid').style.pointerEvents = 'none'; } 
-                else { document.getElementById('net-bn-status').textContent = `Place tes navires : Taille ${window.App.BN.ships[window.App.Network.BN.currentShipIndex] || 'Terminé'}`; window.App.Network.BN.drawSetupGrid(); 
-                    if (window.App.Network.myId === 'X' && data.bn.readyX && data.bn.readyO) update(window.App.Network.ref, { 'bn/phase': 'play' });
-                }
-            } else if (data.bn.phase === 'play') {
-                document.getElementById('net-bn-setup').style.display = 'none'; document.getElementById('net-bn-play').style.display = 'flex';
-                document.getElementById('net-bn-status').textContent = data.turn === window.App.Network.myId ? "À l'attaque !" : "L'adversaire tire...";
-                document.getElementById('net-bn-status').style.color = data.turn === window.App.Network.myId ? "var(--accent)" : "white";
-                window.App.Network.BN.drawPlayGrids(data);
-            }
-        },
-        myGrid: Array.from({length:12}, () => Array(12).fill(0)), currentShipIndex: 0, isHorizontal: true,
-        toggleRotation() { this.isHorizontal = !this.isHorizontal; document.getElementById('net-bn-rotate-btn').textContent = `Pivoter : ${this.isHorizontal ? 'Horizontal' : 'Vertical'}`; },
-        drawSetupGrid() {
-            const el = document.getElementById('net-bn-setup-grid'); el.innerHTML = '';
-            for(let r=0; r<12; r++) { for(let c=0; c<12; c++) { let cell = document.createElement('div'); cell.className = 'bn-cell'; if(this.myGrid[r][c] === 1) cell.classList.add('bn-ship');
-                    cell.onclick = () => {
-                        if(this.currentShipIndex >= window.App.BN.ships.length) return;
-                        let len = window.App.BN.ships[this.currentShipIndex], dir = this.isHorizontal ? 0 : 1, valid = true;
-                        for (let i = 0; i < len; i++) { let nr = r + (dir ? i : 0), nc = c + (dir ? 0 : i); if (nr >= 12 || nc >= 12 || this.myGrid[nr][nc] !== 0) { valid = false; break; } }
-                        if (valid) { for (let i = 0; i < len; i++) this.myGrid[r + (dir ? i : 0)][c + (dir ? 0 : i)] = 1; this.currentShipIndex++; this.drawSetupGrid(); document.getElementById('net-bn-status').textContent = `Place tes navires : Taille ${window.App.BN.ships[this.currentShipIndex] || 'Terminé. Clique sur Prêt !'}`; }
-                    }; el.appendChild(cell); } }
-        },
-        autoPlace() {
-            this.myGrid.forEach(row => row.fill(0));
-            window.App.BN.ships.forEach(len => { let placed = false; while(!placed) { let r = Math.floor(Math.random()*12), c = Math.floor(Math.random()*12), dir = Math.random()>0.5?1:0, valid = true; for(let i=0; i<len; i++) { let nr = r + (dir?i:0), nc = c + (dir?0:i); if(nr>=12 || nc>=12 || this.myGrid[nr][nc]!==0) { valid=false; break; } } if(valid) { for(let i=0; i<len; i++) this.myGrid[r + (dir?i:0)][c + (dir?0:i)] = 1; placed = true; } } });
-            this.currentShipIndex = window.App.BN.ships.length; this.drawSetupGrid(); document.getElementById('net-bn-status').textContent = "Flotte placée. Clique sur Prêt !";
-        },
-        async ready() {
-            if(this.currentShipIndex < window.App.BN.ships.length) return window.UI.showModal('Erreur', 'Place tous tes bateaux !', null);
-            let updates = {}; updates[`bn/grid${window.App.Network.myId}`] = this.myGrid; updates[`bn/ready${window.App.Network.myId}`] = true;
-            let snap = await get(window.App.Network.ref); let data = snap.val();
-            if (window.App.Network.myId === 'X' && data.bn.readyO) updates['bn/phase'] = 'play';
-            if (window.App.Network.myId === 'O' && data.bn.readyX) updates['bn/phase'] = 'play';
-            await update(window.App.Network.ref, updates);
-        },
-        drawPlayGrids(data) {
-            let myShots = data.bn['shots' + window.App.Network.myId] || Array.from({length:12}, () => Array(12).fill(0)), oppShots = data.bn['shots' + (window.App.Network.myId === 'X' ? 'O' : 'X')] || Array.from({length:12}, () => Array(12).fill(0));
-            const oppGridEl = document.getElementById('net-bn-opp-grid'); oppGridEl.innerHTML = ''; oppGridEl.style.opacity = data.turn === window.App.Network.myId ? '1' : '0.5'; oppGridEl.style.pointerEvents = data.turn === window.App.Network.myId ? 'auto' : 'none';
-            for(let r=0; r<12; r++) { for(let c=0; c<12; c++) { let cell = document.createElement('div'); cell.className = 'bn-cell'; if(myShots[r][c] === 'H') { cell.classList.add('bn-hit', 'shot'); cell.textContent = '💥'; } if(myShots[r][c] === 'M') { cell.classList.add('bn-miss', 'shot'); cell.textContent = '🌊'; } cell.onclick = () => this.shoot(r, c, data); oppGridEl.appendChild(cell); } }
-            const myGridEl = document.getElementById('net-bn-my-grid'); myGridEl.innerHTML = ''; let trueMyGrid = data.bn['grid' + window.App.Network.myId];
-            for(let r=0; r<12; r++) { for(let c=0; c<12; c++) { let cell = document.createElement('div'); cell.className = 'bn-cell'; if(trueMyGrid[r][c] === 1) cell.classList.add('bn-ship'); if(oppShots[r][c] === 'H') { cell.classList.add('bn-hit', 'shot'); cell.textContent = '💥'; } if(oppShots[r][c] === 'M') { cell.classList.add('bn-miss', 'shot'); cell.textContent = '🌊'; } myGridEl.appendChild(cell); } }
-        },
-        async shoot(r, c, data) {
-            if(data.turn !== window.App.Network.myId || data.winner !== '') return;
-            let oppGridKey = 'grid' + (window.App.Network.myId === 'X' ? 'O' : 'X'), oppGrid = data.bn[oppGridKey], myShotsKey = 'shots' + window.App.Network.myId, myShots = data.bn[myShotsKey] || Array.from({length:12}, () => Array(12).fill(0));
-            if(myShots[r][c] !== 0) return; 
-            let isHit = oppGrid[r][c] === 1; myShots[r][c] = isHit ? 'H' : 'M';
-            let win = true; for(let ir=0; ir<12; ir++) { for(let ic=0; ic<12; ic++) { if(oppGrid[ir][ic] === 1 && myShots[ir][ic] !== 'H') { win = false; break; } } if(!win) break; }
-            let updates = {}; updates['bn/' + myShotsKey] = myShots;
-            if(win) updates['winner'] = window.App.Network.myId; else if(!isHit) updates['turn'] = window.App.Network.myId === 'X' ? 'O' : 'X';
-            await update(window.App.Network.ref, updates);
-        }
-    };
 
     // =========================================================
     // ÉCOUTEURS D'ÉVÉNEMENTS INITIAUX
