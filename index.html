@@ -574,7 +574,7 @@
 
     window.App = {};
 
-    // --- MORPION SIMPLE (BOT IA LÉGÈREMENT BRIDÉ - 10% Aléatoire) ---
+    // --- MORPION SIMPLE ---
     window.App.Sim = {
         state: [], player: 'X', isBotThinking: false,
         init() {
@@ -653,7 +653,7 @@
         }
     };
 
-    // --- MORPION ULTIME (BOT IA EXPERT) ---
+    // --- MORPION ULTIME ---
     window.App.Ult = {
         bGrid: [], sGrids: [], currentPlayer: 'X', nextActiveGrid: -1, isBotThinking: false,
         init() {
@@ -812,7 +812,7 @@
         }
     };
 
-    // --- YAMS (BOT IA BUFFÉ) ---
+    // --- YAMS ---
     window.App.Yams = {
         dice: [1, 1, 1, 1, 1], kept: [false, false, false, false, false], rollsLeft: 3, currentPlayer: 0, scores: [{}, {}],
         init() {
@@ -977,7 +977,7 @@
             }
             
             if(!chosenCat) {
-                let sac = ['1','2','3','Chance','4','5','Petite Suite','Brelan','Full','Carré','Grande Suite','Yams','6'];
+                let sac = ['Yams','Grande Suite','Petite Suite','Carré','1','2','3','Chance','4','5','Full','Brelan','6'];
                 for(let cat of sac) if(this.scores[1][cat] === undefined) { chosenCat = cat; break; }
             }
             if(chosenCat) this.lockCategory(chosenCat, 1);
@@ -1217,7 +1217,7 @@
         updateStatus(msgText) { document.getElementById('bl-status').innerHTML = msgText; }
     };
 
-    // --- PUISSANCE 4 (BOT IA EXPERT - ANTICIPATION PROFONDEUR 5) ---
+    // --- PUISSANCE 4 (BOT IA EXPERT) ---
     window.App.P4 = {
         grid: [], player: 1, isBotThinking: false,
         init() {
@@ -1567,8 +1567,7 @@
         async host() {
             this.gameType = document.getElementById('net-game-select').value;
             this.room = this.gen(); this.myId = 'X'; this.ref = ref(db, 'rooms/' + this.room);
-            
-            let startPlayer = Math.random() < 0.5 ? 'X' : 'O'; // Tirage au sort du joueur 1 !
+            let startPlayer = Math.random() < 0.5 ? 'X' : 'O'; 
             let initData = { status: 'waiting', type: this.gameType, turn: startPlayer, winner: '' };
             
             if (this.gameType === 'sim') { initData.board = Array(9).fill(''); }
@@ -1791,10 +1790,10 @@
     };
 
     // =========================================================
-    // INJECTION : RÉSEAU MASTERMIND (HÔTE CODEUR / INVITÉ DEVINEUR)
+    // INJECTION : RÉSEAU MASTERMIND
     // =========================================================
     window.App.Network.MM = {
-        mySecret: [null, null, null, null], myGuess: [null, null, null, null], selectedColor: '#ef4444', myHints: [0, 0, 0, 0],
+        mySecret: [null, null, null, null], myGuess: [null, null, null, null], selectedColor: '#ef4444',
         render(data) {
             const status = document.getElementById('net-mm-status'), makerUI = document.getElementById('net-mm-maker-ui'), breakerUI = document.getElementById('net-mm-breaker-ui');
             if (data.winner !== '') {
@@ -1811,7 +1810,7 @@
                 makerUI.style.display = 'block'; breakerUI.style.display = 'none';
                 if (data.mm.phase === 'set_secret') { status.textContent = "Choisis ton code secret pour ton ami."; document.getElementById('net-mm-maker-setup').style.display = 'block'; document.getElementById('net-mm-maker-hints-ui').style.display = 'none'; this.renderMakerSecret(); } 
                 else if (data.mm.phase === 'guess') { document.getElementById('net-mm-maker-setup').style.display = 'none'; document.getElementById('net-mm-maker-hints-ui').style.display = 'none'; status.textContent = "Ton ami réfléchit à une combinaison..."; } 
-                else if (data.mm.phase === 'hint') { status.textContent = "À toi d'envoyer la correction !"; document.getElementById('net-mm-maker-setup').style.display = 'none'; document.getElementById('net-mm-maker-hints-ui').style.display = 'block'; this.renderMakerHints(data.mm.currentGuess); }
+                else if (data.mm.phase === 'hint') { status.textContent = "À toi d'envoyer la correction !"; document.getElementById('net-mm-maker-setup').style.display = 'none'; document.getElementById('net-mm-maker-hints-ui').style.display = 'block'; this.renderMakerHints(data.mm.currentGuess, data.mm.secret); }
             } else {
                 makerUI.style.display = 'none'; breakerUI.style.display = 'block';
                 if (data.mm.phase === 'set_secret') { status.textContent = "Attente que l'Hôte choisisse son code secret..."; document.getElementById('net-mm-breaker-picker').style.display = 'none'; document.getElementById('net-mm-breaker-btn').style.display = 'none'; this.renderBreakerBoard(data.mm.history, false); } 
@@ -1825,12 +1824,12 @@
             window.App.MM.colors.forEach(c => { let btn = document.createElement('div'); btn.className = 'mm-color-btn'; btn.style.background = c; if(c === this.selectedColor) btn.classList.add('selected'); btn.onclick = () => { this.selectedColor = c; this.renderMakerSecret(); }; pickDiv.appendChild(btn); });
         },
         async submitSecret() { if(this.mySecret.includes(null)) return window.UI.showModal("Erreur", "Remplissez les 4 trous.", null); await update(window.App.Network.ref, { 'mm/secret': this.mySecret, 'mm/phase': 'guess' }); },
-        renderMakerHints(guess) {
+        renderMakerHints(guess, secret) {
             let gDiv = document.getElementById('net-mm-maker-guess'); gDiv.innerHTML = ''; guess.forEach(c => { let peg = document.createElement('div'); peg.className = 'mm-peg'; peg.style.background = c; gDiv.appendChild(peg); });
             let hDiv = document.getElementById('net-mm-maker-hint-pegs'); hDiv.innerHTML = '';
             
-            // Calcul automatique Anti-Triche
-            let exact = 0, color = 0, secretCopy = [...this.mySecret], guessCopy = [...guess];
+            // Calcul automatique Anti-Triche !
+            let exact = 0, color = 0, secretCopy = [...secret], guessCopy = [...guess];
             for(let i=0; i<4; i++) { if(guessCopy[i] === secretCopy[i]) { exact++; secretCopy[i] = null; guessCopy[i] = null; } }
             for(let i=0; i<4; i++) { if(guessCopy[i] && secretCopy.includes(guessCopy[i])) { color++; secretCopy[secretCopy.indexOf(guessCopy[i])] = null; } }
             
@@ -1851,7 +1850,7 @@
             let exact = this.myHints.filter(h => h===1).length, color = this.myHints.filter(h => h===2).length;
             let snap = await get(window.App.Network.ref); let data = snap.val(); let history = data.mm.history || []; history.push({ guess: data.mm.currentGuess, exact: exact, color: color });
             let win = ''; if (exact === 4) win = 'O'; else if (history.length >= 9) win = 'X';
-            this.myHints = [0,0,0,0]; await update(window.App.Network.ref, { 'mm/history': history, 'mm/phase': 'guess', winner: win });
+            await update(window.App.Network.ref, { 'mm/history': history, 'mm/phase': 'guess', winner: win });
         },
         renderBreakerPicker() {
             const p = document.getElementById('net-mm-breaker-picker'); p.innerHTML = '';
