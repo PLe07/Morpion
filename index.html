@@ -196,6 +196,20 @@
         .bn-hit { background: var(--player-x); animation: pulseWin 1s infinite alternate; }
         .bn-miss { background: var(--player-o); }
 
+       /* =========================================
+           7. CSS JEU DE DAMES
+           ========================================= */
+        .dames-board { display: grid; grid-template-columns: repeat(8, 45px); width: fit-content; margin: 0 auto 20px auto; border: 4px solid #1e293b; border-radius: 8px; background: #020617; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+        .dames-cell { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; }
+        .dames-cell.dark { background: #1e293b; }
+        .dames-cell.light { background: #f8fafc; }
+        .dames-cell.selected { outline: 3px solid var(--gold); outline-offset: -3px; background: #334155; }
+        .dames-cell.valid-move { background: rgba(16, 185, 129, 0.5); cursor: pointer; }
+        .dames-piece { width: 35px; height: 35px; border-radius: 50%; box-shadow: 2px 2px 5px rgba(0,0,0,0.8); transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; color: white; }
+        .dames-piece:hover { transform: scale(1.1); }
+        .dames-p1 { background: var(--player-x); border: 2px solid #be123c; } 
+        .dames-p2 { background: var(--player-o); border: 2px solid #1d4ed8; } 
+        .dames-king::after { content: '👑'; font-size: 1.1rem; text-shadow: 0 0 5px black; }
         /* =========================================
            8. FIREBASE NETWORK LOBBY
            ========================================= */
@@ -251,6 +265,7 @@
         <li data-target="s-bj"><span>♠️</span> Blackjack 21</li>
         <li data-target="s-mm"><span>🧠</span> Mastermind</li>
         <li data-target="s-bn"><span>🚢</span> Bataille Navale</li>
+        <li data-target="s-dames"><span>♟️</span> Jeu de Dames</li>
         <div class="nav-divider"></div>
         <li data-target="s-net-lobby" style="color:var(--accent); border-color:var(--accent);"><span>🌐</span> Multijoueur</li>
     </ul>
@@ -459,6 +474,13 @@
         <div style="text-align: center; margin-top: 30px;">
             <button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button>
         </div>
+    </section>
+
+    <section id="s-dames" class="screen">
+        <h1>Jeu de Dames</h1>
+        <p class="subtitle" id="dames-status">À toi de jouer (Rouge) !</p>
+        <div id="dames-board" class="dames-board"></div>
+        <div style="text-align: center;"><button class="btn" onclick="App.Dames.init()">Recommencer</button></div>
     </section>
 
     <section id="s-net-lobby" class="screen">
@@ -1184,6 +1206,121 @@
         }
     };
 
+// =========================================================
+    // MOTEUR DE JEU : JEU DE DAMES (AVEC BOT IA)
+    // =========================================================
+    window.App.Dames = {
+        grid: [], player: 1, selected: null, validMoves: [], isBotThinking: false,
+        init() {
+            this.grid = [
+                [0,2,0,2,0,2,0,2], [2,0,2,0,2,0,2,0], [0,2,0,2,0,2,0,2],
+                [0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0],
+                [1,0,1,0,1,0,1,0], [0,1,0,1,0,1,0,1], [1,0,1,0,1,0,1,0]
+            ];
+            this.player = 1; this.selected = null; this.validMoves = []; this.isBotThinking = false;
+            this.render(); this.updateStatus();
+        },
+        render() {
+            const b = document.getElementById('dames-board'); b.innerHTML = '';
+            for(let r=0; r<8; r++) {
+                for(let c=0; c<8; c++) {
+                    let cell = document.createElement('div');
+                    cell.className = `dames-cell ${(r+c)%2===1 ? 'dark' : 'light'}`;
+                    
+                    if(this.selected && this.selected.r===r && this.selected.c===c) cell.classList.add('selected');
+                    let move = this.validMoves.find(m => m.r===r && m.c===c);
+                    if(move) cell.classList.add('valid-move');
+                    
+                    if(this.grid[r][c] !== 0) {
+                        let p = document.createElement('div');
+                        let val = this.grid[r][c];
+                        p.className = `dames-piece ${val===1||val===3 ? 'dames-p1' : 'dames-p2'} ${val>2 ? 'dames-king' : ''}`;
+                        if(this.player === 1 && (val===1||val===3) && !this.isBotThinking) {
+                            p.onclick = (e) => { e.stopPropagation(); this.selectPiece(r, c); };
+                        }
+                        cell.appendChild(p);
+                    }
+                    
+                    if(move) cell.onclick = () => this.executeMove(this.selected, move);
+                    else cell.onclick = () => { if(this.selected) { this.selected = null; this.validMoves = []; this.render(); } };
+                    b.appendChild(cell);
+                }
+            }
+        },
+        selectPiece(r, c) {
+            this.selected = {r, c}; this.validMoves = this.getMoves(r, c, this.grid[r][c]); this.render();
+        },
+        getMoves(r, c, piece) {
+            let moves = [], jumps = [], isKing = piece > 2, dirs = [];
+            if(piece === 1 || isKing) dirs.push({dr: -1, dc: -1}, {dr: -1, dc: 1});
+            if(piece === 2 || isKing) dirs.push({dr: 1, dc: -1}, {dr: 1, dc: 1});
+            
+            for(let d of dirs) {
+                let nr = r+d.dr, nc = c+d.dc;
+                if(nr>=0 && nr<8 && nc>=0 && nc<8) {
+                    if(this.grid[nr][nc] === 0) moves.push({r: nr, c: nc, jump: null});
+                    else if((piece%2 !== this.grid[nr][nc]%2) && this.grid[nr][nc] !== 0) {
+                        let jr = nr+d.dr, jc = nc+d.dc;
+                        if(jr>=0 && jr<8 && jc>=0 && jc<8 && this.grid[jr][jc] === 0) jumps.push({r: jr, c: jc, jump: {r: nr, c: nc}});
+                    }
+                }
+            }
+            return jumps.length > 0 ? jumps : moves; // Prise obligatoire simple
+        },
+        executeMove(from, to) {
+            let piece = this.grid[from.r][from.c];
+            this.grid[from.r][from.c] = 0;
+            if(to.jump) this.grid[to.jump.r][to.jump.c] = 0; // Retire la pièce mangée
+            
+            if(piece === 1 && to.r === 0) piece = 3; // Dame joueur
+            if(piece === 2 && to.r === 7) piece = 4; // Dame Bot
+            
+            this.grid[to.r][to.c] = piece;
+            this.selected = null; this.validMoves = [];
+            
+            let p1Count = 0, p2Count = 0;
+            for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
+                if(this.grid[r][c]===1 || this.grid[r][c]===3) p1Count++;
+                if(this.grid[r][c]===2 || this.grid[r][c]===4) p2Count++;
+            }
+            
+            if(p1Count === 0 || p2Count === 0) {
+                this.render(); setTimeout(() => window.UI.showModal('Fin de partie', p1Count === 0 ? 'Le Bot a gagné !' : 'Tu as gagné !', () => this.init()), 300); return;
+            }
+            
+            this.player = this.player === 1 ? 2 : 1; this.updateStatus(); this.render();
+            if(this.player === 2) { this.isBotThinking = true; setTimeout(() => this.botPlay(), 700); } 
+            else this.isBotThinking = false;
+        },
+        botPlay() {
+            let allMoves = [];
+            for(let r=0; r<8; r++) {
+                for(let c=0; c<8; c++) {
+                    let p = this.grid[r][c];
+                    if(p === 2 || p === 4) {
+                        let moves = this.getMoves(r, c, p);
+                        moves.forEach(m => allMoves.push({from: {r, c}, to: m}));
+                    }
+                }
+            }
+            if(allMoves.length === 0) { setTimeout(() => window.UI.showModal('Victoire !', 'Le Bot est bloqué, tu as gagné !', () => this.init()), 300); return; }
+            
+            let jumps = allMoves.filter(m => m.to.jump);
+            let moveList = jumps.length > 0 ? jumps : allMoves;
+            
+            // Le bot préfère faire une Dame s'il peut
+            let promotionMove = moveList.find(m => m.to.r === 7 && this.grid[m.from.r][m.from.c] === 2);
+            let finalMove = promotionMove ? promotionMove : moveList[Math.floor(Math.random() * moveList.length)];
+            
+            this.executeMove(finalMove.from, finalMove.to);
+        },
+        updateStatus() {
+            const st = document.getElementById('dames-status');
+            st.textContent = this.player === 1 ? "Ton tour ! (Tu es Rouge)" : "Le Bot réfléchit...";
+            st.style.color = this.player === 1 ? 'var(--player-x)' : 'var(--player-o)';
+        }
+    };
+    
     // =========================================================
     // MOTEUR DE JEU : BELOTE 
     // =========================================================
