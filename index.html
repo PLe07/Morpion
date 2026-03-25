@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcade Ultimate 2026 - Édition Studio Pro</title>
+    <title>Arcade</title>
     <style>
         /* =========================================
            1. VARIABLES GLOBALES ET RESET
@@ -1047,7 +1047,7 @@
             mainBoard.innerHTML = ''; 
             this.bGrid = Array(9).fill(''); 
             this.sGrids = Array.from({length: 9}, () => Array(9).fill('')); 
-            this.currentPlayer = 'X'; 
+            this.currentPlayer = '1'; 
             this.nextActiveGrid = -1; 
             this.isBotThinking = false; 
             this.updateStatusUI(); 
@@ -1068,7 +1068,7 @@
             this.highlightActiveGrids();
         },
         play(bgIndex, sgIndex, cellElement) {
-            if (this.currentPlayer !== 'X' || this.isBotThinking || this.sGrids[bgIndex][sgIndex] !== '' || this.bGrid[bgIndex] !== '' || (this.nextActiveGrid !== -1 && this.nextActiveGrid !== bgIndex)) {
+            if (this.currentPlayer !== '1' || this.isBotThinking || this.sGrids[bgIndex][sgIndex] !== '' || this.bGrid[bgIndex] !== '' || (this.nextActiveGrid !== -1 && this.nextActiveGrid !== bgIndex)) {
                 return;
             } 
             this.executePlay(bgIndex, sgIndex, cellElement);
@@ -1077,7 +1077,7 @@
             this.sGrids[bgIndex][sgIndex] = this.currentPlayer; 
             cellElement.textContent = this.currentPlayer; 
             cellElement.classList.add('taken'); 
-            cellElement.style.color = this.currentPlayer === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
+            cellElement.style.color = this.currentPlayer === 'X' ? 'var(--player-1)' : 'var(--player-2)'; 
             
             if (window.App.Sim.checkWin(this.sGrids[bgIndex])) { 
                 this.bGrid[bgIndex] = this.currentPlayer; 
@@ -1092,16 +1092,16 @@
             
             const cleanBigGrid = this.bGrid.map(val => val === 'D' ? '' : val);
             if (window.App.Sim.checkWin(cleanBigGrid)) { 
-                let msg = this.currentPlayer === 'X' ? 'Tu as gagné !' : 'Le Bot a gagné !';
+                let msg = this.currentPlayer === '1' ? 'Tu as gagné !' : 'Le Bot a gagné !';
                 setTimeout(() => window.UI.showModal('Fin de partie', msg, () => this.init()), 300); 
                 this.nextActiveGrid = 999; 
             } else { 
                 this.nextActiveGrid = (this.bGrid[sgIndex] !== '') ? -1 : sgIndex; 
-                this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X'; 
+                this.currentPlayer = this.currentPlayer === '1' ? '2' : '1'; 
                 this.updateStatusUI(); 
                 this.highlightActiveGrids(); 
                 
-                if(this.currentPlayer === 'O') {
+                if(this.currentPlayer === '2') {
                     this.isBotThinking = true;
                     setTimeout(() => this.botPlay(), 800);
                 } else {
@@ -1127,16 +1127,16 @@
             
             for (let m of validMoves) {
                 let score = 0;
-                let winSub = this.simWin(m.bg, m.sg, 'O');
+                let winSub = this.simWin(m.bg, m.sg, '2');
                 
                 if (winSub) {
                     score += 1000;
                     let bCopy = [...this.bGrid]; 
-                    bCopy[m.bg] = 'O';
+                    bCopy[m.bg] = '2';
                     if(window.App.Sim.checkWin(bCopy)) score += 50000;
                 }
                 
-                if (this.simWin(m.bg, m.sg, 'X')) {
+                if (this.simWin(m.bg, m.sg, '1')) {
                     score += 800;
                 }
                 
@@ -1145,14 +1145,14 @@
                 } else {
                     let opponentCanWinSub = false;
                     for (let j=0; j<9; j++) {
-                        if (this.sGrids[m.sg][j] === '' && this.simWin(m.sg, j, 'X')) {
+                        if (this.sGrids[m.sg][j] === '' && this.simWin(m.sg, j, '1')) {
                             opponentCanWinSub = true;
                         }
                     }
                     if (opponentCanWinSub) {
                         score -= 500;
                         let bCopy = [...this.bGrid]; 
-                        bCopy[m.sg] = 'X';
+                        bCopy[m.sg] = '1';
                         if(window.App.Sim.checkWin(bCopy)) score -= 20000;
                     }
                 }
@@ -1186,8 +1186,8 @@
             });
         },
         updateStatusUI() {
-            document.getElementById('mu-status').textContent = this.currentPlayer === 'X' ? "Ton tour ! (Tu es X)" : "Le Bot réfléchit...";
-            document.getElementById('mu-status').style.color = this.currentPlayer === 'X' ? 'var(--player-x)' : 'var(--player-o)';
+            document.getElementById('mu-status').textContent = this.currentPlayer === '1' ? "Ton tour ! (Tu es 1)" : "Le Bot réfléchit...";
+            document.getElementById('mu-status').style.color = this.currentPlayer === '1' ? 'var(--player-1)' : 'var(--player-2)';
         }
     };
 
