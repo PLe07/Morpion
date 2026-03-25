@@ -12,7 +12,7 @@
             --bg-color: #080c16; 
             --panel-bg: #111827; 
             --panel-hover: #1f2937;
-            /* Ton Vert Émeraude adoré est de retour */
+            /* Le Vert Émeraude Original */
             --accent: #10b981; 
             --accent-glow: rgba(16, 185, 129, 0.4);
             
@@ -235,6 +235,7 @@
         /* =========================================
            3. CSS DES JEUX CLASSIQUES
            ========================================= */
+        /* Morpion Simple */
         .ms-grid { 
             display: grid; 
             grid-template-columns: repeat(3, 130px); 
@@ -274,6 +275,7 @@
             to { transform: scale(1.05); box-shadow: 0 0 30px var(--accent-glow); } 
         }
 
+        /* Morpion Ultime */
         .mu-status { 
             text-align: center; 
             font-size: 1.5rem; 
@@ -318,6 +320,7 @@
         }
 
         .mu-cell:hover:not(.taken) { background: var(--panel-hover); }
+        
         .mu-active { 
             outline: 4px solid var(--accent); 
             background: #064e3b; 
@@ -325,6 +328,7 @@
             animation: muPulse 2s infinite; 
             z-index: 5; 
         }
+        
         .mu-won { 
             position: absolute; inset: 0; background: rgba(2, 6, 23, 0.85); 
             display: flex; align-items: center; justify-content: center; 
@@ -338,20 +342,16 @@
             100% { outline-color: var(--accent); } 
         }
 
+        /* Démineur */
         .dm-header { display: flex; justify-content: center; gap: 40px; margin-bottom: 30px; font-size: 1.4rem; font-weight: bold; background: #000; padding: 15px 30px; border-radius: 50px; border: 1px solid #1e293b; }
         #dm-board { display: grid; grid-template-columns: repeat(25, 25px); gap: 2px; background: #334155; padding: 3px; border: 4px solid #1e293b; margin: 0 auto 30px auto; width: fit-content; border-radius: 8px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
         .dm-tile { width: 25px; height: 25px; background: var(--panel-bg); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 900; cursor: pointer; border-radius: 3px; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3); }
         .dm-tile:hover:not(.open) { background: var(--panel-hover); }
         .dm-tile.open { background: #cbd5e1; box-shadow: inset 2px 2px 6px rgba(0,0,0,0.3); cursor: default; }
         .dm-tile.mine { background: var(--player-x); font-size: 1rem; }
-        
-        .dm-c1 { color: #2563eb; } 
-        .dm-c2 { color: #16a34a; } 
-        .dm-c3 { color: #dc2626; } 
-        .dm-c4 { color: #7c3aed; } 
-        .dm-c5 { color: #991b1b; } 
-        .dm-c6 { color: #0d9488; }
+        .dm-c1 { color: #2563eb; } .dm-c2 { color: #16a34a; } .dm-c3 { color: #dc2626; } .dm-c4 { color: #7c3aed; } .dm-c5 { color: #991b1b; } .dm-c6 { color: #0d9488; }
 
+        /* Yams */
         .yams-layout { display: flex; gap: 40px; justify-content: center; align-items: flex-start; margin-top: 20px; flex-wrap: wrap; }
         .y-dice-area { background: var(--panel-bg); padding: 40px; border-radius: 20px; text-align: center; border: 2px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 400px; }
         .y-dice-container { font-size: 4.5rem; display: flex; gap: 15px; margin-bottom: 30px; justify-content: center; min-height: 80px; }
@@ -367,7 +367,7 @@
         .y-table .total-row { background: #020617; color: var(--gold); font-weight: 900; font-size: 1.3rem; }
 
         /* =========================================
-           4. CSS DE LA VRAIE BELOTE PRO
+           4. CSS DE LA BELOTE (PRO)
            ========================================= */
         .bl-scoreboard { display: flex; justify-content: center; gap: 50px; background: #020617; padding: 15px 30px; border-radius: 15px; border: 2px solid #1e293b; margin-bottom: 20px; font-size: 1.5rem; font-weight: bold; }
         .bl-info { text-align: center; margin-bottom: 20px; font-size: 1.3rem; font-weight: bold; color: var(--gold); min-height: 30px; }
@@ -470,19 +470,54 @@
         .bn-miss { background: var(--player-o); }
 
         /* =========================================
-           7. CSS JEU DE DAMES
+           7. CSS JEU DE DAMES (10x10)
            ========================================= */
-        .dames-board { display: grid; grid-template-columns: repeat(8, 45px); width: fit-content; margin: 0 auto 20px auto; border: 4px solid #1e293b; border-radius: 8px; background: #020617; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
-        .dames-cell { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; }
+        .dames-board { 
+            display: grid; 
+            grid-template-columns: repeat(10, 40px); 
+            width: fit-content; 
+            margin: 0 auto 20px auto; 
+            border: 4px solid #1e293b; 
+            border-radius: 8px; 
+            background: #020617; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6); 
+        }
+        .dames-cell { 
+            width: 40px; 
+            height: 40px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
         .dames-cell.dark { background: #1e293b; }
         .dames-cell.light { background: #f8fafc; }
-        .dames-cell.selected { outline: 3px solid var(--gold); outline-offset: -3px; background: #334155; }
-        .dames-cell.valid-move { background: rgba(16, 185, 129, 0.5); cursor: pointer; }
-        .dames-piece { width: 35px; height: 35px; border-radius: 50%; box-shadow: 2px 2px 5px rgba(0,0,0,0.8); transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; color: white; }
+        .dames-cell.selected { 
+            outline: 3px solid var(--gold); 
+            outline-offset: -3px; 
+            background: #334155; 
+        }
+        .dames-cell.valid-move { 
+            background: rgba(16, 185, 129, 0.5); 
+            cursor: pointer; 
+        }
+        .dames-piece { 
+            width: 30px; 
+            height: 30px; 
+            border-radius: 50%; 
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.8); 
+            transition: 0.2s; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold; 
+            font-size: 1.2rem; 
+            color: white; 
+        }
         .dames-piece:hover { transform: scale(1.1); }
         .dames-p1 { background: var(--player-x); border: 2px solid #be123c; } 
         .dames-p2 { background: var(--player-o); border: 2px solid #1d4ed8; } 
-        .dames-king::after { content: '👑'; font-size: 1.1rem; text-shadow: 0 0 5px black; }
+        .dames-king::after { content: '👑'; font-size: 1rem; text-shadow: 0 0 5px black; }
 
         /* =========================================
            8. FIREBASE NETWORK LOBBY
@@ -540,7 +575,7 @@
         <li data-target="s-bj"><span>♠️</span> Blackjack 21</li>
         <li data-target="s-mm"><span>🧠</span> Mastermind</li>
         <li data-target="s-bn"><span>🚢</span> Bataille Navale</li>
-        <li data-target="s-dames"><span>♟️</span> Jeu de Dames</li>
+        <li data-target="s-dames"><span>♟️</span> Jeu de Dames (10x10)</li>
         <div class="nav-divider"></div>
         <li data-target="s-net-lobby" style="color:var(--accent); border-color:var(--accent);"><span>🌐</span> Multijoueur</li>
     </ul>
@@ -687,7 +722,7 @@
     </section>
 
     <section id="s-dames" class="screen">
-        <h1>Jeu de Dames</h1>
+        <h1>Dames (International 10x10)</h1>
         <p class="subtitle" id="dames-status">À toi de jouer (Rouge) !</p>
         <div id="dames-board" class="dames-board"></div>
         <div style="text-align: center;"><button class="btn" onclick="App.Dames.init()">Recommencer</button></div>
@@ -707,7 +742,7 @@
                     <option value="belote">Belote Coop (En Ligne)</option>
                     <option value="mm">Mastermind (1v1)</option>
                     <option value="bn">Bataille Navale</option>
-                    <option value="dames">Jeu de Dames</option>
+                    <option value="dames">Jeu de Dames (10x10)</option>
                 </select><br>
                 <button class="btn" id="btn-create-room" style="margin-top:15px;" onclick="App.Network.host()">Héberger le Salon</button>
             </div>
@@ -750,7 +785,7 @@
     </section>
 
     <section id="s-net-dames" class="screen">
-        <h1>Jeu de Dames En Ligne</h1>
+        <h1>Dames En Ligne (10x10)</h1>
         <div id="net-dames-status" class="net-status-bar">Synchronisation...</div>
         <div id="net-dames-board" class="dames-board"></div>
         <div style="text-align: center;"><button class="btn" onclick="App.Network.leave()" style="background:var(--player-x); color:white;">Quitter le Salon</button></div>
@@ -2086,11 +2121,12 @@
                         setTimeout(() => window.UI.showModal('Égalité', `La grille est pleine.`, () => this.init()), 300); 
                     } else { 
                         this.player = this.player === 1 ? 2 : 1; 
-                        this.isBotThinking = (this.player === 2);
                         this.updateStatus(); 
-                        
                         if(this.player === 2) {
+                            this.isBotThinking = true;
                             setTimeout(() => this.botPlay(), 100);
+                        } else {
+                            this.isBotThinking = false;
                         }
                     } 
                     return;
@@ -2560,35 +2596,44 @@
     };
 
     // =========================================================
-    // MOTEUR DE JEU : JEU DE DAMES (AVEC BOT IA)
+    // MOTEUR DE JEU : JEU DE DAMES (10x10 AVEC BOT IA ET RAFLE)
     // =========================================================
     window.App.Dames = {
-        grid: [], player: 1, selected: null, validMoves: [], isBotThinking: false,
+        grid: [], player: 1, selected: null, validMoves: [], isBotThinking: false, mustJump: false,
         init() {
-            this.grid = [
-                [0,2,0,2,0,2,0,2], 
-                [2,0,2,0,2,0,2,0], 
-                [0,2,0,2,0,2,0,2],
-                [0,0,0,0,0,0,0,0], 
-                [0,0,0,0,0,0,0,0],
-                [1,0,1,0,1,0,1,0], 
-                [0,1,0,1,0,1,0,1], 
-                [1,0,1,0,1,0,1,0]
-            ];
+            this.grid = Array(10).fill(0).map(()=>Array(10).fill(0));
+            // Placement P2 (Bleu) - en haut
+            for(let r=0; r<4; r++) for(let c=0; c<10; c++) if((r+c)%2!==0) this.grid[r][c] = 2;
+            // Placement P1 (Rouge) - en bas
+            for(let r=6; r<10; r++) for(let c=0; c<10; c++) if((r+c)%2!==0) this.grid[r][c] = 1;
+            
             this.player = 1; 
             this.selected = null; 
             this.validMoves = []; 
             this.isBotThinking = false;
+            this.mustJump = false;
             this.render(); 
             this.updateStatus();
         },
         render() {
             const b = document.getElementById('dames-board'); 
             b.innerHTML = '';
-            for(let r=0; r<8; r++) {
-                for(let c=0; c<8; c++) {
+            
+            // Calcul global des prises obligatoires
+            let anyJumps = [];
+            for(let r=0; r<10; r++) {
+                for(let c=0; c<10; c++) {
+                    if (this.grid[r][c] === this.player || this.grid[r][c] === this.player + 2) {
+                        let moves = this.getPieceMoves(r, c, this.grid[r][c], this.grid);
+                        if (moves.some(m => m.jump)) anyJumps.push({r, c});
+                    }
+                }
+            }
+            
+            for(let r=0; r<10; r++) {
+                for(let c=0; c<10; c++) {
                     let cell = document.createElement('div');
-                    cell.className = `dames-cell ${(r+c)%2===1 ? 'dark' : 'light'}`;
+                    cell.className = `dames-cell ${(r+c)%2===0 ? 'light' : 'dark'}`;
                     
                     if(this.selected && this.selected.r===r && this.selected.c===c) {
                         cell.classList.add('selected');
@@ -2598,15 +2643,21 @@
                     if(move) cell.classList.add('valid-move');
                     
                     if(this.grid[r][c] !== 0) {
-                        let p = document.createElement('div');
                         let val = this.grid[r][c];
+                        let p = document.createElement('div');
                         p.className = `dames-piece ${val===1||val===3 ? 'dames-p1' : 'dames-p2'} ${val>2 ? 'dames-king' : ''}`;
                         
+                        // Si c'est au joueur de jouer, et que la pièce lui appartient
                         if(this.player === 1 && (val===1||val===3) && !this.isBotThinking) {
-                            p.onclick = (e) => { 
-                                e.stopPropagation(); 
-                                this.selectPiece(r, c); 
-                            };
+                            if (!this.mustJump || (this.mustJump && this.selected && this.selected.r===r && this.selected.c===c)) {
+                                // Si une prise globale est obligatoire, on ne peut cliquer QUE sur les pièces qui peuvent prendre
+                                if (anyJumps.length === 0 || anyJumps.some(j => j.r===r && j.c===c) || this.mustJump) {
+                                    p.onclick = (e) => { 
+                                        e.stopPropagation(); 
+                                        if (!this.mustJump) this.selectPiece(r, c); 
+                                    };
+                                }
+                            }
                         }
                         cell.appendChild(p);
                     }
@@ -2615,7 +2666,7 @@
                         cell.onclick = () => this.executeMove(this.selected, move);
                     } else {
                         cell.onclick = () => { 
-                            if(this.selected) { 
+                            if(this.selected && !this.mustJump) { 
                                 this.selected = null; 
                                 this.validMoves = []; 
                                 this.render(); 
@@ -2628,44 +2679,102 @@
         },
         selectPiece(r, c) {
             this.selected = {r, c}; 
-            this.validMoves = this.getMoves(r, c, this.grid[r][c], this.grid); 
+            let moves = this.getPieceMoves(r, c, this.grid[r][c], this.grid);
+            // S'il y a des sauts, on ne garde QUE les sauts
+            let jumps = moves.filter(m => m.jump);
+            this.validMoves = jumps.length > 0 ? jumps : moves;
             this.render();
         },
-        getMoves(r, c, piece, g) {
-            let moves = [], jumps = [], isKing = piece > 2, dirs = [];
-            if(piece === 1 || isKing) dirs.push({dr: -1, dc: -1}, {dr: -1, dc: 1});
-            if(piece === 2 || isKing) dirs.push({dr: 1, dc: -1}, {dr: 1, dc: 1});
+        getPieceMoves(r, c, piece, grid) {
+            let moves = [], jumps = [], isKing = piece > 2;
+            let dirs = [[-1,-1], [-1,1], [1,-1], [1,1]];
+            let fwdDir = piece === 1 ? -1 : 1; // P1 va vers le haut (-1), P2 vers le bas (+1)
             
             for(let d of dirs) {
-                let nr = r+d.dr, nc = c+d.dc;
-                if(nr>=0 && nr<8 && nc>=0 && nc<8) {
-                    if(g[nr][nc] === 0) {
-                        moves.push({r: nr, c: nc, jump: null});
-                    } else if((piece%2 !== g[nr][nc]%2) && g[nr][nc] !== 0) {
-                        let jr = nr+d.dr, jc = nc+d.dc;
-                        if(jr>=0 && jr<8 && jc>=0 && jc<8 && g[jr][jc] === 0) {
-                            jumps.push({r: jr, c: jc, jump: {r: nr, c: nc}});
+                let dr = d[0], dc = d[1];
+                
+                if (isKing) {
+                    // Dames Volantes
+                    let dist = 1;
+                    let foundPiece = false;
+                    let jumpedCell = null;
+                    
+                    while(true) {
+                        let nr = r + dr*dist, nc = c + dc*dist;
+                        if(nr < 0 || nr >= 10 || nc < 0 || nc >= 10) break;
+                        
+                        if(grid[nr][nc] === 0) {
+                            if(!foundPiece) moves.push({r: nr, c: nc, jump: null});
+                            else jumps.push({r: nr, c: nc, jump: jumpedCell});
+                        } else {
+                            if(foundPiece) break; // Ne peut pas sauter deux pièces de suite
+                            if(grid[nr][nc]%2 === piece%2) break; // Bloqué par propre pièce
+                            foundPiece = true;
+                            jumpedCell = {r: nr, c: nc};
+                        }
+                        dist++;
+                    }
+                } else {
+                    // Pions simples
+                    let nr = r+dr, nc = c+dc;
+                    if(nr>=0 && nr<10 && nc>=0 && nc<10) {
+                        if(grid[nr][nc] === 0) {
+                            // Pion ne bouge normalement qu'en avant
+                            if (dr === fwdDir) moves.push({r: nr, c: nc, jump: null});
+                        } else if(grid[nr][nc]%2 !== piece%2) {
+                            // Prise possible dans tous les sens (Règle Internationale)
+                            let jr = nr+dr, jc = nc+dc;
+                            if(jr>=0 && jr<10 && jc>=0 && jc<10 && grid[jr][jc] === 0) {
+                                jumps.push({r: jr, c: jc, jump: {r: nr, c: nc}});
+                            }
                         }
                     }
                 }
             }
-            return jumps.length > 0 ? jumps : moves; // Prise obligatoire
+            return jumps.length > 0 ? jumps : moves;
         },
         executeMove(from, to) {
             let piece = this.grid[from.r][from.c];
             this.grid[from.r][from.c] = 0;
-            if(to.jump) this.grid[to.jump.r][to.jump.c] = 0; 
             
-            if(piece === 1 && to.r === 0) piece = 3; 
-            if(piece === 2 && to.r === 7) piece = 4; 
+            let hasJumped = false;
+            if(to.jump) {
+                this.grid[to.jump.r][to.jump.c] = 0; 
+                hasJumped = true;
+            }
+            
+            // Promotion
+            let promoted = false;
+            if(piece === 1 && to.r === 0) { piece = 3; promoted = true; }
+            if(piece === 2 && to.r === 9) { piece = 4; promoted = true; }
             
             this.grid[to.r][to.c] = piece;
             this.selected = null; 
             this.validMoves = [];
             
+            // Rafle (prises multiples)
+            if (hasJumped && !promoted) {
+                let nextMoves = this.getPieceMoves(to.r, to.c, piece, this.grid);
+                let nextJumps = nextMoves.filter(m => m.jump);
+                
+                if (nextJumps.length > 0) {
+                    this.mustJump = true;
+                    this.selected = {r: to.r, c: to.c};
+                    this.validMoves = nextJumps;
+                    this.render();
+                    if(this.player === 2) {
+                        setTimeout(() => this.botContinueJump(), 500);
+                    }
+                    return;
+                }
+            }
+            
+            this.mustJump = false;
+            
+            // Verif Fin de partie
             let p1Count = 0, p2Count = 0;
-            for(let r=0;r<8;r++) {
-                for(let c=0;c<8;c++) {
+            for(let r=0;r<10;r++) {
+                for(let c=0;c<10;c++) {
                     if(this.grid[r][c]===1 || this.grid[r][c]===3) p1Count++;
                     if(this.grid[r][c]===2 || this.grid[r][c]===4) p2Count++;
                 }
@@ -2678,7 +2787,7 @@
             }
             
             this.player = this.player === 1 ? 2 : 1; 
-            this.isBotThinking = (this.player === 2); // FIX: Empêche de jouer pendant le tour du bot
+            this.isBotThinking = (this.player === 2);
             this.updateStatus(); 
             this.render();
             
@@ -2688,27 +2797,39 @@
         },
         botPlay() {
             let allMoves = [];
-            for(let r=0; r<8; r++) {
-                for(let c=0; c<8; c++) {
+            let jumpMoves = [];
+            
+            for(let r=0; r<10; r++) {
+                for(let c=0; c<10; c++) {
                     let p = this.grid[r][c];
                     if(p === 2 || p === 4) {
-                        let moves = this.getMoves(r, c, p, this.grid);
-                        moves.forEach(m => allMoves.push({from: {r, c}, to: m}));
+                        let moves = this.getPieceMoves(r, c, p, this.grid);
+                        moves.forEach(m => {
+                            if(m.jump) jumpMoves.push({from: {r, c}, to: m});
+                            else allMoves.push({from: {r, c}, to: m});
+                        });
                     }
                 }
             }
-            if(allMoves.length === 0) { 
+            
+            let moveList = jumpMoves.length > 0 ? jumpMoves : allMoves;
+            
+            if(moveList.length === 0) { 
                 setTimeout(() => window.UI.showModal('Victoire !', 'Le Bot est bloqué, tu as gagné !', () => this.init()), 300); 
                 return; 
             }
             
-            let jumps = allMoves.filter(m => m.to.jump);
-            let moveList = jumps.length > 0 ? jumps : allMoves;
-            
-            let promotionMove = moveList.find(m => m.to.r === 7 && this.grid[m.from.r][m.from.c] === 2);
+            let promotionMove = moveList.find(m => m.to.r === 9 && this.grid[m.from.r][m.from.c] === 2);
             let finalMove = promotionMove ? promotionMove : moveList[Math.floor(Math.random() * moveList.length)];
             
             this.executeMove(finalMove.from, finalMove.to);
+        },
+        botContinueJump() {
+            if (this.validMoves.length > 0) {
+                let promotionMove = this.validMoves.find(m => m.r === 9 && this.grid[this.selected.r][this.selected.c] === 2);
+                let finalMove = promotionMove ? promotionMove : this.validMoves[Math.floor(Math.random() * this.validMoves.length)];
+                this.executeMove(this.selected, finalMove);
+            }
         },
         updateStatus() {
             const st = document.getElementById('dames-status');
@@ -2747,10 +2868,11 @@
             if (this.gameType === 'bn') { initData.bn = { phase: 'setup', readyX: false, readyO: false, gridX: null, gridO: null, shotsX: Array.from({length:12}, () => Array(12).fill(0)), shotsO: Array.from({length:12}, () => Array(12).fill(0)) }; }
             if (this.gameType === 'dames') { 
                 initData.damesGrid = [
-                    [0,2,0,2,0,2,0,2], [2,0,2,0,2,0,2,0], [0,2,0,2,0,2,0,2], 
-                    [0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0], 
-                    [1,0,1,0,1,0,1,0], [0,1,0,1,0,1,0,1], [1,0,1,0,1,0,1,0]
+                    [0,2,0,2,0,2,0,2,0,2], [2,0,2,0,2,0,2,0,2,0], [0,2,0,2,0,2,0,2,0,2], [2,0,2,0,2,0,2,0,2,0],
+                    [0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0], 
+                    [0,1,0,1,0,1,0,1,0,1], [1,0,1,0,1,0,1,0,1,0], [0,1,0,1,0,1,0,1,0,1], [1,0,1,0,1,0,1,0,1,0]
                 ]; 
+                initData.damesMustJump = false;
             }
             
             await set(this.ref, initData);
@@ -2913,10 +3035,22 @@
                 this.damesLocal = { selected: null, validMoves: [] };
             }
 
-            for (let r = 0; r < 8; r++) {
-                for (let c = 0; c < 8; c++) {
+            let anyJumps = [];
+            if (data.turn === this.myId && data.winner === '') {
+                for(let r=0; r<10; r++) {
+                    for(let c=0; c<10; c++) {
+                        if (currentGrid[r][c] === myNum || currentGrid[r][c] === myNum + 2) {
+                            let moves = window.App.Dames.getPieceMoves(r, c, currentGrid[r][c], currentGrid);
+                            if (moves.some(m => m.jump)) anyJumps.push({r, c});
+                        }
+                    }
+                }
+            }
+
+            for (let r = 0; r < 10; r++) {
+                for (let c = 0; c < 10; c++) {
                     let cell = document.createElement('div');
-                    cell.className = `dames-cell ${(r + c) % 2 === 1 ? 'dark' : 'light'}`;
+                    cell.className = `dames-cell ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
 
                     if (this.damesLocal.selected && this.damesLocal.selected.r === r && this.damesLocal.selected.c === c) {
                         cell.classList.add('selected');
@@ -2931,12 +3065,20 @@
                         p.className = `dames-piece ${val === 1 || val === 3 ? 'dames-p1' : 'dames-p2'} ${val > 2 ? 'dames-king' : ''}`;
 
                         if (data.turn === this.myId && data.winner === '' && (val === myNum || val === myNum + 2)) {
-                            p.onclick = (e) => {
-                                e.stopPropagation();
-                                this.damesLocal.selected = { r, c };
-                                this.damesLocal.validMoves = window.App.Dames.getMoves(r, c, val, currentGrid);
-                                this.renderDames(data);
-                            };
+                            if (!data.damesMustJump || (data.damesMustJump && this.damesLocal.selected && this.damesLocal.selected.r===r && this.damesLocal.selected.c===c)) {
+                                if (anyJumps.length === 0 || anyJumps.some(j => j.r===r && j.c===c) || data.damesMustJump) {
+                                    p.onclick = (e) => {
+                                        e.stopPropagation();
+                                        if(!data.damesMustJump) {
+                                            this.damesLocal.selected = { r, c };
+                                            let moves = window.App.Dames.getPieceMoves(r, c, val, currentGrid);
+                                            let jumps = moves.filter(m => m.jump);
+                                            this.damesLocal.validMoves = jumps.length > 0 ? jumps : moves;
+                                            this.renderDames(data);
+                                        }
+                                    };
+                                }
+                            }
                         }
                         cell.appendChild(p);
                     }
@@ -2948,18 +3090,34 @@
                             let p = currentGrid[f.r][f.c];
 
                             currentGrid[f.r][f.c] = 0;
-                            if (t.jump) currentGrid[t.jump.r][t.jump.c] = 0;
+                            let hasJumped = false;
+                            if (t.jump) {
+                                currentGrid[t.jump.r][t.jump.c] = 0;
+                                hasJumped = true;
+                            }
 
-                            if (p === 1 && t.r === 0) p = 3;
-                            if (p === 2 && t.r === 7) p = 4;
+                            let promoted = false;
+                            if (p === 1 && t.r === 0) { p = 3; promoted = true; }
+                            if (p === 2 && t.r === 9) { p = 4; promoted = true; }
 
                             currentGrid[t.r][t.c] = p;
                             this.damesLocal.selected = null;
                             this.damesLocal.validMoves = [];
 
+                            let mustJumpContinuation = false;
+                            if (hasJumped && !promoted) {
+                                let nextMoves = window.App.Dames.getPieceMoves(t.r, t.c, p, currentGrid);
+                                let nextJumps = nextMoves.filter(m => m.jump);
+                                if (nextJumps.length > 0) {
+                                    mustJumpContinuation = true;
+                                    this.damesLocal.selected = {r: t.r, c: t.c};
+                                    this.damesLocal.validMoves = nextJumps;
+                                }
+                            }
+
                             let p1Count = 0, p2Count = 0;
-                            for (let ir = 0; ir < 8; ir++) {
-                                for (let ic = 0; ic < 8; ic++) {
+                            for (let ir = 0; ir < 10; ir++) {
+                                for (let ic = 0; ic < 10; ic++) {
                                     if (currentGrid[ir][ic] === 1 || currentGrid[ir][ic] === 3) p1Count++;
                                     if (currentGrid[ir][ic] === 2 || currentGrid[ir][ic] === 4) p2Count++;
                                 }
@@ -2971,13 +3129,14 @@
 
                             await update(this.ref, {
                                 damesGrid: currentGrid,
-                                turn: (this.myId === 'X' ? 'O' : 'X'),
+                                damesMustJump: mustJumpContinuation,
+                                turn: mustJumpContinuation ? this.myId : (this.myId === 'X' ? 'O' : 'X'),
                                 winner: win
                             });
                         };
                     } else {
                         cell.onclick = () => {
-                            if (this.damesLocal.selected) {
+                            if (this.damesLocal.selected && !data.damesMustJump) {
                                 this.damesLocal.selected = null;
                                 this.damesLocal.validMoves = [];
                                 this.renderDames(data);
@@ -2991,15 +3150,11 @@
             this.statusUI('net-dames-status', data, () => {
                 update(this.ref, {
                     damesGrid: [
-                        [0, 2, 0, 2, 0, 2, 0, 2],
-                        [2, 0, 2, 0, 2, 0, 2, 0],
-                        [0, 2, 0, 2, 0, 2, 0, 2],
-                        [0, 0, 0, 0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0, 0, 0, 0],
-                        [1, 0, 1, 0, 1, 0, 1, 0],
-                        [0, 1, 0, 1, 0, 1, 0, 1],
-                        [1, 0, 1, 0, 1, 0, 1, 0]
+                        [0,2,0,2,0,2,0,2,0,2], [2,0,2,0,2,0,2,0,2,0], [0,2,0,2,0,2,0,2,0,2], [2,0,2,0,2,0,2,0,2,0],
+                        [0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0], 
+                        [0,1,0,1,0,1,0,1,0,1], [1,0,1,0,1,0,1,0,1,0], [0,1,0,1,0,1,0,1,0,1], [1,0,1,0,1,0,1,0,1,0]
                     ],
+                    damesMustJump: false,
                     turn: Math.random() < 0.5 ? 'X' : 'O',
                     winner: ''
                 });
@@ -3708,7 +3863,7 @@
         this.syncNetwork(); 
     };
 
-     // =========================================================
+    // =========================================================
     // ÉCOUTEURS D'ÉVÉNEMENTS INITIAUX
     // =========================================================
     document.getElementById('btn-create-room').onclick = () => window.App.Network.host(); 
