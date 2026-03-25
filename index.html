@@ -1637,6 +1637,11 @@
             bubble.textContent = textMsg; 
             bubble.style.opacity = 1; 
             setTimeout(() => { bubble.style.opacity = 0; }, 1200); 
+            
+            // NOUVEAU : On envoie l'animation au réseau pour que l'invité la voie !
+            if (window.App.Network && window.App.Network.room && window.App.Network.myId === 'X') {
+                update(window.App.Network.ref, { 'blState/netSpeech': { p: playerIndex, m: textMsg, ts: Date.now() } });
+            }
         },
         showCenterCard() { 
             const centerArea = document.getElementById('bl-center'); 
@@ -2025,6 +2030,9 @@
         updateTrickPointsUI() { document.getElementById('bl-trick-pts-val').textContent = this.dealPoints.nous; },
         updateScoreUI() { document.getElementById('bl-score-nous').textContent = this.scores.nous; document.getElementById('bl-score-eux').textContent = this.scores.eux; },
         endDeal() { 
+            // NOUVEAU : On cache le carré de l'atout dès que la manche est finie !
+            document.getElementById('bl-atout-corner').style.display = 'none';
+
             let ptsNous = this.dealPoints.nous, ptsEux = this.dealPoints.eux, msg = "";
             
             if (this.tricksWon.nous === 8) { 
@@ -3889,9 +3897,19 @@
             if (this.currentTrick.length === 4) this.resolveTrick(); 
             else this.processPlay(); 
         } 
-        else if (action.type === 'pass') { if (this.phase === 'bidding_1') this.passBidding1(); if (this.phase === 'bidding_2') this.passBidding2(); } 
-        else if (action.type === 'take_1') { this.take(2, action.suit); } 
-        else if (action.type === 'take_2') { this.take(2, action.suit); }
+        else if (action.type === 'pass') { 
+            this.showSpeech(2, "Passe."); // NOUVEAU : Bulle affichée chez l'Hôte
+            if (this.phase === 'bidding_1') this.passBidding1(); 
+            if (this.phase === 'bidding_2') this.passBidding2(); 
+        } 
+        else if (action.type === 'take_1') { 
+            this.showSpeech(2, `Je prends ! (${action.suit.s})`); // NOUVEAU
+            this.take(2, action.suit); 
+        } 
+        else if (action.type === 'take_2') { 
+            this.showSpeech(2, `Je prends ! (${action.suit.s})`); // NOUVEAU
+            this.take(2, action.suit); 
+        }
     };
 
     const originalBotPlay = window.App.Belote.botPlay;
