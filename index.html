@@ -575,7 +575,7 @@
         <li data-target="s-bj"><span>♠️</span> Blackjack 21</li>
         <li data-target="s-mm"><span>🧠</span> Mastermind</li>
         <li data-target="s-bn"><span>🚢</span> Bataille Navale</li>
-        <li data-target="s-dames"><span>♟️</span> Jeu de Dames (10x10)</li>
+        <li data-target="s-dames"><span>♟️</span> Jeu de Dames</li>
         <div class="nav-divider"></div>
         <li data-target="s-net-lobby" style="color:var(--accent); border-color:var(--accent);"><span>🌐</span> Multijoueur</li>
     </ul>
@@ -702,7 +702,7 @@
     </section>
 
     <section id="s-bn" class="screen">
-        <h1>Bataille Navale (12x12)</h1>
+        <h1>Bataille Navale </h1>
         <p class="subtitle" id="bn-status">Génère ta flotte pour commencer.</p>
         <div class="bn-container">
             <div class="bn-grid-wrapper">
@@ -722,7 +722,7 @@
     </section>
 
     <section id="s-dames" class="screen">
-        <h1>Dames (International 10x10)</h1>
+        <h1>Dames </h1>
         <p class="subtitle" id="dames-status">À toi de jouer (Rouge) !</p>
         <div id="dames-board" class="dames-board"></div>
         <div style="text-align: center;"><button class="btn" onclick="App.Dames.init()">Recommencer</button></div>
@@ -731,18 +731,18 @@
     <section id="s-net-lobby" class="screen">
         <div class="lobby-box">
             <h1>Arcade Réseau</h1>
-            <p class="subtitle">Jouez avec un ami sur deux appareils distincts.</p>
+            <p class="subtitle">Jouez avec un ami.</p>
             <div style="margin: 40px 0; border-bottom: 2px solid #1e293b; padding-bottom: 40px;">
                 <h3 style="margin-bottom: 15px;">1. Créer une partie</h3>
                 <select id="net-game-select">
-                    <option value="sim">Morpion Simple</option>
+                    <option value="sim">Morpion</option>
                     <option value="ult">Morpion Ultime</option>
                     <option value="p4">Puissance 4</option>
                     <option value="yams">Yams</option>
-                    <option value="belote">Belote Coop (En Ligne)</option>
-                    <option value="mm">Mastermind (1v1)</option>
+                    <option value="belote">Belote Coop</option>
+                    <option value="mm">Mastermind</option>
                     <option value="bn">Bataille Navale</option>
-                    <option value="dames">Jeu de Dames (10x10)</option>
+                    <option value="dames">Jeu de Dames</option>
                 </select><br>
                 <button class="btn" id="btn-create-room" style="margin-top:15px;" onclick="App.Network.host()">Héberger le Salon</button>
             </div>
