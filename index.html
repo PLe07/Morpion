@@ -2550,6 +2550,9 @@
         botShoot() {
             let r, c, validShot = false;
             
+            // L'IA trie sa file d'attente pour prioriser les tirs alignés (Intelligence !)
+            this.botQueue.sort((a, b) => (b.priority || 0) - (a.priority || 0));
+            
             while(this.botQueue.length > 0 && !validShot) {
                 let target = this.botQueue.pop();
                 r = target.r; c = target.c;
@@ -2562,16 +2565,24 @@
                 let attempts = 0;
                 do { 
                     r = Math.floor(Math.random()*12); c = Math.floor(Math.random()*12); attempts++;
-                } while( this.pGrid[r][c] === 'H' || this.pGrid[r][c] === 'M' || ((r+c)%2 !== 0 && attempts < 100) );
+                } while( (this.pGrid[r][c] === 'H' || this.pGrid[r][c] === 'M' || ((r+c)%2 !== 0 && attempts < 100)) && attempts < 200 );
             }
             
             if(this.pGrid[r][c] === 1) {
                 this.pGrid[r][c] = 'H'; 
                 document.getElementById('bn-status').textContent = "Aïe ! Le bot a touché un navire !";
-                this.botQueue.push({r:r+1,c:c}); 
-                this.botQueue.push({r:r-1,c:c});
-                this.botQueue.push({r:r,c:c+1}); 
-                this.botQueue.push({r:r,c:c-1});
+                
+                // Ajoute les cases adjacentes avec une notion de priorité d'alignement
+                let dirs = [[-1,0], [1,0], [0,-1], [0,1]];
+                for(let d of dirs) {
+                    let nr = r + d[0], nc = c + d[1];
+                    if(nr>=0 && nr<12 && nc>=0 && nc<12 && this.pGrid[nr][nc] !== 'H' && this.pGrid[nr][nc] !== 'M') {
+                        // Si la case opposée est un 'H', on est sur une ligne, priorité MAX !
+                        let pr = r - d[0], pc = c - d[1];
+                        let priority = (pr>=0 && pr<12 && pc>=0 && pc<12 && this.pGrid[pr][pc] === 'H') ? 10 : 1;
+                        this.botQueue.push({r: nr, c: nc, priority: priority});
+                    }
+                }
                 
                 this.drawGrid('bn-player-grid', this.pGrid, false);
                 setTimeout(() => this.botShoot(), 800);
@@ -2580,7 +2591,7 @@
                 document.getElementById('bn-status').textContent = "Le bot a tiré dans l'eau. À toi !";
                 this.isBotThinking = false; 
                 this.drawGrid('bn-player-grid', this.pGrid, false);
-                this.drawGrid('bn-bot-grid', this.bGrid, true); // Unlock player input
+                this.drawGrid('bn-bot-grid', this.bGrid, true); // Débloque tes clics
             }
             
             if(this.checkWin(this.pGrid)) setTimeout(() => window.UI.showModal('Défaite...', 'Ta flotte a coulé.', () => this.init()), 500);
@@ -2799,6 +2810,7 @@
             let allMoves = [];
             let jumpMoves = [];
             
+            // 1. Collecter tous les coups
             for(let r=0; r<10; r++) {
                 for(let c=0; c<10; c++) {
                     let p = this.grid[r][c];
@@ -2819,10 +2831,55 @@
                 return; 
             }
             
-            let promotionMove = moveList.find(m => m.to.r === 9 && this.grid[m.from.r][m.from.c] === 2);
-            let finalMove = promotionMove ? promotionMove : moveList[Math.floor(Math.random() * moveList.length)];
+            // 2. Évaluation des coups (L'IA devient intelligente)
+            let bestScore = -Infinity;
+            let bestMoves = [];
+
+            moveList.forEach(m => {
+                let p = this.grid[m.from.r][m.from.c];
+                let isPromotion = (p === 2 && m.to.r === 9);
+                let score = 0;
+                
+                // Bonus énormes
+                if (m.to.jump) score += 50; // Aime manger
+                if (isPromotion) score += 100; // Vise la transformation en Dame
+                
+                // Bonus de position : on aime avancer vers le bas (r augmente)
+                score += m.to.r; 
+                
+                // Malus : on évite de casser sa ligne de défense arrière
+                if (m.from.r === 0) score -= 15;
+                
+                // Malus : on évite les bords où on a moins de mobilité (sauf pour promouvoir)
+                if ((m.to.c === 0 || m.to.c === 9) && !isPromotion) score -= 3;
+
+                // Enregistre les meilleurs coups
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMoves = [m];
+                } else if (score === bestScore) {
+                    bestMoves.push(m);
+                }
+            });
             
+            // Sélectionne au hasard parmi les meilleurs coups trouvés
+            let finalMove = bestMoves[Math.floor(Math.random() * bestMoves.length)];
             this.executeMove(finalMove.from, finalMove.to);
+        },
+        botContinueJump() {
+            if (this.validMoves.length > 0) {
+                // S'il peut continuer à manger, il privilégie la case qui l'emmène à la promotion
+                let bestMove = this.validMoves[0];
+                let bestScore = -Infinity;
+                
+                this.validMoves.forEach(m => {
+                    let score = m.r; // Plus on descend, mieux c'est
+                    if (m.r === 9 && this.grid[this.selected.r][this.selected.c] === 2) score += 100;
+                    if (score > bestScore) { bestScore = score; bestMove = m; }
+                });
+                
+                this.executeMove(this.selected, bestMove);
+            }
         },
         botContinueJump() {
             if (this.validMoves.length > 0) {
