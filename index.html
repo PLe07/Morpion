@@ -1451,38 +1451,48 @@
             let counts = {}; this.dice.forEach(x => counts[x] = (counts[x]||0)+1);
             let vals = Object.keys(counts).map(Number), maxC = Math.max(...Object.values(counts)), uniqueSet = new Set(this.dice);
             
-            // On a un gros morceau (Carré, Yams)
+            // Bloque le Yams et Carré immédiatement
             if(maxC >= 4) {
                 let num = vals.find(k => counts[k] === maxC);
                 this.dice.forEach((v, i) => this.kept[i] = (v == num));
             } 
-            // On a un Brelan : on garde tout si on vise le full
+            // Cherche le Full ou passe au Carré
             else if (maxC === 3) {
                 let num = vals.find(k => counts[k] === maxC);
-                if (vals.length === 2 && this.scores[1]['Full'] === undefined) {
-                    this.dice.forEach((v, i) => this.kept[i] = true);
+                if (uniqueSet.size === 2 && this.scores[1]['Full'] === undefined) {
+                    this.dice.forEach((v, i) => this.kept[i] = true); // Garde le Full
                 } else {
-                    this.dice.forEach((v, i) => this.kept[i] = (v == num));
+                    this.dice.forEach((v, i) => this.kept[i] = (v == num)); // Garde le Brelan pour faire un Carré/Yams
                 }
             }
-            // Recherche de suite
-            else if (uniqueSet.size >= 4 && this.scores[1]['GrandeSuite'] === undefined) {
-                 let seen = new Set();
-                 this.dice.forEach((v, i) => { 
-                     if(!seen.has(v) && v !== 1 && v !== 6) { this.kept[i] = true; seen.add(v); } 
-                     else if(!seen.has(v) && uniqueSet.size === 5) { this.kept[i] = true; seen.add(v); } 
-                     else this.kept[i] = false;
-                 });
+            // 4 dés différents = Suite potentielle (Tirage ouvert bilatéral)
+            else if (uniqueSet.size >= 4 && (this.scores[1]['GrandeSuite'] === undefined || this.scores[1]['PetiteSuite'] === undefined)) {
+                 // Si on a 2-3-4-5, on garde tout
+                 let has2345 = [2,3,4,5].every(n => uniqueSet.has(n));
+                 if (has2345) {
+                     let seen = new Set();
+                     this.dice.forEach((v, i) => { if(!seen.has(v) && v>=2 && v<=5) { this.kept[i]=true; seen.add(v); } else this.kept[i]=false; });
+                 } else {
+                     let seen = new Set();
+                     this.dice.forEach((v, i) => { 
+                         if(!seen.has(v) && v !== 1 && v !== 6) { this.kept[i] = true; seen.add(v); } 
+                         else if(!seen.has(v) && uniqueSet.size === 5) { this.kept[i] = true; seen.add(v); } 
+                         else this.kept[i] = false;
+                     });
+                 }
             } 
-            // Gestion des paires (focus sur les 4, 5 et 6 pour le bonus)
+            // Deux paires ou une paire : focus sur le haut du tableau (bonus)
             else if (maxC === 2) {
                 let num = vals.find(k => counts[k] === maxC);
+                // Si la paire est un 4, 5 ou 6, c'est de l'or pour le bonus
                 if (num >= 4 && this.scores[1][num.toString()] === undefined) {
                     this.dice.forEach((v, i) => this.kept[i] = (v == num));
                 } else {
+                    // Sinon, on garde les dés forts restants
                     this.dice.forEach((v, i) => this.kept[i] = (v >= 4 && this.scores[1][v.toString()] === undefined));
                 }
             } else {
+                // Tout pourri : on garde les 5 et 6 s'ils ne sont pas barrés
                 this.dice.forEach((v, i) => this.kept[i] = (v >= 5 && this.scores[1][v.toString()] === undefined));
             }
             this.ui();
@@ -1887,27 +1897,30 @@
             let isAtout = c => c.suit.s === this.atoutSuit.s;
             let trumps = validCardsArray.filter(isAtout);
             let nonTrumps = validCardsArray.filter(c => !isAtout(c));
-
             let sortByValDesc = arr => arr.sort((a,b) => this.getCardValue(b) - this.getCardValue(a));
             let sortByValAsc = arr => arr.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
 
-            // 1. LE BOT JOUE EN PREMIER (Mène le pli)
+            // LE BOT MÈNE LE PLI
             if (this.currentTrick.length === 0) {
                 let iAmTakerTeam = (this.takerIndex % 2) === (this.currentTurnIndex % 2);
                 
-                // Le bot a pris, il purge les atouts adverses
+                // Le bot a pris : il purge agressivement les atouts s'il a les gros (V, 9, A)
                 if (iAmTakerTeam && trumps.length > 0) { 
-                    let masterTrumps = trumps.filter(c => c.rank === 'V' || c.rank === '9');
+                    let masterTrumps = trumps.filter(c => c.rank === 'V' || c.rank === '9' || c.rank === 'A');
                     if (masterTrumps.length > 0) return sortByValDesc(masterTrumps)[0];
-                    return sortByValDesc(trumps)[0]; 
+                    if (Math.random() < 0.6) return sortByValDesc(trumps)[0]; // Force l'atout
                 }
                 
-                // Il joue un As sec pour sécuriser
+                // Joue les As non-atout systématiquement s'il les a
                 let aces = nonTrumps.filter(c => c.rank === 'A'); 
                 if (aces.length > 0) return aces[0];
                 
-                // Sinon il évite de donner un 10. Il jette ses déchets.
-                let trash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A');
+                // Sinon on joue les 10 UNIQUEMENT si on a beaucoup de cette couleur
+                let tens = nonTrumps.filter(c => c.rank === '10');
+                if (tens.length > 0 && Math.random() < 0.3) return tens[0];
+
+                // Sinon on se débarrasse des cartes nulles (7, 8, 9)
+                let trash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A' && c.rank !== 'R');
                 if (trash.length > 0) return sortByValAsc(trash)[0];
                 
                 return sortByValAsc(validCardsArray)[0];
@@ -1917,44 +1930,49 @@
             let partnerIndex = (this.currentTurnIndex + 2) % 4; 
             let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
             
-            // 2. LE PARTENAIRE GAGNE LE PLI ACTUEL
+            // LE PARTENAIRE GAGNE LE PLI
             if (isPartnerWinning) {
                 let winningCard = currentWinnerData.card;
                 let isLastToPlay = this.currentTrick.length === 3;
-                let isSecure = isLastToPlay || isAtout(winningCard) || winningCard.rank === 'A';
+                let isSecure = isLastToPlay || (isAtout(winningCard) && (winningCard.rank==='V' || winningCard.rank==='9')) || winningCard.rank === 'A';
 
-                // Si c'est sécurisé, on charge les points !
                 if (isSecure) {
-                    let points = validCardsArray.filter(c => c.rank === '10' || c.rank === 'A' || (isAtout(c) && (c.rank === 'V' || c.rank === '9')));
+                    // CHARGE MASSIVE : donne les 10 et les As au partenaire !
+                    let points = validCardsArray.filter(c => c.rank === '10' || c.rank === 'A');
                     if (points.length > 0) return sortByValDesc(points)[0]; 
                 }
                 
-                // Pas sûr = On donne la pire carte
-                let cheapCards = validCardsArray.filter(c => c.rank !== '10' && c.rank !== 'A');
+                // Refuse de gaspiller des points si le pli n'est pas 100% garanti
+                let cheapCards = validCardsArray.filter(c => c.rank !== '10' && c.rank !== 'A' && !isAtout(c));
                 if (cheapCards.length > 0) return sortByValAsc(cheapCards)[0];
                 
                 return sortByValAsc(validCardsArray)[0];
             } 
             
-            // 3. L'ADVERSAIRE GAGNE LE PLI ACTUEL
+            // L'ADVERSAIRE GAGNE LE PLI
             else {
                 let winningCard = currentWinnerData.card; 
                 let winningVal = isAtout(winningCard) ? (8 - this.ordAtout.indexOf(winningCard.rank)) : (8 - this.ordNormal.indexOf(winningCard.rank));
                 
                 let cardsThatBeatWinner = validCardsArray.filter(c => {
-                    if (isAtout(c) && !isAtout(winningCard)) return true; // Coupe
+                    if (isAtout(c) && !isAtout(winningCard)) return true; // Le bot coupe
                     if (c.suit.s === winningCard.suit.s) { 
                         let order = isAtout(c) ? this.ordAtout : this.ordNormal; 
-                        return (8 - order.indexOf(c.rank)) > winningVal; // Surcoupe / Monte
+                        return (8 - order.indexOf(c.rank)) > winningVal; // Le bot monte
                     } 
                     return false;
                 });
                 
                 if (cardsThatBeatWinner.length > 0) { 
-                    // Gagne avec LA PLUS PETITE carte possible (économise)
+                    // Si le pli contient des points adverses (10, As), on tape fort avec le meilleur Atout
+                    let pointsInTrick = this.currentTrick.reduce((acc, t) => acc + this.getCardValue(t.card), 0);
+                    if (pointsInTrick >= 10 && cardsThatBeatWinner.some(isAtout)) {
+                        return sortByValDesc(cardsThatBeatWinner.filter(isAtout))[0]; // Écrase l'adversaire
+                    }
+                    // Sinon, gagne avec le strict minimum pour économiser
                     return sortByValAsc(cardsThatBeatWinner)[0]; 
                 } else { 
-                    // Impossible de gagner, on jette une poubelle
+                    // Impossible de gagner -> se défausser des pires cartes absolues (jamais d'Atout, jamais d'As)
                     let absoluteTrash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A');
                     if (absoluteTrash.length > 0) return sortByValAsc(absoluteTrash)[0];
                     
@@ -2850,86 +2868,87 @@
             }
         },
         botPlay() {
-            let allMoves = []; let jumpMoves = [];
-            for(let r=0; r<10; r++) {
-                for(let c=0; c<10; c++) {
-                    let p = this.grid[r][c];
-                    if(p === 2 || p === 4) { // 2 = Pion Bot, 4 = Dame Bot
-                        let moves = this.getPieceMoves(r, c, p, this.grid);
-                        moves.forEach(m => { if(m.jump) jumpMoves.push({from: {r, c}, to: m}); else allMoves.push({from: {r, c}, to: m}); });
-                    }
-                }
-            }
-            
-            let moveList = jumpMoves.length > 0 ? jumpMoves : allMoves;
-            if(moveList.length === 0) { setTimeout(() => window.UI.showModal('Victoire !', 'Le Bot est bloqué, tu as gagné !', () => this.init()), 300); return; }
-            
-            let bestScore = -Infinity; 
-            let bestMoves = [];
-
-            moveList.forEach(m => {
-                let p = this.grid[m.from.r][m.from.c]; 
-                let isKing = (p === 4); 
-                let isPromotion = (p === 2 && m.to.r === 9); 
-                let score = 0;
-                
-                // --- RÉCOMPENSES PRO ---
-                if (m.to.jump) {
-                    let victim = this.grid[m.to.jump.r][m.to.jump.c];
-                    score += (victim === 3) ? 2000 : 800; // Priorité ABSOLUE : manger les dames
-                }
-                if (isPromotion) score += 1500;
-                
-                if (!isKing && !m.to.jump) score += m.to.r * 15; // Pousser vers la promotion
-                
-                // Stratégie de position
-                if (m.to.c >= 3 && m.to.c <= 6) score += 30; // Centre
-                if (m.to.c === 0 || m.to.c === 9) score += 20; // Bords protégés
-                if (m.from.r === 0 && p === 2) score -= 400; // Ne lève la garde arrière qu'en dernier recours
-                
-                // --- SIMULATION TACTIQUE ---
-                let simulateGrid = this.grid.map(row => [...row]);
-                simulateGrid[m.from.r][m.from.c] = 0;
-                if (m.to.jump) simulateGrid[m.to.jump.r][m.to.jump.c] = 0;
-                simulateGrid[m.to.r][m.to.c] = isPromotion ? 4 : p;
-
-                let danger = 0;
-                for (let er = 0; er < 10; er++) {
-                    for (let ec = 0; ec < 10; ec++) {
-                        let ep = simulateGrid[er][ec];
-                        if (ep === 1 || ep === 3) { // C'est une de tes pièces
-                            let enemyMoves = this.getPieceMoves(er, ec, ep, simulateGrid);
-                            enemyMoves.forEach(em => {
-                                if (em.jump && em.jump.r === m.to.r && em.jump.c === m.to.c) {
-                                    danger += isKing ? 2500 : 900; // Giga malus : on se jette dans la gueule du loup
-                                }
-                            });
+            let getValidMovesForPlayer = (playerNum, gridState) => {
+                let a = [], j = [];
+                for(let r=0; r<10; r++) {
+                    for(let c=0; c<10; c++) {
+                        let p = gridState[r][c];
+                        if(p === playerNum || p === playerNum + 2) {
+                            let mvs = this.getPieceMoves(r, c, p, gridState);
+                            mvs.forEach(m => { if(m.jump) j.push({from:{r,c}, to:m}); else a.push({from:{r,c}, to:m}); });
                         }
                     }
                 }
-                score -= danger;
+                return j.length > 0 ? j : a;
+            };
 
-                // Support : Rester collé aux copains
-                let friendsAround = 0;
-                let dirs = [[1,-1], [1,1], [-1,-1], [-1,1]];
-                for(let d of dirs) {
-                    let ar = m.to.r + d[0], ac = m.to.c + d[1];
-                    if (ar>=0 && ar<10 && ac>=0 && ac<10 && (simulateGrid[ar][ac]===2 || simulateGrid[ar][ac]===4)) {
-                        friendsAround++;
+            let evaluateGrid = (gridState) => {
+                let score = 0;
+                for(let r=0; r<10; r++) {
+                    for(let c=0; c<10; c++) {
+                        let p = gridState[r][c];
+                        if(p===2) score += 10 + r; // Pion Bot : aime avancer
+                        if(p===4) score += 50; // Dame Bot
+                        if(p===1) score -= (10 + (9-r)); // Pion Humain
+                        if(p===3) score -= 50; // Dame Humain
+                        // Contrôle du centre (Bot)
+                        if((p===2||p===4) && c>=3 && c<=6 && r>=3 && r<=6) score += 3;
+                        // Malus si le bot lève sa garde
+                        if(p===2 && r===0) score += 10; 
                     }
                 }
-                score += (friendsAround * 15);
+                return score;
+            };
 
-                if (score > bestScore) { 
-                    bestScore = score; 
-                    bestMoves = [m]; 
-                } else if (score === bestScore) { 
-                    bestMoves.push(m); 
+            let botMoves = getValidMovesForPlayer(2, this.grid);
+            if(botMoves.length === 0) { setTimeout(() => window.UI.showModal('Victoire !', 'Le Bot est bloqué, tu as gagné !', () => this.init()), 300); return; }
+
+            let bestScore = -Infinity;
+            let bestMove = null;
+
+            // MINIMAX DEPTH 2 (Le bot anticipe tes réponses)
+            for(let m of botMoves) {
+                // 1. Simuler le coup du bot
+                let simGrid = this.grid.map(row => [...row]);
+                let p = simGrid[m.from.r][m.from.c];
+                simGrid[m.from.r][m.from.c] = 0;
+                if(m.to.jump) simGrid[m.to.jump.r][m.to.jump.c] = 0;
+                let isPromo = (p === 2 && m.to.r === 9);
+                simGrid[m.to.r][m.to.c] = isPromo ? 4 : p;
+
+                // 2. Simuler TOUTES les réponses possibles de l'humain
+                let humanMoves = getValidMovesForPlayer(1, simGrid);
+                let worstHumanScore = Infinity; // Le bot suppose que tu vas jouer le MEILLEUR coup possible pour toi
+
+                if(humanMoves.length === 0) {
+                    worstHumanScore = 10000; // Le bot gagne !
+                } else {
+                    for(let hm of humanMoves) {
+                        let simGrid2 = simGrid.map(row => [...row]);
+                        let hp = simGrid2[hm.from.r][hm.from.c];
+                        simGrid2[hm.from.r][hm.from.c] = 0;
+                        if(hm.to.jump) simGrid2[hm.to.jump.r][hm.to.jump.c] = 0;
+                        let hPromo = (hp === 1 && hm.to.r === 0);
+                        simGrid2[hm.to.r][hm.to.c] = hPromo ? 3 : hp;
+                        
+                        let ev = evaluateGrid(simGrid2);
+                        if(ev < worstHumanScore) worstHumanScore = ev; // L'humain minimise le score du bot
+                    }
                 }
-            });
-            
-            let finalMove = bestMoves[Math.floor(Math.random() * bestMoves.length)];
-            this.executeMove(finalMove.from, finalMove.to);
+
+                // Ajoute un bonus agressif si le bot mange
+                if(m.to.jump) worstHumanScore += 5;
+                if(isPromo) worstHumanScore += 10;
+
+                if(worstHumanScore > bestScore) {
+                    bestScore = worstHumanScore;
+                    bestMove = m;
+                } else if (worstHumanScore === bestScore && Math.random() < 0.5) {
+                    bestMove = m; // Diversité si égalité
+                }
+            }
+
+            this.executeMove(bestMove.from, bestMove.to);
         },
         botContinueJump() {
             if (this.validMoves.length > 0) {
