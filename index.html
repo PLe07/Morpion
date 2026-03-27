@@ -1448,96 +1448,85 @@
             }, 1000);
         },
         botDecideKeeps() {
-            let counts = {}; 
-            this.dice.forEach(x => counts[x] = (counts[x]||0)+1);
-            let vals = Object.keys(counts).map(Number);
-            let maxC = Math.max(...Object.values(counts));
-            let uniqueSet = new Set(this.dice);
+            let counts = {}; this.dice.forEach(x => counts[x] = (counts[x]||0)+1);
+            let vals = Object.keys(counts).map(Number), maxC = Math.max(...Object.values(counts)), uniqueSet = new Set(this.dice);
             
-            if(maxC >= 3) {
+            // On a un gros morceau (Carré, Yams)
+            if(maxC >= 4) {
                 let num = vals.find(k => counts[k] === maxC);
                 this.dice.forEach((v, i) => this.kept[i] = (v == num));
             } 
+            // On a un Brelan : on garde tout si on vise le full
+            else if (maxC === 3) {
+                let num = vals.find(k => counts[k] === maxC);
+                if (vals.length === 2 && this.scores[1]['Full'] === undefined) {
+                    this.dice.forEach((v, i) => this.kept[i] = true);
+                } else {
+                    this.dice.forEach((v, i) => this.kept[i] = (v == num));
+                }
+            }
+            // Recherche de suite
             else if (uniqueSet.size >= 4 && this.scores[1]['GrandeSuite'] === undefined) {
                  let seen = new Set();
                  this.dice.forEach((v, i) => { 
-                     if(!seen.has(v) && v !== 1 && v !== 6) { 
-                         this.kept[i] = true; seen.add(v); 
-                     } else if(!seen.has(v) && uniqueSet.size === 5) { 
-                         this.kept[i] = true; seen.add(v); 
-                     } else {
-                         this.kept[i] = false;
-                     } 
+                     if(!seen.has(v) && v !== 1 && v !== 6) { this.kept[i] = true; seen.add(v); } 
+                     else if(!seen.has(v) && uniqueSet.size === 5) { this.kept[i] = true; seen.add(v); } 
+                     else this.kept[i] = false;
                  });
             } 
-            else if (vals.length === 3 && maxC === 2 && this.scores[1]['Full'] === undefined) {
-                this.dice.forEach((v, i) => this.kept[i] = (counts[v] === 2));
-            }
+            // Gestion des paires (focus sur les 4, 5 et 6 pour le bonus)
             else if (maxC === 2) {
                 let num = vals.find(k => counts[k] === maxC);
-                if (num >= 4 || this.scores[1][num.toString()] === undefined) {
+                if (num >= 4 && this.scores[1][num.toString()] === undefined) {
                     this.dice.forEach((v, i) => this.kept[i] = (v == num));
                 } else {
-                    this.dice.forEach((v, i) => this.kept[i] = (v >= 5));
+                    this.dice.forEach((v, i) => this.kept[i] = (v >= 4 && this.scores[1][v.toString()] === undefined));
                 }
-            } 
-            else {
-                this.dice.forEach((v, i) => this.kept[i] = (v >= 5));
+            } else {
+                this.dice.forEach((v, i) => this.kept[i] = (v >= 5 && this.scores[1][v.toString()] === undefined));
             }
             this.ui();
         },
         botChooseCategory() {
             this.calculatePotentials();
-            let bestScore = -Infinity;
-            let chosenCat = null;
-            const cats = ['Yams', 'Grande Suite', 'Petite Suite', 'Full', 'Carré', 'Brelan', '6', '5', '4', '3', '2', '1', 'Chance'];
+            let bestScore = -Infinity, chosenCat = null;
+            const cats = ['Yams', 'Grande Suite', 'Full', 'Petite Suite', 'Carré', 'Brelan', '6', '5', '4', '3', '2', '1', 'Chance'];
             
             for(let cat of cats) {
                 if(this.scores[1][cat] !== undefined) continue;
                 let el = document.getElementById(`y-1-${cat.replace(/\s/g, '')}`);
                 
                 if(el && el.classList.contains('pot')) { 
-                    let pts = parseInt(el.textContent);
-                    let weight = pts;
-                    
+                    let pts = parseInt(el.textContent), weight = pts;
                     if(pts === 0) {
+                        // Table des sacrifices pro : on raye les petites lignes de gauche
                         if(cat==='Yams') weight = -1000;
-                        else if(cat==='Grande Suite') weight = -50;
-                        else if(cat==='Petite Suite') weight = -40;
-                        else if(cat==='Carré') weight = -30;
-                        else if(cat==='Full') weight = -20;
-                        else if(cat==='1') weight = -1;
-                        else if(cat==='2') weight = -2;
-                        else if(cat==='3') weight = -5;
-                        else if(cat==='Chance') weight = -15; 
+                        else if(cat==='Grande Suite') weight = -500;
+                        else if(cat==='Petite Suite') weight = -200;
+                        else if(cat==='Carré') weight = -100;
+                        else if(cat==='Full') weight = -90;
+                        else if(cat==='1') weight = 20; // Parfait à barrer !
+                        else if(cat==='2') weight = 15; 
+                        else if(cat==='3') weight = 5;
+                        else if(cat==='Chance') weight = -80; 
                         else weight = -10; 
                     } else {
                         if(['1','2','3','4','5','6'].includes(cat)) {
                             let target = parseInt(cat)*3;
-                            if(pts >= target) weight += 25; 
+                            if(pts >= target) weight += 40; // Super pour le bonus
                         }
-                        if(cat === 'Chance' && pts < 22) weight -= 20;
-                        if(cat === 'Yams') weight += 50;
+                        if(cat === 'Chance' && pts < 22) weight -= 30;
+                        if(cat === 'Yams') weight += 1500; // Priorité Ultime
                     }
-                    
-                    if(weight > bestScore) { 
-                        bestScore = weight; 
-                        chosenCat = cat; 
-                    }
+                    if(weight > bestScore) { bestScore = weight; chosenCat = cat; }
                 }
             }
-            
             if(!chosenCat) {
-                let sac = ['Yams','Grande Suite','Petite Suite','Carré','1','2','3','Chance','4','5','Full','Brelan','6'];
-                for(let cat of sac) {
-                    if(this.scores[1][cat] === undefined) { 
-                        chosenCat = cat; 
-                        break; 
-                    }
-                }
+                let sac = ['1','2','3','Chance','Petite Suite','Carré','Full','4','5','6','Brelan','Grande Suite','Yams'];
+                for(let cat of sac) if(this.scores[1][cat] === undefined) { chosenCat = cat; break; }
             }
             if(chosenCat) this.lockCategory(chosenCat, 1);
-        }
+        },
     };
 
     // =========================================================
@@ -1672,12 +1661,26 @@
                 this.syncNetwork();
                 
                 setTimeout(() => {
-                    let suit = this.centerCard.suit.s, rank = this.centerCard.rank, hand = this.hands[this.currentTurnIndex], suitCards = hand.filter(c => c.suit.s === suit), shouldTake = false;
-                    if (rank === 'V' || rank === '9') shouldTake = true; 
-                    else if (suitCards.length >= 2 && suitCards.some(c => c.rank === 'V' || c.rank === '9')) shouldTake = true; 
-                    else if (suitCards.length >= 3) shouldTake = true;
+                    let suit = this.centerCard.suit.s, rank = this.centerCard.rank, hand = this.hands[this.currentTurnIndex];
+                    let suitCards = hand.filter(c => c.suit.s === suit);
                     
-                    if (shouldTake || Math.random() < 0.05) { 
+                    // Calcul "Pro" pour le premier tour (Evaluation de la main)
+                    let power = 0;
+                    if (rank === 'V') power += 4;
+                    if (rank === '9') power += 2.5;
+                    suitCards.forEach(c => {
+                        if (c.rank === 'V') power += 4;
+                        else if (c.rank === '9') power += 2.5;
+                        else if (c.rank === 'A') power += 1.5;
+                        else if (c.rank === '10') power += 1;
+                        else power += 0.5;
+                    });
+                    
+                    // As hors atout = Bonus de sécurité
+                    hand.filter(c => c.suit.s !== suit && c.rank === 'A').forEach(() => power += 1);
+
+                    // Il faut une main "lourde" pour prendre au 1er tour (ex: Valet + 1 atout + 1 As)
+                    if (power >= 5.5) { 
                         this.showSpeech(this.currentTurnIndex, `Je prends ! (${this.centerCard.suit.s})`); 
                         setTimeout(() => { this.take(this.currentTurnIndex, this.centerCard.suit); }, 800); 
                     } else { 
@@ -1731,16 +1734,23 @@
                 
                 setTimeout(() => {
                     let hand = this.hands[this.currentTurnIndex], bestSuit = null, bestScore = 0;
+                    
                     availableSuits.forEach(suitObj => {
-                        let suitCards = hand.filter(c => c.suit.s === suitObj.s), score = 0;
-                        if (suitCards.some(c => c.rank === 'V')) score += 3; 
-                        if (suitCards.some(c => c.rank === '9')) score += 2; 
-                        if (suitCards.some(c => c.rank === 'A')) score += 1; 
-                        score += suitCards.length;
-                        if (score > bestScore) { bestScore = score; bestSuit = suitObj; }
+                        let power = 0;
+                        let suitCards = hand.filter(c => c.suit.s === suitObj.s);
+                        suitCards.forEach(c => {
+                            if (c.rank === 'V') power += 4;
+                            else if (c.rank === '9') power += 2.5;
+                            else if (c.rank === 'A') power += 1.5;
+                            else if (c.rank === '10') power += 1;
+                            else power += 0.5;
+                        });
+                        hand.filter(c => c.suit.s !== suitObj.s && c.rank === 'A').forEach(() => power += 1);
+                        
+                        if (power > bestScore) { bestScore = power; bestSuit = suitObj; }
                     });
                     
-                    if (bestScore >= 4 || (bestScore >= 3 && Math.random() < 0.2)) { 
+                    if (bestScore >= 5) { 
                         this.showSpeech(this.currentTurnIndex, `Je prends ! (${bestSuit.s})`); 
                         setTimeout(() => { this.take(this.currentTurnIndex, bestSuit); }, 800); 
                     } else { 
@@ -1885,18 +1895,18 @@
             if (this.currentTrick.length === 0) {
                 let iAmTakerTeam = (this.takerIndex % 2) === (this.currentTurnIndex % 2);
                 
-                // Si on a pris l'atout, on fait tomber les atouts adverses (avec Valet ou 9 si possible)
+                // Le bot a pris, il purge les atouts adverses
                 if (iAmTakerTeam && trumps.length > 0) { 
                     let masterTrumps = trumps.filter(c => c.rank === 'V' || c.rank === '9');
                     if (masterTrumps.length > 0) return sortByValDesc(masterTrumps)[0];
                     return sortByValDesc(trumps)[0]; 
                 }
                 
-                // Sinon on joue les As pour faire des plis sûrs
+                // Il joue un As sec pour sécuriser
                 let aces = nonTrumps.filter(c => c.rank === 'A'); 
                 if (aces.length > 0) return aces[0];
                 
-                // Sinon on évite de jeter un 10 "sec" (sans l'As). On jette une poubelle (7, 8, 9).
+                // Sinon il évite de donner un 10. Il jette ses déchets.
                 let trash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A');
                 if (trash.length > 0) return sortByValAsc(trash)[0];
                 
@@ -1911,17 +1921,15 @@
             if (isPartnerWinning) {
                 let winningCard = currentWinnerData.card;
                 let isLastToPlay = this.currentTrick.length === 3;
-                
-                // Est-ce que le pli est 100% sûr ? (Atout maître, As, ou le bot joue en dernier)
-                let isSecure = isAtout(winningCard) || winningCard.rank === 'A' || isLastToPlay;
+                let isSecure = isLastToPlay || isAtout(winningCard) || winningCard.rank === 'A';
 
+                // Si c'est sécurisé, on charge les points !
                 if (isSecure) {
-                    // On CHARGE les points ! (10, As, ou gros Atout si on est obligé)
                     let points = validCardsArray.filter(c => c.rank === '10' || c.rank === 'A' || (isAtout(c) && (c.rank === 'V' || c.rank === '9')));
                     if (points.length > 0) return sortByValDesc(points)[0]; 
                 }
                 
-                // Si ce n'est pas sûr, on donne la plus petite carte possible (pas de 10 !)
+                // Pas sûr = On donne la pire carte
                 let cheapCards = validCardsArray.filter(c => c.rank !== '10' && c.rank !== 'A');
                 if (cheapCards.length > 0) return sortByValAsc(cheapCards)[0];
                 
@@ -1933,22 +1941,20 @@
                 let winningCard = currentWinnerData.card; 
                 let winningVal = isAtout(winningCard) ? (8 - this.ordAtout.indexOf(winningCard.rank)) : (8 - this.ordNormal.indexOf(winningCard.rank));
                 
-                // Quelles cartes peuvent battre l'adversaire ?
                 let cardsThatBeatWinner = validCardsArray.filter(c => {
-                    if (isAtout(c) && !isAtout(winningCard)) return true; // On peut couper
+                    if (isAtout(c) && !isAtout(winningCard)) return true; // Coupe
                     if (c.suit.s === winningCard.suit.s) { 
                         let order = isAtout(c) ? this.ordAtout : this.ordNormal; 
-                        return (8 - order.indexOf(c.rank)) > winningVal; // On peut monter
+                        return (8 - order.indexOf(c.rank)) > winningVal; // Surcoupe / Monte
                     } 
                     return false;
                 });
                 
                 if (cardsThatBeatWinner.length > 0) { 
-                    // On prend avec la carte GAGNANTE LA PLUS FAIBLE (économise les gros atouts)
+                    // Gagne avec LA PLUS PETITE carte possible (économise)
                     return sortByValAsc(cardsThatBeatWinner)[0]; 
                 } else { 
-                    // Impossible de gagner. On se défausse intelligemment.
-                    // On jette l'absolue pire carte (pas d'As, pas de 10, pas d'Atout)
+                    // Impossible de gagner, on jette une poubelle
                     let absoluteTrash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A');
                     if (absoluteTrash.length > 0) return sortByValAsc(absoluteTrash)[0];
                     
@@ -2867,45 +2873,52 @@
                 let isPromotion = (p === 2 && m.to.r === 9); 
                 let score = 0;
                 
-                // --- RÉCOMPENSES ---
+                // --- RÉCOMPENSES PRO ---
                 if (m.to.jump) {
                     let victim = this.grid[m.to.jump.r][m.to.jump.c];
-                    score += (victim === 3) ? 800 : 300; // Manger une Dame (3) rapporte énorme
+                    score += (victim === 3) ? 2000 : 800; // Priorité ABSOLUE : manger les dames
                 }
-                if (isPromotion) score += 1000;
+                if (isPromotion) score += 1500;
                 
-                if (!isKing) score += m.to.r * 10; // Avancer rapporte des points
+                if (!isKing && !m.to.jump) score += m.to.r * 15; // Pousser vers la promotion
                 
-                // Le centre est stratégique, les bords sont sûrs
-                if (m.to.c >= 3 && m.to.c <= 6 && m.to.r >= 3 && m.to.r <= 6) score += 25; 
-                else if (m.to.c === 0 || m.to.c === 9) score += 15; 
+                // Stratégie de position
+                if (m.to.c >= 3 && m.to.c <= 6) score += 30; // Centre
+                if (m.to.c === 0 || m.to.c === 9) score += 20; // Bords protégés
+                if (m.from.r === 0 && p === 2) score -= 400; // Ne lève la garde arrière qu'en dernier recours
                 
-                // Ne jamais découvrir sa ligne de fond sauf urgence absolue
-                if (m.from.r === 0 && p === 2) score -= 250; 
-                
-                // --- SIMULATION (Anticipation d'un tour) ---
+                // --- SIMULATION TACTIQUE ---
                 let simulateGrid = this.grid.map(row => [...row]);
                 simulateGrid[m.from.r][m.from.c] = 0;
                 if (m.to.jump) simulateGrid[m.to.jump.r][m.to.jump.c] = 0;
                 simulateGrid[m.to.r][m.to.c] = isPromotion ? 4 : p;
 
-                let isVulnerable = false;
+                let danger = 0;
                 for (let er = 0; er < 10; er++) {
                     for (let ec = 0; ec < 10; ec++) {
                         let ep = simulateGrid[er][ec];
-                        if (ep === 1 || ep === 3) { // Si c'est ta pièce (Rouge)
+                        if (ep === 1 || ep === 3) { // C'est une de tes pièces
                             let enemyMoves = this.getPieceMoves(er, ec, ep, simulateGrid);
-                            // S'il voit que tu peux manger sa pièce à son point d'arrivée
-                            if (enemyMoves.some(em => em.jump && em.jump.r === m.to.r && em.jump.c === m.to.c)) {
-                                isVulnerable = true;
-                            }
+                            enemyMoves.forEach(em => {
+                                if (em.jump && em.jump.r === m.to.r && em.jump.c === m.to.c) {
+                                    danger += isKing ? 2500 : 900; // Giga malus : on se jette dans la gueule du loup
+                                }
+                            });
                         }
                     }
                 }
-                
-                if (isVulnerable && !m.to.jump) {
-                    score -= isKing ? 1500 : 400; // Il préfère fuir ou ne pas bouger plutôt que de se faire manger gratuitement
+                score -= danger;
+
+                // Support : Rester collé aux copains
+                let friendsAround = 0;
+                let dirs = [[1,-1], [1,1], [-1,-1], [-1,1]];
+                for(let d of dirs) {
+                    let ar = m.to.r + d[0], ac = m.to.c + d[1];
+                    if (ar>=0 && ar<10 && ac>=0 && ac<10 && (simulateGrid[ar][ac]===2 || simulateGrid[ar][ac]===4)) {
+                        friendsAround++;
+                    }
                 }
+                score += (friendsAround * 15);
 
                 if (score > bestScore) { 
                     bestScore = score; 
