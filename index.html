@@ -526,6 +526,28 @@
         .room-code-display { font-size: 4.5rem; letter-spacing: 10px; color: var(--accent); font-weight: 900; margin: 30px 0; background: #020617; padding: 20px; border-radius: 15px; }
         .net-status-bar { background: #020617; padding: 20px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 30px; font-size: 1.4rem; font-weight: bold; text-align: center; }
 
+
+        /* BOUTON RÈGLES */
+        #btn-rules {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--panel-bg);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 100;
+            transition: 0.3s;
+            font-size: 1rem;
+        }
+        #btn-rules:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
         /* =========================================
            9. RESPONSIVE DESIGN (MOBILES & TABLETTES)
            ========================================= */
@@ -550,6 +572,7 @@
             .bn-container { flex-direction: column; }
             .bn-grid { transform: scale(0.85); transform-origin: top center; }
             .dames-board { transform: scale(0.85); transform-origin: top center; }
+            #btn-rules { position: relative; top: 0; right: 0; margin: 0 auto 15px auto; display: block; }
         }
     </style>
 </head>
@@ -582,6 +605,97 @@
 </nav>
 
 <main>
+
+    <button id="btn-rules" onclick="UI.showRules()">📖 Règles du jeu</button>
+    
+    <section id="s-sim" class="screen active">
+        ```
+
+### 3. La logique intelligente (JavaScript)
+Descend dans ton code JavaScript, tout au début, là où on a défini `window.UI = { ... }`. On va lui rajouter la fonction `showRules()`.
+
+**Remplace l'intégralité de ton bloc `window.UI` actuel par celui-ci :**
+
+```javascript
+    window.UI = {
+        modalCb: null,
+        showModal(title, desc, cb) {
+            document.getElementById('modal-title').innerHTML = title;
+            let titleColor = 'var(--player-x)';
+            if (title.includes('Victoire') || title.includes('Gagné') || title.includes('Terminée') || title.includes('Réussi') || title.includes('Fin')) {
+                titleColor = 'var(--accent)';
+            }
+            document.getElementById('modal-title').style.color = titleColor;
+            document.getElementById('modal-desc').innerHTML = desc;
+            this.modalCb = cb; 
+            document.getElementById('modal-btn').style.display = 'inline-block';
+            document.getElementById('modal-overlay').style.display = 'flex';
+        },
+        closeModal() { 
+            document.getElementById('modal-overlay').style.display = 'none'; 
+            if (this.modalCb) this.modalCb(); 
+        },
+        switchScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+            document.getElementById(id).classList.add('active');
+            if (id !== 's-mine') clearInterval(window.App.Mine.timer);
+        },
+        showRules() {
+            // Détecte le jeu actuellement affiché à l'écran
+            const activeScreen = document.querySelector('.screen.active').id;
+            let title = "📖 Règles du Jeu";
+            let desc = "";
+
+            switch(activeScreen) {
+                case 's-sim': 
+                case 's-net-sim': 
+                    desc = "Aligne 3 symboles (X ou O) horizontalement, verticalement ou en diagonale pour gagner la manche."; 
+                    break;
+                case 's-ult': 
+                case 's-net-ult': 
+                    desc = "Gagne une petite grille pour conquérir sa case dans la grande.<br><br><b style='color:var(--accent)'>Règle d'or :</b> La case que tu choisis dans une petite grille oblige ton adversaire à jouer dans la grande grille correspondante !"; 
+                    break;
+                case 's-mine': 
+                    desc = "Trouve toutes les cases sans mine. Les chiffres t'indiquent le nombre de mines directement adjacentes.<br><br>Utilise le <b>Clic Droit</b> pour poser un drapeau (🚩)."; 
+                    break;
+                case 's-yams': 
+                case 's-net-yams': 
+                    desc = "Lance les dés jusqu'à 3 fois et clique dessus pour les garder.<br><br>Si la somme de la partie haute (1 à 6) atteint au moins <b>63 points</b>, tu gagnes un bonus de <b>35 points</b> ! Le Yams (5 dés identiques) vaut 50 points."; 
+                    break;
+                case 's-belote': 
+                    desc = "<b style='color:var(--accent)'>Ordre Atout :</b> V, 9, As, 10, R, D, 8, 7.<br><b style='color:var(--gold)'>Ordre Normal :</b> As, 10, R, D, V, 9, 8, 7.<br><br>Avoir le Roi et la Dame d'atout donne <b>+20 pts</b> (Belote-Rebelote). Gagner le dernier pli donne <b>+10 pts</b> (Dix de der). Pour valider son contrat, le preneur doit faire plus de points que l'adversaire !"; 
+                    break;
+                case 's-p4': 
+                case 's-net-p4': 
+                    desc = "Lâche tes jetons dans la grille pour aligner 4 jetons de ta couleur horizontalement, verticalement ou en diagonale avant le Bot."; 
+                    break;
+                case 's-bj': 
+                    desc = "Bats le croupier en t'approchant le plus de 21 sans jamais le dépasser (Bust).<br><br>Les têtes valent 10, l'As vaut 1 ou 11 selon ce qui t'arrange."; 
+                    break;
+                case 's-mm': 
+                case 's-net-mm': 
+                    desc = "Trouve le code couleur secret en 9 essais maximum.<br><br><span style='color:#ef4444; font-weight:bold;'>Indice Rouge :</span> Bonne couleur, bonne place.<br><span style='color:#cbd5e1; font-weight:bold;'>Indice Blanc :</span> Bonne couleur, mauvaise place."; 
+                    break;
+                case 's-bn': 
+                case 's-net-bn': 
+                    desc = "Place ta flotte horizontalement ou verticalement, puis tire sur la grille adverse. Le premier à couler tous les navires ennemis gagne."; 
+                    break;
+                case 's-dames': 
+                case 's-net-dames': 
+                    desc = "Mange les pions adverses en sautant par-dessus.<br><br><b style='color:var(--player-x)'>Attention :</b> La prise est OBLIGATOIRE (tu dois manger si c'est possible, et continuer de manger si tu peux faire une rafle). La Dame se déplace sur toute la diagonale."; 
+                    break;
+                case 's-net-lobby': 
+                case 's-net-waiting': 
+                    desc = "Crée un salon et donne le code secret à 4 lettres à ton ami pour jouer en ligne en temps réel !"; 
+                    break;
+                default: 
+                    desc = "Sélectionne un jeu dans le menu pour commencer !";
+            }
+            
+            // On utilise null à la fin pour qu'il n'y ait pas d'action spéciale en fermant la fenêtre
+            this.showModal(title, desc, null);
+        }
+    };
     <section id="s-sim" class="screen active">
         <h1>Tic-Tac-Toe</h1>
         <p class="subtitle" id="ms-status">Ton tour ! (Tu es X)</p>
