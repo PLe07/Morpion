@@ -1294,94 +1294,48 @@
     };
 
     // =========================================================
-    // MOTEUR DE JEU : YAMS
+    // MOTEUR DE JEU : YAMS PRO
     // =========================================================
     window.App.Yams = {
         dice: [1, 1, 1, 1, 1], kept: [false, false, false, false, false], rollsLeft: 3, currentPlayer: 0, scores: [{}, {}],
         init() {
-            this.scores = [{}, {}]; 
-            this.currentPlayer = 0; 
-            this.rollsLeft = 3; 
-            this.kept.fill(false); 
-            this.drawTables(); 
-            this.dice = [1, 1, 1, 1, 1]; 
-            this.ui();
+            this.scores = [{}, {}]; this.currentPlayer = 0; this.rollsLeft = 3; this.kept.fill(false); this.drawTables(); this.dice = [1, 1, 1, 1, 1]; this.ui();
         },
         drawTables() {
-            const container = document.getElementById('y-score-container'); 
-            container.innerHTML = ''; 
+            const container = document.getElementById('y-score-container'); container.innerHTML = ''; 
             const cats = ['1', '2', '3', '4', '5', '6', 'Bonus (>62)', 'Brelan', 'Carré', 'Full', 'Petite Suite', 'Grande Suite', 'Yams', 'Chance'];
-            
             for (let i = 0; i < 2; i++) { 
                 let tableHTML = `<table class="y-table" id="yt-${i}"><tr><th colspan="2">${i===0?'Toi':'Le Bot'}</th></tr>`; 
                 cats.forEach(c => { 
-                    if (c.includes('Bonus')) {
-                        tableHTML += `<tr style="background:#020617"><td style="color:var(--gold)">${c}</td><td class="val" id="y-${i}-Bonus">0</td></tr>`; 
-                    } else { 
-                        let id = `y-${i}-${c.replace(/\s/g, '')}`; 
-                        tableHTML += `<tr><td>${c}</td><td class="val" id="${id}" onclick="window.App.Yams.lockCategory('${c}', ${i})">-</td></tr>`; 
-                    }
+                    if (c.includes('Bonus')) tableHTML += `<tr style="background:#020617"><td style="color:var(--gold)">${c}</td><td class="val" id="y-${i}-Bonus">0</td></tr>`; 
+                    else { let id = `y-${i}-${c.replace(/\s/g, '')}`; tableHTML += `<tr><td>${c}</td><td class="val" id="${id}" onclick="window.App.Yams.lockCategory('${c}', ${i})">-</td></tr>`; }
                 }); 
-                tableHTML += `<tr class="total-row"><td>TOTAL</td><td id="y-tot-${i}">0</td></tr></table>`; 
-                container.innerHTML += tableHTML; 
+                tableHTML += `<tr class="total-row"><td>TOTAL</td><td id="y-tot-${i}">0</td></tr></table>`; container.innerHTML += tableHTML; 
             } 
         },
-        roll() {
-            if (this.rollsLeft <= 0 || this.currentPlayer === 1) return; 
-            this.executeRoll();
-        },
-        executeRoll() {
-            this.dice = this.dice.map((val, index) => this.kept[index] ? val : Math.floor(Math.random() * 6) + 1); 
-            this.rollsLeft--; 
-            this.ui();
-        },
+        roll() { if (this.rollsLeft <= 0 || this.currentPlayer === 1) return; this.executeRoll(); },
+        executeRoll() { this.dice = this.dice.map((val, index) => this.kept[index] ? val : Math.floor(Math.random() * 6) + 1); this.rollsLeft--; this.ui(); },
         ui() {
-            const diceBox = document.getElementById('y-dice'); 
-            diceBox.innerHTML = ''; 
-            
+            const diceBox = document.getElementById('y-dice'); diceBox.innerHTML = ''; 
             this.dice.forEach((val, index) => { 
-                let dieEl = document.createElement('div'); 
-                dieEl.className = 'y-die' + (this.kept[index] ? ' kept' : ''); 
+                let dieEl = document.createElement('div'); dieEl.className = 'y-die' + (this.kept[index] ? ' kept' : ''); 
                 if (this.rollsLeft === 3) dieEl.style.opacity = '0.3';
                 dieEl.textContent = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'][val - 1]; 
-                
-                dieEl.onclick = () => { 
-                    if (this.rollsLeft < 3 && this.rollsLeft > 0 && this.currentPlayer === 0) { 
-                        this.kept[index] = !this.kept[index]; 
-                        this.ui(); 
-                    } 
-                }; 
+                dieEl.onclick = () => { if (this.rollsLeft < 3 && this.rollsLeft > 0 && this.currentPlayer === 0) { this.kept[index] = !this.kept[index]; this.ui(); } }; 
                 diceBox.appendChild(dieEl); 
             }); 
-            
-            document.getElementById('y-roll-btn').textContent = `Lancer (${this.rollsLeft})`; 
-            document.getElementById('y-roll-btn').disabled = (this.currentPlayer === 1 || this.rollsLeft === 0);
+            document.getElementById('y-roll-btn').textContent = `Lancer (${this.rollsLeft})`; document.getElementById('y-roll-btn').disabled = (this.currentPlayer === 1 || this.rollsLeft === 0);
             document.getElementById('y-turn').textContent = this.currentPlayer === 0 ? "À toi de jouer !" : "Le Bot joue son tour..."; 
-            
             if (this.rollsLeft < 3) this.calculatePotentials();
         },
         calculatePotentials() {
-            const counts = {}; 
-            this.dice.forEach(x => counts[x] = (counts[x] || 0) + 1); 
-            const valuesCount = Object.values(counts); 
-            const uniqueSet = new Set(this.dice); 
-            
-            const hasSequence = (lenReq) => { 
-                let s=0, m=0; 
-                for (let i=1; i<=6; i++) { 
-                    if(uniqueSet.has(i)) s++; else s=0; 
-                    m=Math.max(m, s); 
-                } 
-                return m>=lenReq; 
-            }; 
-            
+            const counts = {}; this.dice.forEach(x => counts[x] = (counts[x] || 0) + 1); 
+            const valuesCount = Object.values(counts); const uniqueSet = new Set(this.dice); 
+            const hasSequence = (lenReq) => { let s=0, m=0; for (let i=1; i<=6; i++) { if(uniqueSet.has(i)) s++; else s=0; m=Math.max(m, s); } return m>=lenReq; }; 
             const cats = ['1', '2', '3', '4', '5', '6', 'Brelan', 'Carré', 'Full', 'Petite Suite', 'Grande Suite', 'Yams', 'Chance'];
-            
             cats.forEach(cat => { 
-                let id = cat.replace(/\s/g, ''); 
-                const cell = document.getElementById(`y-${this.currentPlayer}-${id}`); 
+                let id = cat.replace(/\s/g, ''); const cell = document.getElementById(`y-${this.currentPlayer}-${id}`); 
                 if (this.scores[this.currentPlayer][cat] !== undefined) return; 
-                
                 let pts = 0; 
                 if (!isNaN(cat)) pts = (counts[cat] || 0) * parseInt(cat); 
                 else if (cat === 'Brelan' && valuesCount.some(x => x >= 3)) pts = this.dice.reduce((a,b) => a + b); 
@@ -1391,83 +1345,49 @@
                 else if (cat === 'Grande Suite' && hasSequence(5)) pts = 40; 
                 else if (cat === 'Yams' && valuesCount.includes(5)) pts = 50; 
                 else if (cat === 'Chance') pts = this.dice.reduce((a,b) => a + b); 
-                
-                cell.textContent = pts; 
-                cell.className = 'val pot'; 
+                cell.textContent = pts; cell.className = 'val pot'; 
             });
         },
         lockCategory(category, playerIndex) {
-            if (this.rollsLeft === 3 || playerIndex !== this.currentPlayer || this.scores[playerIndex][category] !== undefined || (this.currentPlayer === 1 && playerIndex === 0)) {
-                return;
-            }
-            
-            let id = category.replace(/\s/g, ''); 
-            const cell = document.getElementById(`y-${playerIndex}-${id}`); 
-            this.scores[playerIndex][category] = parseInt(cell.textContent); 
-            cell.className = 'val locked'; 
-            
+            if (this.rollsLeft === 3 || playerIndex !== this.currentPlayer || this.scores[playerIndex][category] !== undefined || (this.currentPlayer === 1 && playerIndex === 0)) return;
+            let id = category.replace(/\s/g, ''); const cell = document.getElementById(`y-${playerIndex}-${id}`); 
+            this.scores[playerIndex][category] = parseInt(cell.textContent); cell.className = 'val locked'; 
             let total = Object.values(this.scores[playerIndex]).reduce((sum, val) => sum + val, 0); 
             let sumTop = ['1', '2', '3', '4', '5', '6'].reduce((sum, key) => sum + (this.scores[playerIndex][key] || 0), 0); 
-            
-            if (sumTop >= 63) { 
-                total += 35; 
-                document.getElementById(`y-${playerIndex}-Bonus`).textContent = 35; 
-            } 
+            if (sumTop >= 63) { total += 35; document.getElementById(`y-${playerIndex}-Bonus`).textContent = 35; } 
             document.getElementById(`y-tot-${playerIndex}`).textContent = total; 
             
-            this.currentPlayer = (this.currentPlayer + 1) % 2; 
-            this.rollsLeft = 3; 
-            this.kept.fill(false); 
-            this.dice = [1, 1, 1, 1, 1]; 
-            
-            document.querySelectorAll('.pot').forEach(el => { 
-                el.textContent = '-'; 
-                el.classList.remove('pot'); 
-            }); 
-            
+            this.currentPlayer = (this.currentPlayer + 1) % 2; this.rollsLeft = 3; this.kept.fill(false); this.dice = [1, 1, 1, 1, 1]; 
+            document.querySelectorAll('.pot').forEach(el => { el.textContent = '-'; el.classList.remove('pot'); }); 
             if (Object.keys(this.scores[1]).length === 13) { 
-                let t1 = parseInt(document.getElementById(`y-tot-0`).textContent);
-                let t2 = parseInt(document.getElementById(`y-tot-1`).textContent); 
+                let t1 = parseInt(document.getElementById(`y-tot-0`).textContent), t2 = parseInt(document.getElementById(`y-tot-1`).textContent); 
                 let w = t1 > t2 ? 'Tu as gagné !' : (t2 > t1 ? 'Le Bot a gagné !' : 'Égalité');
                 window.UI.showModal('Fin du Yams !', `${w}<br><br>Toi : ${t1}<br>Bot : ${t2}`, () => this.init()); 
             } else {
-                this.ui(); 
-                if(this.currentPlayer === 1) setTimeout(() => this.botTurn(), 1000);
+                this.ui(); if(this.currentPlayer === 1) setTimeout(() => this.botTurn(), 800);
             }
         },
         botTurn() {
             this.executeRoll(); 
             setTimeout(() => {
-                this.botDecideKeeps(); 
-                this.executeRoll();
+                this.botDecideKeeps(); this.executeRoll();
                 setTimeout(() => {
-                    this.botDecideKeeps(); 
-                    this.executeRoll();
-                    setTimeout(() => { this.botChooseCategory(); }, 1000);
-                }, 1000);
-            }, 1000);
+                    this.botDecideKeeps(); this.executeRoll();
+                    setTimeout(() => { this.botChooseCategory(); }, 800);
+                }, 800);
+            }, 800);
         },
         botDecideKeeps() {
             let counts = {}; this.dice.forEach(x => counts[x] = (counts[x]||0)+1);
             let vals = Object.keys(counts).map(Number), maxC = Math.max(...Object.values(counts)), uniqueSet = new Set(this.dice);
-            
-            // Bloque le Yams et Carré immédiatement
             if(maxC >= 4) {
                 let num = vals.find(k => counts[k] === maxC);
                 this.dice.forEach((v, i) => this.kept[i] = (v == num));
-            } 
-            // Cherche le Full ou passe au Carré
-            else if (maxC === 3) {
+            } else if (maxC === 3) {
                 let num = vals.find(k => counts[k] === maxC);
-                if (uniqueSet.size === 2 && this.scores[1]['Full'] === undefined) {
-                    this.dice.forEach((v, i) => this.kept[i] = true); // Garde le Full
-                } else {
-                    this.dice.forEach((v, i) => this.kept[i] = (v == num)); // Garde le Brelan pour faire un Carré/Yams
-                }
-            }
-            // 4 dés différents = Suite potentielle (Tirage ouvert bilatéral)
-            else if (uniqueSet.size >= 4 && (this.scores[1]['GrandeSuite'] === undefined || this.scores[1]['PetiteSuite'] === undefined)) {
-                 // Si on a 2-3-4-5, on garde tout
+                if (uniqueSet.size === 2 && this.scores[1]['Full'] === undefined) this.dice.forEach((v, i) => this.kept[i] = true);
+                else this.dice.forEach((v, i) => this.kept[i] = (v == num));
+            } else if (uniqueSet.size >= 4 && (this.scores[1]['GrandeSuite'] === undefined || this.scores[1]['PetiteSuite'] === undefined)) {
                  let has2345 = [2,3,4,5].every(n => uniqueSet.has(n));
                  if (has2345) {
                      let seen = new Set();
@@ -1480,20 +1400,12 @@
                          else this.kept[i] = false;
                      });
                  }
-            } 
-            // Deux paires ou une paire : focus sur le haut du tableau (bonus)
-            else if (maxC === 2) {
+            } else if (maxC === 2) {
                 let num = vals.find(k => counts[k] === maxC);
-                // Si la paire est un 4, 5 ou 6, c'est de l'or pour le bonus
-                if (num >= 4 && this.scores[1][num.toString()] === undefined) {
-                    this.dice.forEach((v, i) => this.kept[i] = (v == num));
-                } else {
-                    // Sinon, on garde les dés forts restants
-                    this.dice.forEach((v, i) => this.kept[i] = (v >= 4 && this.scores[1][v.toString()] === undefined));
-                }
+                if (num >= 4 && this.scores[1][num.toString()] === undefined) this.dice.forEach((v, i) => this.kept[i] = (v == num));
+                else this.dice.forEach((v, i) => this.kept[i] = (v >= 4 && this.scores[1][v.toString()] === undefined));
             } else {
-                // Tout pourri : on garde les 5 et 6 s'ils ne sont pas barrés
-                this.dice.forEach((v, i) => this.kept[i] = (v >= 5 && this.scores[1][v.toString()] === undefined));
+                this.dice.forEach((v, i) => this.kept[i] = (v >= 4 && this.scores[1][v.toString()] === undefined));
             }
             this.ui();
         },
@@ -1501,32 +1413,29 @@
             this.calculatePotentials();
             let bestScore = -Infinity, chosenCat = null;
             const cats = ['Yams', 'Grande Suite', 'Full', 'Petite Suite', 'Carré', 'Brelan', '6', '5', '4', '3', '2', '1', 'Chance'];
-            
             for(let cat of cats) {
                 if(this.scores[1][cat] !== undefined) continue;
                 let el = document.getElementById(`y-1-${cat.replace(/\s/g, '')}`);
-                
                 if(el && el.classList.contains('pot')) { 
                     let pts = parseInt(el.textContent), weight = pts;
                     if(pts === 0) {
-                        // Table des sacrifices pro : on raye les petites lignes de gauche
-                        if(cat==='Yams') weight = -1000;
+                        if(cat==='Yams') weight = -2000;
                         else if(cat==='Grande Suite') weight = -500;
                         else if(cat==='Petite Suite') weight = -200;
-                        else if(cat==='Carré') weight = -100;
-                        else if(cat==='Full') weight = -90;
-                        else if(cat==='1') weight = 20; // Parfait à barrer !
-                        else if(cat==='2') weight = 15; 
-                        else if(cat==='3') weight = 5;
-                        else if(cat==='Chance') weight = -80; 
+                        else if(cat==='Carré') weight = -150;
+                        else if(cat==='Full') weight = -100;
+                        else if(cat==='1') weight = 100; 
+                        else if(cat==='2') weight = 80; 
+                        else if(cat==='3') weight = 40;
+                        else if(cat==='Chance') weight = -100; 
                         else weight = -10; 
                     } else {
                         if(['1','2','3','4','5','6'].includes(cat)) {
                             let target = parseInt(cat)*3;
-                            if(pts >= target) weight += 40; // Super pour le bonus
+                            if(pts >= target) weight += 60; 
                         }
-                        if(cat === 'Chance' && pts < 22) weight -= 30;
-                        if(cat === 'Yams') weight += 1500; // Priorité Ultime
+                        if(cat === 'Chance' && pts < 22) weight -= 50;
+                        if(cat === 'Yams') weight += 2000;
                     }
                     if(weight > bestScore) { bestScore = weight; chosenCat = cat; }
                 }
@@ -1536,11 +1445,11 @@
                 for(let cat of sac) if(this.scores[1][cat] === undefined) { chosenCat = cat; break; }
             }
             if(chosenCat) this.lockCategory(chosenCat, 1);
-        },
+        }
     };
 
     // =========================================================
-    // MOTEUR DE JEU : BELOTE 
+    // MOTEUR DE JEU : BELOTE (NIVEAU PRO & RÈGLES OFFICIELLES)
     // =========================================================
     window.App.Belote = {
         deck: [], hands: [[], [], [], []], scores: { nous: 0, eux: 0 }, litigePot: 0,
@@ -1674,10 +1583,11 @@
                     let suit = this.centerCard.suit.s, rank = this.centerCard.rank, hand = this.hands[this.currentTurnIndex];
                     let suitCards = hand.filter(c => c.suit.s === suit);
                     
-                    // Calcul "Pro" pour le premier tour (Evaluation de la main)
+                    // IA PRO : Évaluation de la main pour le Tour 1
                     let power = 0;
                     if (rank === 'V') power += 4;
                     if (rank === '9') power += 2.5;
+                    
                     suitCards.forEach(c => {
                         if (c.rank === 'V') power += 4;
                         else if (c.rank === '9') power += 2.5;
@@ -1686,10 +1596,10 @@
                         else power += 0.5;
                     });
                     
-                    // As hors atout = Bonus de sécurité
+                    // Les As dans d'autres couleurs rassurent
                     hand.filter(c => c.suit.s !== suit && c.rank === 'A').forEach(() => power += 1);
 
-                    // Il faut une main "lourde" pour prendre au 1er tour (ex: Valet + 1 atout + 1 As)
+                    // Exige au moins 5.5 "points de force" (ex: Valet + un autre atout + un As)
                     if (power >= 5.5) { 
                         this.showSpeech(this.currentTurnIndex, `Je prends ! (${this.centerCard.suit.s})`); 
                         setTimeout(() => { this.take(this.currentTurnIndex, this.centerCard.suit); }, 800); 
@@ -1745,6 +1655,7 @@
                 setTimeout(() => {
                     let hand = this.hands[this.currentTurnIndex], bestSuit = null, bestScore = 0;
                     
+                    // IA PRO : Évaluation de toutes les autres couleurs
                     availableSuits.forEach(suitObj => {
                         let power = 0;
                         let suitCards = hand.filter(c => c.suit.s === suitObj.s);
@@ -1900,26 +1811,26 @@
             let sortByValDesc = arr => arr.sort((a,b) => this.getCardValue(b) - this.getCardValue(a));
             let sortByValAsc = arr => arr.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
 
-            // LE BOT MÈNE LE PLI
+            // IA PRO : LE BOT MÈNE LE PLI
             if (this.currentTrick.length === 0) {
                 let iAmTakerTeam = (this.takerIndex % 2) === (this.currentTurnIndex % 2);
                 
-                // Le bot a pris : il purge agressivement les atouts s'il a les gros (V, 9, A)
+                // Le bot a pris : il purge les atouts adverses (Joue ses maîtres)
                 if (iAmTakerTeam && trumps.length > 0) { 
                     let masterTrumps = trumps.filter(c => c.rank === 'V' || c.rank === '9' || c.rank === 'A');
                     if (masterTrumps.length > 0) return sortByValDesc(masterTrumps)[0];
                     if (Math.random() < 0.6) return sortByValDesc(trumps)[0]; // Force l'atout
                 }
                 
-                // Joue les As non-atout systématiquement s'il les a
+                // Ouvre à l'As (Pli maître garanti hors atout)
                 let aces = nonTrumps.filter(c => c.rank === 'A'); 
                 if (aces.length > 0) return aces[0];
                 
-                // Sinon on joue les 10 UNIQUEMENT si on a beaucoup de cette couleur
+                // Sinon on joue les 10 UNIQUEMENT si c'est nécessaire ou si on a l'As
                 let tens = nonTrumps.filter(c => c.rank === '10');
                 if (tens.length > 0 && Math.random() < 0.3) return tens[0];
 
-                // Sinon on se débarrasse des cartes nulles (7, 8, 9)
+                // Sinon on se débarrasse des cartes nulles (7, 8, 9) pour ne pas donner de points
                 let trash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A' && c.rank !== 'R');
                 if (trash.length > 0) return sortByValAsc(trash)[0];
                 
@@ -1930,7 +1841,7 @@
             let partnerIndex = (this.currentTurnIndex + 2) % 4; 
             let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
             
-            // LE PARTENAIRE GAGNE LE PLI
+            // IA PRO : LE PARTENAIRE GAGNE LE PLI
             if (isPartnerWinning) {
                 let winningCard = currentWinnerData.card;
                 let isLastToPlay = this.currentTrick.length === 3;
@@ -1942,37 +1853,38 @@
                     if (points.length > 0) return sortByValDesc(points)[0]; 
                 }
                 
-                // Refuse de gaspiller des points si le pli n'est pas 100% garanti
+                // Pli non garanti = Ne lâche AUCUN point (pas de Dadou !).
                 let cheapCards = validCardsArray.filter(c => c.rank !== '10' && c.rank !== 'A' && !isAtout(c));
                 if (cheapCards.length > 0) return sortByValAsc(cheapCards)[0];
                 
                 return sortByValAsc(validCardsArray)[0];
             } 
             
-            // L'ADVERSAIRE GAGNE LE PLI
+            // IA PRO : L'ADVERSAIRE GAGNE LE PLI
             else {
                 let winningCard = currentWinnerData.card; 
                 let winningVal = isAtout(winningCard) ? (8 - this.ordAtout.indexOf(winningCard.rank)) : (8 - this.ordNormal.indexOf(winningCard.rank));
                 
                 let cardsThatBeatWinner = validCardsArray.filter(c => {
-                    if (isAtout(c) && !isAtout(winningCard)) return true; // Le bot coupe
+                    if (isAtout(c) && !isAtout(winningCard)) return true; // Coupe
                     if (c.suit.s === winningCard.suit.s) { 
                         let order = isAtout(c) ? this.ordAtout : this.ordNormal; 
-                        return (8 - order.indexOf(c.rank)) > winningVal; // Le bot monte
+                        return (8 - order.indexOf(c.rank)) > winningVal; // Surcoupe / Monte
                     } 
                     return false;
                 });
                 
                 if (cardsThatBeatWinner.length > 0) { 
-                    // Si le pli contient des points adverses (10, As), on tape fort avec le meilleur Atout
+                    // Si le pli contient beaucoup de points adverses (10, As), on tape fort avec le meilleur Atout
                     let pointsInTrick = this.currentTrick.reduce((acc, t) => acc + this.getCardValue(t.card), 0);
                     if (pointsInTrick >= 10 && cardsThatBeatWinner.some(isAtout)) {
-                        return sortByValDesc(cardsThatBeatWinner.filter(isAtout))[0]; // Écrase l'adversaire
+                        return sortByValDesc(cardsThatBeatWinner.filter(isAtout))[0]; // Écrase l'adversaire !
                     }
-                    // Sinon, gagne avec le strict minimum pour économiser
+                    // Sinon, gagne avec le strict minimum pour économiser ses belles cartes
                     return sortByValAsc(cardsThatBeatWinner)[0]; 
                 } else { 
-                    // Impossible de gagner -> se défausser des pires cartes absolues (jamais d'Atout, jamais d'As)
+                    // IMPOSSIBLE de gagner. On sauve les meubles : on jette les pires cartes (7, 8, 9).
+                    // On garde ABSOLUMENT ses 10, ses As, et ses atouts.
                     let absoluteTrash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A');
                     if (absoluteTrash.length > 0) return sortByValAsc(absoluteTrash)[0];
                     
@@ -1982,6 +1894,7 @@
             }
         },
         checkBelote(cardObj, playerIndex) {
+            // Règles Officielles : Belote et Rebelote (+20)
             if (cardObj.suit.s === this.atoutSuit.s && (cardObj.rank === 'R' || cardObj.rank === 'D')) {
                 let hand = this.hands[playerIndex];
                 let otherRankToFind = (cardObj.rank === 'R') ? 'D' : 'R';
@@ -1990,60 +1903,11 @@
                 
                 if (this.beloteAnnouncedBy === teamIdentity) { 
                     this.showAnnonce("REBELOTE ! (+20)"); 
+                    // Les 20 pts seront comptés à la fin dans le total
                 } else if (hasOtherInHand) { 
                     this.beloteAnnouncedBy = teamIdentity; 
                     this.showAnnonce("BELOTE !"); 
                 }
-            }
-        },
-        endDeal() { 
-            document.getElementById('bl-atout-corner').style.display = 'none';
-            let ptsNous = this.dealPoints.nous, ptsEux = this.dealPoints.eux, msg = "";
-            let beloteNous = this.beloteAnnouncedBy === 'nous' ? 20 : 0;
-            let beloteEux = this.beloteAnnouncedBy === 'eux' ? 20 : 0;
-            let isCapotNous = this.tricksWon.nous === 8, isCapotEux = this.tricksWon.eux === 8;
-            
-            if (isCapotNous) { ptsNous = 250; msg += "<b style='color:var(--accent); font-size:1.3em;'>CAPOT ! (250 pts)</b><br><br>"; } 
-            else if (isCapotEux) { ptsEux = 250; msg += "<b style='color:var(--player-x); font-size:1.3em;'>CAPOT ADVERSE ! (250 pts)</b><br><br>"; }
-
-            let takerTeam = (this.takerIndex === 0 || this.takerIndex === 2) ? 'nous' : 'eux';
-            let totalNous = ptsNous + beloteNous;
-            let totalEux = ptsEux + beloteEux;
-
-            if (takerTeam === 'nous' && !isCapotNous) {
-                if (totalNous > totalEux) { 
-                    this.scores.nous += totalNous + this.litigePot; this.scores.eux += totalEux; this.litigePot = 0; msg += "Contrat rempli !<br>"; 
-                } else if (totalNous < totalEux) { 
-                    msg += "<b style='color:var(--player-x);'>CHUTE ! L'adversaire prend 162 pts.</b><br>"; 
-                    this.scores.eux += 162 + beloteEux + this.litigePot; this.scores.nous += beloteNous; this.litigePot = 0; ptsNous = 0; ptsEux = 162; 
-                } else { 
-                    msg += "<b style='color:var(--gold);'>LITIGE ! Vos points sont reportés.</b><br>"; 
-                    this.litigePot += ptsNous; this.scores.eux += totalEux; this.scores.nous += beloteNous; ptsNous = 0; 
-                }
-            } else if (takerTeam === 'eux' && !isCapotEux) {
-                if (totalEux > totalNous) { 
-                    this.scores.eux += totalEux + this.litigePot; this.scores.nous += totalNous; this.litigePot = 0; msg += "L'adversaire a rempli son contrat.<br>"; 
-                } else if (totalEux < totalNous) { 
-                    msg += "<b style='color:var(--accent);'>ADVERSAIRE DEDANS ! Vous prenez 162 pts.</b><br>"; 
-                    this.scores.nous += 162 + beloteNous + this.litigePot; this.scores.eux += beloteEux; this.litigePot = 0; ptsEux = 0; ptsNous = 162; 
-                } else { 
-                    msg += "<b style='color:var(--gold);'>LITIGE ! Points adverses reportés.</b><br>"; 
-                    this.litigePot += ptsEux; this.scores.nous += totalNous; this.scores.eux += beloteEux; ptsEux = 0; 
-                }
-            } else if (isCapotNous || isCapotEux) {
-                this.scores.nous += ptsNous + beloteNous + (isCapotNous ? this.litigePot : 0);
-                this.scores.eux += ptsEux + beloteEux + (isCapotEux ? this.litigePot : 0);
-                this.litigePot = 0;
-            }
-            
-            msg += `<br>Scores de la donne :<br>Nous : ${ptsNous + beloteNous} pts<br>Eux : ${ptsEux + beloteEux} pts`;
-            
-            if (this.scores.nous >= 1000 || this.scores.eux >= 1000) {
-                let winnerTeamText = this.scores.nous >= 1000 ? "VOUS AVEZ" : "ILS ONT"; 
-                msg = `<span style="font-size:1.5em; color:var(--gold)">PARTIE TERMINÉE !</span><br><br>${winnerTeamText} ATTEINT 1000 POINTS !<br><br>Score Final : Nous ${this.scores.nous} - Eux ${this.scores.eux}`;
-                this.activeModal = { title: 'Fin de la Partie', msg: msg }; this.syncNetwork(); window.UI.showModal('Fin de la Partie', msg, () => { this.activeModal = null; this.syncNetwork(); this.initGame(); });
-            } else {
-                this.updateScoreUI(); this.activeModal = { title: 'Bilan de la Manche', msg: msg }; this.syncNetwork(); window.UI.showModal('Bilan de la Manche', msg, () => { this.activeModal = null; this.syncNetwork(); this.startDeal(); });
             }
         },
         showAnnonce(msg) { 
@@ -2128,6 +1992,7 @@
             let winningTeam = (trickWinnerIndex === 0 || trickWinnerIndex === 2) ? 'nous' : 'eux';
             
             this.tricksPlayedCount++; 
+            // Règles Officielles : Dix de Der (+10 points pour le dernier pli)
             if (this.tricksPlayedCount === 8) pointsInTrick += 10; 
             
             this.dealPoints[winningTeam] += pointsInTrick; 
@@ -2151,6 +2016,81 @@
         },
         updateTrickPointsUI() { document.getElementById('bl-trick-pts-val').textContent = this.dealPoints.nous; },
         updateScoreUI() { document.getElementById('bl-score-nous').textContent = this.scores.nous; document.getElementById('bl-score-eux').textContent = this.scores.eux; },
+        endDeal() { 
+            document.getElementById('bl-atout-corner').style.display = 'none';
+
+            let ptsNous = this.dealPoints.nous, ptsEux = this.dealPoints.eux, msg = "";
+            let beloteNous = this.beloteAnnouncedBy === 'nous' ? 20 : 0;
+            let beloteEux = this.beloteAnnouncedBy === 'eux' ? 20 : 0;
+            
+            let isCapotNous = this.tricksWon.nous === 8;
+            let isCapotEux = this.tricksWon.eux === 8;
+            
+            if (isCapotNous) { ptsNous = 250; msg += "<b style='color:var(--accent); font-size:1.3em;'>CAPOT ! (250 pts)</b><br><br>"; } 
+            else if (isCapotEux) { ptsEux = 250; msg += "<b style='color:var(--player-x); font-size:1.3em;'>CAPOT ADVERSE ! (250 pts)</b><br><br>"; }
+
+            let takerTeam = (this.takerIndex === 0 || this.takerIndex === 2) ? 'nous' : 'eux';
+            
+            // Total officiel (Inclus la belote inviolable)
+            let totalNous = ptsNous + beloteNous;
+            let totalEux = ptsEux + beloteEux;
+
+            // Règles de Chute et de Litige (Le preneur doit faire plus que l'adversaire)
+            if (takerTeam === 'nous' && !isCapotNous) {
+                if (totalNous > totalEux) { 
+                    this.scores.nous += totalNous + this.litigePot; 
+                    this.scores.eux += totalEux; 
+                    this.litigePot = 0; msg += "Contrat rempli !<br>"; 
+                } else if (totalNous < totalEux) { 
+                    msg += "<b style='color:var(--player-x);'>CHUTE ! L'adversaire prend 162 pts.</b><br>"; 
+                    this.scores.eux += 162 + beloteEux + this.litigePot; 
+                    this.scores.nous += beloteNous; // On garde les points de sa belote même en chutant
+                    this.litigePot = 0; ptsNous = 0; ptsEux = 162; 
+                } else { 
+                    msg += "<b style='color:var(--gold);'>LITIGE ! Vos points sont reportés.</b><br>"; 
+                    this.litigePot += ptsNous; 
+                    this.scores.eux += totalEux; 
+                    this.scores.nous += beloteNous;
+                    ptsNous = 0; 
+                }
+            } else if (takerTeam === 'eux' && !isCapotEux) {
+                if (totalEux > totalNous) { 
+                    this.scores.eux += totalEux + this.litigePot; 
+                    this.scores.nous += totalNous; 
+                    this.litigePot = 0; msg += "L'adversaire a rempli son contrat.<br>"; 
+                } else if (totalEux < totalNous) { 
+                    msg += "<b style='color:var(--accent);'>ADVERSAIRE DEDANS ! Vous prenez 162 pts.</b><br>"; 
+                    this.scores.nous += 162 + beloteNous + this.litigePot; 
+                    this.scores.eux += beloteEux; 
+                    this.litigePot = 0; ptsEux = 0; ptsNous = 162; 
+                } else { 
+                    msg += "<b style='color:var(--gold);'>LITIGE ! Points adverses reportés.</b><br>"; 
+                    this.litigePot += ptsEux; 
+                    this.scores.nous += totalNous; 
+                    this.scores.eux += beloteEux;
+                    ptsEux = 0; 
+                }
+            } else if (isCapotNous || isCapotEux) {
+                this.scores.nous += ptsNous + beloteNous + (isCapotNous ? this.litigePot : 0);
+                this.scores.eux += ptsEux + beloteEux + (isCapotEux ? this.litigePot : 0);
+                this.litigePot = 0;
+            }
+            
+            msg += `<br>Scores de la donne :<br>Nous : ${ptsNous + beloteNous} pts<br>Eux : ${ptsEux + beloteEux} pts`;
+            
+            if (this.scores.nous >= 1000 || this.scores.eux >= 1000) {
+                let winnerTeamText = this.scores.nous >= 1000 ? "VOUS AVEZ" : "ILS ONT"; 
+                msg = `<span style="font-size:1.5em; color:var(--gold)">PARTIE TERMINÉE !</span><br><br>${winnerTeamText} ATTEINT 1000 POINTS !<br><br>Score Final : Nous ${this.scores.nous} - Eux ${this.scores.eux}`;
+                this.activeModal = { title: 'Fin de la Partie', msg: msg }; 
+                this.syncNetwork(); 
+                window.UI.showModal('Fin de la Partie', msg, () => { this.activeModal = null; this.syncNetwork(); this.initGame(); });
+            } else {
+                this.updateScoreUI(); 
+                this.activeModal = { title: 'Bilan de la Manche', msg: msg }; 
+                this.syncNetwork(); 
+                window.UI.showModal('Bilan de la Manche', msg, () => { this.activeModal = null; this.syncNetwork(); this.startDeal(); });
+            }
+        },
         updateStatus(msgText) { document.getElementById('bl-status').innerHTML = msgText; }
     };
 
@@ -2678,130 +2618,79 @@
     };
 
     // =========================================================
-    // MOTEUR DE JEU : JEU DE DAMES (10x10 AVEC BOT IA ET RAFLE)
+    // MOTEUR DE JEU : JEU DE DAMES (10x10 AVEC BOT IA PRO)
     // =========================================================
     window.App.Dames = {
         grid: [], player: 1, selected: null, validMoves: [], isBotThinking: false, mustJump: false,
         init() {
             this.grid = Array(10).fill(0).map(()=>Array(10).fill(0));
-            // Placement P2 (Bleu) - en haut
             for(let r=0; r<4; r++) for(let c=0; c<10; c++) if((r+c)%2!==0) this.grid[r][c] = 2;
-            // Placement P1 (Rouge) - en bas
             for(let r=6; r<10; r++) for(let c=0; c<10; c++) if((r+c)%2!==0) this.grid[r][c] = 1;
-            
-            this.player = 1; 
-            this.selected = null; 
-            this.validMoves = []; 
-            this.isBotThinking = false;
-            this.mustJump = false;
-            this.render(); 
-            this.updateStatus();
+            this.player = 1; this.selected = null; this.validMoves = []; this.isBotThinking = false; this.mustJump = false;
+            this.render(); this.updateStatus();
         },
         render() {
-            const b = document.getElementById('dames-board'); 
-            b.innerHTML = '';
-            
-            // Calcul global des prises obligatoires
+            const b = document.getElementById('dames-board'); b.innerHTML = '';
             let anyJumps = [];
-            for(let r=0; r<10; r++) {
-                for(let c=0; c<10; c++) {
-                    if (this.grid[r][c] === this.player || this.grid[r][c] === this.player + 2) {
-                        let moves = this.getPieceMoves(r, c, this.grid[r][c], this.grid);
-                        if (moves.some(m => m.jump)) anyJumps.push({r, c});
-                    }
+            for(let r=0; r<10; r++) for(let c=0; c<10; c++) {
+                if (this.grid[r][c] === this.player || this.grid[r][c] === this.player + 2) {
+                    let moves = this.getPieceMoves(r, c, this.grid[r][c], this.grid);
+                    if (moves.some(m => m.jump)) anyJumps.push({r, c});
                 }
             }
-            
             for(let r=0; r<10; r++) {
                 for(let c=0; c<10; c++) {
-                    let cell = document.createElement('div');
-                    cell.className = `dames-cell ${(r+c)%2===0 ? 'light' : 'dark'}`;
-                    
-                    if(this.selected && this.selected.r===r && this.selected.c===c) {
-                        cell.classList.add('selected');
-                    }
-                    
+                    let cell = document.createElement('div'); cell.className = `dames-cell ${(r+c)%2===0 ? 'light' : 'dark'}`;
+                    if(this.selected && this.selected.r===r && this.selected.c===c) cell.classList.add('selected');
                     let move = this.validMoves.find(m => m.r===r && m.c===c);
                     if(move) cell.classList.add('valid-move');
-                    
                     if(this.grid[r][c] !== 0) {
-                        let val = this.grid[r][c];
-                        let p = document.createElement('div');
+                        let val = this.grid[r][c]; let p = document.createElement('div');
                         p.className = `dames-piece ${val===1||val===3 ? 'dames-p1' : 'dames-p2'} ${val>2 ? 'dames-king' : ''}`;
-                        
                         if(this.player === 1 && (val===1||val===3) && !this.isBotThinking) {
                             if (!this.mustJump || (this.mustJump && this.selected && this.selected.r===r && this.selected.c===c)) {
                                 if (anyJumps.length === 0 || anyJumps.some(j => j.r===r && j.c===c) || this.mustJump) {
-                                    p.onclick = (e) => { 
-                                        e.stopPropagation(); 
-                                        if (!this.mustJump) this.selectPiece(r, c); 
-                                    };
+                                    p.onclick = (e) => { e.stopPropagation(); if (!this.mustJump) this.selectPiece(r, c); };
                                 }
                             }
                         }
                         cell.appendChild(p);
                     }
-                    
-                    if(move) {
-                        cell.onclick = () => this.executeMove(this.selected, move);
-                    } else {
-                        cell.onclick = () => { 
-                            if(this.selected && !this.mustJump) { 
-                                this.selected = null; 
-                                this.validMoves = []; 
-                                this.render(); 
-                            } 
-                        };
-                    }
+                    if(move) { cell.onclick = () => this.executeMove(this.selected, move); } 
+                    else { cell.onclick = () => { if(this.selected && !this.mustJump) { this.selected = null; this.validMoves = []; this.render(); } }; }
                     b.appendChild(cell);
                 }
             }
         },
         selectPiece(r, c) {
-            this.selected = {r, c}; 
-            let moves = this.getPieceMoves(r, c, this.grid[r][c], this.grid);
-            let jumps = moves.filter(m => m.jump);
-            this.validMoves = jumps.length > 0 ? jumps : moves;
-            this.render();
+            this.selected = {r, c}; let moves = this.getPieceMoves(r, c, this.grid[r][c], this.grid);
+            let jumps = moves.filter(m => m.jump); this.validMoves = jumps.length > 0 ? jumps : moves; this.render();
         },
         getPieceMoves(r, c, piece, grid) {
-            let moves = [], jumps = [], isKing = piece > 2;
-            let dirs = [[-1,-1], [-1,1], [1,-1], [1,1]];
-            let fwdDir = piece === 1 ? -1 : 1; 
-            
+            let moves = [], jumps = [], isKing = piece > 2; let dirs = [[-1,-1], [-1,1], [1,-1], [1,1]]; let fwdDir = (piece === 1 || piece === 3) ? -1 : 1;
             for(let d of dirs) {
                 let dr = d[0], dc = d[1];
-                
                 if (isKing) {
-                    let dist = 1;
-                    let foundPiece = false;
-                    let jumpedCell = null;
-                    
+                    let dist = 1, foundPiece = false, jumpedCell = null;
                     while(true) {
                         let nr = r + dr*dist, nc = c + dc*dist;
                         if(nr < 0 || nr >= 10 || nc < 0 || nc >= 10) break;
-                        
                         if(grid[nr][nc] === 0) {
                             if(!foundPiece) moves.push({r: nr, c: nc, jump: null});
                             else jumps.push({r: nr, c: nc, jump: jumpedCell});
                         } else {
-                            if(foundPiece) break; 
-                            if(grid[nr][nc]%2 === piece%2) break; 
-                            foundPiece = true;
-                            jumpedCell = {r: nr, c: nc};
+                            if(foundPiece) break; if(grid[nr][nc]%2 === piece%2) break;
+                            foundPiece = true; jumpedCell = {r: nr, c: nc};
                         }
                         dist++;
                     }
                 } else {
                     let nr = r+dr, nc = c+dc;
                     if(nr>=0 && nr<10 && nc>=0 && nc<10) {
-                        if(grid[nr][nc] === 0) {
-                            if (dr === fwdDir) moves.push({r: nr, c: nc, jump: null});
-                        } else if(grid[nr][nc]%2 !== piece%2) {
+                        if(grid[nr][nc] === 0) { if (dr === fwdDir) moves.push({r: nr, c: nc, jump: null}); } 
+                        else if(grid[nr][nc]%2 !== piece%2) {
                             let jr = nr+dr, jc = nc+dc;
-                            if(jr>=0 && jr<10 && jc>=0 && jc<10 && grid[jr][jc] === 0) {
-                                jumps.push({r: jr, c: jc, jump: {r: nr, c: nc}});
-                            }
+                            if(jr>=0 && jr<10 && jc>=0 && jc<10 && grid[jr][jc] === 0) jumps.push({r: jr, c: jc, jump: {r: nr, c: nc}});
                         }
                     }
                 }
@@ -2809,63 +2698,26 @@
             return jumps.length > 0 ? jumps : moves;
         },
         executeMove(from, to) {
-            let piece = this.grid[from.r][from.c];
-            this.grid[from.r][from.c] = 0;
-            
-            let hasJumped = false;
-            if(to.jump) {
-                this.grid[to.jump.r][to.jump.c] = 0; 
-                hasJumped = true;
-            }
-            
-            let promoted = false;
-            if(piece === 1 && to.r === 0) { piece = 3; promoted = true; }
-            if(piece === 2 && to.r === 9) { piece = 4; promoted = true; }
-            
-            this.grid[to.r][to.c] = piece;
-            this.selected = null; 
-            this.validMoves = [];
+            let piece = this.grid[from.r][from.c]; this.grid[from.r][from.c] = 0; let hasJumped = false;
+            if(to.jump) { this.grid[to.jump.r][to.jump.c] = 0; hasJumped = true; }
+            let promoted = false; if(piece === 1 && to.r === 0) { piece = 3; promoted = true; } if(piece === 2 && to.r === 9) { piece = 4; promoted = true; }
+            this.grid[to.r][to.c] = piece; this.selected = null; this.validMoves = [];
             
             if (hasJumped && !promoted) {
-                let nextMoves = this.getPieceMoves(to.r, to.c, piece, this.grid);
-                let nextJumps = nextMoves.filter(m => m.jump);
-                
+                let nextMoves = this.getPieceMoves(to.r, to.c, piece, this.grid); let nextJumps = nextMoves.filter(m => m.jump);
                 if (nextJumps.length > 0) {
-                    this.mustJump = true;
-                    this.selected = {r: to.r, c: to.c};
-                    this.validMoves = nextJumps;
-                    this.render();
-                    if(this.player === 2) {
-                        setTimeout(() => this.botContinueJump(), 500);
-                    }
-                    return;
+                    this.mustJump = true; this.selected = {r: to.r, c: to.c}; this.validMoves = nextJumps; this.render();
+                    if(this.player === 2) setTimeout(() => this.botContinueJump(), 600); return;
                 }
             }
-            
             this.mustJump = false;
             
             let p1Count = 0, p2Count = 0;
-            for(let r=0;r<10;r++) {
-                for(let c=0;c<10;c++) {
-                    if(this.grid[r][c]===1 || this.grid[r][c]===3) p1Count++;
-                    if(this.grid[r][c]===2 || this.grid[r][c]===4) p2Count++;
-                }
-            }
+            for(let r=0;r<10;r++) for(let c=0;c<10;c++) { if(this.grid[r][c]===1 || this.grid[r][c]===3) p1Count++; if(this.grid[r][c]===2 || this.grid[r][c]===4) p2Count++; }
+            if(p1Count === 0 || p2Count === 0) { this.render(); setTimeout(() => window.UI.showModal('Fin de partie', p1Count === 0 ? 'Le Bot a gagné !' : 'Tu as gagné !', () => this.init()), 300); return; }
             
-            if(p1Count === 0 || p2Count === 0) {
-                this.render(); 
-                setTimeout(() => window.UI.showModal('Fin de partie', p1Count === 0 ? 'Le Bot a gagné !' : 'Tu as gagné !', () => this.init()), 300); 
-                return;
-            }
-            
-            this.player = this.player === 1 ? 2 : 1; 
-            this.isBotThinking = (this.player === 2);
-            this.updateStatus(); 
-            this.render();
-            
-            if(this.player === 2) { 
-                setTimeout(() => this.botPlay(), 700); 
-            }
+            this.player = this.player === 1 ? 2 : 1; this.isBotThinking = (this.player === 2); this.updateStatus(); this.render();
+            if(this.player === 2) setTimeout(() => this.botPlay(), 700);
         },
         botPlay() {
             let getValidMovesForPlayer = (playerNum, gridState) => {
@@ -2887,14 +2739,12 @@
                 for(let r=0; r<10; r++) {
                     for(let c=0; c<10; c++) {
                         let p = gridState[r][c];
-                        if(p===2) score += 10 + r; // Pion Bot : aime avancer
-                        if(p===4) score += 50; // Dame Bot
-                        if(p===1) score -= (10 + (9-r)); // Pion Humain
-                        if(p===3) score -= 50; // Dame Humain
-                        // Contrôle du centre (Bot)
-                        if((p===2||p===4) && c>=3 && c<=6 && r>=3 && r<=6) score += 3;
-                        // Malus si le bot lève sa garde
-                        if(p===2 && r===0) score += 10; 
+                        if(p===2) score += 10 + r; 
+                        if(p===4) score += 80; 
+                        if(p===1) score -= (10 + (9-r)); 
+                        if(p===3) score -= 80; 
+                        if((p===2||p===4) && c>=3 && c<=6 && r>=3 && r<=6) score += 5;
+                        if(p===2 && r===0) score += 20; // Protection ligne arrière
                     }
                 }
                 return score;
@@ -2906,9 +2756,7 @@
             let bestScore = -Infinity;
             let bestMove = null;
 
-            // MINIMAX DEPTH 2 (Le bot anticipe tes réponses)
             for(let m of botMoves) {
-                // 1. Simuler le coup du bot
                 let simGrid = this.grid.map(row => [...row]);
                 let p = simGrid[m.from.r][m.from.c];
                 simGrid[m.from.r][m.from.c] = 0;
@@ -2916,12 +2764,11 @@
                 let isPromo = (p === 2 && m.to.r === 9);
                 simGrid[m.to.r][m.to.c] = isPromo ? 4 : p;
 
-                // 2. Simuler TOUTES les réponses possibles de l'humain
                 let humanMoves = getValidMovesForPlayer(1, simGrid);
-                let worstHumanScore = Infinity; // Le bot suppose que tu vas jouer le MEILLEUR coup possible pour toi
+                let worstHumanScore = Infinity; 
 
                 if(humanMoves.length === 0) {
-                    worstHumanScore = 10000; // Le bot gagne !
+                    worstHumanScore = 10000;
                 } else {
                     for(let hm of humanMoves) {
                         let simGrid2 = simGrid.map(row => [...row]);
@@ -2932,11 +2779,10 @@
                         simGrid2[hm.to.r][hm.to.c] = hPromo ? 3 : hp;
                         
                         let ev = evaluateGrid(simGrid2);
-                        if(ev < worstHumanScore) worstHumanScore = ev; // L'humain minimise le score du bot
+                        if(ev < worstHumanScore) worstHumanScore = ev; 
                     }
                 }
 
-                // Ajoute un bonus agressif si le bot mange
                 if(m.to.jump) worstHumanScore += 5;
                 if(isPromo) worstHumanScore += 10;
 
@@ -2944,7 +2790,7 @@
                     bestScore = worstHumanScore;
                     bestMove = m;
                 } else if (worstHumanScore === bestScore && Math.random() < 0.5) {
-                    bestMove = m; // Diversité si égalité
+                    bestMove = m;
                 }
             }
 
@@ -2958,9 +2804,7 @@
             }
         },
         updateStatus() {
-            const st = document.getElementById('dames-status');
-            st.textContent = this.player === 1 ? "Ton tour ! (Tu es Rouge)" : "Le Bot réfléchit...";
-            st.style.color = this.player === 1 ? 'var(--player-x)' : 'var(--player-o)';
+            const st = document.getElementById('dames-status'); st.textContent = this.player === 1 ? "Ton tour ! (Tu es Rouge)" : "Le Bot réfléchit..."; st.style.color = this.player === 1 ? 'var(--player-x)' : 'var(--player-o)';
         }
     };
 
