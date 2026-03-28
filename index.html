@@ -1455,12 +1455,12 @@
     };
 
     // =========================================================
-    // MOTEUR DE JEU : BELOTE PRO (Animation JS & IA Stricte)
+    // MOTEUR DE JEU : BELOTE PRO (Animation JS, IA Stricte & Non-Mélange)
     // =========================================================
     window.App.Belote = {
         deck: [], hands: [[], [], [], []], scores: { nous: 0, eux: 0 }, litigePot: 0,
         dealerIndex: -1, firstPlayerIndex: 0, currentTurnIndex: 0, phase: 'init', 
-        centerCard: null, atoutSuit: null, takerIndex: -1, currentTrick: [], 
+        centerCard: null, atoutSuit: null, takerIndex: -1, currentTrick: [], pastTricks: [], 
         dealPoints: { nous: 0, eux: 0 }, tricksWon: { nous: 0, eux: 0 }, 
         tricksPlayedCount: 0, beloteAnnouncedBy: null, activeModal: null,
         
@@ -1479,7 +1479,14 @@
                 });
             }
         },
-        initGame() { this.scores = { nous: 0, eux: 0 }; this.litigePot = 0; if (this.dealerIndex === -1) this.dealerIndex = Math.floor(Math.random() * 4); this.updateScoreUI(); this.startDeal(); },
+        initGame() { 
+            this.scores = { nous: 0, eux: 0 }; 
+            this.litigePot = 0; 
+            this.deck = []; // On force un nouveau jeu de cartes au début de la partie
+            if (this.dealerIndex === -1) this.dealerIndex = Math.floor(Math.random() * 4); 
+            this.updateScoreUI(); 
+            this.startDeal(); 
+        },
         startDeal() {
             document.querySelectorAll('.bl-slot').forEach(slot => slot.innerHTML = ''); document.getElementById('bl-center').innerHTML = ''; document.getElementById('bl-hand').innerHTML = ''; 
             document.getElementById('bl-actions-1').style.display = 'none'; document.getElementById('bl-actions-2').style.display = 'none'; 
@@ -1490,10 +1497,24 @@
             const positions = [{x: 450, y: 420}, {x: 680, y: 300}, {x: 450, y: 40}, {x: 100, y: 300}];
             const tokenElement = document.getElementById('bl-dealer-token'); tokenElement.style.display = 'flex'; tokenElement.style.left = positions[this.dealerIndex].x + 'px'; tokenElement.style.top = positions[this.dealerIndex].y + 'px';
             
-            this.deck = []; this.suits.forEach(suitObj => { this.ranks.forEach(rankStr => { this.deck.push({ suit: suitObj, rank: rankStr, isRed: suitObj.color === 'r' }); }); });
-            for (let i = this.deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; }
+            // ============================================
+            // GESTION DU NON-MÉLANGE ET DE LA COUPE
+            // ============================================
+            if (this.deck.length !== 32) {
+                // Première donne de la partie : on crée le paquet et on mélange fort
+                this.deck = []; 
+                this.suits.forEach(suitObj => { this.ranks.forEach(rankStr => { this.deck.push({ suit: suitObj, rank: rankStr, isRed: suitObj.color === 'r' }); }); });
+                for (let i = this.deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; }
+            } else {
+                // Manches suivantes : on coupe simplement le paquet sans le mélanger
+                let cutIdx = Math.floor(Math.random() * 12) + 10; // Coupe au hasard entre la 10ème et 22ème carte
+                this.deck = [...this.deck.slice(cutIdx), ...this.deck.slice(0, cutIdx)];
+            }
             
-            this.hands = [[], [], [], []]; this.currentTrick = []; this.dealPoints = { nous: 0, eux: 0 }; this.tricksWon = { nous: 0, eux: 0 }; this.tricksPlayedCount = 0; this.atoutSuit = null; this.takerIndex = -1; this.beloteAnnouncedBy = null; this.phase = 'bidding_1';
+            this.hands = [[], [], [], []]; this.currentTrick = []; this.pastTricks = [];
+            this.dealPoints = { nous: 0, eux: 0 }; this.tricksWon = { nous: 0, eux: 0 }; this.tricksPlayedCount = 0; 
+            this.atoutSuit = null; this.takerIndex = -1; this.beloteAnnouncedBy = null; this.phase = 'bidding_1';
+            
             for (let p = 0; p < 4; p++) { let targetPlayer = (this.firstPlayerIndex + p) % 4; this.hands[targetPlayer].push(...this.deck.splice(0, 3)); this.hands[targetPlayer].push(...this.deck.splice(0, 2)); }
             
             this.centerCard = this.deck.shift(); this.sortAllHands(); this.showCenterCard(); this.renderHand(); this.renderBotHands(); this.currentTurnIndex = this.firstPlayerIndex; this.processBidding1();
@@ -1652,20 +1673,35 @@
             let sortByValDesc = arr => arr.sort((a,b) => this.getCardValue(b) - this.getCardValue(a));
             let sortByValAsc = arr => arr.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
 
+            // MÉMOIRE DES CARTES
+            let playedCards = this.pastTricks.concat(this.currentTrick.map(t=>t.card));
+            let isMaster = (card) => {
+                let order = isAtout(card) ? this.ordAtout : this.ordNormal;
+                let myIdx = order.indexOf(card.rank);
+                let higherRanks = order.slice(0, myIdx); 
+                for (let hr of higherRanks) {
+                    let isOut = playedCards.some(c => c.suit.s === card.suit.s && c.rank === hr) || this.hands[this.currentTurnIndex].some(c => c.suit.s === card.suit.s && c.rank === hr);
+                    if (!isOut) return false; 
+                }
+                return true;
+            };
+
+            // LE BOT MÈNE LE PLI
             if (this.currentTrick.length === 0) {
                 let iAmTakerTeam = (this.takerIndex % 2) === (this.currentTurnIndex % 2);
-                if (iAmTakerTeam && trumps.length > 0) { 
-                    let masterTrumps = trumps.filter(c => c.rank === 'V' || c.rank === '9' || c.rank === 'A');
-                    if (masterTrumps.length > 0) return sortByValDesc(masterTrumps)[0];
-                    if (Math.random() < 0.6) return sortByValDesc(trumps)[0]; 
-                }
-                let aces = nonTrumps.filter(c => c.rank === 'A'); 
-                if (aces.length > 0) return aces[0];
+                let trumpsPlayed = this.pastTricks.filter(c => c.suit.s === this.atoutSuit.s).length;
+                let myTrumps = this.hands[this.currentTurnIndex].filter(c => c.suit.s === this.atoutSuit.s).length;
+                let trumpsLeftInGame = 8 - trumpsPlayed - myTrumps; // Compte les atouts restants !
                 
-                let tens = nonTrumps.filter(c => c.rank === '10');
-                if (tens.length > 0 && Math.random() < 0.3) return tens[0];
-
-                let trash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A' && c.rank !== 'R');
+                if (iAmTakerTeam && trumpsLeftInGame > 0 && trumps.length > 0) { 
+                    let masterTrumps = trumps.filter(c => isMaster(c));
+                    if (masterTrumps.length > 0) return sortByValDesc(masterTrumps)[0]; 
+                }
+                
+                let masterNonTrumps = nonTrumps.filter(c => isMaster(c));
+                if (masterNonTrumps.length > 0) return sortByValDesc(masterNonTrumps)[0]; 
+                
+                let trash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A');
                 if (trash.length > 0) return sortByValAsc(trash)[0];
                 return sortByValAsc(validCardsArray)[0];
             }
@@ -1674,19 +1710,23 @@
             let partnerIndex = (this.currentTurnIndex + 2) % 4; 
             let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
             
+            // LE PARTENAIRE GAGNE
             if (isPartnerWinning) {
                 let winningCard = currentWinnerData.card;
                 let isLastToPlay = this.currentTrick.length === 3;
-                let isSecure = isLastToPlay || (isAtout(winningCard) && (winningCard.rank==='V' || winningCard.rank==='9')) || winningCard.rank === 'A';
+                let isSecure = isLastToPlay || isMaster(winningCard);
 
                 if (isSecure) {
                     let points = validCardsArray.filter(c => c.rank === '10' || c.rank === 'A');
                     if (points.length > 0) return sortByValDesc(points)[0]; 
                 }
+                
                 let cheapCards = validCardsArray.filter(c => c.rank !== '10' && c.rank !== 'A' && !isAtout(c));
                 if (cheapCards.length > 0) return sortByValAsc(cheapCards)[0];
                 return sortByValAsc(validCardsArray)[0];
             } 
+            
+            // L'ADVERSAIRE GAGNE
             else {
                 let winningCard = currentWinnerData.card; 
                 let winningVal = isAtout(winningCard) ? (8 - this.ordAtout.indexOf(winningCard.rank)) : (8 - this.ordNormal.indexOf(winningCard.rank));
@@ -1696,14 +1736,14 @@
                     if (c.suit.s === winningCard.suit.s) { 
                         let order = isAtout(c) ? this.ordAtout : this.ordNormal; 
                         return (8 - order.indexOf(c.rank)) > winningVal; 
-                    } 
-                    return false;
+                    } return false;
                 });
                 
                 if (cardsThatBeatWinner.length > 0) { 
                     let pointsInTrick = this.currentTrick.reduce((acc, t) => acc + this.getCardValue(t.card), 0);
-                    if (pointsInTrick >= 10 && cardsThatBeatWinner.some(isAtout)) {
-                        return sortByValDesc(cardsThatBeatWinner.filter(isAtout))[0]; 
+                    if (pointsInTrick >= 10) {
+                        let masterBeater = cardsThatBeatWinner.find(c => isMaster(c));
+                        if (masterBeater) return masterBeater;
                     }
                     return sortByValAsc(cardsThatBeatWinner)[0]; 
                 } else { 
@@ -1716,20 +1756,21 @@
         },
         checkBelote(cardObj, playerIndex) {
             if (cardObj.suit.s === this.atoutSuit.s && (cardObj.rank === 'R' || cardObj.rank === 'D')) {
-                let hand = this.hands[playerIndex], otherRankToFind = (cardObj.rank === 'R') ? 'D' : 'R', teamIdentity = (playerIndex === 0 || playerIndex === 2) ? 'nous' : 'eux';
+                let hand = this.hands[playerIndex];
+                let otherRankToFind = (cardObj.rank === 'R') ? 'D' : 'R';
+                let teamIdentity = (playerIndex === 0 || playerIndex === 2) ? 'nous' : 'eux';
+                let hasOtherInHand = hand.some(c => c.suit.s === this.atoutSuit.s && c.rank === otherRankToFind);
                 
                 if (this.beloteAnnouncedBy === teamIdentity) { 
                     this.showAnnonce("REBELOTE ! (+20)"); 
-                } else {
-                    let hasOtherInHand = hand.some(c => c.suit.s === this.atoutSuit.s && c.rank === otherRankToFind);
-                    if (hasOtherInHand) {
-                        this.beloteAnnouncedBy = teamIdentity; 
-                        this.showAnnonce("BELOTE !"); 
-                    }
+                    this.updateStatus(`REBELOTE pour ${teamIdentity === 'nous' ? 'Nous' : 'Eux'} !`);
+                } else if (hasOtherInHand) { 
+                    this.beloteAnnouncedBy = teamIdentity; 
+                    this.showAnnonce("BELOTE !"); 
+                    this.updateStatus(`BELOTE pour ${teamIdentity === 'nous' ? 'Nous' : 'Eux'} !`);
                 }
             }
         },
-        // ANIMATION JAVASCRIPT GARANTIE (Plus besoin du CSS)
         showAnnonce(msg) { 
             const annonceEl = document.getElementById('bl-annonce-msg'); 
             annonceEl.textContent = msg; 
@@ -1783,8 +1824,11 @@
             this.phase = 'resolving'; this.updatePlayerHighlight(-1);
             let winnerObject = this.getTrickWinner(this.currentTrick); let pointsInTrick = this.currentTrick.reduce((sum, t) => sum + this.getCardValue(t.card), 0); let trickWinnerIndex = winnerObject.player; let winningTeam = (trickWinnerIndex === 0 || trickWinnerIndex === 2) ? 'nous' : 'eux';
             
+            // On sauvegarde le pli pour la mémorisation et le "sans mélange"
+            this.pastTricks.push(...this.currentTrick.map(t => t.card));
+
             this.tricksPlayedCount++; 
-            if (this.tricksPlayedCount === 8) pointsInTrick += 10; // Dix de der comptabilisé
+            if (this.tricksPlayedCount === 8) pointsInTrick += 10; 
             
             this.dealPoints[winningTeam] += pointsInTrick; this.tricksWon[winningTeam] += 1; this.updateTrickPointsUI();
             let winMessageName = trickWinnerIndex === 0 ? "Vous remportez" : (trickWinnerIndex === 1 ? "Est remporte" : (trickWinnerIndex === 2 ? "Votre ami remporte" : "Ouest remporte"));
@@ -1826,6 +1870,10 @@
                 this.litigePot = 0;
             }
             msg += `<br>Scores de la donne :<br>Nous : ${ptsNous + beloteNous} pts<br>Eux : ${ptsEux + beloteEux} pts`;
+            
+            // ON REPLACE LES CARTES JOUEES DANS LE PAQUET (SANS MELANGER !)
+            this.deck = [...this.pastTricks]; 
+
             if (this.scores.nous >= 1000 || this.scores.eux >= 1000) {
                 let winnerTeamText = this.scores.nous >= 1000 ? "VOUS AVEZ" : "ILS ONT"; 
                 msg = `<span style="font-size:1.5em; color:var(--gold)">PARTIE TERMINÉE !</span><br><br>${winnerTeamText} ATTEINT 1000 POINTS !<br><br>Score Final : Nous ${this.scores.nous} - Eux ${this.scores.eux}`;
