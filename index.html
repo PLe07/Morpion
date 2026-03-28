@@ -1294,7 +1294,7 @@
     };
 
     // =========================================================
-    // MOTEUR DE JEU : YAMS PRO (Optimisation Mathématique)
+    // MOTEUR DE JEU : YAMS PRO (Mathématiques de Tournoi)
     // =========================================================
     window.App.Yams = {
         dice: [1, 1, 1, 1, 1], kept: [false, false, false, false, false], rollsLeft: 3, currentPlayer: 0, scores: [{}, {}],
@@ -1380,6 +1380,7 @@
         botDecideKeeps() {
             let counts = {}; this.dice.forEach(x => counts[x] = (counts[x]||0)+1);
             let vals = Object.keys(counts).map(Number), maxC = Math.max(...Object.values(counts)), uniqueSet = new Set(this.dice);
+            
             if(maxC >= 4) {
                 let num = vals.find(k => counts[k] === maxC);
                 this.dice.forEach((v, i) => this.kept[i] = (v == num));
@@ -1388,22 +1389,23 @@
                 if (uniqueSet.size === 2 && this.scores[1]['Full'] === undefined) this.dice.forEach((v, i) => this.kept[i] = true);
                 else this.dice.forEach((v, i) => this.kept[i] = (v == num));
             } else if (uniqueSet.size >= 4 && (this.scores[1]['GrandeSuite'] === undefined || this.scores[1]['PetiteSuite'] === undefined)) {
-                 let has2345 = [2,3,4,5].every(n => uniqueSet.has(n));
-                 if (has2345) {
+                 let has2345 = [2,3,4,5].every(n => uniqueSet.has(n)), has3456 = [3,4,5,6].every(n => uniqueSet.has(n)), has1234 = [1,2,3,4].every(n => uniqueSet.has(n));
+                 if (has2345 || has3456 || has1234) {
+                     let target = has3456 ? [3,4,5,6] : (has2345 ? [2,3,4,5] : [1,2,3,4]);
                      let seen = new Set();
-                     this.dice.forEach((v, i) => { if(!seen.has(v) && v>=2 && v<=5) { this.kept[i]=true; seen.add(v); } else this.kept[i]=false; });
+                     this.dice.forEach((v, i) => { if(target.includes(v) && !seen.has(v)) { this.kept[i]=true; seen.add(v); } else this.kept[i]=false; });
                  } else {
                      let seen = new Set();
-                     this.dice.forEach((v, i) => { 
-                         if(!seen.has(v) && v !== 1 && v !== 6) { this.kept[i] = true; seen.add(v); } 
-                         else if(!seen.has(v) && uniqueSet.size === 5) { this.kept[i] = true; seen.add(v); } 
-                         else this.kept[i] = false;
-                     });
+                     this.dice.forEach((v, i) => { if(!seen.has(v) && v >= 2 && v <= 5) { this.kept[i] = true; seen.add(v); } else this.kept[i] = false; });
                  }
             } else if (maxC === 2) {
-                let num = vals.find(k => counts[k] === maxC);
-                if (num >= 4 && this.scores[1][num.toString()] === undefined) this.dice.forEach((v, i) => this.kept[i] = (v == num));
-                else this.dice.forEach((v, i) => this.kept[i] = (v >= 4 && this.scores[1][v.toString()] === undefined));
+                let pairs = vals.filter(k => counts[k] >= 2);
+                let bestPair = Math.max(...pairs);
+                if (bestPair >= 4 && this.scores[1][bestPair.toString()] === undefined) {
+                    this.dice.forEach((v, i) => this.kept[i] = (v == bestPair));
+                } else {
+                    this.dice.forEach((v, i) => this.kept[i] = (v >= 4 && this.scores[1][v.toString()] === undefined));
+                }
             } else {
                 this.dice.forEach((v, i) => this.kept[i] = (v >= 4 && this.scores[1][v.toString()] === undefined));
             }
@@ -1414,6 +1416,8 @@
             let bestScore = -Infinity, chosenCat = null;
             const cats = ['Yams', 'Grande Suite', 'Full', 'Petite Suite', 'Carré', 'Brelan', '6', '5', '4', '3', '2', '1', 'Chance'];
             
+            let sumTop = ['1', '2', '3', '4', '5', '6'].reduce((sum, key) => sum + (this.scores[1][key] || 0), 0);
+            
             for(let cat of cats) {
                 if(this.scores[1][cat] !== undefined) continue;
                 let el = document.getElementById(`y-1-${cat.replace(/\s/g, '')}`);
@@ -1421,28 +1425,23 @@
                     let pts = parseInt(el.textContent), weight = 0;
                     
                     if(pts === 0) {
-                        const sac = {'Yams': -2000, 'Grande Suite': -500, 'Petite Suite': -250, 'Carré': -150, 'Full': -120, 'Brelan': -80, 'Chance': -100, '6': -60, '5': -50, '4': -30, '3': -10, '2': 10, '1': 20};
-                        weight = sac[cat] || -10;
+                        // LES SACRIFICES SONT TOUJOURS NÉGATIFS (Il déteste rayer)
+                        const sac = {'Yams': -2000, 'Grande Suite': -500, 'Petite Suite': -250, 'Carré': -150, 'Full': -120, 'Brelan': -80, 'Chance': -100, '6': -60, '5': -50, '4': -40, '3': -30, '2': -20, '1': -10};
+                        weight = sac[cat];
                     } else {
-                        // NOUVEAU CALCUL : Le bot évalue les points gagnés en fonction de ce qu'il peut obtenir.
+                        // LES GAINS SONT TOUJOURS POSITIFS
                         if(['1','2','3','4','5','6'].includes(cat)) {
-                            let diff = pts - (parseInt(cat) * 3); // Est-ce qu'on est au-dessus ou en-dessous de la moyenne pour le bonus ?
-                            weight = 50 + (diff * 15); 
-                        } else if (cat === 'Chance') {
-                            weight = pts >= 22 ? pts : -30; // On ne prend Chance que si ça vaut vraiment le coup
-                        } else if (cat === 'Yams') {
-                            weight = 2000;
-                        } else if (cat === 'Grande Suite') {
-                            weight = 400;
-                        } else if (cat === 'Full') {
-                            weight = 300;
-                        } else if (cat === 'Petite Suite') {
-                            weight = 200;
-                        } else if (cat === 'Carré') {
-                            weight = 150 + pts;
-                        } else if (cat === 'Brelan') {
-                            weight = pts >= 18 ? pts + 50 : pts - 20; // Ne pas valider un brelan de 1 ou 2 !
-                        }
+                            let diff = pts - (parseInt(cat) * 3); 
+                            weight = pts + (diff * 5); 
+                            // Si ce score permet de débloquer le bonus de 63 : PRIORITÉ !
+                            if (sumTop + pts >= 63 && sumTop < 63) weight += 1000;
+                        } else if (cat === 'Chance') { weight = pts; } 
+                        else if (cat === 'Yams') { weight = 1500; } 
+                        else if (cat === 'Grande Suite') { weight = 300; } 
+                        else if (cat === 'Petite Suite') { weight = 150; } 
+                        else if (cat === 'Full') { weight = 200; } 
+                        else if (cat === 'Carré') { weight = 100 + pts; } 
+                        else if (cat === 'Brelan') { weight = 50 + pts; }
                     }
                     if(weight > bestScore) { bestScore = weight; chosenCat = cat; }
                 }
@@ -1456,7 +1455,7 @@
     };
 
     // =========================================================
-    // MOTEUR DE JEU : BELOTE PRO (Règles strictes & IA de maître)
+    // MOTEUR DE JEU : BELOTE PRO (Animation JS & IA Stricte)
     // =========================================================
     window.App.Belote = {
         deck: [], hands: [[], [], [], []], scores: { nous: 0, eux: 0 }, litigePot: 0,
@@ -1467,7 +1466,6 @@
         
         suits: [{s: '♠', color: 'b'}, {s: '♣', color: 'b'}, {s: '♥', color: 'r'}, {s: '♦', color: 'r'}], 
         ranks: ['7', '8', '9', '10', 'V', 'D', 'R', 'A'],
-        
         valAtout: { 'V':20, '9':14, 'A':11, '10':10, 'R':4, 'D':3, '8':0, '7':0 }, 
         valNormal: { 'A':11, '10':10, 'R':4, 'D':3, 'V':2, '9':0, '8':0, '7':0 }, 
         ordAtout: ['V', '9', 'A', '10', 'R', 'D', '8', '7'], 
@@ -1484,7 +1482,8 @@
         initGame() { this.scores = { nous: 0, eux: 0 }; this.litigePot = 0; if (this.dealerIndex === -1) this.dealerIndex = Math.floor(Math.random() * 4); this.updateScoreUI(); this.startDeal(); },
         startDeal() {
             document.querySelectorAll('.bl-slot').forEach(slot => slot.innerHTML = ''); document.getElementById('bl-center').innerHTML = ''; document.getElementById('bl-hand').innerHTML = ''; 
-            document.getElementById('bl-actions-1').style.display = 'none'; document.getElementById('bl-actions-2').style.display = 'none'; document.getElementById('bl-annonce-msg').classList.remove('active'); 
+            document.getElementById('bl-actions-1').style.display = 'none'; document.getElementById('bl-actions-2').style.display = 'none'; 
+            document.getElementById('bl-annonce-msg').style.opacity = '0'; // Reset anim
             document.getElementById('bl-trick-points').style.display = 'none'; document.getElementById('bl-atout-corner').style.display = 'none';
             
             this.updatePlayerHighlight(-1); this.dealerIndex = (this.dealerIndex + 1) % 4; this.firstPlayerIndex = (this.dealerIndex + 1) % 4;
@@ -1525,20 +1524,14 @@
                     let suit = this.centerCard.suit.s, rank = this.centerCard.rank, hand = this.hands[this.currentTurnIndex];
                     let suitCards = hand.filter(c => c.suit.s === suit);
                     
-                    // IA PRO : Evaluation ultra-stricte de la main (Tour 1)
                     let power = 0;
                     if (rank === 'V') power += 5;
                     if (rank === '9') power += 3;
                     suitCards.forEach(c => {
-                        if (c.rank === 'V') power += 5;
-                        else if (c.rank === '9') power += 3;
-                        else if (c.rank === 'A') power += 2;
-                        else if (c.rank === '10') power += 1;
-                        else power += 0.5;
+                        if (c.rank === 'V') power += 5; else if (c.rank === '9') power += 3; else if (c.rank === 'A') power += 2; else if (c.rank === '10') power += 1; else power += 0.5;
                     });
                     hand.filter(c => c.suit.s !== suit && c.rank === 'A').forEach(() => power += 1.5);
 
-                    // Niveau Pro : 7.5 points de force minimum pour prendre
                     if (power >= 7.5) { 
                         this.showSpeech(this.currentTurnIndex, `Je prends ! (${this.centerCard.suit.s})`); 
                         setTimeout(() => { this.take(this.currentTurnIndex, this.centerCard.suit); }, 800); 
@@ -1572,23 +1565,15 @@
                 
                 setTimeout(() => {
                     let hand = this.hands[this.currentTurnIndex], bestSuit = null, bestScore = 0;
-                    
                     availableSuits.forEach(suitObj => {
-                        let power = 0;
-                        let suitCards = hand.filter(c => c.suit.s === suitObj.s);
+                        let power = 0; let suitCards = hand.filter(c => c.suit.s === suitObj.s);
                         suitCards.forEach(c => {
-                            if (c.rank === 'V') power += 5;
-                            else if (c.rank === '9') power += 3;
-                            else if (c.rank === 'A') power += 2;
-                            else if (c.rank === '10') power += 1;
-                            else power += 0.5;
+                            if (c.rank === 'V') power += 5; else if (c.rank === '9') power += 3; else if (c.rank === 'A') power += 2; else if (c.rank === '10') power += 1; else power += 0.5;
                         });
                         hand.filter(c => c.suit.s !== suitObj.s && c.rank === 'A').forEach(() => power += 1.5);
-                        
                         if (power > bestScore) { bestScore = power; bestSuit = suitObj; }
                     });
                     
-                    // Exigence un peu baissée au tour 2, mais reste forte
                     if (bestScore >= 6.5) { 
                         this.showSpeech(this.currentTurnIndex, `Je prends ! (${bestSuit.s})`); 
                         setTimeout(() => { this.take(this.currentTurnIndex, bestSuit); }, 800); 
@@ -1667,16 +1652,13 @@
             let sortByValDesc = arr => arr.sort((a,b) => this.getCardValue(b) - this.getCardValue(a));
             let sortByValAsc = arr => arr.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
 
-            // LE BOT MÈNE LE PLI
             if (this.currentTrick.length === 0) {
                 let iAmTakerTeam = (this.takerIndex % 2) === (this.currentTurnIndex % 2);
-                
                 if (iAmTakerTeam && trumps.length > 0) { 
                     let masterTrumps = trumps.filter(c => c.rank === 'V' || c.rank === '9' || c.rank === 'A');
                     if (masterTrumps.length > 0) return sortByValDesc(masterTrumps)[0];
                     if (Math.random() < 0.6) return sortByValDesc(trumps)[0]; 
                 }
-                
                 let aces = nonTrumps.filter(c => c.rank === 'A'); 
                 if (aces.length > 0) return aces[0];
                 
@@ -1685,7 +1667,6 @@
 
                 let trash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A' && c.rank !== 'R');
                 if (trash.length > 0) return sortByValAsc(trash)[0];
-                
                 return sortByValAsc(validCardsArray)[0];
             }
             
@@ -1693,7 +1674,6 @@
             let partnerIndex = (this.currentTurnIndex + 2) % 4; 
             let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
             
-            // LE PARTENAIRE GAGNE LE PLI
             if (isPartnerWinning) {
                 let winningCard = currentWinnerData.card;
                 let isLastToPlay = this.currentTrick.length === 3;
@@ -1703,14 +1683,10 @@
                     let points = validCardsArray.filter(c => c.rank === '10' || c.rank === 'A');
                     if (points.length > 0) return sortByValDesc(points)[0]; 
                 }
-                
                 let cheapCards = validCardsArray.filter(c => c.rank !== '10' && c.rank !== 'A' && !isAtout(c));
                 if (cheapCards.length > 0) return sortByValAsc(cheapCards)[0];
-                
                 return sortByValAsc(validCardsArray)[0];
             } 
-            
-            // L'ADVERSAIRE GAGNE LE PLI
             else {
                 let winningCard = currentWinnerData.card; 
                 let winningVal = isAtout(winningCard) ? (8 - this.ordAtout.indexOf(winningCard.rank)) : (8 - this.ordNormal.indexOf(winningCard.rank));
@@ -1733,7 +1709,6 @@
                 } else { 
                     let absoluteTrash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A');
                     if (absoluteTrash.length > 0) return sortByValAsc(absoluteTrash)[0];
-                    
                     if (nonTrumps.length > 0) return sortByValAsc(nonTrumps)[0];
                     return sortByValAsc(validCardsArray)[0]; 
                 }
@@ -1741,22 +1716,41 @@
         },
         checkBelote(cardObj, playerIndex) {
             if (cardObj.suit.s === this.atoutSuit.s && (cardObj.rank === 'R' || cardObj.rank === 'D')) {
-                let hand = this.hands[playerIndex];
-                let otherRankToFind = (cardObj.rank === 'R') ? 'D' : 'R';
-                let teamIdentity = (playerIndex === 0 || playerIndex === 2) ? 'nous' : 'eux';
-                let hasOtherInHand = hand.some(c => c.suit.s === this.atoutSuit.s && c.rank === otherRankToFind);
+                let hand = this.hands[playerIndex], otherRankToFind = (cardObj.rank === 'R') ? 'D' : 'R', teamIdentity = (playerIndex === 0 || playerIndex === 2) ? 'nous' : 'eux';
                 
                 if (this.beloteAnnouncedBy === teamIdentity) { 
                     this.showAnnonce("REBELOTE ! (+20)"); 
-                    this.updateStatus(`REBELOTE pour ${teamIdentity === 'nous' ? 'Nous' : 'Eux'} !`);
-                } else if (hasOtherInHand) { 
-                    this.beloteAnnouncedBy = teamIdentity; 
-                    this.showAnnonce("BELOTE !"); 
-                    this.updateStatus(`BELOTE pour ${teamIdentity === 'nous' ? 'Nous' : 'Eux'} !`);
+                } else {
+                    let hasOtherInHand = hand.some(c => c.suit.s === this.atoutSuit.s && c.rank === otherRankToFind);
+                    if (hasOtherInHand) {
+                        this.beloteAnnouncedBy = teamIdentity; 
+                        this.showAnnonce("BELOTE !"); 
+                    }
                 }
             }
         },
-        showAnnonce(msg) { const annonceEl = document.getElementById('bl-annonce-msg'); annonceEl.textContent = msg; annonceEl.classList.remove('active'); void annonceEl.offsetWidth; annonceEl.classList.add('active'); },
+        // ANIMATION JAVASCRIPT GARANTIE (Plus besoin du CSS)
+        showAnnonce(msg) { 
+            const annonceEl = document.getElementById('bl-annonce-msg'); 
+            annonceEl.textContent = msg; 
+            
+            annonceEl.style.transition = 'none';
+            annonceEl.style.opacity = '0';
+            annonceEl.style.transform = 'translate(-50%, -50%) scale(0.5)';
+            void annonceEl.offsetWidth; 
+            
+            annonceEl.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            annonceEl.style.opacity = '1';
+            annonceEl.style.transform = 'translate(-50%, -50%) scale(1.2)';
+            
+            setTimeout(() => {
+                annonceEl.style.transform = 'translate(-50%, -50%) scale(1)';
+                setTimeout(() => {
+                    annonceEl.style.transition = 'all 0.4s ease-in';
+                    annonceEl.style.opacity = '0';
+                }, 1500);
+            }, 400);
+        },
         renderHand() {
             const handContainer = document.getElementById('bl-hand'); handContainer.innerHTML = '';
             let validCardsArray = (this.phase === 'playing' && this.currentTurnIndex === 0) ? this.getValidCards(this.hands[0]) : [];
@@ -1788,10 +1782,14 @@
         resolveTrick() {
             this.phase = 'resolving'; this.updatePlayerHighlight(-1);
             let winnerObject = this.getTrickWinner(this.currentTrick); let pointsInTrick = this.currentTrick.reduce((sum, t) => sum + this.getCardValue(t.card), 0); let trickWinnerIndex = winnerObject.player; let winningTeam = (trickWinnerIndex === 0 || trickWinnerIndex === 2) ? 'nous' : 'eux';
-            this.tricksPlayedCount++; if (this.tricksPlayedCount === 8) pointsInTrick += 10; 
+            
+            this.tricksPlayedCount++; 
+            if (this.tricksPlayedCount === 8) pointsInTrick += 10; // Dix de der comptabilisé
+            
             this.dealPoints[winningTeam] += pointsInTrick; this.tricksWon[winningTeam] += 1; this.updateTrickPointsUI();
             let winMessageName = trickWinnerIndex === 0 ? "Vous remportez" : (trickWinnerIndex === 1 ? "Est remporte" : (trickWinnerIndex === 2 ? "Votre ami remporte" : "Ouest remporte"));
             this.updateStatus(`${winMessageName} le pli ! (+${pointsInTrick} pts)`); this.syncNetwork();
+            
             setTimeout(() => {
                 document.querySelectorAll('.bl-slot').forEach(slot => { slot.innerHTML = ''; });
                 this.currentTrick = []; this.currentTurnIndex = trickWinnerIndex; this.phase = 'playing';
