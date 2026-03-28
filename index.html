@@ -1294,7 +1294,7 @@
     };
 
     // =========================================================
-    // MOTEUR DE JEU : YAMS PRO
+    // MOTEUR DE JEU : YAMS PRO (Optimisation Mathématique)
     // =========================================================
     window.App.Yams = {
         dice: [1, 1, 1, 1, 1], kept: [false, false, false, false, false], rollsLeft: 3, currentPlayer: 0, scores: [{}, {}],
@@ -1413,29 +1413,36 @@
             this.calculatePotentials();
             let bestScore = -Infinity, chosenCat = null;
             const cats = ['Yams', 'Grande Suite', 'Full', 'Petite Suite', 'Carré', 'Brelan', '6', '5', '4', '3', '2', '1', 'Chance'];
+            
             for(let cat of cats) {
                 if(this.scores[1][cat] !== undefined) continue;
                 let el = document.getElementById(`y-1-${cat.replace(/\s/g, '')}`);
                 if(el && el.classList.contains('pot')) { 
-                    let pts = parseInt(el.textContent), weight = pts;
+                    let pts = parseInt(el.textContent), weight = 0;
+                    
                     if(pts === 0) {
-                        if(cat==='Yams') weight = -2000;
-                        else if(cat==='Grande Suite') weight = -500;
-                        else if(cat==='Petite Suite') weight = -200;
-                        else if(cat==='Carré') weight = -150;
-                        else if(cat==='Full') weight = -100;
-                        else if(cat==='1') weight = 100; 
-                        else if(cat==='2') weight = 80; 
-                        else if(cat==='3') weight = 40;
-                        else if(cat==='Chance') weight = -100; 
-                        else weight = -10; 
+                        const sac = {'Yams': -2000, 'Grande Suite': -500, 'Petite Suite': -250, 'Carré': -150, 'Full': -120, 'Brelan': -80, 'Chance': -100, '6': -60, '5': -50, '4': -30, '3': -10, '2': 10, '1': 20};
+                        weight = sac[cat] || -10;
                     } else {
+                        // NOUVEAU CALCUL : Le bot évalue les points gagnés en fonction de ce qu'il peut obtenir.
                         if(['1','2','3','4','5','6'].includes(cat)) {
-                            let target = parseInt(cat)*3;
-                            if(pts >= target) weight += 60; 
+                            let diff = pts - (parseInt(cat) * 3); // Est-ce qu'on est au-dessus ou en-dessous de la moyenne pour le bonus ?
+                            weight = 50 + (diff * 15); 
+                        } else if (cat === 'Chance') {
+                            weight = pts >= 22 ? pts : -30; // On ne prend Chance que si ça vaut vraiment le coup
+                        } else if (cat === 'Yams') {
+                            weight = 2000;
+                        } else if (cat === 'Grande Suite') {
+                            weight = 400;
+                        } else if (cat === 'Full') {
+                            weight = 300;
+                        } else if (cat === 'Petite Suite') {
+                            weight = 200;
+                        } else if (cat === 'Carré') {
+                            weight = 150 + pts;
+                        } else if (cat === 'Brelan') {
+                            weight = pts >= 18 ? pts + 50 : pts - 20; // Ne pas valider un brelan de 1 ou 2 !
                         }
-                        if(cat === 'Chance' && pts < 22) weight -= 50;
-                        if(cat === 'Yams') weight += 2000;
                     }
                     if(weight > bestScore) { bestScore = weight; chosenCat = cat; }
                 }
@@ -1449,7 +1456,7 @@
     };
 
     // =========================================================
-    // MOTEUR DE JEU : BELOTE (NIVEAU PRO & RÈGLES OFFICIELLES)
+    // MOTEUR DE JEU : BELOTE PRO (Règles strictes & IA de maître)
     // =========================================================
     window.App.Belote = {
         deck: [], hands: [[], [], [], []], scores: { nous: 0, eux: 0 }, litigePot: 0,
@@ -1469,138 +1476,70 @@
         sortAllHands() {
             for (let i = 0; i < 4; i++) {
                 this.hands[i].sort((a, b) => {
-                    if (a.suit.s !== b.suit.s) { 
-                        const suitOrder = {'♥': 1, '♠': 2, '♦': 3, '♣': 4}; 
-                        return suitOrder[a.suit.s] - suitOrder[b.suit.s]; 
-                    }
-                    let isAtout = (this.atoutSuit && a.suit.s === this.atoutSuit.s); 
-                    let order = isAtout ? this.ordAtout : this.ordNormal; 
-                    return order.indexOf(a.rank) - order.indexOf(b.rank);
+                    if (a.suit.s !== b.suit.s) { const suitOrder = {'♥': 1, '♠': 2, '♦': 3, '♣': 4}; return suitOrder[a.suit.s] - suitOrder[b.suit.s]; }
+                    let isAtout = (this.atoutSuit && a.suit.s === this.atoutSuit.s); let order = isAtout ? this.ordAtout : this.ordNormal; return order.indexOf(a.rank) - order.indexOf(b.rank);
                 });
             }
         },
-        initGame() { 
-            this.scores = { nous: 0, eux: 0 }; 
-            this.litigePot = 0; 
-            if (this.dealerIndex === -1) this.dealerIndex = Math.floor(Math.random() * 4); 
-            this.updateScoreUI(); 
-            this.startDeal(); 
-        },
+        initGame() { this.scores = { nous: 0, eux: 0 }; this.litigePot = 0; if (this.dealerIndex === -1) this.dealerIndex = Math.floor(Math.random() * 4); this.updateScoreUI(); this.startDeal(); },
         startDeal() {
-            document.querySelectorAll('.bl-slot').forEach(slot => slot.innerHTML = ''); 
-            document.getElementById('bl-center').innerHTML = ''; 
-            document.getElementById('bl-hand').innerHTML = ''; 
-            document.getElementById('bl-actions-1').style.display = 'none'; 
-            document.getElementById('bl-actions-2').style.display = 'none'; 
-            document.getElementById('bl-annonce-msg').classList.remove('active'); 
-            document.getElementById('bl-trick-points').style.display = 'none'; 
-            document.getElementById('bl-atout-corner').style.display = 'none';
+            document.querySelectorAll('.bl-slot').forEach(slot => slot.innerHTML = ''); document.getElementById('bl-center').innerHTML = ''; document.getElementById('bl-hand').innerHTML = ''; 
+            document.getElementById('bl-actions-1').style.display = 'none'; document.getElementById('bl-actions-2').style.display = 'none'; document.getElementById('bl-annonce-msg').classList.remove('active'); 
+            document.getElementById('bl-trick-points').style.display = 'none'; document.getElementById('bl-atout-corner').style.display = 'none';
             
-            this.updatePlayerHighlight(-1); 
-            this.dealerIndex = (this.dealerIndex + 1) % 4; 
-            this.firstPlayerIndex = (this.dealerIndex + 1) % 4;
-            
+            this.updatePlayerHighlight(-1); this.dealerIndex = (this.dealerIndex + 1) % 4; this.firstPlayerIndex = (this.dealerIndex + 1) % 4;
             const positions = [{x: 450, y: 420}, {x: 680, y: 300}, {x: 450, y: 40}, {x: 100, y: 300}];
-            const tokenElement = document.getElementById('bl-dealer-token'); 
-            tokenElement.style.display = 'flex'; 
-            tokenElement.style.left = positions[this.dealerIndex].x + 'px'; 
-            tokenElement.style.top = positions[this.dealerIndex].y + 'px';
+            const tokenElement = document.getElementById('bl-dealer-token'); tokenElement.style.display = 'flex'; tokenElement.style.left = positions[this.dealerIndex].x + 'px'; tokenElement.style.top = positions[this.dealerIndex].y + 'px';
             
-            this.deck = []; 
-            this.suits.forEach(suitObj => { 
-                this.ranks.forEach(rankStr => { 
-                    this.deck.push({ suit: suitObj, rank: rankStr, isRed: suitObj.color === 'r' }); 
-                }); 
-            });
+            this.deck = []; this.suits.forEach(suitObj => { this.ranks.forEach(rankStr => { this.deck.push({ suit: suitObj, rank: rankStr, isRed: suitObj.color === 'r' }); }); });
+            for (let i = this.deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; }
             
-            for (let i = this.deck.length - 1; i > 0; i--) { 
-                const j = Math.floor(Math.random() * (i + 1)); 
-                [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; 
-            }
+            this.hands = [[], [], [], []]; this.currentTrick = []; this.dealPoints = { nous: 0, eux: 0 }; this.tricksWon = { nous: 0, eux: 0 }; this.tricksPlayedCount = 0; this.atoutSuit = null; this.takerIndex = -1; this.beloteAnnouncedBy = null; this.phase = 'bidding_1';
+            for (let p = 0; p < 4; p++) { let targetPlayer = (this.firstPlayerIndex + p) % 4; this.hands[targetPlayer].push(...this.deck.splice(0, 3)); this.hands[targetPlayer].push(...this.deck.splice(0, 2)); }
             
-            this.hands = [[], [], [], []]; 
-            this.currentTrick = []; 
-            this.dealPoints = { nous: 0, eux: 0 }; 
-            this.tricksWon = { nous: 0, eux: 0 }; 
-            this.tricksPlayedCount = 0; 
-            this.atoutSuit = null; 
-            this.takerIndex = -1; 
-            this.beloteAnnouncedBy = null; 
-            this.phase = 'bidding_1';
-            
-            for (let p = 0; p < 4; p++) { 
-                let targetPlayer = (this.firstPlayerIndex + p) % 4; 
-                this.hands[targetPlayer].push(...this.deck.splice(0, 3)); 
-                this.hands[targetPlayer].push(...this.deck.splice(0, 2)); 
-            }
-            
-            this.centerCard = this.deck.shift(); 
-            this.sortAllHands(); 
-            this.showCenterCard(); 
-            this.renderHand(); 
-            this.renderBotHands(); 
-            
-            this.currentTurnIndex = this.firstPlayerIndex; 
-            this.processBidding1();
+            this.centerCard = this.deck.shift(); this.sortAllHands(); this.showCenterCard(); this.renderHand(); this.renderBotHands(); this.currentTurnIndex = this.firstPlayerIndex; this.processBidding1();
         },
         showSpeech(playerIndex, textMsg) { 
-            const bubble = document.getElementById(`bl-speech-${playerIndex}`); 
-            bubble.textContent = textMsg; 
-            bubble.style.opacity = 1; 
-            setTimeout(() => { bubble.style.opacity = 0; }, 1200); 
-            
-            if (window.App.Network && window.App.Network.room && window.App.Network.myId === 'X') {
-                update(window.App.Network.ref, { 'blState/netSpeech': { p: playerIndex, m: textMsg, ts: Date.now() } });
-            }
+            const bubble = document.getElementById(`bl-speech-${playerIndex}`); bubble.textContent = textMsg; bubble.style.opacity = 1; setTimeout(() => { bubble.style.opacity = 0; }, 1200); 
+            if (window.App.Network && window.App.Network.room && window.App.Network.myId === 'X') update(window.App.Network.ref, { 'blState/netSpeech': { p: playerIndex, m: textMsg, ts: Date.now() } });
         },
         showCenterCard() { 
-            const centerArea = document.getElementById('bl-center'); 
-            const cardElement = document.createElement('div'); 
-            cardElement.className = `bl-card ${this.centerCard.isRed ? 'red' : ''}`; 
-            cardElement.innerHTML = `<span>${this.centerCard.rank}</span><span>${this.centerCard.suit.s}</span>`; 
-            centerArea.innerHTML = ''; 
-            centerArea.appendChild(cardElement); 
+            const centerArea = document.getElementById('bl-center'); const cardElement = document.createElement('div'); 
+            cardElement.className = `bl-card ${this.centerCard.isRed ? 'red' : ''}`; cardElement.innerHTML = `<span>${this.centerCard.rank}</span><span>${this.centerCard.suit.s}</span>`; 
+            centerArea.innerHTML = ''; centerArea.appendChild(cardElement); 
         },
         processBidding1() {
             this.updatePlayerHighlight(this.currentTurnIndex);
             if (this.currentTurnIndex === 0) {
-                this.updateStatus("TOUR 1 : Voulez-vous prendre cette couleur ?"); 
-                document.getElementById('bl-actions-1').style.display = 'flex';
+                this.updateStatus("TOUR 1 : Voulez-vous prendre cette couleur ?"); document.getElementById('bl-actions-1').style.display = 'flex';
                 document.getElementById('btn-prendre-1').onclick = () => { this.showSpeech(0, "Je prends !"); this.take(0, this.centerCard.suit); };
                 document.getElementById('btn-passer-1').onclick = () => { this.showSpeech(0, "Passe."); this.passBidding1(); };
                 this.syncNetwork();
             } else if (this.currentTurnIndex === 2 && window.App.Network.room && window.App.Network.gameType === 'belote') {
-                document.getElementById('bl-actions-1').style.display = 'none'; 
-                this.updateStatus("Votre ami réfléchit..."); 
-                this.syncNetwork();
+                document.getElementById('bl-actions-1').style.display = 'none'; this.updateStatus("Votre ami réfléchit..."); this.syncNetwork();
             } else {
-                document.getElementById('bl-actions-1').style.display = 'none'; 
-                let botName = this.currentTurnIndex === 1 ? 'Est' : (this.currentTurnIndex === 2 ? 'Nord' : 'Ouest');
-                this.updateStatus(`${botName} réfléchit...`); 
-                this.syncNetwork();
+                document.getElementById('bl-actions-1').style.display = 'none'; let botName = this.currentTurnIndex === 1 ? 'Est' : (this.currentTurnIndex === 2 ? 'Nord' : 'Ouest');
+                this.updateStatus(`${botName} réfléchit...`); this.syncNetwork();
                 
                 setTimeout(() => {
                     let suit = this.centerCard.suit.s, rank = this.centerCard.rank, hand = this.hands[this.currentTurnIndex];
                     let suitCards = hand.filter(c => c.suit.s === suit);
                     
-                    // IA PRO : Évaluation de la main pour le Tour 1
+                    // IA PRO : Evaluation ultra-stricte de la main (Tour 1)
                     let power = 0;
-                    if (rank === 'V') power += 4;
-                    if (rank === '9') power += 2.5;
-                    
+                    if (rank === 'V') power += 5;
+                    if (rank === '9') power += 3;
                     suitCards.forEach(c => {
-                        if (c.rank === 'V') power += 4;
-                        else if (c.rank === '9') power += 2.5;
-                        else if (c.rank === 'A') power += 1.5;
+                        if (c.rank === 'V') power += 5;
+                        else if (c.rank === '9') power += 3;
+                        else if (c.rank === 'A') power += 2;
                         else if (c.rank === '10') power += 1;
                         else power += 0.5;
                     });
-                    
-                    // Les As dans d'autres couleurs rassurent
-                    hand.filter(c => c.suit.s !== suit && c.rank === 'A').forEach(() => power += 1);
+                    hand.filter(c => c.suit.s !== suit && c.rank === 'A').forEach(() => power += 1.5);
 
-                    // Exige au moins 5.5 "points de force" (ex: Valet + un autre atout + un As)
-                    if (power >= 5.5) { 
+                    // Niveau Pro : 7.5 points de force minimum pour prendre
+                    if (power >= 7.5) { 
                         this.showSpeech(this.currentTurnIndex, `Je prends ! (${this.centerCard.suit.s})`); 
                         setTimeout(() => { this.take(this.currentTurnIndex, this.centerCard.suit); }, 800); 
                     } else { 
@@ -1611,67 +1550,46 @@
             }
         },
         passBidding1() {
-            document.getElementById('bl-actions-1').style.display = 'none'; 
-            this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
-            if (this.currentTurnIndex === this.firstPlayerIndex) { 
-                this.phase = 'bidding_2'; 
-                this.updateStatus("TOUR 2 : Choix d'une autre couleur."); 
-                this.syncNetwork(); 
-                setTimeout(() => { this.processBidding2(); }, 500); 
-            } else {
-                this.processBidding1();
-            }
+            document.getElementById('bl-actions-1').style.display = 'none'; this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
+            if (this.currentTurnIndex === this.firstPlayerIndex) { this.phase = 'bidding_2'; this.updateStatus("TOUR 2 : Choix d'une autre couleur."); this.syncNetwork(); setTimeout(() => { this.processBidding2(); }, 500); } 
+            else { this.processBidding1(); }
         },
         processBidding2() {
-            this.updatePlayerHighlight(this.currentTurnIndex); 
-            let rejectedSuit = this.centerCard.suit.s; 
-            let availableSuits = this.suits.filter(s => s.s !== rejectedSuit);
-            
+            this.updatePlayerHighlight(this.currentTurnIndex); let rejectedSuit = this.centerCard.suit.s; let availableSuits = this.suits.filter(s => s.s !== rejectedSuit);
             if (this.currentTurnIndex === 0) {
-                this.updateStatus("TOUR 2 : Choisissez une couleur ou passez."); 
-                document.getElementById('bl-actions-2').style.display = 'flex';
-                const suitsContainer = document.getElementById('bl-suits-container'); 
-                suitsContainer.innerHTML = '';
-                
+                this.updateStatus("TOUR 2 : Choisissez une couleur ou passez."); document.getElementById('bl-actions-2').style.display = 'flex';
+                const suitsContainer = document.getElementById('bl-suits-container'); suitsContainer.innerHTML = '';
                 availableSuits.forEach(suitObj => {
-                    let btn = document.createElement('button'); 
-                    btn.className = `bl-suit-btn ${suitObj.color === 'r' ? 'red' : 'black'}`; 
-                    btn.textContent = suitObj.s;
-                    btn.onclick = () => { this.showSpeech(0, `Je prends ! (${suitObj.s})`); document.getElementById('bl-actions-2').style.display = 'none'; this.take(0, suitObj); }; 
-                    suitsContainer.appendChild(btn);
+                    let btn = document.createElement('button'); btn.className = `bl-suit-btn ${suitObj.color === 'r' ? 'red' : 'black'}`; btn.textContent = suitObj.s;
+                    btn.onclick = () => { this.showSpeech(0, `Je prends ! (${suitObj.s})`); document.getElementById('bl-actions-2').style.display = 'none'; this.take(0, suitObj); }; suitsContainer.appendChild(btn);
                 });
-                
                 document.getElementById('btn-passer-2').onclick = () => { this.showSpeech(0, "Passe."); document.getElementById('bl-actions-2').style.display = 'none'; this.passBidding2(); };
                 this.syncNetwork();
             } else if (this.currentTurnIndex === 2 && window.App.Network.room && window.App.Network.gameType === 'belote') {
-                document.getElementById('bl-actions-2').style.display = 'none'; 
-                this.updateStatus("Votre ami réfléchit (Tour 2)..."); 
-                this.syncNetwork();
+                document.getElementById('bl-actions-2').style.display = 'none'; this.updateStatus("Votre ami réfléchit (Tour 2)..."); this.syncNetwork();
             } else {
-                let botName = this.currentTurnIndex === 1 ? 'Est' : (this.currentTurnIndex === 2 ? 'Nord' : 'Ouest'); 
-                this.updateStatus(`${botName} réfléchit (Tour 2)...`); 
-                this.syncNetwork();
+                let botName = this.currentTurnIndex === 1 ? 'Est' : (this.currentTurnIndex === 2 ? 'Nord' : 'Ouest'); this.updateStatus(`${botName} réfléchit (Tour 2)...`); this.syncNetwork();
                 
                 setTimeout(() => {
                     let hand = this.hands[this.currentTurnIndex], bestSuit = null, bestScore = 0;
                     
-                    // IA PRO : Évaluation de toutes les autres couleurs
                     availableSuits.forEach(suitObj => {
                         let power = 0;
                         let suitCards = hand.filter(c => c.suit.s === suitObj.s);
                         suitCards.forEach(c => {
-                            if (c.rank === 'V') power += 4;
-                            else if (c.rank === '9') power += 2.5;
-                            else if (c.rank === 'A') power += 1.5;
+                            if (c.rank === 'V') power += 5;
+                            else if (c.rank === '9') power += 3;
+                            else if (c.rank === 'A') power += 2;
                             else if (c.rank === '10') power += 1;
                             else power += 0.5;
                         });
-                        hand.filter(c => c.suit.s !== suitObj.s && c.rank === 'A').forEach(() => power += 1);
+                        hand.filter(c => c.suit.s !== suitObj.s && c.rank === 'A').forEach(() => power += 1.5);
                         
                         if (power > bestScore) { bestScore = power; bestSuit = suitObj; }
                     });
                     
-                    if (bestScore >= 5) { 
+                    // Exigence un peu baissée au tour 2, mais reste forte
+                    if (bestScore >= 6.5) { 
                         this.showSpeech(this.currentTurnIndex, `Je prends ! (${bestSuit.s})`); 
                         setTimeout(() => { this.take(this.currentTurnIndex, bestSuit); }, 800); 
                     } else { 
@@ -1683,124 +1601,62 @@
         },
         passBidding2() {
             this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
-            if (this.currentTurnIndex === this.firstPlayerIndex) { 
-                this.updateStatus("Tout le monde a passé. Redistribution générale !"); 
-                this.syncNetwork(); 
-                setTimeout(() => { this.startDeal(); }, 1500); 
-            } else {
-                this.processBidding2();
-            }
+            if (this.currentTurnIndex === this.firstPlayerIndex) { this.updateStatus("Tout le monde a passé. Redistribution générale !"); this.syncNetwork(); setTimeout(() => { this.startDeal(); }, 1500); } 
+            else { this.processBidding2(); }
         },
         take(playerIdx, selectedSuit) {
-            document.getElementById('bl-actions-1').style.display = 'none'; 
-            document.getElementById('bl-actions-2').style.display = 'none'; 
-            document.getElementById('bl-center').innerHTML = ''; 
-            this.takerIndex = playerIdx; 
-            this.atoutSuit = selectedSuit; 
-            this.hands[playerIdx].push(this.centerCard); 
-            
+            document.getElementById('bl-actions-1').style.display = 'none'; document.getElementById('bl-actions-2').style.display = 'none'; document.getElementById('bl-center').innerHTML = '';
+            this.takerIndex = playerIdx; this.atoutSuit = selectedSuit; this.hands[playerIdx].push(this.centerCard);
             let nameDisplay = playerIdx === 0 ? "Vous avez" : (playerIdx === 1 ? "Est a" : (playerIdx === 2 ? "Nord a" : "Ouest a"));
             this.updateStatus(`${nameDisplay} pris à <span style="color:${this.atoutSuit.color === 'r' ? '#f43f5e' : 'white'}; font-size:1.5rem;">${this.atoutSuit.s}</span> !`);
-            this.syncNetwork(); 
-            setTimeout(() => { this.finishDeal(); }, 1500);
+            this.syncNetwork(); setTimeout(() => { this.finishDeal(); }, 1500);
         },
         finishDeal() {
-            this.phase = 'playing'; 
-            let takerName = this.takerIndex === 0 ? "Toi" : (this.takerIndex === 1 ? "Est" : (this.takerIndex === 2 ? "Nord" : "Ouest"));
-            
-            document.getElementById('bl-atout-corner').style.display = 'block'; 
-            document.getElementById('bl-taker-name').innerText = `Preneur : ${takerName}`; 
-            document.getElementById('bl-atout-suit').innerText = this.atoutSuit.s; 
-            document.getElementById('bl-atout-suit').style.color = this.atoutSuit.color === 'r' ? '#f43f5e' : 'white';
-            document.getElementById('bl-trick-points').style.display = 'block'; 
-            this.updateTrickPointsUI();
-            
-            for (let p = 0; p < 4; p++) { 
-                let targetPlayer = (this.firstPlayerIndex + p) % 4; 
-                let numCardsToGive = (targetPlayer === this.takerIndex) ? 2 : 3; 
-                this.hands[targetPlayer].push(...this.deck.splice(0, numCardsToGive)); 
-            }
-            this.sortAllHands(); 
-            this.currentTurnIndex = this.firstPlayerIndex; 
-            this.processPlay();
+            this.phase = 'playing'; let takerName = this.takerIndex === 0 ? "Toi" : (this.takerIndex === 1 ? "Est" : (this.takerIndex === 2 ? "Nord" : "Ouest"));
+            document.getElementById('bl-atout-corner').style.display = 'block'; document.getElementById('bl-taker-name').innerText = `Preneur : ${takerName}`; document.getElementById('bl-atout-suit').innerText = this.atoutSuit.s; document.getElementById('bl-atout-suit').style.color = this.atoutSuit.color === 'r' ? '#f43f5e' : 'white';
+            document.getElementById('bl-trick-points').style.display = 'block'; this.updateTrickPointsUI();
+            for (let p = 0; p < 4; p++) { let targetPlayer = (this.firstPlayerIndex + p) % 4; let numCardsToGive = (targetPlayer === this.takerIndex) ? 2 : 3; this.hands[targetPlayer].push(...this.deck.splice(0, numCardsToGive)); }
+            this.sortAllHands(); this.currentTurnIndex = this.firstPlayerIndex; this.processPlay();
         },
         updatePlayerHighlight(index) {
             document.querySelectorAll('.bl-name').forEach(el => el.classList.remove('active-turn'));
-            if (index === 0) document.getElementById('bl-n-s').classList.add('active-turn'); 
-            if (index === 1) document.getElementById('bl-n-e').classList.add('active-turn'); 
-            if (index === 2) document.getElementById('bl-n-n').classList.add('active-turn'); 
-            if (index === 3) document.getElementById('bl-n-w').classList.add('active-turn');
+            if (index === 0) document.getElementById('bl-n-s').classList.add('active-turn'); if (index === 1) document.getElementById('bl-n-e').classList.add('active-turn'); if (index === 2) document.getElementById('bl-n-n').classList.add('active-turn'); if (index === 3) document.getElementById('bl-n-w').classList.add('active-turn');
         },
         renderBotHands() {
             const mapId = ['none', 'bl-h-e', 'bl-h-n', 'bl-h-w'];
             for (let i = 1; i <= 3; i++) { 
-                const container = document.getElementById(mapId[i]); 
-                container.innerHTML = ''; 
-                let nbCards = this.hands[i].length;
-                
-                for (let c = 0; c < nbCards; c++) { 
-                    let back = document.createElement('div'); 
-                    back.className = 'bl-card-back'; 
-                    container.appendChild(back); 
-                } 
+                const container = document.getElementById(mapId[i]); container.innerHTML = ''; let nbCards = this.hands[i].length;
+                for (let c = 0; c < nbCards; c++) { let back = document.createElement('div'); back.className = 'bl-card-back'; container.appendChild(back); } 
             }
         },
         processPlay() {
-            if (this.tricksPlayedCount === 8) return; 
-            this.updatePlayerHighlight(this.currentTurnIndex); 
-            this.renderHand(); 
-            this.renderBotHands();
-            
-            if (this.currentTurnIndex === 0) { 
-                this.updateStatus("À vous de jouer !"); 
-                this.syncNetwork(); 
-            } else if (this.currentTurnIndex === 2 && window.App.Network.room && window.App.Network.gameType === 'belote') { 
-                this.updateStatus("Votre ami réfléchit..."); 
-                this.syncNetwork(); 
-            } else { 
-                let botName = this.currentTurnIndex === 1 ? "Est" : (this.currentTurnIndex === 2 ? "Nord" : "Ouest"); 
-                this.updateStatus(`${botName} joue...`); 
-                this.syncNetwork(); 
-                setTimeout(() => { this.botPlay(); }, 600); 
-            }
+            if (this.tricksPlayedCount === 8) return; this.updatePlayerHighlight(this.currentTurnIndex); this.renderHand(); this.renderBotHands();
+            if (this.currentTurnIndex === 0) { this.updateStatus("À vous de jouer !"); this.syncNetwork(); } 
+            else if (this.currentTurnIndex === 2 && window.App.Network.room && window.App.Network.gameType === 'belote') { this.updateStatus("Votre ami réfléchit..."); this.syncNetwork(); } 
+            else { let botName = this.currentTurnIndex === 1 ? "Est" : (this.currentTurnIndex === 2 ? "Nord" : "Ouest"); this.updateStatus(`${botName} joue...`); this.syncNetwork(); setTimeout(() => { this.botPlay(); }, 600); }
         },
         getTrickWinner(trickArray) {
             if (trickArray.length === 0) return null;
             let leadSuitChar = trickArray[0].card.suit.s, highestCalculatedVal = -1, winnerIndexInTrick = 0, isAtoutPlayedInTrick = trickArray.some(trickEntry => trickEntry.card.suit.s === this.atoutSuit.s);
             for (let i = 0; i < trickArray.length; i++) {
                 let currentCard = trickArray[i].card, orderArray = (currentCard.suit.s === this.atoutSuit.s) ? this.ordAtout : this.ordNormal, valForComparison = 8 - orderArray.indexOf(currentCard.rank); 
-                if (isAtoutPlayedInTrick) { 
-                    if (currentCard.suit.s === this.atoutSuit.s && valForComparison > highestCalculatedVal) { highestCalculatedVal = valForComparison; winnerIndexInTrick = i; } 
-                } else { 
-                    if (currentCard.suit.s === leadSuitChar && valForComparison > highestCalculatedVal) { highestCalculatedVal = valForComparison; winnerIndexInTrick = i; } 
-                }
+                if (isAtoutPlayedInTrick) { if (currentCard.suit.s === this.atoutSuit.s && valForComparison > highestCalculatedVal) { highestCalculatedVal = valForComparison; winnerIndexInTrick = i; } } 
+                else { if (currentCard.suit.s === leadSuitChar && valForComparison > highestCalculatedVal) { highestCalculatedVal = valForComparison; winnerIndexInTrick = i; } }
             } 
             return trickArray[winnerIndexInTrick];
         },
         getValidCards(handArray) {
             if (this.currentTrick.length === 0) return handArray;
             let leadSuitChar = this.currentTrick[0].card.suit.s, cardsOfRequestedSuit = handArray.filter(c => c.suit.s === leadSuitChar), trumpCardsInHand = handArray.filter(c => c.suit.s === this.atoutSuit.s), highestTrumpRankInTrick = -1;
-            
             this.currentTrick.forEach(trickEntry => { if (trickEntry.card.suit.s === this.atoutSuit.s) { let val = 8 - this.ordAtout.indexOf(trickEntry.card.rank); if (val > highestTrumpRankInTrick) highestTrumpRankInTrick = val; } });
-            
             if (cardsOfRequestedSuit.length > 0) { 
-                if (leadSuitChar === this.atoutSuit.s) { 
-                    let higherTrumpsToPlay = cardsOfRequestedSuit.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRankInTrick); 
-                    if (higherTrumpsToPlay.length > 0) return higherTrumpsToPlay; 
-                } 
+                if (leadSuitChar === this.atoutSuit.s) { let higherTrumpsToPlay = cardsOfRequestedSuit.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRankInTrick); if (higherTrumpsToPlay.length > 0) return higherTrumpsToPlay; } 
                 return cardsOfRequestedSuit; 
             }
-            
             let currentWinnerData = this.getTrickWinner(this.currentTrick), partnerIndex = (this.currentTurnIndex + 2) % 4, isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
-            
             if (trumpCardsInHand.length > 0) { 
-                if (isPartnerWinning) { 
-                    return handArray; 
-                } else { 
-                    let higherTrumpsToPlay = trumpCardsInHand.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRankInTrick); 
-                    if (higherTrumpsToPlay.length > 0) return higherTrumpsToPlay; 
-                    return trumpCardsInHand; 
-                } 
+                if (isPartnerWinning) { return handArray; } 
+                else { let higherTrumpsToPlay = trumpCardsInHand.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRankInTrick); if (higherTrumpsToPlay.length > 0) return higherTrumpsToPlay; return trumpCardsInHand; } 
             }
             return handArray;
         },
@@ -1811,26 +1667,22 @@
             let sortByValDesc = arr => arr.sort((a,b) => this.getCardValue(b) - this.getCardValue(a));
             let sortByValAsc = arr => arr.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
 
-            // IA PRO : LE BOT MÈNE LE PLI
+            // LE BOT MÈNE LE PLI
             if (this.currentTrick.length === 0) {
                 let iAmTakerTeam = (this.takerIndex % 2) === (this.currentTurnIndex % 2);
                 
-                // Le bot a pris : il purge les atouts adverses (Joue ses maîtres)
                 if (iAmTakerTeam && trumps.length > 0) { 
                     let masterTrumps = trumps.filter(c => c.rank === 'V' || c.rank === '9' || c.rank === 'A');
                     if (masterTrumps.length > 0) return sortByValDesc(masterTrumps)[0];
-                    if (Math.random() < 0.6) return sortByValDesc(trumps)[0]; // Force l'atout
+                    if (Math.random() < 0.6) return sortByValDesc(trumps)[0]; 
                 }
                 
-                // Ouvre à l'As (Pli maître garanti hors atout)
                 let aces = nonTrumps.filter(c => c.rank === 'A'); 
                 if (aces.length > 0) return aces[0];
                 
-                // Sinon on joue les 10 UNIQUEMENT si c'est nécessaire ou si on a l'As
                 let tens = nonTrumps.filter(c => c.rank === '10');
                 if (tens.length > 0 && Math.random() < 0.3) return tens[0];
 
-                // Sinon on se débarrasse des cartes nulles (7, 8, 9) pour ne pas donner de points
                 let trash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A' && c.rank !== 'R');
                 if (trash.length > 0) return sortByValAsc(trash)[0];
                 
@@ -1841,50 +1693,44 @@
             let partnerIndex = (this.currentTurnIndex + 2) % 4; 
             let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
             
-            // IA PRO : LE PARTENAIRE GAGNE LE PLI
+            // LE PARTENAIRE GAGNE LE PLI
             if (isPartnerWinning) {
                 let winningCard = currentWinnerData.card;
                 let isLastToPlay = this.currentTrick.length === 3;
                 let isSecure = isLastToPlay || (isAtout(winningCard) && (winningCard.rank==='V' || winningCard.rank==='9')) || winningCard.rank === 'A';
 
                 if (isSecure) {
-                    // CHARGE MASSIVE : donne les 10 et les As au partenaire !
                     let points = validCardsArray.filter(c => c.rank === '10' || c.rank === 'A');
                     if (points.length > 0) return sortByValDesc(points)[0]; 
                 }
                 
-                // Pli non garanti = Ne lâche AUCUN point (pas de Dadou !).
                 let cheapCards = validCardsArray.filter(c => c.rank !== '10' && c.rank !== 'A' && !isAtout(c));
                 if (cheapCards.length > 0) return sortByValAsc(cheapCards)[0];
                 
                 return sortByValAsc(validCardsArray)[0];
             } 
             
-            // IA PRO : L'ADVERSAIRE GAGNE LE PLI
+            // L'ADVERSAIRE GAGNE LE PLI
             else {
                 let winningCard = currentWinnerData.card; 
                 let winningVal = isAtout(winningCard) ? (8 - this.ordAtout.indexOf(winningCard.rank)) : (8 - this.ordNormal.indexOf(winningCard.rank));
                 
                 let cardsThatBeatWinner = validCardsArray.filter(c => {
-                    if (isAtout(c) && !isAtout(winningCard)) return true; // Coupe
+                    if (isAtout(c) && !isAtout(winningCard)) return true;
                     if (c.suit.s === winningCard.suit.s) { 
                         let order = isAtout(c) ? this.ordAtout : this.ordNormal; 
-                        return (8 - order.indexOf(c.rank)) > winningVal; // Surcoupe / Monte
+                        return (8 - order.indexOf(c.rank)) > winningVal; 
                     } 
                     return false;
                 });
                 
                 if (cardsThatBeatWinner.length > 0) { 
-                    // Si le pli contient beaucoup de points adverses (10, As), on tape fort avec le meilleur Atout
                     let pointsInTrick = this.currentTrick.reduce((acc, t) => acc + this.getCardValue(t.card), 0);
                     if (pointsInTrick >= 10 && cardsThatBeatWinner.some(isAtout)) {
-                        return sortByValDesc(cardsThatBeatWinner.filter(isAtout))[0]; // Écrase l'adversaire !
+                        return sortByValDesc(cardsThatBeatWinner.filter(isAtout))[0]; 
                     }
-                    // Sinon, gagne avec le strict minimum pour économiser ses belles cartes
                     return sortByValAsc(cardsThatBeatWinner)[0]; 
                 } else { 
-                    // IMPOSSIBLE de gagner. On sauve les meubles : on jette les pires cartes (7, 8, 9).
-                    // On garde ABSOLUMENT ses 10, ses As, et ses atouts.
                     let absoluteTrash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A');
                     if (absoluteTrash.length > 0) return sortByValAsc(absoluteTrash)[0];
                     
@@ -1894,7 +1740,6 @@
             }
         },
         checkBelote(cardObj, playerIndex) {
-            // Règles Officielles : Belote et Rebelote (+20)
             if (cardObj.suit.s === this.atoutSuit.s && (cardObj.rank === 'R' || cardObj.rank === 'D')) {
                 let hand = this.hands[playerIndex];
                 let otherRankToFind = (cardObj.rank === 'R') ? 'D' : 'R';
@@ -1903,192 +1748,92 @@
                 
                 if (this.beloteAnnouncedBy === teamIdentity) { 
                     this.showAnnonce("REBELOTE ! (+20)"); 
-                    // Les 20 pts seront comptés à la fin dans le total
+                    this.updateStatus(`REBELOTE pour ${teamIdentity === 'nous' ? 'Nous' : 'Eux'} !`);
                 } else if (hasOtherInHand) { 
                     this.beloteAnnouncedBy = teamIdentity; 
                     this.showAnnonce("BELOTE !"); 
+                    this.updateStatus(`BELOTE pour ${teamIdentity === 'nous' ? 'Nous' : 'Eux'} !`);
                 }
             }
         },
-        showAnnonce(msg) { 
-            const annonceEl = document.getElementById('bl-annonce-msg'); 
-            annonceEl.textContent = msg; 
-            annonceEl.classList.remove('active'); 
-            void annonceEl.offsetWidth; 
-            annonceEl.classList.add('active'); 
-        },
+        showAnnonce(msg) { const annonceEl = document.getElementById('bl-annonce-msg'); annonceEl.textContent = msg; annonceEl.classList.remove('active'); void annonceEl.offsetWidth; annonceEl.classList.add('active'); },
         renderHand() {
-            const handContainer = document.getElementById('bl-hand'); 
-            handContainer.innerHTML = '';
+            const handContainer = document.getElementById('bl-hand'); handContainer.innerHTML = '';
             let validCardsArray = (this.phase === 'playing' && this.currentTurnIndex === 0) ? this.getValidCards(this.hands[0]) : [];
-            
             this.hands[0].forEach((card, index) => {
                 let cardElement = document.createElement('div'), isValid = validCardsArray.includes(card) || this.phase !== 'playing';
                 cardElement.className = `bl-card ${card.isRed ? 'red' : ''} ${!isValid && this.phase === 'playing' ? 'invalid' : ''}`; 
                 cardElement.innerHTML = `<span>${card.rank}</span><span>${card.suit.s}</span>`;
-                
                 if (isValid && this.phase === 'playing' && this.currentTurnIndex === 0) { 
-                    cardElement.onclick = () => { 
-                        if (this.phase === 'playing' && this.currentTurnIndex === 0) { 
-                            this.playCard(index, cardElement); 
-                        } 
-                    }; 
+                    cardElement.onclick = () => { if (this.phase === 'playing' && this.currentTurnIndex === 0) this.playCard(index, cardElement); }; 
                 }
                 handContainer.appendChild(cardElement);
             });
         },
         playCard(cardIndex, cardElement) {
-            this.phase = 'resolving'; 
-            let playedCardObj = this.hands[0].splice(cardIndex, 1)[0]; 
-            this.renderHand(); 
-            this.checkBelote(playedCardObj, 0);
-            
-            let visualCard = cardElement.cloneNode(true); 
-            visualCard.style.setProperty('--rand', Math.random()); 
-            visualCard.className += ' bl-played'; 
-            document.getElementById('bl-s-s').appendChild(visualCard);
-            
-            this.currentTrick.push({ player: 0, card: playedCardObj }); 
-            this.currentTurnIndex = 1; 
-            this.syncNetwork();
-            
-            if (this.currentTrick.length === 4) { this.resolveTrick(); } 
-            else { this.phase = 'playing'; this.processPlay(); }
+            this.phase = 'resolving'; let playedCardObj = this.hands[0].splice(cardIndex, 1)[0]; this.renderHand(); this.checkBelote(playedCardObj, 0);
+            let visualCard = cardElement.cloneNode(true); visualCard.style.setProperty('--rand', Math.random()); visualCard.className += ' bl-played'; document.getElementById('bl-s-s').appendChild(visualCard);
+            this.currentTrick.push({ player: 0, card: playedCardObj }); this.currentTurnIndex = 1; this.syncNetwork();
+            if (this.currentTrick.length === 4) { this.resolveTrick(); } else { this.phase = 'playing'; this.processPlay(); }
         },
         botPlay() {
-            let validCardsArray = this.getValidCards(this.hands[this.currentTurnIndex]); 
-            let playedCardObj = this.chooseBotCard(validCardsArray); 
-            
-            this.hands[this.currentTurnIndex] = this.hands[this.currentTurnIndex].filter(c => c !== playedCardObj); 
-            this.checkBelote(playedCardObj, this.currentTurnIndex);
-            
-            const positionsMap = ['s', 'e', 'n', 'w']; 
-            let visualCard = document.createElement('div'); 
-            visualCard.className = `bl-card bl-played ${playedCardObj.isRed ? 'red' : ''}`; 
-            visualCard.innerHTML = `<span>${playedCardObj.rank}</span><span>${playedCardObj.suit.s}</span>`; 
-            visualCard.style.setProperty('--rand', Math.random()); 
-            document.getElementById('bl-s-' + positionsMap[this.currentTurnIndex]).appendChild(visualCard);
-            
-            this.currentTrick.push({ player: this.currentTurnIndex, card: playedCardObj }); 
-            this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
-            
-            this.renderBotHands(); 
-            this.syncNetwork();
-            
-            if (this.currentTrick.length === 4) { this.resolveTrick(); } 
-            else { this.processPlay(); }
+            let validCardsArray = this.getValidCards(this.hands[this.currentTurnIndex]); let playedCardObj = this.chooseBotCard(validCardsArray); 
+            this.hands[this.currentTurnIndex] = this.hands[this.currentTurnIndex].filter(c => c !== playedCardObj); this.checkBelote(playedCardObj, this.currentTurnIndex);
+            const positionsMap = ['s', 'e', 'n', 'w']; let visualCard = document.createElement('div'); visualCard.className = `bl-card bl-played ${playedCardObj.isRed ? 'red' : ''}`; visualCard.innerHTML = `<span>${playedCardObj.rank}</span><span>${playedCardObj.suit.s}</span>`; visualCard.style.setProperty('--rand', Math.random()); document.getElementById('bl-s-' + positionsMap[this.currentTurnIndex]).appendChild(visualCard);
+            this.currentTrick.push({ player: this.currentTurnIndex, card: playedCardObj }); this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
+            this.renderBotHands(); this.syncNetwork();
+            if (this.currentTrick.length === 4) { this.resolveTrick(); } else { this.processPlay(); }
         },
-        getCardValue(cardObj) { 
-            if (cardObj.suit.s === this.atoutSuit.s) return this.valAtout[cardObj.rank]; 
-            return this.valNormal[cardObj.rank]; 
-        },
+        getCardValue(cardObj) { if (cardObj.suit.s === this.atoutSuit.s) return this.valAtout[cardObj.rank]; return this.valNormal[cardObj.rank]; },
         resolveTrick() {
-            this.phase = 'resolving'; 
-            this.updatePlayerHighlight(-1);
-            
-            let winnerObject = this.getTrickWinner(this.currentTrick);
-            let pointsInTrick = this.currentTrick.reduce((sum, trickEntry) => sum + this.getCardValue(trickEntry.card), 0);
-            let trickWinnerIndex = winnerObject.player;
-            let winningTeam = (trickWinnerIndex === 0 || trickWinnerIndex === 2) ? 'nous' : 'eux';
-            
-            this.tricksPlayedCount++; 
-            // Règles Officielles : Dix de Der (+10 points pour le dernier pli)
-            if (this.tricksPlayedCount === 8) pointsInTrick += 10; 
-            
-            this.dealPoints[winningTeam] += pointsInTrick; 
-            this.tricksWon[winningTeam] += 1; 
-            this.updateTrickPointsUI();
-            
+            this.phase = 'resolving'; this.updatePlayerHighlight(-1);
+            let winnerObject = this.getTrickWinner(this.currentTrick); let pointsInTrick = this.currentTrick.reduce((sum, t) => sum + this.getCardValue(t.card), 0); let trickWinnerIndex = winnerObject.player; let winningTeam = (trickWinnerIndex === 0 || trickWinnerIndex === 2) ? 'nous' : 'eux';
+            this.tricksPlayedCount++; if (this.tricksPlayedCount === 8) pointsInTrick += 10; 
+            this.dealPoints[winningTeam] += pointsInTrick; this.tricksWon[winningTeam] += 1; this.updateTrickPointsUI();
             let winMessageName = trickWinnerIndex === 0 ? "Vous remportez" : (trickWinnerIndex === 1 ? "Est remporte" : (trickWinnerIndex === 2 ? "Votre ami remporte" : "Ouest remporte"));
-            this.updateStatus(`${winMessageName} le pli ! (+${pointsInTrick} pts)`); 
-            this.syncNetwork();
-            
+            this.updateStatus(`${winMessageName} le pli ! (+${pointsInTrick} pts)`); this.syncNetwork();
             setTimeout(() => {
                 document.querySelectorAll('.bl-slot').forEach(slot => { slot.innerHTML = ''; });
-                
-                this.currentTrick = []; 
-                this.currentTurnIndex = trickWinnerIndex; 
-                this.phase = 'playing';
-                
-                if (this.tricksPlayedCount === 8) { this.endDeal(); } 
-                else { this.processPlay(); }
+                this.currentTrick = []; this.currentTurnIndex = trickWinnerIndex; this.phase = 'playing';
+                if (this.tricksPlayedCount === 8) { this.endDeal(); } else { this.processPlay(); }
             }, 2500);
         },
         updateTrickPointsUI() { document.getElementById('bl-trick-pts-val').textContent = this.dealPoints.nous; },
         updateScoreUI() { document.getElementById('bl-score-nous').textContent = this.scores.nous; document.getElementById('bl-score-eux').textContent = this.scores.eux; },
         endDeal() { 
             document.getElementById('bl-atout-corner').style.display = 'none';
-
             let ptsNous = this.dealPoints.nous, ptsEux = this.dealPoints.eux, msg = "";
             let beloteNous = this.beloteAnnouncedBy === 'nous' ? 20 : 0;
             let beloteEux = this.beloteAnnouncedBy === 'eux' ? 20 : 0;
-            
-            let isCapotNous = this.tricksWon.nous === 8;
-            let isCapotEux = this.tricksWon.eux === 8;
+            let isCapotNous = this.tricksWon.nous === 8, isCapotEux = this.tricksWon.eux === 8;
             
             if (isCapotNous) { ptsNous = 250; msg += "<b style='color:var(--accent); font-size:1.3em;'>CAPOT ! (250 pts)</b><br><br>"; } 
             else if (isCapotEux) { ptsEux = 250; msg += "<b style='color:var(--player-x); font-size:1.3em;'>CAPOT ADVERSE ! (250 pts)</b><br><br>"; }
 
             let takerTeam = (this.takerIndex === 0 || this.takerIndex === 2) ? 'nous' : 'eux';
-            
-            // Total officiel (Inclus la belote inviolable)
             let totalNous = ptsNous + beloteNous;
             let totalEux = ptsEux + beloteEux;
 
-            // Règles de Chute et de Litige (Le preneur doit faire plus que l'adversaire)
             if (takerTeam === 'nous' && !isCapotNous) {
-                if (totalNous > totalEux) { 
-                    this.scores.nous += totalNous + this.litigePot; 
-                    this.scores.eux += totalEux; 
-                    this.litigePot = 0; msg += "Contrat rempli !<br>"; 
-                } else if (totalNous < totalEux) { 
-                    msg += "<b style='color:var(--player-x);'>CHUTE ! L'adversaire prend 162 pts.</b><br>"; 
-                    this.scores.eux += 162 + beloteEux + this.litigePot; 
-                    this.scores.nous += beloteNous; // On garde les points de sa belote même en chutant
-                    this.litigePot = 0; ptsNous = 0; ptsEux = 162; 
-                } else { 
-                    msg += "<b style='color:var(--gold);'>LITIGE ! Vos points sont reportés.</b><br>"; 
-                    this.litigePot += ptsNous; 
-                    this.scores.eux += totalEux; 
-                    this.scores.nous += beloteNous;
-                    ptsNous = 0; 
-                }
+                if (totalNous > totalEux) { this.scores.nous += totalNous + this.litigePot; this.scores.eux += totalEux; this.litigePot = 0; msg += "Contrat rempli !<br>"; } 
+                else if (totalNous < totalEux) { msg += "<b style='color:var(--player-x);'>CHUTE ! L'adversaire prend 162 pts.</b><br>"; this.scores.eux += 162 + beloteEux + this.litigePot; this.scores.nous += beloteNous; this.litigePot = 0; ptsNous = 0; ptsEux = 162; } 
+                else { msg += "<b style='color:var(--gold);'>LITIGE ! Vos points sont reportés.</b><br>"; this.litigePot += ptsNous; this.scores.eux += totalEux; this.scores.nous += beloteNous; ptsNous = 0; }
             } else if (takerTeam === 'eux' && !isCapotEux) {
-                if (totalEux > totalNous) { 
-                    this.scores.eux += totalEux + this.litigePot; 
-                    this.scores.nous += totalNous; 
-                    this.litigePot = 0; msg += "L'adversaire a rempli son contrat.<br>"; 
-                } else if (totalEux < totalNous) { 
-                    msg += "<b style='color:var(--accent);'>ADVERSAIRE DEDANS ! Vous prenez 162 pts.</b><br>"; 
-                    this.scores.nous += 162 + beloteNous + this.litigePot; 
-                    this.scores.eux += beloteEux; 
-                    this.litigePot = 0; ptsEux = 0; ptsNous = 162; 
-                } else { 
-                    msg += "<b style='color:var(--gold);'>LITIGE ! Points adverses reportés.</b><br>"; 
-                    this.litigePot += ptsEux; 
-                    this.scores.nous += totalNous; 
-                    this.scores.eux += beloteEux;
-                    ptsEux = 0; 
-                }
+                if (totalEux > totalNous) { this.scores.eux += totalEux + this.litigePot; this.scores.nous += totalNous; this.litigePot = 0; msg += "L'adversaire a rempli son contrat.<br>"; } 
+                else if (totalEux < totalNous) { msg += "<b style='color:var(--accent);'>ADVERSAIRE DEDANS ! Vous prenez 162 pts.</b><br>"; this.scores.nous += 162 + beloteNous + this.litigePot; this.scores.eux += beloteEux; this.litigePot = 0; ptsEux = 0; ptsNous = 162; } 
+                else { msg += "<b style='color:var(--gold);'>LITIGE ! Points adverses reportés.</b><br>"; this.litigePot += ptsEux; this.scores.nous += totalNous; this.scores.eux += beloteEux; ptsEux = 0; }
             } else if (isCapotNous || isCapotEux) {
                 this.scores.nous += ptsNous + beloteNous + (isCapotNous ? this.litigePot : 0);
                 this.scores.eux += ptsEux + beloteEux + (isCapotEux ? this.litigePot : 0);
                 this.litigePot = 0;
             }
-            
             msg += `<br>Scores de la donne :<br>Nous : ${ptsNous + beloteNous} pts<br>Eux : ${ptsEux + beloteEux} pts`;
-            
             if (this.scores.nous >= 1000 || this.scores.eux >= 1000) {
                 let winnerTeamText = this.scores.nous >= 1000 ? "VOUS AVEZ" : "ILS ONT"; 
                 msg = `<span style="font-size:1.5em; color:var(--gold)">PARTIE TERMINÉE !</span><br><br>${winnerTeamText} ATTEINT 1000 POINTS !<br><br>Score Final : Nous ${this.scores.nous} - Eux ${this.scores.eux}`;
-                this.activeModal = { title: 'Fin de la Partie', msg: msg }; 
-                this.syncNetwork(); 
-                window.UI.showModal('Fin de la Partie', msg, () => { this.activeModal = null; this.syncNetwork(); this.initGame(); });
+                this.activeModal = { title: 'Fin de la Partie', msg: msg }; this.syncNetwork(); window.UI.showModal('Fin de la Partie', msg, () => { this.activeModal = null; this.syncNetwork(); this.initGame(); });
             } else {
-                this.updateScoreUI(); 
-                this.activeModal = { title: 'Bilan de la Manche', msg: msg }; 
-                this.syncNetwork(); 
-                window.UI.showModal('Bilan de la Manche', msg, () => { this.activeModal = null; this.syncNetwork(); this.startDeal(); });
+                this.updateScoreUI(); this.activeModal = { title: 'Bilan de la Manche', msg: msg }; this.syncNetwork(); window.UI.showModal('Bilan de la Manche', msg, () => { this.activeModal = null; this.syncNetwork(); this.startDeal(); });
             }
         },
         updateStatus(msgText) { document.getElementById('bl-status').innerHTML = msgText; }
