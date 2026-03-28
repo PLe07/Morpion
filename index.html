@@ -58,11 +58,12 @@
             background: var(--panel-bg); 
             padding: 40px; 
             border-radius: 20px; 
-            text-align: center; 
             border: 2px solid var(--accent); 
             box-shadow: 0 15px 50px var(--accent-glow); 
             animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            max-width: 450px; 
+            max-width: 550px; 
+            max-height: 85vh; 
+            overflow-y: auto; 
         }
 
         .modal-box h2 { 
@@ -71,10 +72,11 @@
         }
 
         .modal-box p { 
-            font-size: 1.2rem; 
+            font-size: 1.1rem; 
             color: var(--text-muted); 
             margin-bottom: 30px; 
             line-height: 1.5; 
+            text-align: left;
         }
         
         @keyframes modalPop { 
@@ -526,7 +528,6 @@
         .room-code-display { font-size: 4.5rem; letter-spacing: 10px; color: var(--accent); font-weight: 900; margin: 30px 0; background: #020617; padding: 20px; border-radius: 15px; }
         .net-status-bar { background: #020617; padding: 20px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 30px; font-size: 1.4rem; font-weight: bold; text-align: center; }
 
-
         /* BOUTON RÈGLES */
         #btn-rules {
             position: absolute;
@@ -548,6 +549,7 @@
             color: #000;
             box-shadow: 0 0 15px var(--accent-glow);
         }
+
         /* =========================================
            9. RESPONSIVE DESIGN (MOBILES & TABLETTES)
            ========================================= */
@@ -581,7 +583,7 @@
 <div id="modal-overlay">
     <div class="modal-box">
         <h2 id="modal-title">Titre</h2>
-        <p id="modal-desc">Description</p>
+        <div id="modal-desc" style="font-size: 1.05rem;">Description</div>
         <button class="btn" id="modal-btn" onclick="UI.closeModal()">Continuer</button>
     </div>
 </div>
@@ -608,94 +610,6 @@
 
     <button id="btn-rules" onclick="UI.showRules()">📖 Règles du jeu</button>
     
-    <section id="s-sim" class="screen active">
-        ```
-
-### 3. La logique intelligente (JavaScript)
-Descend dans ton code JavaScript, tout au début, là où on a défini `window.UI = { ... }`. On va lui rajouter la fonction `showRules()`.
-
-**Remplace l'intégralité de ton bloc `window.UI` actuel par celui-ci :**
-
-```javascript
-    window.UI = {
-        modalCb: null,
-        showModal(title, desc, cb) {
-            document.getElementById('modal-title').innerHTML = title;
-            let titleColor = 'var(--player-x)';
-            if (title.includes('Victoire') || title.includes('Gagné') || title.includes('Terminée') || title.includes('Réussi') || title.includes('Fin')) {
-                titleColor = 'var(--accent)';
-            }
-            document.getElementById('modal-title').style.color = titleColor;
-            document.getElementById('modal-desc').innerHTML = desc;
-            this.modalCb = cb; 
-            document.getElementById('modal-btn').style.display = 'inline-block';
-            document.getElementById('modal-overlay').style.display = 'flex';
-        },
-        closeModal() { 
-            document.getElementById('modal-overlay').style.display = 'none'; 
-            if (this.modalCb) this.modalCb(); 
-        },
-        switchScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
-            document.getElementById(id).classList.add('active');
-            if (id !== 's-mine') clearInterval(window.App.Mine.timer);
-        },
-        showRules() {
-            // Détecte le jeu actuellement affiché à l'écran
-            const activeScreen = document.querySelector('.screen.active').id;
-            let title = "📖 Règles du Jeu";
-            let desc = "";
-
-            switch(activeScreen) {
-                case 's-sim': 
-                case 's-net-sim': 
-                    desc = "Aligne 3 symboles (X ou O) horizontalement, verticalement ou en diagonale pour gagner la manche."; 
-                    break;
-                case 's-ult': 
-                case 's-net-ult': 
-                    desc = "Gagne une petite grille pour conquérir sa case dans la grande.<br><br><b style='color:var(--accent)'>Règle d'or :</b> La case que tu choisis dans une petite grille oblige ton adversaire à jouer dans la grande grille correspondante !"; 
-                    break;
-                case 's-mine': 
-                    desc = "Trouve toutes les cases sans mine. Les chiffres t'indiquent le nombre de mines directement adjacentes.<br><br>Utilise le <b>Clic Droit</b> pour poser un drapeau (🚩)."; 
-                    break;
-                case 's-yams': 
-                case 's-net-yams': 
-                    desc = "Lance les dés jusqu'à 3 fois et clique dessus pour les garder.<br><br>Si la somme de la partie haute (1 à 6) atteint au moins <b>63 points</b>, tu gagnes un bonus de <b>35 points</b> ! Le Yams (5 dés identiques) vaut 50 points."; 
-                    break;
-                case 's-belote': 
-                    desc = "<b style='color:var(--accent)'>Ordre Atout :</b> V, 9, As, 10, R, D, 8, 7.<br><b style='color:var(--gold)'>Ordre Normal :</b> As, 10, R, D, V, 9, 8, 7.<br><br>Avoir le Roi et la Dame d'atout donne <b>+20 pts</b> (Belote-Rebelote). Gagner le dernier pli donne <b>+10 pts</b> (Dix de der). Pour valider son contrat, le preneur doit faire plus de points que l'adversaire !"; 
-                    break;
-                case 's-p4': 
-                case 's-net-p4': 
-                    desc = "Lâche tes jetons dans la grille pour aligner 4 jetons de ta couleur horizontalement, verticalement ou en diagonale avant le Bot."; 
-                    break;
-                case 's-bj': 
-                    desc = "Bats le croupier en t'approchant le plus de 21 sans jamais le dépasser (Bust).<br><br>Les têtes valent 10, l'As vaut 1 ou 11 selon ce qui t'arrange."; 
-                    break;
-                case 's-mm': 
-                case 's-net-mm': 
-                    desc = "Trouve le code couleur secret en 9 essais maximum.<br><br><span style='color:#ef4444; font-weight:bold;'>Indice Rouge :</span> Bonne couleur, bonne place.<br><span style='color:#cbd5e1; font-weight:bold;'>Indice Blanc :</span> Bonne couleur, mauvaise place."; 
-                    break;
-                case 's-bn': 
-                case 's-net-bn': 
-                    desc = "Place ta flotte horizontalement ou verticalement, puis tire sur la grille adverse. Le premier à couler tous les navires ennemis gagne."; 
-                    break;
-                case 's-dames': 
-                case 's-net-dames': 
-                    desc = "Mange les pions adverses en sautant par-dessus.<br><br><b style='color:var(--player-x)'>Attention :</b> La prise est OBLIGATOIRE (tu dois manger si c'est possible, et continuer de manger si tu peux faire une rafle). La Dame se déplace sur toute la diagonale."; 
-                    break;
-                case 's-net-lobby': 
-                case 's-net-waiting': 
-                    desc = "Crée un salon et donne le code secret à 4 lettres à ton ami pour jouer en ligne en temps réel !"; 
-                    break;
-                default: 
-                    desc = "Sélectionne un jeu dans le menu pour commencer !";
-            }
-            
-            // On utilise null à la fin pour qu'il n'y ait pas d'action spéciale en fermant la fenêtre
-            this.showModal(title, desc, null);
-        }
-    };
     <section id="s-sim" class="screen active">
         <h1>Tic-Tac-Toe</h1>
         <p class="subtitle" id="ms-status">Ton tour ! (Tu es X)</p>
@@ -1024,14 +938,112 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
             document.getElementById(id).classList.add('active');
             if (id !== 's-mine') clearInterval(window.App.Mine.timer);
+        },
+        showRules() {
+            const activeScreen = document.querySelector('.screen.active').id;
+            let title = "📖 Règles du Jeu";
+            let desc = "";
+
+            switch(activeScreen) {
+                case 's-sim': 
+                case 's-net-sim': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li><b>Objectif :</b> Être le premier à aligner 3 symboles (X ou O).</li>
+                                <li><b>Déroulement :</b> Les joueurs jouent à tour de rôle sur une grille de 3x3.</li>
+                                <li>L'alignement peut être horizontal, vertical ou en diagonale.</li>
+                            </ul>`; 
+                    break;
+                case 's-ult': 
+                case 's-net-ult': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li><b>Objectif :</b> Aligner 3 macro-cases pour remporter la partie.</li>
+                                <li><b style='color:var(--accent)'>La règle d'or :</b> La case que tu choisis dans une petite grille indique à ton adversaire dans quelle sous-grille il <b>doit</b> jouer au coup suivant !</li>
+                                <li><b>Capture :</b> Gagne un morpion classique dans une sous-grille pour capturer la grande case correspondante.</li>
+                                <li><b>Liberté :</b> Si l'adversaire t'envoie dans une sous-grille déjà terminée, tu peux jouer où tu veux sur le plateau.</li>
+                            </ul>`; 
+                    break;
+                case 's-mine': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li><b>Objectif :</b> Découvrir toutes les cases vides sans faire exploser de mine.</li>
+                                <li><b>Indicateurs :</b> Un chiffre indique exactement combien de mines se trouvent dans les 8 cases adjacentes.</li>
+                                <li><b>Action :</b> Fais un <b>Clic Droit</b> sur une case suspecte pour y placer un drapeau de protection (🚩). Clic gauche pour révéler.</li>
+                            </ul>`; 
+                    break;
+                case 's-yams': 
+                case 's-net-yams': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li><b>Déroulement :</b> 3 lancers par tour. Clique sur les dés que tu souhaites conserver entre les lancers.</li>
+                                <li><b>Le Bonus :</b> Si la somme de la partie haute (les 1, 2, 3, 4, 5 et 6) atteint <b>63 points</b> ou plus, tu gagnes un méga-bonus de <b>+35 points</b> !</li>
+                                <li><b>Figures :</b> Brelan = 3 dés identiques. Carré = 4 dés. Full = Un Brelan + Une Paire (25 pts).</li>
+                                <li><b>Suites & Yams :</b> Petite Suite = 4 dés qui se suivent (30 pts). Grande Suite = 5 dés (40 pts). Yams = 5 dés identiques (50 pts).</li>
+                            </ul>`; 
+                    break;
+                case 's-belote': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li><b style='color:var(--accent)'>Ordre Atout :</b> Valet(20), 9(14), As(11), 10(10), Roi(4), Dame(3), 8(0), 7(0).</li>
+                                <li><b style='color:var(--gold)'>Ordre Normal :</b> As(11), 10(10), Roi(4), Dame(3), Valet(2), 9(0), 8(0), 7(0).</li>
+                                <li><b>Règles :</b> Il faut toujours fournir la couleur. Si tu n'en as pas, tu dois <b>couper</b> (jouer un atout). Si un atout est posé, tu as l'obligation de <b>monter</b> si tu le peux.</li>
+                                <li><b>Bonus :</b> Roi + Dame d'atout en main = "Belote-Rebelote" (+20 pts). Dernier pli = "Dix de der" (+10 pts).</li>
+                                <li>Le preneur doit faire plus de points que la défense pour valider son contrat, sinon il chute (l'adversaire prend 162 pts).</li>
+                            </ul>`; 
+                    break;
+                case 's-p4': 
+                case 's-net-p4': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li><b>Objectif :</b> Être le premier à aligner 4 jetons de sa couleur.</li>
+                                <li><b>Déroulement :</b> Les jetons tombent toujours au point le plus bas possible de la colonne choisie.</li>
+                                <li><b>Victoire :</b> L'alignement peut être horizontal, vertical, ou en diagonale.</li>
+                            </ul>`; 
+                    break;
+                case 's-bj': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li><b>Objectif :</b> Battre le Croupier en s'approchant le plus possible de 21 sans jamais le dépasser (Bust).</li>
+                                <li><b>Valeur :</b> Les têtes valent 10. L'As vaut 1 ou 11 selon ce qui t'arrange le plus.</li>
+                                <li><b>Actions :</b> Tu peux "Tirer" autant de fois que tu veux. Si tu cliques sur "Rester", le croupier joue. Il est obligé de tirer jusqu'à atteindre au moins 17.</li>
+                            </ul>`; 
+                    break;
+                case 's-mm': 
+                case 's-net-mm': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li><b>Objectif :</b> Trouver la combinaison secrète en 9 essais maximum.</li>
+                                <li><b>Correction :</b> Après chaque essai, des indices s'affichent.</li>
+                                <li><b style="color:#ef4444;">Point Rouge :</b> Une couleur est correcte ET au bon endroit.</li>
+                                <li><b style="color:#cbd5e1;">Point Blanc :</b> Une couleur est présente dans le code, mais placée au mauvais endroit.</li>
+                            </ul>`; 
+                    break;
+                case 's-bn': 
+                case 's-net-bn': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li><b>Mise en place :</b> Place ta flotte de 6 navires sur la grille.</li>
+                                <li><b>Bataille :</b> À tour de rôle, clique sur la grille adverse pour deviner où sont cachés les bateaux.</li>
+                                <li><b>Indicateurs :</b> Une 💥 indique qu'un navire est touché. Une 🌊 indique un tir dans l'eau. Le premier à tout couler gagne.</li>
+                            </ul>`; 
+                    break;
+                case 's-dames': 
+                case 's-net-dames': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li><b>Déplacements :</b> En diagonale, vers l'avant.</li>
+                                <li><b style='color:var(--player-x)'>Prise Obligatoire :</b> Si tu PEUX manger un pion adverse, tu DOIS le faire. Si une "rafle" (plusieurs sauts de suite) est possible, tu dois continuer !</li>
+                                <li><b>La Dame :</b> Atteins la dernière ligne adverse pour devenir une Dame (👑). Elle peut reculer et avancer de plusieurs cases d'un coup.</li>
+                            </ul>`; 
+                    break;
+                case 's-net-lobby': 
+                case 's-net-waiting': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li><b>Héberger :</b> Choisis un jeu et clique sur "Créer". Le jeu génèrera un code secret.</li>
+                                <li><b>Rejoindre :</b> Demande le code à ton ami, tape-le et rejoins-le en direct !</li>
+                            </ul>`; 
+                    break;
+                default: 
+                    desc = "Sélectionne un jeu dans le menu de gauche pour commencer à jouer !";
+            }
+            
+            this.showModal(title, desc, null);
         }
     };
 
     window.App = {};
 
-    // =========================================================
-    // MOTEUR DE JEU : MORPION SIMPLE
-    // =========================================================
     window.App.Sim = {
         state: [], player: 'X', isBotThinking: false,
         init() {
@@ -1077,29 +1089,14 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
             }
         },
         botPlay() {
-            if (Math.random() < 0.10) {
-                let emptyIndices = [];
-                for(let i=0; i<9; i++) {
-                    if(this.state[i] === '') emptyIndices.push(i);
-                }
-                let move = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
-                let el = document.getElementById('ms-board').children[move];
-                this.executePlay(move, el);
-                return;
-            }
-
             let bestScore = -Infinity;
             let move = -1;
-            
             for(let i=0; i<9; i++) {
                 if(this.state[i] === '') {
                     this.state[i] = 'O';
                     let score = this.minimax(this.state, 0, false);
                     this.state[i] = '';
-                    if(score > bestScore) { 
-                        bestScore = score; 
-                        move = i; 
-                    }
+                    if(score > bestScore) { bestScore = score; move = i; }
                 }
             }
             if(move !== -1) { 
@@ -1109,9 +1106,7 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
         },
         minimax(board, depth, isMaximizing) {
             let win = this.checkWin(board);
-            if(win) {
-                return board[win[0]] === 'O' ? 10 - depth : depth - 10;
-            }
+            if(win) return board[win[0]] === 'O' ? 10 - depth : depth - 10;
             if(!board.includes('')) return 0;
             
             if(isMaximizing) {
@@ -1137,25 +1132,13 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
             }
         },
         checkWin(grid) {
-            const winConditions = [
-                [0,1,2], [3,4,5], [6,7,8], 
-                [0,3,6], [1,4,7], [2,5,8], 
-                [0,4,8], [2,4,6]
-            ]; 
+            const winConditions = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]]; 
             return winConditions.find(line => grid[line[0]] && grid[line[0]] === grid[line[1]] && grid[line[0]] === grid[line[2]]);
         }
     };
 
-    // =========================================================
-    // MOTEUR DE JEU : MORPION ULTIME
-    // =========================================================
     window.App.Ult = {
-        bGrid: [], 
-        sGrids: [], 
-        currentPlayer: 'X', 
-        nextActiveGrid: -1, 
-        isBotThinking: false,
-        
+        bGrid: [], sGrids: [], currentPlayer: 'X', nextActiveGrid: -1, isBotThinking: false,
         init() {
             const mainBoard = document.getElementById('mu-board'); 
             mainBoard.innerHTML = ''; 
@@ -1170,7 +1153,6 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
                 let subGrid = document.createElement('div'); 
                 subGrid.className = 'mu-grid'; 
                 subGrid.id = `mu-g-${bgIndex}`; 
-                
                 for (let sgIndex = 0; sgIndex < 9; sgIndex++) { 
                     let cell = document.createElement('div'); 
                     cell.className = 'mu-cell'; 
@@ -1182,9 +1164,7 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
             this.highlightActiveGrids();
         },
         play(bgIndex, sgIndex, cellElement) {
-            if (this.currentPlayer !== 'X' || this.isBotThinking || this.sGrids[bgIndex][sgIndex] !== '' || this.bGrid[bgIndex] !== '' || (this.nextActiveGrid !== -1 && this.nextActiveGrid !== bgIndex)) {
-                return;
-            } 
+            if (this.currentPlayer !== 'X' || this.isBotThinking || this.sGrids[bgIndex][sgIndex] !== '' || this.bGrid[bgIndex] !== '' || (this.nextActiveGrid !== -1 && this.nextActiveGrid !== bgIndex)) return;
             this.executePlay(bgIndex, sgIndex, cellElement);
         },
         executePlay(bgIndex, sgIndex, cellElement) {
@@ -1227,46 +1207,29 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
             let validMoves = [];
             for (let i = 0; i < 9; i++) {
                 if ((this.nextActiveGrid === -1 || this.nextActiveGrid === i) && this.bGrid[i] === '') {
-                    for (let j = 0; j < 9; j++) {
-                        if (this.sGrids[i][j] === '') {
-                            validMoves.push({bg: i, sg: j});
-                        }
-                    }
+                    for (let j = 0; j < 9; j++) if (this.sGrids[i][j] === '') validMoves.push({bg: i, sg: j});
                 }
             }
             if(validMoves.length === 0) return;
             
-            let bestMove = null;
-            let bestScore = -Infinity;
+            let bestMove = null, bestScore = -Infinity;
             
             for (let m of validMoves) {
                 let score = 0;
-                let winSub = this.simWin(m.bg, m.sg, 'O');
-                
-                if (winSub) {
+                if (this.simWin(m.bg, m.sg, 'O')) {
                     score += 1000;
-                    let bCopy = [...this.bGrid]; 
-                    bCopy[m.bg] = 'O';
+                    let bCopy = [...this.bGrid]; bCopy[m.bg] = 'O';
                     if(window.App.Sim.checkWin(bCopy)) score += 50000;
                 }
+                if (this.simWin(m.bg, m.sg, 'X')) score += 800;
                 
-                if (this.simWin(m.bg, m.sg, 'X')) {
-                    score += 800;
-                }
-                
-                if (this.bGrid[m.sg] !== '') { 
-                    score -= 2000; 
-                } else {
+                if (this.bGrid[m.sg] !== '') score -= 2000; 
+                else {
                     let opponentCanWinSub = false;
-                    for (let j=0; j<9; j++) {
-                        if (this.sGrids[m.sg][j] === '' && this.simWin(m.sg, j, 'X')) {
-                            opponentCanWinSub = true;
-                        }
-                    }
+                    for (let j=0; j<9; j++) if (this.sGrids[m.sg][j] === '' && this.simWin(m.sg, j, 'X')) opponentCanWinSub = true;
                     if (opponentCanWinSub) {
                         score -= 500;
-                        let bCopy = [...this.bGrid]; 
-                        bCopy[m.sg] = 'X';
+                        let bCopy = [...this.bGrid]; bCopy[m.sg] = 'X';
                         if(window.App.Sim.checkWin(bCopy)) score -= 20000;
                     }
                 }
@@ -1275,28 +1238,19 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
                 if ([0,2,6,8].includes(m.sg)) score += 20;
                 if (m.bg === 4) score += 30; 
 
-                if (score > bestScore) { 
-                    bestScore = score; 
-                    bestMove = m; 
-                } else if (score === bestScore && Math.random() < 0.5) {
-                    bestMove = m;
-                }
+                if (score > bestScore) { bestScore = score; bestMove = m; } 
+                else if (score === bestScore && Math.random() < 0.5) bestMove = m;
             }
             let cell = document.getElementById(`mu-g-${bestMove.bg}`).children[bestMove.sg];
             this.executePlay(bestMove.bg, bestMove.sg, cell);
         },
         simWin(bg, sg, p) {
-            this.sGrids[bg][sg] = p; 
-            let w = window.App.Sim.checkWin(this.sGrids[bg]); 
-            this.sGrids[bg][sg] = ''; 
-            return w;
+            this.sGrids[bg][sg] = p; let w = window.App.Sim.checkWin(this.sGrids[bg]); this.sGrids[bg][sg] = ''; return w;
         },
         highlightActiveGrids() {
             document.querySelectorAll('.mu-grid').forEach((gridElement, index) => { 
                 gridElement.classList.remove('mu-active'); 
-                if ((this.nextActiveGrid === -1 || this.nextActiveGrid === index) && this.bGrid[index] === '') {
-                    gridElement.classList.add('mu-active');
-                }
+                if ((this.nextActiveGrid === -1 || this.nextActiveGrid === index) && this.bGrid[index] === '') gridElement.classList.add('mu-active');
             });
         },
         updateStatusUI() {
@@ -1305,9 +1259,6 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
         }
     };
 
-    // =========================================================
-    // MOTEUR DE JEU : DEMINEUR
-    // =========================================================
     window.App.Mine = {
         grid: [], opened: [], flags: 99, time: 0, timer: null, isFirstClick: true,
         init() {
@@ -1328,13 +1279,8 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
                     if (e.button === 2) { 
                         e.preventDefault(); 
                         if (this.opened[i]) return; 
-                        if (tile.textContent === '🚩') { 
-                            tile.textContent = ''; 
-                            this.flags++; 
-                        } else if (this.flags > 0) { 
-                            tile.textContent = '🚩'; 
-                            this.flags--; 
-                        } 
+                        if (tile.textContent === '🚩') { tile.textContent = ''; this.flags++; } 
+                        else if (this.flags > 0) { tile.textContent = '🚩'; this.flags--; } 
                         this.updateUI(); 
                     } else { 
                         if (tile.textContent === '🚩' || this.opened[i]) return; 
@@ -1352,13 +1298,9 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
         },
         getNeighbors(index) {
             let row = Math.floor(index / 25), col = index % 25, neighbors = []; 
-            for (let x = -1; x <= 1; x++) {
-                for (let y = -1; y <= 1; y++) {
-                    let newRow = row + x, newCol = col + y;
-                    if (newRow >= 0 && newRow < 25 && newCol >= 0 && newCol < 25) {
-                        neighbors.push(newRow * 25 + newCol);
-                    }
-                }
+            for (let x = -1; x <= 1; x++) for (let y = -1; y <= 1; y++) {
+                let newRow = row + x, newCol = col + y;
+                if (newRow >= 0 && newRow < 25 && newCol >= 0 && newCol < 25) neighbors.push(newRow * 25 + newCol);
             } 
             return neighbors;
         },
@@ -1366,19 +1308,11 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
             this.isFirstClick = false; 
             let minesPlaced = 0; 
             const safeZone = [...this.getNeighbors(safeIndex), safeIndex]; 
-            
             while (minesPlaced < 99) { 
                 let randomIndex = Math.floor(Math.random() * 625); 
-                if (!safeZone.includes(randomIndex) && this.grid[randomIndex] !== 'M') { 
-                    this.grid[randomIndex] = 'M'; 
-                    minesPlaced++; 
-                } 
+                if (!safeZone.includes(randomIndex) && this.grid[randomIndex] !== 'M') { this.grid[randomIndex] = 'M'; minesPlaced++; } 
             } 
-            for (let i = 0; i < 625; i++) {
-                if (this.grid[i] !== 'M') {
-                    this.grid[i] = this.getNeighbors(i).filter(n => this.grid[n] === 'M').length; 
-                }
-            }
+            for (let i = 0; i < 625; i++) if (this.grid[i] !== 'M') this.grid[i] = this.getNeighbors(i).filter(n => this.grid[n] === 'M').length; 
             this.timer = setInterval(() => { this.time++; this.updateUI(); }, 1000);
         },
         reveal(index) {
@@ -1407,9 +1341,6 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
         }
     };
 
-    // =========================================================
-    // MOTEUR DE JEU : YAMS PRO (Mathématiques de Tournoi)
-    // =========================================================
     window.App.Yams = {
         dice: [1, 1, 1, 1, 1], kept: [false, false, false, false, false], rollsLeft: 3, currentPlayer: 0, scores: [{}, {}],
         init() {
@@ -1494,7 +1425,6 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
         botDecideKeeps() {
             let counts = {}; this.dice.forEach(x => counts[x] = (counts[x]||0)+1);
             let vals = Object.keys(counts).map(Number), maxC = Math.max(...Object.values(counts)), uniqueSet = new Set(this.dice);
-            
             if(maxC >= 4) {
                 let num = vals.find(k => counts[k] === maxC);
                 this.dice.forEach((v, i) => this.kept[i] = (v == num));
@@ -1537,24 +1467,20 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
                 let el = document.getElementById(`y-1-${cat.replace(/\s/g, '')}`);
                 if(el && el.classList.contains('pot')) { 
                     let pts = parseInt(el.textContent), weight = 0;
-                    
                     if(pts === 0) {
-                        // LES SACRIFICES SONT TOUJOURS NÉGATIFS (Il déteste rayer)
-                        const sac = {'Yams': -2000, 'Grande Suite': -500, 'Petite Suite': -250, 'Carré': -150, 'Full': -120, 'Brelan': -80, 'Chance': -100, '6': -60, '5': -50, '4': -40, '3': -30, '2': -20, '1': -10};
-                        weight = sac[cat];
+                        const sac = {'Yams': -2000, 'Grande Suite': -500, 'Petite Suite': -250, 'Carré': -150, 'Full': -120, 'Brelan': -80, 'Chance': -100, '6': -60, '5': -50, '4': -30, '3': -10, '2': 10, '1': 20};
+                        weight = sac[cat] || -10;
                     } else {
-                        // LES GAINS SONT TOUJOURS POSITIFS
                         if(['1','2','3','4','5','6'].includes(cat)) {
                             let diff = pts - (parseInt(cat) * 3); 
                             weight = pts + (diff * 5); 
-                            // Si ce score permet de débloquer le bonus de 63 : PRIORITÉ !
                             if (sumTop + pts >= 63 && sumTop < 63) weight += 1000;
-                        } else if (cat === 'Chance') { weight = pts; } 
-                        else if (cat === 'Yams') { weight = 1500; } 
-                        else if (cat === 'Grande Suite') { weight = 300; } 
-                        else if (cat === 'Petite Suite') { weight = 150; } 
-                        else if (cat === 'Full') { weight = 200; } 
-                        else if (cat === 'Carré') { weight = 100 + pts; } 
+                        } else if (cat === 'Chance') { weight = pts >= 22 ? pts : -30; } 
+                        else if (cat === 'Yams') { weight = 2000; } 
+                        else if (cat === 'Grande Suite') { weight = 400; } 
+                        else if (cat === 'Full') { weight = 300; } 
+                        else if (cat === 'Petite Suite') { weight = 200; } 
+                        else if (cat === 'Carré') { weight = 150 + pts; } 
                         else if (cat === 'Brelan') { weight = 50 + pts; }
                     }
                     if(weight > bestScore) { bestScore = weight; chosenCat = cat; }
@@ -1568,9 +1494,6 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
         }
     };
 
-    // =========================================================
-    // MOTEUR DE JEU : BELOTE PRO (Animation JS, IA Stricte & Non-Mélange)
-    // =========================================================
     window.App.Belote = {
         deck: [], hands: [[], [], [], []], scores: { nous: 0, eux: 0 }, litigePot: 0,
         dealerIndex: -1, firstPlayerIndex: 0, currentTurnIndex: 0, phase: 'init', 
@@ -1593,35 +1516,23 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
                 });
             }
         },
-        initGame() { 
-            this.scores = { nous: 0, eux: 0 }; 
-            this.litigePot = 0; 
-            this.deck = []; // On force un nouveau jeu de cartes au début de la partie
-            if (this.dealerIndex === -1) this.dealerIndex = Math.floor(Math.random() * 4); 
-            this.updateScoreUI(); 
-            this.startDeal(); 
-        },
+        initGame() { this.scores = { nous: 0, eux: 0 }; this.litigePot = 0; this.deck = []; if (this.dealerIndex === -1) this.dealerIndex = Math.floor(Math.random() * 4); this.updateScoreUI(); this.startDeal(); },
         startDeal() {
             document.querySelectorAll('.bl-slot').forEach(slot => slot.innerHTML = ''); document.getElementById('bl-center').innerHTML = ''; document.getElementById('bl-hand').innerHTML = ''; 
             document.getElementById('bl-actions-1').style.display = 'none'; document.getElementById('bl-actions-2').style.display = 'none'; 
-            document.getElementById('bl-annonce-msg').style.opacity = '0'; // Reset anim
+            document.getElementById('bl-annonce-msg').style.opacity = '0'; 
             document.getElementById('bl-trick-points').style.display = 'none'; document.getElementById('bl-atout-corner').style.display = 'none';
             
             this.updatePlayerHighlight(-1); this.dealerIndex = (this.dealerIndex + 1) % 4; this.firstPlayerIndex = (this.dealerIndex + 1) % 4;
             const positions = [{x: 450, y: 420}, {x: 680, y: 300}, {x: 450, y: 40}, {x: 100, y: 300}];
             const tokenElement = document.getElementById('bl-dealer-token'); tokenElement.style.display = 'flex'; tokenElement.style.left = positions[this.dealerIndex].x + 'px'; tokenElement.style.top = positions[this.dealerIndex].y + 'px';
             
-            // ============================================
-            // GESTION DU NON-MÉLANGE ET DE LA COUPE
-            // ============================================
             if (this.deck.length !== 32) {
-                // Première donne de la partie : on crée le paquet et on mélange fort
                 this.deck = []; 
                 this.suits.forEach(suitObj => { this.ranks.forEach(rankStr => { this.deck.push({ suit: suitObj, rank: rankStr, isRed: suitObj.color === 'r' }); }); });
                 for (let i = this.deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; }
             } else {
-                // Manches suivantes : on coupe simplement le paquet sans le mélanger
-                let cutIdx = Math.floor(Math.random() * 12) + 10; // Coupe au hasard entre la 10ème et 22ème carte
+                let cutIdx = Math.floor(Math.random() * 12) + 10;
                 this.deck = [...this.deck.slice(cutIdx), ...this.deck.slice(0, cutIdx)];
             }
             
@@ -1787,7 +1698,6 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
             let sortByValDesc = arr => arr.sort((a,b) => this.getCardValue(b) - this.getCardValue(a));
             let sortByValAsc = arr => arr.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
 
-            // MÉMOIRE DES CARTES
             let playedCards = this.pastTricks.concat(this.currentTrick.map(t=>t.card));
             let isMaster = (card) => {
                 let order = isAtout(card) ? this.ordAtout : this.ordNormal;
@@ -1800,12 +1710,11 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
                 return true;
             };
 
-            // LE BOT MÈNE LE PLI
             if (this.currentTrick.length === 0) {
                 let iAmTakerTeam = (this.takerIndex % 2) === (this.currentTurnIndex % 2);
                 let trumpsPlayed = this.pastTricks.filter(c => c.suit.s === this.atoutSuit.s).length;
                 let myTrumps = this.hands[this.currentTurnIndex].filter(c => c.suit.s === this.atoutSuit.s).length;
-                let trumpsLeftInGame = 8 - trumpsPlayed - myTrumps; // Compte les atouts restants !
+                let trumpsLeftInGame = 8 - trumpsPlayed - myTrumps; 
                 
                 if (iAmTakerTeam && trumpsLeftInGame > 0 && trumps.length > 0) { 
                     let masterTrumps = trumps.filter(c => isMaster(c));
@@ -1824,7 +1733,6 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
             let partnerIndex = (this.currentTurnIndex + 2) % 4; 
             let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
             
-            // LE PARTENAIRE GAGNE
             if (isPartnerWinning) {
                 let winningCard = currentWinnerData.card;
                 let isLastToPlay = this.currentTrick.length === 3;
@@ -1839,8 +1747,6 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
                 if (cheapCards.length > 0) return sortByValAsc(cheapCards)[0];
                 return sortByValAsc(validCardsArray)[0];
             } 
-            
-            // L'ADVERSAIRE GAGNE
             else {
                 let winningCard = currentWinnerData.card; 
                 let winningVal = isAtout(winningCard) ? (8 - this.ordAtout.indexOf(winningCard.rank)) : (8 - this.ordNormal.indexOf(winningCard.rank));
@@ -1938,7 +1844,6 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
             this.phase = 'resolving'; this.updatePlayerHighlight(-1);
             let winnerObject = this.getTrickWinner(this.currentTrick); let pointsInTrick = this.currentTrick.reduce((sum, t) => sum + this.getCardValue(t.card), 0); let trickWinnerIndex = winnerObject.player; let winningTeam = (trickWinnerIndex === 0 || trickWinnerIndex === 2) ? 'nous' : 'eux';
             
-            // On sauvegarde le pli pour la mémorisation et le "sans mélange"
             this.pastTricks.push(...this.currentTrick.map(t => t.card));
 
             this.tricksPlayedCount++; 
@@ -1985,7 +1890,6 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
             }
             msg += `<br>Scores de la donne :<br>Nous : ${ptsNous + beloteNous} pts<br>Eux : ${ptsEux + beloteEux} pts`;
             
-            // ON REPLACE LES CARTES JOUEES DANS LE PAQUET (SANS MELANGER !)
             this.deck = [...this.pastTricks]; 
 
             if (this.scores.nous >= 1000 || this.scores.eux >= 1000) {
@@ -1999,532 +1903,6 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
         updateStatus(msgText) { document.getElementById('bl-status').innerHTML = msgText; }
     };
 
-    // =========================================================
-    // MOTEUR DE JEU : PUISSANCE 4
-    // =========================================================
-    window.App.P4 = {
-        grid: [], player: 1, isBotThinking: false,
-        init() {
-            const board = document.getElementById('p4-board'); 
-            board.innerHTML = '';
-            this.grid = Array.from({length: 6}, () => Array(7).fill(0));
-            this.player = 1; 
-            this.isBotThinking = false; 
-            this.updateStatus();
-            
-            for (let r = 0; r < 6; r++) {
-                for (let c = 0; c < 7; c++) {
-                    let cell = document.createElement('div'); 
-                    cell.className = 'p4-cell'; 
-                    cell.id = `p4-${r}-${c}`;
-                    cell.onclick = () => this.play(c); 
-                    board.appendChild(cell);
-                }
-            }
-        },
-        play(col) {
-            if (this.player !== 1 || this.isBotThinking) return;
-            this.executePlay(col);
-        },
-        executePlay(col) {
-            for (let r = 5; r >= 0; r--) {
-                if (this.grid[r][col] === 0) {
-                    this.grid[r][col] = this.player; 
-                    let cell = document.getElementById(`p4-${r}-${col}`);
-                    cell.classList.add('taken', this.player === 1 ? 'p4-red' : 'p4-yellow');
-                    
-                    if (this.checkWinGrid(this.grid, this.player)) { 
-                        let msg = this.player === 1 ? 'Tu as gagné !' : 'Le Bot a gagné !'; 
-                        setTimeout(() => window.UI.showModal('Fin de partie', msg, () => this.init()), 300); 
-                    } else if (this.grid[0].every(c => c !== 0)) {
-                        setTimeout(() => window.UI.showModal('Égalité', `La grille est pleine.`, () => this.init()), 300); 
-                    } else { 
-                        this.player = this.player === 1 ? 2 : 1; 
-                        this.updateStatus(); 
-                        if(this.player === 2) {
-                            this.isBotThinking = true;
-                            setTimeout(() => this.botPlay(), 100);
-                        } else {
-                            this.isBotThinking = false;
-                        }
-                    } 
-                    return;
-                }
-            }
-        },
-        botPlay() {
-            let validCols = [];
-            for(let c=0; c<7; c++) if(this.grid[0][c] === 0) validCols.push(c);
-            if(validCols.length === 0) return;
-            
-            if (Math.random() < 0.25) {
-                let safeCols = validCols.filter(c => {
-                    let r = this.getDropRowGrid(this.grid, c);
-                    if(r > 0) {
-                        this.grid[r-1][c] = 1; 
-                        let givesWin = this.checkWinGrid(this.grid, 1); 
-                        this.grid[r-1][c] = 0;
-                        if(givesWin) return false;
-                    } 
-                    return true;
-                });
-                if(safeCols.length === 0) safeCols = validCols;
-                this.executePlay(safeCols[Math.floor(Math.random() * safeCols.length)]);
-                return;
-            }
-
-            validCols.sort((a,b) => Math.abs(3-a) - Math.abs(3-b)); 
-            let bestScore = -Infinity, bestCol = validCols[0];
-
-            for(let c of validCols) {
-                let r = this.getDropRowGrid(this.grid, c);
-                this.grid[r][c] = 2;
-                let score = this.minimax(this.grid, 4, -Infinity, Infinity, false); 
-                this.grid[r][c] = 0;
-                if(score > bestScore) { bestScore = score; bestCol = c; }
-            }
-            this.executePlay(bestCol);
-        },
-        minimax(grid, depth, alpha, beta, isMaximizing) {
-            if(this.checkWinGrid(grid, 2)) return 100000 + depth;
-            if(this.checkWinGrid(grid, 1)) return -100000 - depth;
-            if(depth === 0 || grid[0].every(c => c !== 0)) {
-                let score = 0; 
-                for(let r=0; r<6; r++) if(grid[r][3] === 2) score += 3;
-                return score; 
-            }
-
-            let validCols = [];
-            for(let c=0; c<7; c++) if(grid[0][c] === 0) validCols.push(c);
-            validCols.sort((a,b) => Math.abs(3-a) - Math.abs(3-b));
-
-            if(isMaximizing) {
-                let maxEval = -Infinity;
-                for(let c of validCols) {
-                    let r = this.getDropRowGrid(grid, c);
-                    grid[r][c] = 2; 
-                    let ev = this.minimax(grid, depth-1, alpha, beta, false); 
-                    grid[r][c] = 0;
-                    maxEval = Math.max(maxEval, ev); 
-                    alpha = Math.max(alpha, ev);
-                    if(beta <= alpha) break;
-                } 
-                return maxEval;
-            } else {
-                let minEval = Infinity;
-                for(let c of validCols) {
-                    let r = this.getDropRowGrid(grid, c);
-                    grid[r][c] = 1; 
-                    let ev = this.minimax(grid, depth-1, alpha, beta, true); 
-                    grid[r][c] = 0;
-                    minEval = Math.min(minEval, ev); 
-                    beta = Math.min(beta, ev);
-                    if(beta <= alpha) break;
-                } 
-                return minEval;
-            }
-        },
-        getDropRowGrid(grid, col) { 
-            let r = 5; 
-            while(r>=0 && grid[r][col]!==0) r--; 
-            return r; 
-        },
-        checkWinGrid(g, p) {
-            for(let r=0; r<6; r++) {
-                for(let c=0; c<7; c++) {
-                    if(g[r][c] !== p) continue;
-                    if(c<=3 && g[r][c+1]===p && g[r][c+2]===p && g[r][c+3]===p) return true;
-                    if(r<=2 && g[r+1][c]===p && g[r+2][c]===p && g[r+3][c]===p) return true;
-                    if(r<=2 && c<=3 && g[r+1][c+1]===p && g[r+2][c+2]===p && g[r+3][c+3]===p) return true;
-                    if(r<=2 && c>=3 && g[r+1][c-1]===p && g[r+2][c-2]===p && g[r+3][c-3]===p) return true;
-                }
-            } 
-            return false;
-        },
-        updateStatus() { 
-            const st = document.getElementById('p4-status'); 
-            st.textContent = this.player === 1 ? "Ton tour ! (Tu es Rouge)" : "Le Bot réfléchit..."; 
-            st.style.color = this.player === 1 ? '#ef4444' : '#eab308'; 
-        }
-    };
-
-    // =========================================================
-    // MOTEUR DE JEU : BLACKJACK
-    // =========================================================
-    window.App.BJ = {
-        deck: [], playerHand: [], dealerHand: [], balance: 1000, currentBet: 50,
-        init() {
-            document.getElementById('bj-actions').style.display = 'none';
-            document.getElementById('bj-bet-container').style.display = 'block';
-            document.getElementById('bj-player-hand').innerHTML = '';
-            document.getElementById('bj-dealer-hand').innerHTML = '';
-            document.getElementById('bj-player-score').textContent = '0';
-            document.getElementById('bj-dealer-score').textContent = '0';
-            document.getElementById('bj-balance').textContent = this.balance;
-        },
-        start() {
-            let bet = parseInt(document.getElementById('bj-bet').value);
-            if (isNaN(bet) || bet <= 0 || bet > this.balance) {
-                return window.UI.showModal('Erreur', 'Mise invalide ou solde insuffisant.', null);
-            }
-            this.currentBet = bet; 
-            this.balance -= bet;
-            document.getElementById('bj-balance').textContent = this.balance;
-            document.getElementById('bj-bet-container').style.display = 'none';
-            
-            this.deck = []; 
-            ['♠','♣','♥','♦'].forEach(s => { 
-                ['2','3','4','5','6','7','8','9','10','V','D','R','A'].forEach(r => {
-                    this.deck.push({s, r, isRed: s==='♥'||s==='♦'})
-                }); 
-            });
-            this.deck.sort(() => Math.random() - 0.5); 
-            this.playerHand = [this.deck.pop(), this.deck.pop()]; 
-            this.dealerHand = [this.deck.pop()]; 
-            document.getElementById('bj-actions').style.display = 'flex'; 
-            this.render();
-        },
-        val(hand) { 
-            let score = 0, aces = 0; 
-            hand.forEach(c => { 
-                if (['V','D','R'].includes(c.r)) score += 10; 
-                else if (c.r === 'A') { score += 11; aces++; } 
-                else score += parseInt(c.r); 
-            }); 
-            while (score > 21 && aces > 0) { score -= 10; aces--; } 
-            return score; 
-        },
-        hit() { 
-            this.playerHand.push(this.deck.pop()); 
-            this.render(); 
-            if (this.val(this.playerHand) > 21) this.end("Bust ! Tu as dépassé 21.", 'lose'); 
-        },
-        stand() {
-            document.getElementById('bj-actions').style.display = 'none';
-            const drawDealer = () => {
-                if (this.val(this.dealerHand) < 17) { 
-                    this.dealerHand.push(this.deck.pop()); 
-                    this.render(); 
-                    setTimeout(drawDealer, 800); 
-                } else { 
-                    let pScore = this.val(this.playerHand);
-                    let dScore = this.val(this.dealerHand); 
-                    if (dScore > 21 || pScore > dScore) this.end("Gagné ! Le croupier est battu.", 'win'); 
-                    else if (pScore === dScore) this.end("Égalité !", 'tie'); 
-                    else this.end("Perdu ! Le croupier l'emporte.", 'lose'); 
-                }
-            }; 
-            drawDealer();
-        },
-        render() {
-            document.getElementById('bj-player-score').textContent = this.val(this.playerHand); 
-            document.getElementById('bj-dealer-score').textContent = this.val(this.dealerHand);
-            
-            const draw = (hand, elId) => { 
-                const el = document.getElementById(elId); 
-                el.innerHTML = ''; 
-                hand.forEach(c => { 
-                    el.innerHTML += `<div class="bl-card ${c.isRed ? 'red' : ''}" style="box-shadow: 2px 2px 10px rgba(0,0,0,0.5);"><span>${c.r}</span><span>${c.s}</span></div>`; 
-                }); 
-            };
-            draw(this.playerHand, 'bj-player-hand'); 
-            draw(this.dealerHand, 'bj-dealer-hand');
-        },
-        end(msg, res) { 
-            if (res === 'win') this.balance += this.currentBet * 2;
-            if (res === 'tie') this.balance += this.currentBet;
-            document.getElementById('bj-balance').textContent = this.balance;
-            document.getElementById('bj-actions').style.display = 'none'; 
-            setTimeout(() => window.UI.showModal('Fin de la main', msg, () => this.init()), 500); 
-        }
-    };
-
-    // =========================================================
-    // MOTEUR DE JEU : MASTERMIND 
-    // =========================================================
-    window.App.MM = {
-        colors: ['#ef4444', '#3b82f6', '#10b981', '#eab308', '#a855f7', '#f97316'],
-        secret: [], currentRow: 0, guess: [], selectedColor: '#ef4444', history: [],
-        
-        init() {
-            this.secret = Array.from({length: 4}, () => this.colors[Math.floor(Math.random() * 6)]);
-            this.currentRow = 0; 
-            this.guess = [null, null, null, null]; 
-            this.history = [];
-            this.renderPicker(); 
-            this.renderBoard();
-            document.getElementById('mm-status').textContent = "Trouve le code secret à 4 couleurs en 9 coups !";
-        },
-        renderPicker() {
-            const p = document.getElementById('mm-color-picker'); 
-            p.innerHTML = '';
-            this.colors.forEach(c => {
-                let btn = document.createElement('div'); 
-                btn.className = 'mm-color-btn'; 
-                btn.style.background = c;
-                if(c === this.selectedColor) btn.classList.add('selected');
-                btn.onclick = () => { this.selectedColor = c; this.renderPicker(); };
-                p.appendChild(btn);
-            });
-        },
-        renderBoard() {
-            const b = document.getElementById('mm-board'); 
-            b.innerHTML = '';
-            for(let i=0; i<9; i++) {
-                let row = document.createElement('div'); 
-                row.className = 'mm-row'; 
-                row.style.opacity = i === this.currentRow ? '1' : '0.4';
-                
-                let pegs = document.createElement('div'); 
-                pegs.className = 'mm-pegs';
-                
-                for(let j=0; j<4; j++) {
-                    let peg = document.createElement('div'); 
-                    peg.className = 'mm-peg';
-                    if(i < this.currentRow) { 
-                        peg.style.background = this.history[i].guess[j]; 
-                    } else if(i === this.currentRow && this.guess[j]) { 
-                        peg.style.background = this.guess[j]; 
-                    }
-                    if(i === this.currentRow) {
-                        peg.onclick = () => { this.guess[j] = this.selectedColor; this.renderBoard(); };
-                    }
-                    pegs.appendChild(peg);
-                }
-                
-                let hints = document.createElement('div'); 
-                hints.className = 'mm-hints';
-                let pastHints = i < this.currentRow ? this.history[i] : null; 
-                let hIndex = 0;
-                
-                for(let j=0; j<4; j++) {
-                    let hint = document.createElement('div'); 
-                    hint.className = 'mm-hint';
-                    if (pastHints) {
-                        if (hIndex < pastHints.exact) hint.style.background = '#ef4444';
-                        else if (hIndex < pastHints.exact + pastHints.color) hint.style.background = '#f8fafc';
-                        hIndex++;
-                    }
-                    hints.appendChild(hint);
-                }
-                row.appendChild(pegs); 
-                row.appendChild(hints); 
-                b.appendChild(row);
-            }
-        },
-        checkRow() {
-            if(this.guess.includes(null)) return window.UI.showModal("Erreur", "Remplissez les 4 trous.", null);
-            let exact = 0, color = 0, secretCopy = [...this.secret], guessCopy = [...this.guess];
-            
-            for(let i=0; i<4; i++) { 
-                if(guessCopy[i] === secretCopy[i]) { 
-                    exact++; secretCopy[i] = null; guessCopy[i] = null; 
-                } 
-            }
-            for(let i=0; i<4; i++) { 
-                if(guessCopy[i] && secretCopy.includes(guessCopy[i])) { 
-                    color++; secretCopy[secretCopy.indexOf(guessCopy[i])] = null; 
-                } 
-            }
-            
-            this.history.push({guess: [...this.guess], exact, color}); 
-            
-            if(exact === 4) { 
-                this.renderBoard(); 
-                setTimeout(() => window.UI.showModal("Gagné !", "Tu as craqué le code !", () => this.init()), 300); 
-            } else if(this.currentRow === 8) { 
-                this.renderBoard(); 
-                setTimeout(() => window.UI.showModal("Perdu...", "Le code était caché à jamais.", () => this.init()), 300); 
-            } else { 
-                this.currentRow++; 
-                this.guess = [null, null, null, null]; 
-                this.renderBoard(); 
-            }
-        }
-    };
-
-    // =========================================================
-    // MOTEUR DE JEU : BATAILLE NAVALE
-    // =========================================================
-    window.App.BN = {
-        pGrid: [], bGrid: [], phase: 'setup', ships: [5, 4, 3, 3, 2, 2], currentShipIndex: 0, isHorizontal: true, botQueue: [], isBotThinking: false,
-        
-        init() {
-            this.pGrid = Array.from({length:12}, () => Array(12).fill(0));
-            this.bGrid = Array.from({length:12}, () => Array(12).fill(0));
-            this.phase = 'setup'; 
-            this.currentShipIndex = 0; 
-            this.isHorizontal = true; 
-            this.botQueue = []; 
-            this.isBotThinking = false;
-            
-            document.getElementById('bn-bot-grid').style.opacity = '0.5';
-            document.getElementById('bn-bot-grid').style.pointerEvents = 'none';
-            document.getElementById('bn-rotate-btn').style.display = 'inline-block';
-            document.getElementById('bn-action-btn').style.display = 'inline-block';
-            
-            this.updateStatus();
-            this.drawGrid('bn-player-grid', this.pGrid, false);
-            this.drawGrid('bn-bot-grid', this.bGrid, true);
-        },
-        updateStatus() {
-            if (this.phase === 'setup') {
-                document.getElementById('bn-status').textContent = `Place ton bateau de taille ${this.ships[this.currentShipIndex]} (ou utilise le placement auto).`;
-            } else {
-                document.getElementById('bn-status').textContent = "À l'attaque ! Clique sur la grille ennemie.";
-            }
-        },
-        toggleRotation() {
-            this.isHorizontal = !this.isHorizontal;
-            document.getElementById('bn-rotate-btn').textContent = `Pivoter : ${this.isHorizontal ? 'Horizontal' : 'Vertical'}`;
-        },
-        drawGrid(id, grid, isBot) {
-            const el = document.getElementById(id); 
-            el.innerHTML = '';
-            for(let r=0; r<12; r++) {
-                for(let c=0; c<12; c++) {
-                    let cell = document.createElement('div'); 
-                    cell.className = 'bn-cell';
-                    
-                    if(!isBot && grid[r][c] === 1) cell.classList.add('bn-ship');
-                    if(grid[r][c] === 'H') { cell.classList.add('bn-hit', 'shot'); cell.textContent = '💥'; }
-                    if(grid[r][c] === 'M') { cell.classList.add('bn-miss', 'shot'); cell.textContent = '🌊'; }
-                    
-                    if (!isBot && this.phase === 'setup') {
-                        cell.onclick = () => this.placeManual(r, c);
-                    }
-                    if (isBot && this.phase === 'play' && !this.isBotThinking) {
-                        cell.onclick = () => this.shoot(r, c);
-                    }
-                    el.appendChild(cell);
-                }
-            }
-        },
-        placeManual(r, c) {
-            if (this.phase !== 'setup') return;
-            let len = this.ships[this.currentShipIndex], dir = this.isHorizontal ? 0 : 1, valid = true;
-            
-            for (let i = 0; i < len; i++) {
-                let nr = r + (dir ? i : 0), nc = c + (dir ? 0 : i);
-                if (nr >= 12 || nc >= 12 || this.pGrid[nr][nc] !== 0) { valid = false; break; }
-            }
-            if (valid) {
-                for (let i = 0; i < len; i++) this.pGrid[r + (dir ? i : 0)][c + (dir ? 0 : i)] = 1;
-                this.currentShipIndex++; 
-                this.drawGrid('bn-player-grid', this.pGrid, false);
-                if (this.currentShipIndex >= this.ships.length) this.startGame(); else this.updateStatus();
-            }
-        },
-        placeShipsRandomly(grid) {
-            grid.forEach(row => row.fill(0));
-            this.ships.forEach(len => {
-                let placed = false;
-                while(!placed) {
-                    let r = Math.floor(Math.random()*12), c = Math.floor(Math.random()*12), dir = Math.random()>0.5?1:0, valid = true;
-                    for(let i=0; i<len; i++) { 
-                        let nr = r + (dir?i:0), nc = c + (dir?0:i); 
-                        if(nr>=12 || nc>=12 || grid[nr][nc]!==0) { valid=false; break; } 
-                    }
-                    if(valid) { 
-                        for(let i=0; i<len; i++) grid[r + (dir?i:0)][c + (dir?0:i)] = 1; 
-                        placed = true; 
-                    }
-                }
-            });
-        },
-        autoPlace() {
-            this.placeShipsRandomly(this.pGrid); 
-            this.drawGrid('bn-player-grid', this.pGrid, false);
-            this.startGame();
-        },
-        startGame() {
-            this.phase = 'play';
-            this.placeShipsRandomly(this.bGrid); 
-            this.drawGrid('bn-bot-grid', this.bGrid, true);
-            
-            document.getElementById('bn-bot-grid').style.opacity = '1';
-            document.getElementById('bn-bot-grid').style.pointerEvents = 'auto';
-            document.getElementById('bn-rotate-btn').style.display = 'none';
-            document.getElementById('bn-action-btn').style.display = 'none'; 
-            
-            this.updateStatus();
-        },
-        shoot(r, c) {
-            if(this.bGrid[r][c] === 'H' || this.bGrid[r][c] === 'M') return;
-            
-            if(this.bGrid[r][c] === 1) { 
-                this.bGrid[r][c] = 'H'; 
-                document.getElementById('bn-status').textContent = "Touché !"; 
-                this.drawGrid('bn-bot-grid', this.bGrid, true);
-            } else { 
-                this.bGrid[r][c] = 'M'; 
-                document.getElementById('bn-status').textContent = "Dans l'eau...";
-                this.isBotThinking = true;
-                this.drawGrid('bn-bot-grid', this.bGrid, true); 
-                setTimeout(() => this.botShoot(), 800);
-            }
-            
-            if(this.checkWin(this.bGrid)) setTimeout(() => window.UI.showModal('Victoire !', 'Flotte ennemie détruite !', () => this.init()), 500);
-        },
-        botShoot() {
-            let r, c, validShot = false;
-            
-            this.botQueue.sort((a, b) => (b.priority || 0) - (a.priority || 0));
-            
-            while(this.botQueue.length > 0 && !validShot) {
-                let target = this.botQueue.pop();
-                r = target.r; c = target.c;
-                if(r>=0 && r<12 && c>=0 && c<12 && this.pGrid[r][c] !== 'H' && this.pGrid[r][c] !== 'M') {
-                    validShot = true;
-                }
-            }
-            
-            if(!validShot) {
-                let attempts = 0;
-                do { 
-                    r = Math.floor(Math.random()*12); c = Math.floor(Math.random()*12); attempts++;
-                } while( (this.pGrid[r][c] === 'H' || this.pGrid[r][c] === 'M' || ((r+c)%2 !== 0 && attempts < 100)) && attempts < 200 );
-            }
-            
-            if(this.pGrid[r][c] === 1) {
-                this.pGrid[r][c] = 'H'; 
-                document.getElementById('bn-status').textContent = "Aïe ! Le bot a touché un navire !";
-                
-                let dirs = [[-1,0], [1,0], [0,-1], [0,1]];
-                for(let d of dirs) {
-                    let nr = r + d[0], nc = c + d[1];
-                    if(nr>=0 && nr<12 && nc>=0 && nc<12 && this.pGrid[nr][nc] !== 'H' && this.pGrid[nr][nc] !== 'M') {
-                        let pr = r - d[0], pc = c - d[1];
-                        let priority = (pr>=0 && pr<12 && pc>=0 && pc<12 && this.pGrid[pr][pc] === 'H') ? 10 : 1;
-                        this.botQueue.push({r: nr, c: nc, priority: priority});
-                    }
-                }
-                
-                this.drawGrid('bn-player-grid', this.pGrid, false);
-                setTimeout(() => this.botShoot(), 800);
-            } else {
-                this.pGrid[r][c] = 'M'; 
-                document.getElementById('bn-status').textContent = "Le bot a tiré dans l'eau. À toi !";
-                this.isBotThinking = false; 
-                this.drawGrid('bn-player-grid', this.pGrid, false);
-                this.drawGrid('bn-bot-grid', this.bGrid, true);
-            }
-            
-            if(this.checkWin(this.pGrid)) setTimeout(() => window.UI.showModal('Défaite...', 'Ta flotte a coulé.', () => this.init()), 500);
-        },
-        checkWin(grid) { 
-            for(let r=0; r<12; r++) {
-                for(let c=0; c<12; c++) {
-                    if(grid[r][c] === 1) return false; 
-                }
-            }
-            return true; 
-        }
-    };
-
-    // =========================================================
-    // MOTEUR DE JEU : JEU DE DAMES (10x10 AVEC BOT IA PRO)
-    // =========================================================
     window.App.Dames = {
         grid: [], player: 1, selected: null, validMoves: [], isBotThinking: false, mustJump: false,
         init() {
@@ -2649,7 +2027,7 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
                         if(p===1) score -= (10 + (9-r)); 
                         if(p===3) score -= 80; 
                         if((p===2||p===4) && c>=3 && c<=6 && r>=3 && r<=6) score += 5;
-                        if(p===2 && r===0) score += 20; // Protection ligne arrière
+                        if(p===2 && r===0) score += 20; 
                     }
                 }
                 return score;
@@ -2713,9 +2091,6 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
         }
     };
 
-    // =========================================================
-    // MOTEUR: RÉSEAU FIREBASE MULTIJOUEUR
-    // =========================================================
     window.App.Network = {
         room: null, myId: null, ref: null, gameType: null,
         
@@ -3153,9 +2528,6 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
         }
     };
 
-    // =========================================================
-    // INJECTION : RÉSEAU MASTERMIND (HÔTE CODEUR / INVITÉ DEVINEUR)
-    // =========================================================
     window.App.Network.MM = {
         mySecret: [null, null, null, null], 
         myGuess: [null, null, null, null], 
@@ -3371,9 +2743,6 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
         }
     };
 
-    // =========================================================
-    // INJECTION : RÉSEAU BATAILLE NAVALE
-    // =========================================================
     window.App.Network.BN = {
         render(data) {
             if (data.winner !== '') {
@@ -3548,9 +2917,6 @@ Descend dans ton code JavaScript, tout au début, là où on a défini `window.U
         }
     };
 
-    // =========================================================
-    // INJECTION : RÉSEAU BELOTE
-    // =========================================================
     window.App.Belote.lastActionId = 0;
     
     window.App.Belote.syncNetwork = function() {
