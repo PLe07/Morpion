@@ -736,8 +736,9 @@
             const winLine = this.checkWin(this.state); 
             if (winLine) { 
                 winLine.forEach(idx => document.getElementById('ms-board').children[idx].classList.add('win')); 
-                let msg = this.player === 'X' ? 'Tu as gagné !' : 'Le Bot a gagné !';
-                setTimeout(() => window.UI.showModal('Fin de partie', msg, () => this.init()), 600); 
+                let title = this.player === 'X' ? 'Victoire !' : 'Défaite...';
+let msg = this.player === 'X' ? 'Tu as écrasé le Bot !' : 'Le Bot a été plus malin.';
+setTimeout(() => window.UI.showModal(title, msg, () => this.init()), 600);
             } else if (!this.state.includes('')) {
                 setTimeout(() => window.UI.showModal('Égalité', 'Match Nul.', () => this.init()), 200); 
             } else {
@@ -878,8 +879,9 @@
             
             const cleanBigGrid = this.bGrid.map(val => val === 'D' ? '' : val);
             if (window.App.Sim.checkWin(cleanBigGrid)) { 
-                let msg = this.currentPlayer === 'X' ? 'Tu as gagné !' : 'Le Bot a gagné !';
-                setTimeout(() => window.UI.showModal('Fin de partie', msg, () => this.init()), 300); 
+               let title = this.currentPlayer === 'X' ? 'Victoire !' : 'Défaite...';
+let msg = this.currentPlayer === 'X' ? 'Le plateau est à toi !' : 'Le Bot domine le plateau.';
+setTimeout(() => window.UI.showModal(title, msg, () => this.init()), 300);
                 this.nextActiveGrid = 999; 
             } else { 
                 this.nextActiveGrid = (this.bGrid[sgIndex] !== '') ? -1 : sgIndex; 
@@ -1141,8 +1143,8 @@
             document.querySelectorAll('.pot').forEach(el => { el.textContent = '-'; el.classList.remove('pot'); }); 
             if (Object.keys(this.scores[1]).length === 13) { 
                 let t1 = parseInt(document.getElementById(`y-tot-0`).textContent), t2 = parseInt(document.getElementById(`y-tot-1`).textContent); 
-                let w = t1 > t2 ? 'Tu as gagné !' : (t2 > t1 ? 'Le Bot a gagné !' : 'Égalité');
-                window.UI.showModal('Fin du Yams !', `${w}<br><br>Toi : ${t1}<br>Bot : ${t2}`, () => this.init()); 
+               let title = t1 > t2 ? 'Victoire !' : (t2 > t1 ? 'Défaite...' : 'Égalité !');
+window.UI.showModal(title, `Score final :<br><br>Toi : ${t1} pts<br>Bot : ${t2} pts`, () => this.init());
             } else {
                 this.ui(); if(this.currentPlayer === 1) setTimeout(() => this.botTurn(), 800);
             }
@@ -1679,8 +1681,9 @@
                     cell.classList.add('taken', this.player === 1 ? 'p4-red' : 'p4-yellow');
                     
                     if (this.checkWinGrid(this.grid, this.player)) { 
-                        let msg = this.player === 1 ? 'Tu as gagné !' : 'Le Bot a gagné !'; 
-                        setTimeout(() => window.UI.showModal('Fin de partie', msg, () => this.init()), 300); 
+                        let title = this.player === 1 ? 'Victoire !' : 'Défaite...';
+let msg = this.player === 1 ? 'Puissance 4 ! Bien joué.' : 'Le Bot a aligné ses jetons.';
+setTimeout(() => window.UI.showModal(title, msg, () => this.init()), 300);
                     } else if (this.grid[0].every(c => c !== 0)) {
                         setTimeout(() => window.UI.showModal('Égalité', `La grille est pleine.`, () => this.init()), 300); 
                     } else { 
@@ -2252,8 +2255,13 @@
             
             let p1Count = 0, p2Count = 0;
             for(let r=0;r<10;r++) for(let c=0;c<10;c++) { if(this.grid[r][c]===1 || this.grid[r][c]===3) p1Count++; if(this.grid[r][c]===2 || this.grid[r][c]===4) p2Count++; }
-            if(p1Count === 0 || p2Count === 0) { this.render(); setTimeout(() => window.UI.showModal('Fin de partie', p1Count === 0 ? 'Le Bot a gagné !' : 'Tu as gagné !', () => this.init()), 300); return; }
-            
+if(p1Count === 0 || p2Count === 0) { 
+    this.render(); 
+    let title = p2Count === 0 ? 'Victoire !' : 'Défaite...'; 
+    let msg = p2Count === 0 ? 'Tu as mangé tous les pions !' : 'Le Bot t\'a écrasé.'; 
+    setTimeout(() => window.UI.showModal(title, msg, () => this.init()), 300); 
+    return; 
+}            
             this.player = this.player === 1 ? 2 : 1; this.isBotThinking = (this.player === 2); this.updateStatus(); this.render();
             if(this.player === 2) setTimeout(() => this.botPlay(), 700);
         },
