@@ -1681,9 +1681,8 @@ window.UI.showModal(title, `Score final :<br><br>Toi : ${t1} pts<br>Bot : ${t2} 
                     cell.classList.add('taken', this.player === 1 ? 'p4-red' : 'p4-yellow');
                     
                     if (this.checkWinGrid(this.grid, this.player)) { 
-                        let title = this.player === 1 ? 'Victoire !' : 'Défaite...';
-let msg = this.player === 1 ? 'Puissance 4 ! Bien joué.' : 'Le Bot a aligné ses jetons.';
-setTimeout(() => window.UI.showModal(title, msg, () => this.init()), 300);
+                        let msg = this.player === 1 ? 'Tu as gagné !' : 'Le Bot a gagné !'; 
+                        setTimeout(() => window.UI.showModal('Fin de partie', msg, () => this.init()), 300); 
                     } else if (this.grid[0].every(c => c !== 0)) {
                         setTimeout(() => window.UI.showModal('Égalité', `La grille est pleine.`, () => this.init()), 300); 
                     } else { 
