@@ -27,23 +27,32 @@
         /* =========================================
            2. COMPOSANTS D'INTERFACE (UI)
            ========================================= */
-        #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        /* =========================================
+           MODALES (DESIGN PREMIUM)
+           ========================================= */
+        #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(3, 7, 18, 0.85); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(12px); }
         .modal-box { 
-            background: var(--panel-bg); 
+            background: linear-gradient(145deg, var(--panel-bg), #020617);
             padding: 40px; 
-            border-radius: 20px; 
-            border: 2px solid var(--accent); 
-            box-shadow: 0 15px 50px var(--accent-glow); 
+            border-radius: 24px; 
+            border: 1px solid rgba(16, 185, 129, 0.4); 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 40px rgba(16, 185, 129, 0.2); 
             animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            max-width: 550px; 
+            max-width: 500px; 
+            width: 90%;
             max-height: 85vh; 
-            overflow-y: auto; 
+            overflow-y: auto;
+            text-align: center;
         }
-        .modal-box h2 { font-size: 2.2rem; margin-bottom: 15px; text-align: center; }
-        .modal-box p { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 30px; line-height: 1.6; text-align: left; }
+        .modal-box h2 { font-size: 2.4rem; margin-bottom: 20px; font-weight: 800; letter-spacing: 1px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .modal-box p { font-size: 1.15rem; color: #cbd5e1; margin-bottom: 30px; line-height: 1.7; }
+        .modal-box p b { color: var(--text-main); font-weight: 700; }
+        .modal-box ul { text-align: left; padding-left: 20px; color: #cbd5e1; line-height: 1.7; font-size: 1.1rem; margin-bottom: 30px; }
+        .modal-box li { margin-bottom: 12px; }
+        .modal-box .btn { margin: 0 auto; min-width: 180px; box-shadow: 0 10px 20px -10px var(--accent); letter-spacing: 2px; }
         
-        @keyframes modalPop { 0% { transform: scale(0.7) translateY(30px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
-
+        @keyframes modalPop { 0% { transform: scale(0.8) translateY(20px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+        
         nav { width: 270px; background: #020617; padding: 30px 20px; border-right: 1px solid #1e293b; display: flex; flex-direction: column; z-index: 100; box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5); }
         nav h2 { color: var(--accent); text-transform: uppercase; letter-spacing: 3px; text-align: center; font-size: 1.1rem; margin-bottom: 30px; }
         nav ul { list-style: none; overflow-y: auto; }
@@ -582,22 +591,42 @@
     window.UI = {
         modalCb: null,
         showModal(title, desc, cb) {
+            document.getElementById('modal-title').style.display = 'block';
             document.getElementById('modal-title').innerHTML = title;
-            let titleColor = 'var(--text-main)'; // Blanc par défaut (Égalité)
-            
-            // Vert pour la victoire
-            if (title.includes('Victoire') || title.includes('Gagné') || title.includes('Réussi')) {
-                titleColor = 'var(--accent)';
-            } 
-            // Rouge pour la défaite
-            else if (title.includes('Défaite') || title.includes('Perdu') || title.includes('BOUM')) {
-                titleColor = 'var(--player-x)';
-            }
-            
-            document.getElementById('modal-title').style.color = titleColor;
+            document.getElementById('modal-title').style.color = 'var(--accent)';
             document.getElementById('modal-desc').innerHTML = desc;
+            
+            const btn = document.getElementById('modal-btn');
+            btn.style.display = 'inline-block';
+            btn.style.background = 'var(--accent)';
+            btn.style.boxShadow = '0 0 15px var(--accent-glow)';
+            
             this.modalCb = cb; 
-            document.getElementById('modal-btn').style.display = 'inline-block';
+            document.getElementById('modal-overlay').style.display = 'flex';
+        },
+        showEndScreen(status, title, text, cb) {
+            let icon = 'ℹ️', color = '#f8fafc', glow = 'rgba(255,255,255,0.1)';
+            if(status === 'win') { icon = '🏆'; color = 'var(--accent)'; glow = 'var(--accent-glow)'; }
+            if(status === 'lose') { icon = '💀'; color = 'var(--player-x)'; glow = 'rgba(244, 63, 94, 0.4)'; }
+            if(status === 'tie') { icon = '🤝'; color = 'var(--gold)'; glow = 'rgba(251, 191, 36, 0.4)'; }
+            if(status === 'info') { icon = '🃏'; color = 'var(--gold)'; glow = 'rgba(251, 191, 36, 0.4)'; }
+
+            const html = `
+                <div style="font-size: 5.5rem; line-height: 1; filter: drop-shadow(0 10px 15px ${glow}); margin-bottom: 10px;">${icon}</div>
+                <div style="color: ${color}; font-size: 2.2rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 20px ${glow}; margin-bottom: 20px;">${title}</div>
+                <div style="font-size: 1.2rem; color: #e2e8f0; background: rgba(0,0,0,0.4); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); line-height: 1.6;">
+                    ${text}
+                </div>
+            `;
+            
+            document.getElementById('modal-title').style.display = 'none';
+            document.getElementById('modal-desc').innerHTML = html;
+            this.modalCb = cb; 
+            const btn = document.getElementById('modal-btn');
+            btn.style.display = 'inline-block';
+            btn.style.background = color;
+            btn.style.color = '#000';
+            btn.style.boxShadow = `0 0 20px ${glow}`;
             document.getElementById('modal-overlay').style.display = 'flex';
         },
         closeModal() { 
@@ -613,101 +642,20 @@
             const activeScreen = document.querySelector('.screen.active').id;
             let title = "📖 Règles du Jeu";
             let desc = "";
-
             switch(activeScreen) {
-                case 's-sim': 
-                case 's-net-sim': 
-                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
-                                <li><b>Objectif :</b> Être le premier à aligner 3 symboles (X ou O).</li>
-                                <li><b>Déroulement :</b> Les joueurs jouent à tour de rôle sur une grille de 3x3.</li>
-                                <li>L'alignement peut être horizontal, vertical ou en diagonale.</li>
-                            </ul>`; 
-                    break;
-                case 's-ult': 
-                case 's-net-ult': 
-                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
-                                <li><b>Objectif :</b> Aligner 3 macro-cases pour remporter la partie.</li>
-                                <li><b style='color:var(--accent)'>La règle d'or :</b> La case que tu choisis dans une petite grille indique à ton adversaire dans quelle sous-grille il <b>doit</b> jouer au coup suivant !</li>
-                                <li><b>Capture :</b> Gagne un morpion classique dans une sous-grille pour capturer la grande case correspondante.</li>
-                                <li><b>Liberté :</b> Si l'adversaire t'envoie dans une sous-grille déjà terminée, tu peux jouer où tu veux sur le plateau.</li>
-                            </ul>`; 
-                    break;
-                case 's-mine': 
-                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
-                                <li><b>Objectif :</b> Découvrir toutes les cases vides sans faire exploser de mine.</li>
-                                <li><b>Indicateurs :</b> Un chiffre indique exactement combien de mines se trouvent dans les 8 cases adjacentes.</li>
-                                <li><b>Action :</b> Fais un <b>Clic Droit</b> sur une case suspecte pour y placer un drapeau de protection (🚩). Clic gauche pour révéler.</li>
-                            </ul>`; 
-                    break;
-                case 's-yams': 
-                case 's-net-yams': 
-                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
-                                <li><b>Déroulement :</b> 3 lancers par tour. Clique sur les dés que tu souhaites conserver entre les lancers.</li>
-                                <li><b>Le Bonus :</b> Si la somme de la partie haute (les 1, 2, 3, 4, 5 et 6) atteint <b>63 points</b> ou plus, tu gagnes un méga-bonus de <b>+35 points</b> !</li>
-                                <li><b>Figures :</b> Brelan = 3 dés identiques. Carré = 4 dés. Full = Un Brelan + Une Paire (25 pts).</li>
-                                <li><b>Suites & Yams :</b> Petite Suite = 4 dés qui se suivent (30 pts). Grande Suite = 5 dés (40 pts). Yams = 5 dés identiques (50 pts).</li>
-                            </ul>`; 
-                    break;
-                case 's-belote': 
-                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
-                                <li><b style='color:var(--accent)'>Ordre Atout :</b> Valet(20), 9(14), As(11), 10(10), Roi(4), Dame(3), 8(0), 7(0).</li>
-                                <li><b style='color:var(--gold)'>Ordre Normal :</b> As(11), 10(10), Roi(4), Dame(3), Valet(2), 9(0), 8(0), 7(0).</li>
-                                <li><b>Règles :</b> Il faut toujours fournir la couleur. Si tu n'en as pas, tu dois <b>couper</b> (jouer un atout). Si un atout est posé, tu as l'obligation de <b>monter</b> si tu le peux.</li>
-                                <li><b>Bonus :</b> Roi + Dame d'atout en main = "Belote-Rebelote" (+20 pts). Dernier pli = "Dix de der" (+10 pts).</li>
-                                <li>Le preneur doit faire plus de points que la défense pour valider son contrat, sinon il chute (l'adversaire prend 162 pts).</li>
-                            </ul>`; 
-                    break;
-                case 's-p4': 
-                case 's-net-p4': 
-                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
-                                <li><b>Objectif :</b> Être le premier à aligner 4 jetons de sa couleur.</li>
-                                <li><b>Déroulement :</b> Les jetons tombent toujours au point le plus bas possible de la colonne choisie.</li>
-                                <li><b>Victoire :</b> L'alignement peut être horizontal, vertical, ou en diagonale.</li>
-                            </ul>`; 
-                    break;
-                case 's-bj': 
-                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
-                                <li><b>Objectif :</b> Battre le Croupier en s'approchant le plus possible de 21 sans jamais le dépasser (Bust).</li>
-                                <li><b>Valeur :</b> Les têtes valent 10. L'As vaut 1 ou 11 selon ce qui t'arrange le plus.</li>
-                                <li><b>Actions :</b> Tu peux "Tirer" autant de fois que tu veux. Si tu cliques sur "Rester", le croupier joue. Il est obligé de tirer jusqu'à atteindre au moins 17.</li>
-                            </ul>`; 
-                    break;
-                case 's-mm': 
-                case 's-net-mm': 
-                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
-                                <li><b>Objectif :</b> Trouver la combinaison secrète en 9 essais maximum.</li>
-                                <li><b>Correction :</b> Après chaque essai, des indices s'affichent.</li>
-                                <li><b style="color:#ef4444;">Point Rouge :</b> Une couleur est correcte ET au bon endroit.</li>
-                                <li><b style="color:#cbd5e1;">Point Blanc :</b> Une couleur est présente dans le code, mais placée au mauvais endroit.</li>
-                            </ul>`; 
-                    break;
-                case 's-bn': 
-                case 's-net-bn': 
-                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
-                                <li><b>Mise en place :</b> Place ta flotte de 6 navires sur la grille.</li>
-                                <li><b>Bataille :</b> À tour de rôle, clique sur la grille adverse pour deviner où sont cachés les bateaux.</li>
-                                <li><b>Indicateurs :</b> Une 💥 indique qu'un navire est touché. Une 🌊 indique un tir dans l'eau. Le premier à tout couler gagne.</li>
-                            </ul>`; 
-                    break;
-                case 's-dames': 
-                case 's-net-dames': 
-                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
-                                <li><b>Déplacements :</b> En diagonale, vers l'avant.</li>
-                                <li><b style='color:var(--player-x)'>Prise Obligatoire :</b> Si tu PEUX manger un pion adverse, tu DOIS le faire. Si une "rafle" (plusieurs sauts de suite) est possible, tu dois continuer !</li>
-                                <li><b>La Dame :</b> Atteins la dernière ligne adverse pour devenir une Dame (👑). Elle peut reculer et avancer de plusieurs cases d'un coup.</li>
-                            </ul>`; 
-                    break;
-                case 's-net-lobby': 
-                case 's-net-waiting': 
-                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
-                                <li><b>Héberger :</b> Choisis un jeu et clique sur "Créer". Le jeu génèrera un code secret.</li>
-                                <li><b>Rejoindre :</b> Demande le code à ton ami, tape-le et rejoins-le en direct !</li>
-                            </ul>`; 
-                    break;
-                default: 
-                    desc = "Sélectionne un jeu dans le menu de gauche pour commencer à jouer !";
+                case 's-sim': case 's-net-sim': desc = `<ul><li><b>Objectif :</b> Aligner 3 symboles (X ou O).</li><li><b>Déroulement :</b> Chacun son tour sur une grille 3x3.</li></ul>`; break;
+                case 's-ult': case 's-net-ult': desc = `<ul><li><b>Objectif :</b> Aligner 3 macro-cases.</li><li><b style='color:var(--accent)'>Règle d'or :</b> Ta case choisie oblige l'adversaire à jouer dans la grande grille correspondante !</li></ul>`; break;
+                case 's-mine': desc = `<ul><li><b>Objectif :</b> Découvrir les cases sans toucher aux mines.</li><li><b style='color:var(--player-x)'>Action :</b> Clic Droit pour poser un drapeau (🚩).</li></ul>`; break;
+                case 's-yams': case 's-net-yams': desc = `<ul><li><b>Bonus :</b> 63 points sur la partie haute = +35 points !</li><li><b>Yams :</b> 5 dés identiques (50 pts). Full = Brelan + Paire (25 pts).</li></ul>`; break;
+                case 's-belote': desc = `<ul><li><b style='color:var(--accent)'>Atout :</b> V(20), 9(14), As(11), 10(10), R(4), D(3), 8, 7.</li><li><b>Obligation :</b> Toujours fournir la couleur, ou couper.</li></ul>`; break;
+                case 's-p4': case 's-net-p4': desc = `<ul><li><b>Objectif :</b> Aligner 4 jetons de sa couleur.</li></ul>`; break;
+                case 's-bj': desc = `<ul><li><b>Objectif :</b> Battre le Croupier en s'approchant de 21 sans dépasser.</li></ul>`; break;
+                case 's-mm': case 's-net-mm': desc = `<ul><li><b>Objectif :</b> Trouver le code secret en 9 essais.</li><li><b style="color:var(--player-x);">Point Rouge :</b> Bonne place. <b style="color:#cbd5e1;">Blanc :</b> Mauvaise place.</li></ul>`; break;
+                case 's-bn': case 's-net-bn': desc = `<ul><li>💥 = Navire touché. 🌊 = Tir dans l'eau.</li></ul>`; break;
+                case 's-dames': case 's-net-dames': desc = `<ul><li><b style='color:var(--player-x)'>Prise Obligatoire :</b> Si tu peux manger, tu DOIS le faire !</li></ul>`; break;
+                case 's-net-lobby': case 's-net-waiting': desc = `<ul><li>Crée un salon et partage le code secret à ton ami.</li></ul>`; break;
+                default: desc = "<p>Sélectionne un jeu pour commencer !</p>";
             }
-            
             this.showModal(title, desc, null);
         }
     };
@@ -743,20 +691,15 @@
             const winLine = this.checkWin(this.state); 
             if (winLine) { 
                 winLine.forEach(idx => document.getElementById('ms-board').children[idx].classList.add('win')); 
-                let title = this.player === 'X' ? 'Victoire !' : 'Défaite...';
-let msg = this.player === 'X' ? 'Tu as écrasé le Bot !' : 'Le Bot a été plus malin.';
-setTimeout(() => window.UI.showModal(title, msg, () => this.init()), 600);
+                if (this.player === 'X') window.UI.showEndScreen('win', 'Victoire !', 'Tu as aligné tes symboles à la perfection.', () => this.init());
+                else window.UI.showEndScreen('lose', 'Défaite...', 'Le Bot t\'a écrasé.', () => this.init());
             } else if (!this.state.includes('')) {
-                setTimeout(() => window.UI.showModal('Égalité', 'Match Nul.', () => this.init()), 200); 
+                window.UI.showEndScreen('tie', 'Match Nul', 'Personne n\'a réussi à s\'imposer.', () => this.init());
             } else {
                 this.player = this.player === 'X' ? 'O' : 'X'; 
                 document.getElementById('ms-status').textContent = this.player === 'X' ? "Ton tour ! (Tu es X)" : "Le Bot réfléchit...";
-                if (this.player === 'O') {
-                    this.isBotThinking = true;
-                    setTimeout(() => this.botPlay(), 600);
-                } else {
-                    this.isBotThinking = false;
-                }
+                if (this.player === 'O') { this.isBotThinking = true; setTimeout(() => this.botPlay(), 600); } 
+                else { this.isBotThinking = false; }
             }
         },
         botPlay() {
@@ -875,33 +818,20 @@ setTimeout(() => window.UI.showModal(title, msg, () => this.init()), 600);
             
             if (window.App.Sim.checkWin(this.sGrids[bgIndex])) { 
                 this.bGrid[bgIndex] = this.currentPlayer; 
-                let cover = document.createElement('div'); 
-                cover.className = 'mu-won'; 
-                cover.textContent = this.currentPlayer; 
-                cover.style.color = cellElement.style.color; 
-                document.getElementById(`mu-g-${bgIndex}`).appendChild(cover); 
-            } else if (!this.sGrids[bgIndex].includes('')) {
-                this.bGrid[bgIndex] = 'D'; 
-            }
+                let cover = document.createElement('div'); cover.className = 'mu-won'; cover.textContent = this.currentPlayer; cover.style.color = cellElement.style.color; document.getElementById(`mu-g-${bgIndex}`).appendChild(cover); 
+            } else if (!this.sGrids[bgIndex].includes('')) { this.bGrid[bgIndex] = 'D'; }
             
             const cleanBigGrid = this.bGrid.map(val => val === 'D' ? '' : val);
             if (window.App.Sim.checkWin(cleanBigGrid)) { 
-               let title = this.currentPlayer === 'X' ? 'Victoire !' : 'Défaite...';
-let msg = this.currentPlayer === 'X' ? 'Le plateau est à toi !' : 'Le Bot domine le plateau.';
-setTimeout(() => window.UI.showModal(title, msg, () => this.init()), 300);
+                if (this.currentPlayer === 'X') window.UI.showEndScreen('win', 'Maître du Plateau', 'Tu as conquis le Morpion Ultime !', () => this.init());
+                else window.UI.showEndScreen('lose', 'Élimination', 'L\'Intelligence Artificielle domine le plateau.', () => this.init());
                 this.nextActiveGrid = 999; 
             } else { 
                 this.nextActiveGrid = (this.bGrid[sgIndex] !== '') ? -1 : sgIndex; 
                 this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X'; 
-                this.updateStatusUI(); 
-                this.highlightActiveGrids(); 
-                
-                if(this.currentPlayer === 'O') {
-                    this.isBotThinking = true;
-                    setTimeout(() => this.botPlay(), 800);
-                } else {
-                    this.isBotThinking = false;
-                }
+                this.updateStatusUI(); this.highlightActiveGrids(); 
+                if(this.currentPlayer === 'O') { this.isBotThinking = true; setTimeout(() => this.botPlay(), 800); } 
+                else { this.isBotThinking = false; }
             }
         },
         botPlay() {
@@ -1059,28 +989,21 @@ setTimeout(() => window.UI.showModal(title, msg, () => this.init()), 300);
             }
             this.timer = setInterval(() => { this.time++; this.updateUI(); }, 1000);
         },
-        reveal(index) {
+       reveal(index) {
             if (this.opened[index]) return; 
             const tileElement = document.getElementById('dm-board').children[index]; 
-            this.opened[index] = true; 
-            tileElement.classList.add('open'); 
+            this.opened[index] = true; tileElement.classList.add('open'); 
             
             if (this.grid[index] === 'M') { 
-                tileElement.classList.add('mine'); 
-                tileElement.textContent = '💣'; 
-                clearInterval(this.timer); 
-                setTimeout(() => window.UI.showModal('BOUM !', `Mines déclenchées à ${this.time} secondes.`, () => this.init()), 300); 
+                tileElement.classList.add('mine'); tileElement.textContent = '💣'; clearInterval(this.timer); 
+                window.UI.showEndScreen('lose', 'BOUM !', `Tu as marché sur une mine.<br><br>Temps de survie : <b style="color:var(--accent)">${this.time} secondes</b>.`, () => this.init());
             } else { 
-                if (this.grid[index] > 0) { 
-                    tileElement.textContent = this.grid[index]; 
-                    tileElement.classList.add('dm-c' + this.grid[index]); 
-                } else {
-                    this.getNeighbors(index).forEach(n => this.reveal(n)); 
-                }
+                if (this.grid[index] > 0) { tileElement.textContent = this.grid[index]; tileElement.classList.add('dm-c' + this.grid[index]); } 
+                else { this.getNeighbors(index).forEach(n => this.reveal(n)); }
             } 
             if (this.opened.filter(val => val).length === 526) { 
                 clearInterval(this.timer); 
-                setTimeout(() => window.UI.showModal('Déminage Réussi !', `Terrain sécurisé en ${this.time}s.`, () => this.init()), 300); 
+                window.UI.showEndScreen('win', 'Déminage Parfait !', `Terrain 100% sécurisé.<br><br>Temps record : <b style="color:var(--accent)">${this.time} secondes</b>.`, () => this.init());
             }
         }
     };
@@ -1148,10 +1071,16 @@ setTimeout(() => window.UI.showModal(title, msg, () => this.init()), 300);
             
             this.currentPlayer = (this.currentPlayer + 1) % 2; this.rollsLeft = 3; this.kept.fill(false); this.dice = [1, 1, 1, 1, 1]; 
             document.querySelectorAll('.pot').forEach(el => { el.textContent = '-'; el.classList.remove('pot'); }); 
+            
             if (Object.keys(this.scores[1]).length === 13) { 
                 let t1 = parseInt(document.getElementById(`y-tot-0`).textContent), t2 = parseInt(document.getElementById(`y-tot-1`).textContent); 
-               let title = t1 > t2 ? 'Victoire !' : (t2 > t1 ? 'Défaite...' : 'Égalité !');
-window.UI.showModal(title, `Score final :<br><br>Toi : ${t1} pts<br>Bot : ${t2} pts`, () => this.init());
+                let status = t1 > t2 ? 'win' : (t2 > t1 ? 'lose' : 'tie');
+                let title = t1 > t2 ? 'Victoire !' : (t2 > t1 ? 'Défaite...' : 'Égalité');
+                let text = `<div style="display:flex; justify-content:space-around; margin-top:10px;">
+                    <div><span style="font-size:0.9rem; color:#94a3b8;">TOI</span><br><span style="font-size:2rem; font-weight:bold; color:var(--accent);">${t1}</span></div>
+                    <div><span style="font-size:0.9rem; color:#94a3b8;">BOT</span><br><span style="font-size:2rem; font-weight:bold; color:var(--player-x);">${t2}</span></div>
+                </div>`;
+                window.UI.showEndScreen(status, title, text, () => this.init());
             } else {
                 this.ui(); if(this.currentPlayer === 1) setTimeout(() => this.botTurn(), 800);
             }
@@ -1617,40 +1546,39 @@ window.UI.showModal(title, `Score final :<br><br>Toi : ${t1} pts<br>Bot : ${t2} 
         endDeal() { 
             document.getElementById('bl-atout-corner').style.display = 'none';
             let ptsNous = this.dealPoints.nous, ptsEux = this.dealPoints.eux, msg = "";
-            let beloteNous = this.beloteAnnouncedBy === 'nous' ? 20 : 0;
-            let beloteEux = this.beloteAnnouncedBy === 'eux' ? 20 : 0;
+            let beloteNous = this.beloteAnnouncedBy === 'nous' ? 20 : 0, beloteEux = this.beloteAnnouncedBy === 'eux' ? 20 : 0;
             let isCapotNous = this.tricksWon.nous === 8, isCapotEux = this.tricksWon.eux === 8;
             
-            if (isCapotNous) { ptsNous = 250; msg += "<b style='color:var(--accent); font-size:1.3em;'>CAPOT ! (250 pts)</b><br><br>"; } 
-            else if (isCapotEux) { ptsEux = 250; msg += "<b style='color:var(--player-x); font-size:1.3em;'>CAPOT ADVERSE ! (250 pts)</b><br><br>"; }
-
             let takerTeam = (this.takerIndex === 0 || this.takerIndex === 2) ? 'nous' : 'eux';
-            let totalNous = ptsNous + beloteNous;
-            let totalEux = ptsEux + beloteEux;
+            let totalNous = ptsNous + beloteNous, totalEux = ptsEux + beloteEux;
+            let titleStat = 'info', titleText = "Bilan de la Manche";
 
             if (takerTeam === 'nous' && !isCapotNous) {
-                if (totalNous > totalEux) { this.scores.nous += totalNous + this.litigePot; this.scores.eux += totalEux; this.litigePot = 0; msg += "Contrat rempli !<br>"; } 
-                else if (totalNous < totalEux) { msg += "<b style='color:var(--player-x);'>CHUTE ! L'adversaire prend 162 pts.</b><br>"; this.scores.eux += 162 + beloteEux + this.litigePot; this.scores.nous += beloteNous; this.litigePot = 0; ptsNous = 0; ptsEux = 162; } 
-                else { msg += "<b style='color:var(--gold);'>LITIGE ! Vos points sont reportés.</b><br>"; this.litigePot += ptsNous; this.scores.eux += totalEux; this.scores.nous += beloteNous; ptsNous = 0; }
+                if (totalNous > totalEux) { this.scores.nous += totalNous + this.litigePot; this.scores.eux += totalEux; this.litigePot = 0; msg += "Contrat rempli !"; titleStat = 'win'; titleText = 'Contrat Rempli !'; } 
+                else if (totalNous < totalEux) { msg += "<b style='color:var(--player-x);'>CHUTE ! L'adversaire prend 162 pts.</b>"; this.scores.eux += 162 + beloteEux + this.litigePot; this.scores.nous += beloteNous; this.litigePot = 0; ptsNous = 0; ptsEux = 162; titleStat = 'lose'; titleText = 'Chute...'; } 
+                else { msg += "<b style='color:var(--gold);'>LITIGE ! Vos points sont reportés.</b>"; this.litigePot += ptsNous; this.scores.eux += totalEux; this.scores.nous += beloteNous; ptsNous = 0; titleStat = 'tie'; titleText = 'Litige'; }
             } else if (takerTeam === 'eux' && !isCapotEux) {
-                if (totalEux > totalNous) { this.scores.eux += totalEux + this.litigePot; this.scores.nous += totalNous; this.litigePot = 0; msg += "L'adversaire a rempli son contrat.<br>"; } 
-                else if (totalEux < totalNous) { msg += "<b style='color:var(--accent);'>ADVERSAIRE DEDANS ! Vous prenez 162 pts.</b><br>"; this.scores.nous += 162 + beloteNous + this.litigePot; this.scores.eux += beloteEux; this.litigePot = 0; ptsEux = 0; ptsNous = 162; } 
-                else { msg += "<b style='color:var(--gold);'>LITIGE ! Points adverses reportés.</b><br>"; this.litigePot += ptsEux; this.scores.nous += totalNous; this.scores.eux += beloteEux; ptsEux = 0; }
-            } else if (isCapotNous || isCapotEux) {
-                this.scores.nous += ptsNous + beloteNous + (isCapotNous ? this.litigePot : 0);
-                this.scores.eux += ptsEux + beloteEux + (isCapotEux ? this.litigePot : 0);
-                this.litigePot = 0;
-            }
-            msg += `<br>Scores de la donne :<br>Nous : ${ptsNous + beloteNous} pts<br>Eux : ${ptsEux + beloteEux} pts`;
-            
+                if (totalEux > totalNous) { this.scores.eux += totalEux + this.litigePot; this.scores.nous += totalNous; this.litigePot = 0; msg += "L'adversaire a rempli son contrat."; titleStat = 'lose'; titleText = 'Contrat adverse rempli'; } 
+                else if (totalEux < totalNous) { msg += "<b style='color:var(--accent);'>ADVERSAIRE DEDANS ! Vous prenez 162 pts.</b>"; this.scores.nous += 162 + beloteNous + this.litigePot; this.scores.eux += beloteEux; this.litigePot = 0; ptsEux = 0; ptsNous = 162; titleStat = 'win'; titleText = 'Adversaire Dedans !'; } 
+                else { msg += "<b style='color:var(--gold);'>LITIGE ! Points adverses reportés.</b>"; this.litigePot += ptsEux; this.scores.nous += totalNous; this.scores.eux += beloteEux; ptsEux = 0; titleStat = 'tie'; titleText = 'Litige'; }
+            } else if (isCapotNous) { ptsNous = 250; this.scores.nous += ptsNous + beloteNous + this.litigePot; this.scores.eux += beloteEux; this.litigePot = 0; msg += "<b style='color:var(--accent);'>CAPOT ! (250 pts)</b>"; titleStat = 'win'; titleText = 'CAPOT !'; }
+            else if (isCapotEux) { ptsEux = 250; this.scores.eux += ptsEux + beloteEux + this.litigePot; this.scores.nous += beloteNous; this.litigePot = 0; msg += "<b style='color:var(--player-x);'>CAPOT ADVERSE ! (250 pts)</b>"; titleStat = 'lose'; titleText = 'CAPOT ADVERSE...'; }
+
+            let scoreboardHTML = `
+                <p style="margin-bottom:20px;">${msg}</p>
+                <div style="display:flex; justify-content:space-around; background:rgba(0,0,0,0.4); padding:15px; border-radius:10px; margin-bottom:20px;">
+                    <div style="color:var(--accent);"><span style="font-size:0.9rem; color:#94a3b8;">NOUS</span><br><span style="font-size:2rem; font-weight:bold;">${ptsNous + beloteNous}</span></div>
+                    <div style="color:var(--player-x);"><span style="font-size:0.9rem; color:#94a3b8;">EUX</span><br><span style="font-size:2rem; font-weight:bold;">${ptsEux + beloteEux}</span></div>
+                </div>
+            `;
             this.deck = [...this.pastTricks]; 
 
             if (this.scores.nous >= 1000 || this.scores.eux >= 1000) {
-                let winnerTeamText = this.scores.nous >= 1000 ? "VOUS AVEZ" : "ILS ONT"; 
-                msg = `<span style="font-size:1.5em; color:var(--gold)">PARTIE TERMINÉE !</span><br><br>${winnerTeamText} ATTEINT 1000 POINTS !<br><br>Score Final : Nous ${this.scores.nous} - Eux ${this.scores.eux}`;
-                this.activeModal = { title: 'Fin de la Partie', msg: msg }; this.syncNetwork(); window.UI.showModal('Fin de la Partie', msg, () => { this.activeModal = null; this.syncNetwork(); this.initGame(); });
+                let finalStatus = this.scores.nous >= 1000 ? 'win' : 'lose';
+                let finalTitle = this.scores.nous >= 1000 ? "VICTOIRE ABSOLUE !" : "DÉFAITE CUISANTE...";
+                window.UI.showEndScreen(finalStatus, finalTitle, `Score Final de la Partie :<br><br><b style="color:var(--accent)">NOUS : ${this.scores.nous}</b><br><b style="color:var(--player-x)">EUX : ${this.scores.eux}</b>`, () => { this.syncNetwork(); this.initGame(); });
             } else {
-                this.updateScoreUI(); this.activeModal = { title: 'Bilan de la Manche', msg: msg }; this.syncNetwork(); window.UI.showModal('Bilan de la Manche', msg, () => { this.activeModal = null; this.syncNetwork(); this.startDeal(); });
+                this.updateScoreUI(); window.UI.showEndScreen(titleStat, titleText, scoreboardHTML, () => { this.syncNetwork(); this.startDeal(); });
             }
         },
         updateStatus(msgText) { document.getElementById('bl-status').innerHTML = msgText; }
@@ -1688,20 +1616,15 @@ window.UI.showModal(title, `Score final :<br><br>Toi : ${t1} pts<br>Bot : ${t2} 
                     cell.classList.add('taken', this.player === 1 ? 'p4-red' : 'p4-yellow');
                     
                     if (this.checkWinGrid(this.grid, this.player)) { 
-                        let title = this.player === 1 ? 'Victoire !' : 'Défaite...';
-                        let msg = this.player === 1 ? 'Puissance 4 ! Bien joué.' : 'Le Bot a aligné ses jetons.';
-                        setTimeout(() => window.UI.showModal(title, msg, () => this.init()), 300); 
+                        if (this.player === 1) window.UI.showEndScreen('win', 'Puissance 4 !', 'Superbe alignement, tu remportes la partie.', () => this.init());
+                        else window.UI.showEndScreen('lose', 'Défaite...', 'Le Bot a été plus malin que toi.', () => this.init());
                     } else if (this.grid[0].every(c => c !== 0)) {
-                        setTimeout(() => window.UI.showModal('Égalité', `La grille est pleine.`, () => this.init()), 300); 
+                        window.UI.showEndScreen('tie', 'Match Nul', 'La grille est pleine, personne n\'a gagné.', () => this.init());
                     } else { 
                         this.player = this.player === 1 ? 2 : 1; 
                         this.updateStatus(); 
-                        if(this.player === 2) {
-                            this.isBotThinking = true;
-                            setTimeout(() => this.botPlay(), 100);
-                        } else {
-                            this.isBotThinking = false;
-                        }
+                        if(this.player === 2) { this.isBotThinking = true; setTimeout(() => this.botPlay(), 100); } 
+                        else { this.isBotThinking = false; }
                     } 
                     return;
                 }
@@ -1887,8 +1810,16 @@ window.UI.showModal(title, `Score final :<br><br>Toi : ${t1} pts<br>Bot : ${t2} 
             if (res === 'tie') this.balance += this.currentBet;
             document.getElementById('bj-balance').textContent = this.balance;
             document.getElementById('bj-actions').style.display = 'none'; 
+            
             let title = res === 'win' ? 'Victoire !' : (res === 'lose' ? 'Défaite...' : 'Égalité');
-            setTimeout(() => window.UI.showModal(title, msg, () => this.init()), 500); 
+            let colorVal = res === 'win' ? 'var(--accent)' : (res === 'lose' ? 'var(--player-x)' : 'var(--gold)');
+            let text = `
+                <p style="margin-bottom: 20px;">${msg}</p>
+                <div style="border-top: 1px solid rgba(255,255,255,0.1); margin-top:15px; padding-top:15px;">
+                    Nouveau Solde : <b style="color:${colorVal}; font-size:1.5rem;">${this.balance} €</b>
+                </div>
+            `;
+            window.UI.showEndScreen(res, title, text, () => this.init());
         }
     };
 
@@ -1962,33 +1893,21 @@ window.UI.showModal(title, `Score final :<br><br>Toi : ${t1} pts<br>Bot : ${t2} 
                 b.appendChild(row);
             }
         },
-        checkRow() {
+       checkRow() {
             if(this.guess.includes(null)) return window.UI.showModal("Erreur", "Remplissez les 4 trous.", null);
             let exact = 0, color = 0, secretCopy = [...this.secret], guessCopy = [...this.guess];
-            
-            for(let i=0; i<4; i++) { 
-                if(guessCopy[i] === secretCopy[i]) { 
-                    exact++; secretCopy[i] = null; guessCopy[i] = null; 
-                } 
-            }
-            for(let i=0; i<4; i++) { 
-                if(guessCopy[i] && secretCopy.includes(guessCopy[i])) { 
-                    color++; secretCopy[secretCopy.indexOf(guessCopy[i])] = null; 
-                } 
-            }
-            
+            for(let i=0; i<4; i++) { if(guessCopy[i] === secretCopy[i]) { exact++; secretCopy[i] = null; guessCopy[i] = null; } }
+            for(let i=0; i<4; i++) { if(guessCopy[i] && secretCopy.includes(guessCopy[i])) { color++; secretCopy[secretCopy.indexOf(guessCopy[i])] = null; } }
             this.history.push({guess: [...this.guess], exact, color}); 
             
             if(exact === 4) { 
                 this.renderBoard(); 
-                setTimeout(() => window.UI.showModal("Gagné !", "Tu as craqué le code !", () => this.init()), 300); 
+                window.UI.showEndScreen('win', 'Génie !', `Code déchiffré en <b>${this.currentRow + 1} essais</b> !`, () => this.init());
             } else if(this.currentRow === 8) { 
                 this.renderBoard(); 
-                setTimeout(() => window.UI.showModal("Perdu...", "Le code était caché à jamais.", () => this.init()), 300); 
+                window.UI.showEndScreen('lose', 'Cerveau Surchauffé', 'Tu as épuisé tes 9 tentatives. Le code restera secret.', () => this.init());
             } else { 
-                this.currentRow++; 
-                this.guess = [null, null, null, null]; 
-                this.renderBoard(); 
+                this.currentRow++; this.guess = [null, null, null, null]; this.renderBoard(); 
             }
         }
     };
@@ -2098,66 +2017,42 @@ window.UI.showModal(title, `Score final :<br><br>Toi : ${t1} pts<br>Bot : ${t2} 
         },
         shoot(r, c) {
             if(this.bGrid[r][c] === 'H' || this.bGrid[r][c] === 'M') return;
-            
             if(this.bGrid[r][c] === 1) { 
-                this.bGrid[r][c] = 'H'; 
-                document.getElementById('bn-status').textContent = "Touché !"; 
-                this.drawGrid('bn-bot-grid', this.bGrid, true);
+                this.bGrid[r][c] = 'H'; document.getElementById('bn-status').textContent = "Touché !"; this.drawGrid('bn-bot-grid', this.bGrid, true);
             } else { 
-                this.bGrid[r][c] = 'M'; 
-                document.getElementById('bn-status').textContent = "Dans l'eau...";
-                this.isBotThinking = true;
-                this.drawGrid('bn-bot-grid', this.bGrid, true); 
-                setTimeout(() => this.botShoot(), 800);
+                this.bGrid[r][c] = 'M'; document.getElementById('bn-status').textContent = "Dans l'eau..."; this.isBotThinking = true; this.drawGrid('bn-bot-grid', this.bGrid, true); setTimeout(() => this.botShoot(), 800);
             }
-            
-            if(this.checkWin(this.bGrid)) setTimeout(() => window.UI.showModal('Victoire !', 'Flotte ennemie détruite !', () => this.init()), 500);
+            if(this.checkWin(this.bGrid)) {
+                window.UI.showEndScreen('win', 'Amiral !', 'Toute la flotte ennemie a été envoyée par le fond.', () => this.init());
+            }
         },
         botShoot() {
             let r, c, validShot = false;
-            
             this.botQueue.sort((a, b) => (b.priority || 0) - (a.priority || 0));
-            
             while(this.botQueue.length > 0 && !validShot) {
-                let target = this.botQueue.pop();
-                r = target.r; c = target.c;
-                if(r>=0 && r<12 && c>=0 && c<12 && this.pGrid[r][c] !== 'H' && this.pGrid[r][c] !== 'M') {
-                    validShot = true;
-                }
+                let target = this.botQueue.pop(); r = target.r; c = target.c;
+                if(r>=0 && r<12 && c>=0 && c<12 && this.pGrid[r][c] !== 'H' && this.pGrid[r][c] !== 'M') validShot = true;
             }
-            
-            if(!validShot) {
-                let attempts = 0;
-                do { 
-                    r = Math.floor(Math.random()*12); c = Math.floor(Math.random()*12); attempts++;
-                } while( (this.pGrid[r][c] === 'H' || this.pGrid[r][c] === 'M' || ((r+c)%2 !== 0 && attempts < 100)) && attempts < 200 );
-            }
+            if(!validShot) { let attempts = 0; do { r = Math.floor(Math.random()*12); c = Math.floor(Math.random()*12); attempts++; } while( (this.pGrid[r][c] === 'H' || this.pGrid[r][c] === 'M' || ((r+c)%2 !== 0 && attempts < 100)) && attempts < 200 ); }
             
             if(this.pGrid[r][c] === 1) {
-                this.pGrid[r][c] = 'H'; 
-                document.getElementById('bn-status').textContent = "Aïe ! Le bot a touché un navire !";
-                
+                this.pGrid[r][c] = 'H'; document.getElementById('bn-status').textContent = "Aïe ! Le bot a touché un navire !";
                 let dirs = [[-1,0], [1,0], [0,-1], [0,1]];
                 for(let d of dirs) {
                     let nr = r + d[0], nc = c + d[1];
                     if(nr>=0 && nr<12 && nc>=0 && nc<12 && this.pGrid[nr][nc] !== 'H' && this.pGrid[nr][nc] !== 'M') {
-                        let pr = r - d[0], pc = c - d[1];
-                        let priority = (pr>=0 && pr<12 && pc>=0 && pc<12 && this.pGrid[pr][pc] === 'H') ? 10 : 1;
+                        let pr = r - d[0], pc = c - d[1]; let priority = (pr>=0 && pr<12 && pc>=0 && pc<12 && this.pGrid[pr][pc] === 'H') ? 10 : 1;
                         this.botQueue.push({r: nr, c: nc, priority: priority});
                     }
                 }
-                
-                this.drawGrid('bn-player-grid', this.pGrid, false);
-                setTimeout(() => this.botShoot(), 800);
+                this.drawGrid('bn-player-grid', this.pGrid, false); setTimeout(() => this.botShoot(), 800);
             } else {
-                this.pGrid[r][c] = 'M'; 
-                document.getElementById('bn-status').textContent = "Le bot a tiré dans l'eau. À toi !";
-                this.isBotThinking = false; 
-                this.drawGrid('bn-player-grid', this.pGrid, false);
-                this.drawGrid('bn-bot-grid', this.bGrid, true);
+                this.pGrid[r][c] = 'M'; document.getElementById('bn-status').textContent = "Le bot a tiré dans l'eau. À toi !";
+                this.isBotThinking = false; this.drawGrid('bn-player-grid', this.pGrid, false); this.drawGrid('bn-bot-grid', this.bGrid, true);
             }
-            
-            if(this.checkWin(this.pGrid)) setTimeout(() => window.UI.showModal('Défaite...', 'Ta flotte a coulé.', () => this.init()), 500);
+            if(this.checkWin(this.pGrid)) {
+                window.UI.showEndScreen('lose', 'Naufrage...', 'Ta flotte a été totalement anéantie par le Bot.', () => this.init());
+            }
         },
         checkWin(grid) { 
             for(let r=0; r<12; r++) {
@@ -2263,13 +2158,14 @@ window.UI.showModal(title, `Score final :<br><br>Toi : ${t1} pts<br>Bot : ${t2} 
             
             let p1Count = 0, p2Count = 0;
             for(let r=0;r<10;r++) for(let c=0;c<10;c++) { if(this.grid[r][c]===1 || this.grid[r][c]===3) p1Count++; if(this.grid[r][c]===2 || this.grid[r][c]===4) p2Count++; }
-if(p1Count === 0 || p2Count === 0) { 
-    this.render(); 
-    let title = p2Count === 0 ? 'Victoire !' : 'Défaite...'; 
-    let msg = p2Count === 0 ? 'Tu as mangé tous les pions !' : 'Le Bot t\'a écrasé.'; 
-    setTimeout(() => window.UI.showModal(title, msg, () => this.init()), 300); 
-    return; 
-}            
+            
+            if(p1Count === 0 || p2Count === 0) { 
+                this.render(); 
+                if (p2Count === 0) window.UI.showEndScreen('win', 'Victoire !', 'Tu as mangé tous les pions adverses.', () => this.init());
+                else window.UI.showEndScreen('lose', 'Défaite...', 'Le Bot t\'a écrasé sur le damier.', () => this.init());
+                return; 
+            }
+            
             this.player = this.player === 1 ? 2 : 1; this.isBotThinking = (this.player === 2); this.updateStatus(); this.render();
             if(this.player === 2) setTimeout(() => this.botPlay(), 700);
         },
