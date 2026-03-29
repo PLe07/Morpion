@@ -1128,7 +1128,7 @@
                 diceBox.appendChild(dieEl); 
             }); 
             document.getElementById('y-roll-btn').textContent = `Lancer (${this.rollsLeft})`; document.getElementById('y-roll-btn').disabled = (this.currentPlayer === 1 || this.rollsLeft === 0);
-            document.getElementById('y-turn').textContent = this.currentPlayer === 0 ? "À toi de jouer !" : "Le Bot calcule ses probabilités..."; 
+            document.getElementById('y-turn').textContent = this.currentPlayer === 0 ? "À toi de jouer !" : "Le Bot calcule la meilleure probabilité..."; 
             if (this.rollsLeft < 3) this.calculatePotentials();
         },
         calculatePotentials() {
@@ -1155,8 +1155,9 @@
             if (this.rollsLeft === 3 || playerIndex !== this.currentPlayer || this.scores[playerIndex][category] !== undefined || (this.currentPlayer === 1 && playerIndex === 0)) return;
             let id = category.replace(/\s/g, ''); const cell = document.getElementById(`y-${playerIndex}-${id}`); 
             this.scores[playerIndex][category] = parseInt(cell.textContent); cell.className = 'val locked'; 
-            let total = Object.values(this.scores[playerIndex]).reduce((sum, val) => sum + val, 0); 
+            
             let sumTop = ['1', '2', '3', '4', '5', '6'].reduce((sum, key) => sum + (this.scores[playerIndex][key] || 0), 0); 
+            let total = Object.values(this.scores[playerIndex]).reduce((sum, val) => sum + val, 0); 
             if (sumTop >= 63) { total += 35; document.getElementById(`y-${playerIndex}-Bonus`).textContent = 35; } 
             document.getElementById(`y-tot-${playerIndex}`).textContent = total; 
             
@@ -1191,71 +1192,64 @@
             let vals = Object.keys(counts).map(Number), maxC = Math.max(...Object.values(counts)), uniqueSet = new Set(this.dice);
             
             this.kept.fill(false); 
-            
-            // Si on a un Yams, on garde tout !
             if(maxC === 5) { this.kept.fill(true); return; }
+            if(maxC === 4) { let num = vals.find(k => counts[k] === maxC); this.dice.forEach((v, i) => { if(v == num) this.kept[i] = true; }); return; }
             
-            // Si on a un Carré, on garde les 4 dés
-            if(maxC === 4) { 
-                let num = vals.find(k => counts[k] === maxC); 
-                this.dice.forEach((v, i) => { if(v == num) this.kept[i] = true; }); 
-                return; 
-            }
+            // Priorité aux suites si nécessaire
+            let needSuite = this.scores[1]['GrandeSuite'] === undefined || this.scores[1]['PetiteSuite'] === undefined;
+            if (needSuite) {
+                let targets = [[1,2,3,4,5], [2,3,4,5,6], [1,2,3,4], [2,3,4,5], [3,4,5,6]];
+                for (let t of targets) {
+                    let matchCount = t.filter(n => uniqueSet.has(n)).length;
+                    if ((t.length === 5 && matchCount >= 4) || (t.length === 4 && matchCount >= 3)) {
+                        let seen = new Set();
+                        this.dice.forEach((v, i) => { if (t.includes(v) && !seen.has(v)) { this.kept[i] = true; seen.add(v); } });
+                        if (this.kept.filter(k=>k).length >= 3) return; // Valide uniquement s'il y a du vrai potentiel
+                        this.kept.fill(false); // Sinon on reset
+                    }
+                }
+            } 
             
-            // Si on a un Brelan
             if (maxC === 3) {
                 let num = vals.find(k => counts[k] === maxC);
-                // Si on a déjà un Full (3+2), on garde tout SAUF si la case Full est déjà prise
-                if (uniqueSet.size === 2 && this.scores[1]['Full'] === undefined) {
-                    this.kept.fill(true);
-                } else {
-                    this.dice.forEach((v, i) => { if(v == num) this.kept[i] = true; });
-                }
+                let num2 = vals.find(k => counts[k] === 2);
+                if (num2 && this.scores[1]['Full'] === undefined) { this.kept.fill(true); return; }
+                this.dice.forEach((v, i) => { if(v == num) this.kept[i] = true; });
                 return;
             } 
             
-            // Anticipation de la Suite
-            let needSuite = this.scores[1]['GrandeSuite'] === undefined || this.scores[1]['PetiteSuite'] === undefined;
-            if (needSuite) {
-                let has2345 = [2,3,4,5].every(n => uniqueSet.has(n)), has3456 = [3,4,5,6].every(n => uniqueSet.has(n)), has1234 = [1,2,3,4].every(n => uniqueSet.has(n));
-                if (has2345 || has3456 || has1234) {
-                    let target = has3456 ? [3,4,5,6] : (has2345 ? [2,3,4,5] : [1,2,3,4]);
-                    if (uniqueSet.size === 5 && ([1,2,3,4,5].every(n => uniqueSet.has(n)) || [2,3,4,5,6].every(n => uniqueSet.has(n)))) { 
-                        this.kept.fill(true); return; 
-                    }
-                    let seen = new Set();
-                    this.dice.forEach((v, i) => { 
-                        if (target.includes(v) && !seen.has(v)) { this.kept[i] = true; seen.add(v); } 
-                    });
-                    return;
-                }
-            } 
-            
-            // Si on a une ou deux Paires
-            let pairs = vals.filter(k => counts[k] === 2);
-            if (pairs.length > 0) {
-                let bestPair = Math.max(...pairs);
+            if (maxC === 2) {
+                let pairs = vals.filter(k => counts[k] === 2);
                 if (pairs.length === 2 && this.scores[1]['Full'] === undefined) {
                     this.dice.forEach((v, i) => { if (pairs.includes(v)) this.kept[i] = true; }); return;
                 }
+                let bestPair = Math.max(...pairs);
                 this.dice.forEach((v, i) => {
                     if (v === bestPair) this.kept[i] = true;
-                    // On sécurise les 5 et 6 à côté de notre paire
-                    else if ((v === 5 || v === 6) && this.scores[1][v.toString()] === undefined) this.kept[i] = true;
+                    // On garde jalousement les 4, 5 et 6 qui manquent à l'appel
+                    else if (v >= 4 && this.scores[1][v.toString()] === undefined) this.kept[i] = true;
                 });
                 return;
             }
 
-            // Tirage sans combo clair : on sécurise ABSOLUMENT le bonus (5 et 6)
+            // Tirage sans combo clair : on sauve les gros chiffres (4, 5, 6) si cases vides
             this.dice.forEach((v, i) => { 
-                if ((v === 5 || v === 6) && this.scores[1][v.toString()] === undefined) this.kept[i] = true; 
+                if (v >= 4 && this.scores[1][v.toString()] === undefined) this.kept[i] = true; 
             });
+            
+            // Si on ne garde rien, on garde au moins le plus grand dé pour l'espérance mathématique
+            if (!this.kept.includes(true)) {
+                let maxDie = Math.max(...this.dice);
+                this.dice.forEach((v, i) => { if (v === maxDie && !this.kept.includes(true)) this.kept[i] = true; });
+            }
+            this.ui();
         },
         botChooseCategory() {
             this.calculatePotentials();
             let bestScore = -Infinity, chosenCat = null;
-            const cats = ['Yams', 'Grande Suite', 'Full', 'Petite Suite', 'Carré', 'Brelan', '6', '5', '4', '3', '2', '1', 'Chance'];
-            let sumTop = ['1', '2', '3', '4', '5', '6'].reduce((sum, key) => sum + (this.scores[1][key] || 0), 0);
+            const cats = ['1', '2', '3', '4', '5', '6', 'Brelan', 'Carré', 'Full', 'Petite Suite', 'Grande Suite', 'Yams', 'Chance'];
+            
+            let upperSum = ['1', '2', '3', '4', '5', '6'].reduce((sum, key) => sum + (this.scores[1][key] || 0), 0);
             
             for(let cat of cats) {
                 if(this.scores[1][cat] !== undefined) continue;
@@ -1265,49 +1259,53 @@
                     let pts = parseInt(el.textContent), weight = 0;
                     
                     if(pts === 0) {
-                        // Ordre de sacrifice PRO (On sacrifie les 1 et 2 en premier, JAMAIS les 5 et 6)
+                        // ALGORITHME DE SACRIFICE : Il préfèrera toujours rayer 1, 2, ou le Yams plutôt que les 5 et les 6.
                         const sac = {
-                            '1': -10, '2': -20, 'Yams': -30, 'Grande Suite': -40, 
-                            '3': -50, 'Petite Suite': -60, 'Carré': -70, 'Full': -80, 
-                            '4': -90, 'Brelan': -100, 'Chance': -120, '5': -200, '6': -300
+                            '1': -10, '2': -20, 'Yams': -30, '3': -40, 'Brelan': -50, 
+                            'Carré': -60, 'Petite Suite': -70, 'Grande Suite': -80, 
+                            'Full': -90, '4': -100, 'Chance': -150, '5': -500, '6': -1000
                         };
-                        weight = sac[cat] || -400;
+                        weight = sac[cat] || -200;
                     } else {
-                        // Optimisation PRO du score
+                        // SCORING : Espérance mathématique stricte
                         if(['1','2','3','4','5','6'].includes(cat)) {
                             let val = parseInt(cat), count = pts / val;
-                            if (count >= 4) weight = 1000 + pts; 
-                            else if (count === 3) weight = 700 + pts; 
-                            else if (count === 2) weight = 200 + pts; 
-                            else {
-                                // S'il n'y a qu'un seul dé, c'est interdit de le mettre dans 4, 5 ou 6
-                                if (val >= 4) weight = -150; 
-                                else weight = pts; 
-                            }
                             
-                            // Trigger absolu : on prend ce qui valide les 63 pts du bonus !
-                            if (sumTop + pts >= 63 && sumTop < 63) weight += 10000;
+                            // EXCELLENT : 3 dés ou plus
+                            if (count >= 3) {
+                                weight = 1000 + (pts * 2); 
+                                // BONUS SNIPER : Si ça débloque le bonus de 63
+                                if (upperSum + pts >= 63 && upperSum < 63) weight += 50000;
+                            } 
+                            // DÉFICIT TOLÉRÉ : Uniquement pour 1, 2, et 3
+                            else if (count === 2) {
+                                if (val <= 3) weight = pts * 2;
+                                else weight = -200 + pts; // Déficit sur 4, 5, 6 = on évite
+                            } 
+                            // GROS DÉFICIT : 1 seul dé
+                            else if (count === 1) {
+                                if (val <= 3) weight = pts - 50;
+                                else weight = -500; // Un seul 6 vaut 6 pts, c'est presque pire que de rayer !
+                            }
                         } 
-                        else if (cat === 'Yams') { weight = 8000; } 
-                        else if (cat === 'Grande Suite') { weight = 3000; } 
-                        else if (cat === 'Full') { weight = 2000; } 
-                        else if (cat === 'Petite Suite') { weight = 1000; } 
-                        
-                        // Condition : On refuse un Carré ou un Brelan si la somme est misérable
-                        else if (cat === 'Carré') { weight = pts >= 20 ? 800 + pts : pts - 50; } 
-                        else if (cat === 'Brelan') { weight = pts >= 20 ? 500 + pts : pts - 50; }
-                        else if (cat === 'Chance') { weight = pts >= 22 ? 400 + pts : pts - 50; }
+                        else if (cat === 'Yams') { weight = 10000; } 
+                        else if (cat === 'Grande Suite') { weight = 5000; } 
+                        else if (cat === 'Petite Suite') { weight = 2000; } 
+                        else if (cat === 'Full') { weight = 1500; } 
+                        else if (cat === 'Carré') { weight = pts >= 20 ? 800 + pts : pts - 100; } // Ne pas mettre un carré pourri de 1 ou 2
+                        else if (cat === 'Brelan') { weight = pts >= 20 ? 400 + pts : pts - 100; }
+                        else if (cat === 'Chance') { weight = pts >= 24 ? 300 + pts : -50; } // On garde Chance pour le gros loupé
                     }
                     if(weight > bestScore) { bestScore = weight; chosenCat = cat; }
                 }
             }
             
-            // Filet de sécurité final
+            // Filet de sécurité final en cas de blocage absolu
             if(!chosenCat) {
-                let sac = ['1','2','Yams','Grande Suite','3','Petite Suite','4','Carré','Full','Chance','Brelan','5','6'];
-                for(let cat of sac) if(this.scores[1][cat] === undefined) { chosenCat = cat; break; }
+                let fallback = ['1','2','Yams','3','Brelan','Carré','4','Petite Suite','Grande Suite','Full','Chance','5','6'];
+                for(let cat of fallback) if(this.scores[1][cat] === undefined) { chosenCat = cat; break; }
             }
-            if(chosenCat) this.lockCategory(chosenCat, 1);
+            this.lockCategory(chosenCat, 1);
         }
     };
 
