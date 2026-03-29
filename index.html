@@ -593,15 +593,25 @@
         showModal(title, desc, cb) {
             document.getElementById('modal-title').style.display = 'block';
             document.getElementById('modal-title').innerHTML = title;
-            document.getElementById('modal-title').style.color = 'var(--accent)';
+            
+            // Gestion stricte des couleurs de la modale
+            let titleColor = '#f8fafc'; // Blanc par défaut
+            if (title.includes('Victoire') || title.includes('Gagné') || title.includes('Réussi')) {
+                titleColor = 'var(--accent)'; // Vert
+            } else if (title.includes('Défaite') || title.includes('Perdu') || title.includes('BOUM') || title.includes('Erreur')) {
+                titleColor = 'var(--player-x)'; // Rouge
+            }
+            
+            document.getElementById('modal-title').style.color = titleColor;
             document.getElementById('modal-desc').innerHTML = desc;
+            this.modalCb = cb; 
             
             const btn = document.getElementById('modal-btn');
             btn.style.display = 'inline-block';
             btn.style.background = 'var(--accent)';
+            btn.style.color = '#000';
             btn.style.boxShadow = '0 0 15px var(--accent-glow)';
             
-            this.modalCb = cb; 
             document.getElementById('modal-overlay').style.display = 'flex';
         },
         showEndScreen(status, title, text, cb) {
@@ -642,20 +652,101 @@
             const activeScreen = document.querySelector('.screen.active').id;
             let title = "📖 Règles du Jeu";
             let desc = "";
+
             switch(activeScreen) {
-                case 's-sim': case 's-net-sim': desc = `<ul><li><b>Objectif :</b> Aligner 3 symboles (X ou O).</li><li><b>Déroulement :</b> Chacun son tour sur une grille 3x3.</li></ul>`; break;
-                case 's-ult': case 's-net-ult': desc = `<ul><li><b>Objectif :</b> Aligner 3 macro-cases.</li><li><b style='color:var(--accent)'>Règle d'or :</b> Ta case choisie oblige l'adversaire à jouer dans la grande grille correspondante !</li></ul>`; break;
-                case 's-mine': desc = `<ul><li><b>Objectif :</b> Découvrir les cases sans toucher aux mines.</li><li><b style='color:var(--player-x)'>Action :</b> Clic Droit pour poser un drapeau (🚩).</li></ul>`; break;
-                case 's-yams': case 's-net-yams': desc = `<ul><li><b>Bonus :</b> 63 points sur la partie haute = +35 points !</li><li><b>Yams :</b> 5 dés identiques (50 pts). Full = Brelan + Paire (25 pts).</li></ul>`; break;
-                case 's-belote': desc = `<ul><li><b style='color:var(--accent)'>Atout :</b> V(20), 9(14), As(11), 10(10), R(4), D(3), 8, 7.</li><li><b>Obligation :</b> Toujours fournir la couleur, ou couper.</li></ul>`; break;
-                case 's-p4': case 's-net-p4': desc = `<ul><li><b>Objectif :</b> Aligner 4 jetons de sa couleur.</li></ul>`; break;
-                case 's-bj': desc = `<ul><li><b>Objectif :</b> Battre le Croupier en s'approchant de 21 sans dépasser.</li></ul>`; break;
-                case 's-mm': case 's-net-mm': desc = `<ul><li><b>Objectif :</b> Trouver le code secret en 9 essais.</li><li><b style="color:var(--player-x);">Point Rouge :</b> Bonne place. <b style="color:#cbd5e1;">Blanc :</b> Mauvaise place.</li></ul>`; break;
-                case 's-bn': case 's-net-bn': desc = `<ul><li>💥 = Navire touché. 🌊 = Tir dans l'eau.</li></ul>`; break;
-                case 's-dames': case 's-net-dames': desc = `<ul><li><b style='color:var(--player-x)'>Prise Obligatoire :</b> Si tu peux manger, tu DOIS le faire !</li></ul>`; break;
-                case 's-net-lobby': case 's-net-waiting': desc = `<ul><li>Crée un salon et partage le code secret à ton ami.</li></ul>`; break;
-                default: desc = "<p>Sélectionne un jeu pour commencer !</p>";
+                case 's-sim': 
+                case 's-net-sim': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li style="margin-bottom:10px;"><b>Objectif :</b> Être le premier à aligner 3 symboles (X ou O).</li>
+                                <li style="margin-bottom:10px;"><b>Déroulement :</b> Les joueurs jouent à tour de rôle sur une grille de 3x3.</li>
+                                <li>L'alignement peut être horizontal, vertical ou en diagonale.</li>
+                            </ul>`; 
+                    break;
+                case 's-ult': 
+                case 's-net-ult': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li style="margin-bottom:10px;"><b>Objectif :</b> Aligner 3 macro-cases pour remporter la partie.</li>
+                                <li style="margin-bottom:10px;"><b style='color:var(--accent)'>La règle d'or :</b> La petite case que tu choisis dans une sous-grille indique à ton adversaire dans quelle sous-grille il <b>doit</b> jouer au coup suivant !</li>
+                                <li style="margin-bottom:10px;"><b>Capture :</b> Gagne un morpion classique dans une sous-grille pour capturer la grande case correspondante.</li>
+                                <li><b>Liberté :</b> Si l'adversaire t'envoie dans une sous-grille déjà terminée, tu peux jouer où tu veux sur le plateau.</li>
+                            </ul>`; 
+                    break;
+                case 's-mine': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li style="margin-bottom:10px;"><b>Objectif :</b> Découvrir toutes les cases vides sans faire exploser de mine.</li>
+                                <li style="margin-bottom:10px;"><b>Indicateurs :</b> Un chiffre indique exactement combien de mines se trouvent dans les 8 cases adjacentes.</li>
+                                <li><b style='color:var(--player-x)'>Action :</b> Fais un <b>Clic Droit</b> sur une case suspecte pour y placer un drapeau de protection (🚩). Clic gauche pour révéler.</li>
+                            </ul>`; 
+                    break;
+                case 's-yams': 
+                case 's-net-yams': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li style="margin-bottom:10px;"><b>Déroulement :</b> 3 lancers par tour. Clique sur les dés que tu souhaites conserver entre les lancers.</li>
+                                <li style="margin-bottom:10px;"><b style='color:var(--gold)'>Le Bonus :</b> Si la somme de la partie haute (les 1 à 6) atteint <b>63 points</b> ou plus, tu gagnes un méga-bonus de <b>+35 points</b> !</li>
+                                <li style="margin-bottom:10px;"><b>Figures :</b> Brelan = 3 dés identiques. Carré = 4 dés identiques. Full = Un Brelan + Une Paire (25 pts).</li>
+                                <li><b>Suites & Yams :</b> Petite Suite = 4 dés qui se suivent (30 pts). Grande Suite = 5 dés (40 pts). Yams = 5 dés identiques (50 pts).</li>
+                            </ul>`; 
+                    break;
+                case 's-belote': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li style="margin-bottom:10px;"><b style='color:var(--accent)'>Ordre & Valeur à l'Atout :</b> Valet(20), 9(14), As(11), 10(10), Roi(4), Dame(3), 8(0), 7(0).</li>
+                                <li style="margin-bottom:10px;"><b style='color:var(--gold)'>Ordre & Valeur Normal :</b> As(11), 10(10), Roi(4), Dame(3), Valet(2), 9(0), 8(0), 7(0).</li>
+                                <li style="margin-bottom:10px;"><b>Règles de jeu :</b> Il faut toujours fournir la couleur demandée. Si tu n'en as pas, tu dois <b>couper</b> (jouer un atout). Si un atout est déjà posé, tu as l'obligation de <b>monter</b> (jouer un atout plus fort) si tu le peux.</li>
+                                <li><b>Bonus :</b> Avoir le Roi ET la Dame d'atout dans sa main donne la "Belote-Rebelote" (+20 pts). Le preneur doit faire plus de points que la défense pour valider son contrat, sinon il "chute" (l'adversaire prend 162 pts).</li>
+                            </ul>`; 
+                    break;
+                case 's-p4': 
+                case 's-net-p4': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li style="margin-bottom:10px;"><b>Objectif :</b> Être le premier à aligner 4 jetons de sa couleur.</li>
+                                <li style="margin-bottom:10px;"><b>Déroulement :</b> Les joueurs lâchent leurs jetons tour à tour. Les jetons tombent toujours au point le plus bas possible.</li>
+                                <li><b>Victoire :</b> L'alignement peut être horizontal, vertical, ou en diagonale.</li>
+                            </ul>`; 
+                    break;
+                case 's-bj': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li style="margin-bottom:10px;"><b>Objectif :</b> Battre le score du Croupier en s'approchant le plus possible de 21, sans jamais le dépasser (Bust).</li>
+                                <li style="margin-bottom:10px;"><b>Valeur des cartes :</b> Les têtes (V, D, R) valent 10. Les cartes numériques valent leur nombre. L'As vaut 1 ou 11 selon ce qui t'arrange le plus.</li>
+                                <li><b>Actions :</b> Tu peux "Tirer" autant de fois que tu veux. Si tu cliques sur "Rester", le croupier joue. Il est obligé de tirer jusqu'à atteindre au moins 17.</li>
+                            </ul>`; 
+                    break;
+                case 's-mm': 
+                case 's-net-mm': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li style="margin-bottom:10px;"><b>Objectif :</b> Trouver la combinaison secrète de 4 couleurs en 9 essais maximum.</li>
+                                <li style="margin-bottom:10px;"><b>Correction :</b> Après chaque essai, le jeu te donne des indices sur le côté droit.</li>
+                                <li style="margin-bottom:10px;"><b style="color:var(--player-x);">Un point Rouge :</b> Signifie qu'une couleur est correcte ET au bon endroit.</li>
+                                <li><b style="color:#cbd5e1;">Un point Blanc :</b> Signifie qu'une couleur est présente dans le code, mais placée au mauvais endroit.</li>
+                            </ul>`; 
+                    break;
+                case 's-bn': 
+                case 's-net-bn': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li style="margin-bottom:10px;"><b>Mise en place :</b> Place ta flotte de 6 navires sur la grille (horizontalement ou verticalement).</li>
+                                <li style="margin-bottom:10px;"><b>Bataille :</b> À tour de rôle, clique sur la grille adverse pour deviner où sont cachés les bateaux ennemis.</li>
+                                <li><b>Fin du jeu :</b> Une 💥 indique qu'un navire est touché. Des 🌊 indiquent un tir dans l'eau. Le premier à couler tous les navires adverses gagne !</li>
+                            </ul>`; 
+                    break;
+                case 's-dames': 
+                case 's-net-dames': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li style="margin-bottom:10px;"><b>Déplacements :</b> Les pions se déplacent d'une case en diagonale vers l'avant.</li>
+                                <li style="margin-bottom:10px;"><b style='color:var(--player-x)'>Prise Obligatoire :</b> Si tu PEUX manger un pion adverse en sautant par-dessus, tu DOIS le faire. Si une "rafle" (plusieurs sauts) est possible, tu dois continuer à sauter !</li>
+                                <li><b>La Dame :</b> Un pion qui atteint la dernière ligne adverse devient une Dame (👑). Elle peut reculer, avancer de plusieurs cases d'un coup, et capturer de très loin.</li>
+                            </ul>`; 
+                    break;
+                case 's-net-lobby': 
+                case 's-net-waiting': 
+                    desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
+                                <li style="margin-bottom:10px;"><b>Héberger :</b> Choisis un jeu dans la liste et clique sur "Créer". Le jeu génèrera un code à 4 lettres.</li>
+                                <li style="margin-bottom:10px;"><b>Rejoindre :</b> Demande le code à 4 lettres à ton ami, tape-le dans le champ "Code Secret" et rejoins-le en direct !</li>
+                                <li><b>Réseau :</b> Les parties sont synchronisées en temps réel de n'importe où dans le monde.</li>
+                            </ul>`; 
+                    break;
+                default: 
+                    desc = "<p>Sélectionne un jeu dans le menu de gauche pour commencer à jouer !</p>";
             }
+            
             this.showModal(title, desc, null);
         }
     };
