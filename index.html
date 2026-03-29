@@ -1128,7 +1128,7 @@
                 diceBox.appendChild(dieEl); 
             }); 
             document.getElementById('y-roll-btn').textContent = `Lancer (${this.rollsLeft})`; document.getElementById('y-roll-btn').disabled = (this.currentPlayer === 1 || this.rollsLeft === 0);
-            document.getElementById('y-turn').textContent = this.currentPlayer === 0 ? "À toi de jouer !" : "Le Bot joue son tour..."; 
+            document.getElementById('y-turn').textContent = this.currentPlayer === 0 ? "À toi de jouer !" : "Le Bot calcule ses probabilités..."; 
             if (this.rollsLeft < 3) this.calculatePotentials();
         },
         calculatePotentials() {
@@ -1190,54 +1190,35 @@
             let counts = {}; this.dice.forEach(x => counts[x] = (counts[x]||0)+1);
             let vals = Object.keys(counts).map(Number), maxC = Math.max(...Object.values(counts)), uniqueSet = new Set(this.dice);
             
-            this.kept.fill(false); // Reset des gardés
+            this.kept.fill(false); 
+            if(maxC === 5) { this.kept.fill(true); return; }
+            if(maxC === 4) { let num = vals.find(k => counts[k] === maxC); this.dice.forEach((v, i) => { if(v == num) this.kept[i] = true; }); return; }
             
-            // 1. Yams ou Carré (On garde la masse)
-            if (maxC >= 4) {
-                let num = vals.find(k => counts[k] === maxC);
-                this.dice.forEach((v, i) => { if (v === num) this.kept[i] = true; });
-                return;
-            }
-            
-            // 2. Brelan / Full House
             if (maxC === 3) {
-                let num3 = vals.find(k => counts[k] === 3);
-                let num2 = vals.find(k => counts[k] === 2);
-                if (num2 && this.scores[1]['Full'] === undefined) {
-                    this.kept.fill(true); // On a un Full et il est libre, on bloque tout
-                } else {
-                    this.dice.forEach((v, i) => { if (v === num3) this.kept[i] = true; });
-                }
+                let num = vals.find(k => counts[k] === maxC);
+                if (uniqueSet.size === 2 && this.scores[1]['Full'] === undefined) this.kept.fill(true);
+                else this.dice.forEach((v, i) => { if(v == num) this.kept[i] = true; });
                 return;
-            }
-
-            // 3. Suites (Si on a 4 dés qui se suivent et que les cases Suites sont libres)
+            } 
+            
             let needSuite = this.scores[1]['GrandeSuite'] === undefined || this.scores[1]['PetiteSuite'] === undefined;
             if (needSuite) {
-                let s1 = [1,2,3,4].every(n => uniqueSet.has(n)), s2 = [2,3,4,5].every(n => uniqueSet.has(n)), s3 = [3,4,5,6].every(n => uniqueSet.has(n));
-                if (s1 || s2 || s3) {
-                    let target = s3 ? [3,4,5,6] : (s2 ? [2,3,4,5] : [1,2,3,4]);
-                    if (uniqueSet.size === 5 && ([1,2,3,4,5].every(n => uniqueSet.has(n)) || [2,3,4,5,6].every(n => uniqueSet.has(n)))) {
-                        this.kept.fill(true); // C'est une Grande Suite, on garde tout !
-                        return;
-                    }
+                let has2345 = [2,3,4,5].every(n => uniqueSet.has(n)), has3456 = [3,4,5,6].every(n => uniqueSet.has(n)), has1234 = [1,2,3,4].every(n => uniqueSet.has(n));
+                if (has2345 || has3456 || has1234) {
+                    let target = has3456 ? [3,4,5,6] : (has2345 ? [2,3,4,5] : [1,2,3,4]);
+                    if (uniqueSet.size === 5 && ([1,2,3,4,5].every(n => uniqueSet.has(n)) || [2,3,4,5,6].every(n => uniqueSet.has(n)))) { this.kept.fill(true); return; }
                     let seen = new Set();
-                    this.dice.forEach((v, i) => {
-                        if (target.includes(v) && !seen.has(v)) { this.kept[i] = true; seen.add(v); }
-                    });
+                    this.dice.forEach((v, i) => { if (target.includes(v) && !seen.has(v)) { this.kept[i] = true; seen.add(v); } });
                     return;
                 }
-            }
-
-            // 4. Paires & Protection du Bonus (5 et 6)
+            } 
+            
             let pairs = vals.filter(k => counts[k] === 2);
             if (pairs.length > 0) {
                 let bestPair = Math.max(...pairs);
                 if (pairs.length === 2 && this.scores[1]['Full'] === undefined) {
-                    this.dice.forEach((v, i) => { if (pairs.includes(v)) this.kept[i] = true; }); // On garde les 2 paires pour chercher le Full
-                    return;
+                    this.dice.forEach((v, i) => { if (pairs.includes(v)) this.kept[i] = true; }); return;
                 }
-                // Garder la meilleure paire + les 5/6 isolés pour préparer le bonus
                 this.dice.forEach((v, i) => {
                     if (v === bestPair) this.kept[i] = true;
                     else if ((v === 5 || v === 6) && this.scores[1][v.toString()] === undefined) this.kept[i] = true;
@@ -1245,43 +1226,30 @@
                 return;
             }
 
-            // 5. Tirage pourri : On sauve les meubles en gardant les 5 et les 6
-            this.dice.forEach((v, i) => {
-                if ((v === 5 || v === 6) && this.scores[1][v.toString()] === undefined) this.kept[i] = true;
-            });
+            this.dice.forEach((v, i) => { if ((v === 5 || v === 6) && this.scores[1][v.toString()] === undefined) this.kept[i] = true; });
             this.ui();
         },
         botChooseCategory() {
             this.calculatePotentials();
             let bestScore = -Infinity, chosenCat = null;
             const cats = ['Yams', 'Grande Suite', 'Full', 'Petite Suite', 'Carré', 'Brelan', '6', '5', '4', '3', '2', '1', 'Chance'];
-            
             let sumTop = ['1', '2', '3', '4', '5', '6'].reduce((sum, key) => sum + (this.scores[1][key] || 0), 0);
             
             for(let cat of cats) {
                 if(this.scores[1][cat] !== undefined) continue;
-                
                 let el = document.getElementById(`y-1-${cat.replace(/\s/g, '')}`);
                 if(el && el.classList.contains('pot')) { 
                     let pts = parseInt(el.textContent), weight = 0;
                     
                     if(pts === 0) {
-                        // Ordre STRICT de Sacrifice PRO : Le bot sacrifie le 1, 2, ou le Yams impossible AVANT de tuer ses 5 et 6
-                        const sac = {
-                            '1': -10, '2': -20, 'Yams': -30, 'Grande Suite': -40, '3': -50, 
-                            'Petite Suite': -60, 'Carré': -70, 'Full': -80, '4': -90, 
-                            'Brelan': -100, 'Chance': -120, '5': -200, '6': -300
-                        };
+                        const sac = {'1': -10, '2': -20, 'Yams': -30, 'Grande Suite': -40, '3': -50, 'Petite Suite': -60, 'Carré': -70, 'Full': -80, '4': -90, 'Brelan': -100, 'Chance': -120, '5': -200, '6': -300};
                         weight = sac[cat] || -400;
                     } else {
-                        // SCORING : Priorité à la rentabilité et au Bonus !
                         if(['1','2','3','4','5','6'].includes(cat)) {
-                            let val = parseInt(cat); let count = pts / val;
-                            if (count >= 3) weight = pts * 15; // Un Brelan en partie haute, c'est le Graal
+                            let val = parseInt(cat), count = pts / val;
+                            if (count >= 3) weight = pts * 15; 
                             else if (count === 2) weight = pts * 2; 
-                            else weight = pts - 10; // 1 seul dé, c'est risqué
-                            
-                            // L'arme secrète : Si ça débloque le bonus de 63 points, il le prend INSTANTANÉMENT
+                            else weight = pts - 10; 
                             if (sumTop + pts >= 63 && sumTop < 63) weight += 10000;
                         } 
                         else if (cat === 'Yams') { weight = 8000; } 
@@ -1290,13 +1258,11 @@
                         else if (cat === 'Full') { weight = 900; } 
                         else if (cat === 'Carré') { weight = 800 + pts; } 
                         else if (cat === 'Brelan') { weight = 150 + pts; }
-                        else if (cat === 'Chance') { weight = pts >= 23 ? pts * 10 : -10; } // Garder Chance pour une grosse somme
+                        else if (cat === 'Chance') { weight = pts >= 23 ? pts * 10 : -10; }
                     }
                     if(weight > bestScore) { bestScore = weight; chosenCat = cat; }
                 }
             }
-            
-            // Filet de sécurité ultime au cas où
             if(!chosenCat) {
                 let sac = ['1','2','Yams','Grande Suite','3','Petite Suite','4','Carré','Full','Chance','Brelan','5','6'];
                 for(let cat of sac) if(this.scores[1][cat] === undefined) { chosenCat = cat; break; }
@@ -1311,6 +1277,7 @@
         centerCard: null, atoutSuit: null, takerIndex: -1, currentTrick: [], pastTricks: [], 
         dealPoints: { nous: 0, eux: 0 }, tricksWon: { nous: 0, eux: 0 }, 
         tricksPlayedCount: 0, beloteAnnouncedBy: null, activeModal: null,
+        voids: [{ '♠': false, '♣': false, '♥': false, '♦': false }, { '♠': false, '♣': false, '♥': false, '♦': false }, { '♠': false, '♣': false, '♥': false, '♦': false }, { '♠': false, '♣': false, '♥': false, '♦': false }],
         
         suits: [{s: '♠', color: 'b'}, {s: '♣', color: 'b'}, {s: '♥', color: 'r'}, {s: '♦', color: 'r'}], 
         ranks: ['7', '8', '9', '10', 'V', 'D', 'R', 'A'],
@@ -1328,18 +1295,14 @@
             }
         },
         initGame() { 
-            this.scores = { nous: 0, eux: 0 }; 
-            this.litigePot = 0; 
-            this.deck = []; 
+            this.scores = { nous: 0, eux: 0 }; this.litigePot = 0; this.deck = []; 
             if (this.dealerIndex === -1) this.dealerIndex = Math.floor(Math.random() * 4); 
-            this.updateScoreUI(); 
-            this.startDeal(); 
+            this.updateScoreUI(); this.startDeal(); 
         },
         startDeal() {
             document.querySelectorAll('.bl-slot').forEach(slot => slot.innerHTML = ''); document.getElementById('bl-center').innerHTML = ''; document.getElementById('bl-hand').innerHTML = ''; 
             document.getElementById('bl-actions-1').style.display = 'none'; document.getElementById('bl-actions-2').style.display = 'none'; 
-            document.getElementById('bl-annonce-msg').style.opacity = '0'; 
-            document.getElementById('bl-trick-points').style.display = 'none'; document.getElementById('bl-atout-corner').style.display = 'none';
+            document.getElementById('bl-annonce-msg').style.opacity = '0'; document.getElementById('bl-trick-points').style.display = 'none'; document.getElementById('bl-atout-corner').style.display = 'none';
             
             this.updatePlayerHighlight(-1); this.dealerIndex = (this.dealerIndex + 1) % 4; this.firstPlayerIndex = (this.dealerIndex + 1) % 4;
             const positions = [{x: 450, y: 420}, {x: 680, y: 300}, {x: 450, y: 40}, {x: 100, y: 300}];
@@ -1355,6 +1318,7 @@
             }
             
             this.hands = [[], [], [], []]; this.currentTrick = []; this.pastTricks = [];
+            this.voids = [{ '♠': false, '♣': false, '♥': false, '♦': false }, { '♠': false, '♣': false, '♥': false, '♦': false }, { '♠': false, '♣': false, '♥': false, '♦': false }, { '♠': false, '♣': false, '♥': false, '♦': false }];
             this.dealPoints = { nous: 0, eux: 0 }; this.tricksWon = { nous: 0, eux: 0 }; this.tricksPlayedCount = 0; 
             this.atoutSuit = null; this.takerIndex = -1; this.beloteAnnouncedBy = null; this.phase = 'bidding_1';
             
@@ -1396,13 +1360,8 @@
                     });
                     hand.filter(c => c.suit.s !== suit && c.rank === 'A').forEach(() => power += 1.5);
 
-                    if (power >= 7.5) { 
-                        this.showSpeech(this.currentTurnIndex, `Je prends ! (${this.centerCard.suit.s})`); 
-                        setTimeout(() => { this.take(this.currentTurnIndex, this.centerCard.suit); }, 800); 
-                    } else { 
-                        this.showSpeech(this.currentTurnIndex, "Passe."); 
-                        setTimeout(() => { this.passBidding1(); }, 800); 
-                    }
+                    if (power >= 7.5) { this.showSpeech(this.currentTurnIndex, `Je prends ! (${this.centerCard.suit.s})`); setTimeout(() => { this.take(this.currentTurnIndex, this.centerCard.suit); }, 800); } 
+                    else { this.showSpeech(this.currentTurnIndex, "Passe."); setTimeout(() => { this.passBidding1(); }, 800); }
                 }, 1200);
             }
         },
@@ -1438,13 +1397,8 @@
                         if (power > bestScore) { bestScore = power; bestSuit = suitObj; }
                     });
                     
-                    if (bestScore >= 6.5) { 
-                        this.showSpeech(this.currentTurnIndex, `Je prends ! (${bestSuit.s})`); 
-                        setTimeout(() => { this.take(this.currentTurnIndex, bestSuit); }, 800); 
-                    } else { 
-                        this.showSpeech(this.currentTurnIndex, "Passe."); 
-                        setTimeout(() => { this.passBidding2(); }, 800); 
-                    }
+                    if (bestScore >= 6.5) { this.showSpeech(this.currentTurnIndex, `Je prends ! (${bestSuit.s})`); setTimeout(() => { this.take(this.currentTurnIndex, bestSuit); }, 800); } 
+                    else { this.showSpeech(this.currentTurnIndex, "Passe."); setTimeout(() => { this.passBidding2(); }, 800); }
                 }, 1200);
             }
         },
@@ -1482,7 +1436,7 @@
             if (this.tricksPlayedCount === 8) return; this.updatePlayerHighlight(this.currentTurnIndex); this.renderHand(); this.renderBotHands();
             if (this.currentTurnIndex === 0) { this.updateStatus("À vous de jouer !"); this.syncNetwork(); } 
             else if (this.currentTurnIndex === 2 && window.App.Network.room && window.App.Network.gameType === 'belote') { this.updateStatus("Votre ami réfléchit..."); this.syncNetwork(); } 
-            else { let botName = this.currentTurnIndex === 1 ? "Est" : (this.currentTurnIndex === 2 ? "Nord" : "Ouest"); this.updateStatus(`${botName} joue...`); this.syncNetwork(); setTimeout(() => { this.botPlay(); }, 600); }
+            else { let botName = this.currentTurnIndex === 1 ? "Est" : (this.currentTurnIndex === 2 ? "Nord" : "Ouest"); this.updateStatus(`${botName} calcule...`); this.syncNetwork(); setTimeout(() => { this.botPlay(); }, 600); }
         },
         getTrickWinner(trickArray) {
             if (trickArray.length === 0) return null;
@@ -1498,6 +1452,7 @@
             if (this.currentTrick.length === 0) return handArray;
             let leadSuitChar = this.currentTrick[0].card.suit.s, cardsOfRequestedSuit = handArray.filter(c => c.suit.s === leadSuitChar), trumpCardsInHand = handArray.filter(c => c.suit.s === this.atoutSuit.s), highestTrumpRankInTrick = -1;
             this.currentTrick.forEach(trickEntry => { if (trickEntry.card.suit.s === this.atoutSuit.s) { let val = 8 - this.ordAtout.indexOf(trickEntry.card.rank); if (val > highestTrumpRankInTrick) highestTrumpRankInTrick = val; } });
+            
             if (cardsOfRequestedSuit.length > 0) { 
                 if (leadSuitChar === this.atoutSuit.s) { let higherTrumpsToPlay = cardsOfRequestedSuit.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpRankInTrick); if (higherTrumpsToPlay.length > 0) return higherTrumpsToPlay; } 
                 return cardsOfRequestedSuit; 
@@ -1528,19 +1483,36 @@
                 return true;
             };
 
+            // INFERENCE INTELLIGENTE : Si je mène le pli, j'utilise la mémoire des défausses (voids)
             if (this.currentTrick.length === 0) {
                 let iAmTakerTeam = (this.takerIndex % 2) === (this.currentTurnIndex % 2);
+                let partnerIndex = (this.currentTurnIndex + 2) % 4;
+                let opponent1 = (this.currentTurnIndex + 1) % 4;
+                let opponent2 = (this.currentTurnIndex + 3) % 4;
+
                 let trumpsPlayed = this.pastTricks.filter(c => c.suit.s === this.atoutSuit.s).length;
                 let myTrumps = this.hands[this.currentTurnIndex].filter(c => c.suit.s === this.atoutSuit.s).length;
                 let trumpsLeftInGame = 8 - trumpsPlayed - myTrumps; 
                 
+                // Si l'équipe adverse n'a plus d'atouts, jouer ses As tranquilles
+                if (this.voids[opponent1][this.atoutSuit.s] && this.voids[opponent2][this.atoutSuit.s]) {
+                    let masterNonTrumps = nonTrumps.filter(c => isMaster(c));
+                    if (masterNonTrumps.length > 0) return sortByValDesc(masterNonTrumps)[0]; 
+                }
+
+                // Faire tomber les atouts
                 if (iAmTakerTeam && trumpsLeftInGame > 0 && trumps.length > 0) { 
                     let masterTrumps = trumps.filter(c => isMaster(c));
                     if (masterTrumps.length > 0) return sortByValDesc(masterTrumps)[0]; 
                 }
                 
                 let masterNonTrumps = nonTrumps.filter(c => isMaster(c));
-                if (masterNonTrumps.length > 0) return sortByValDesc(masterNonTrumps)[0]; 
+                if (masterNonTrumps.length > 0) {
+                    // Éviter de jouer une couleur si mon partenaire ne l'a pas et qu'il ne peut pas couper
+                    let safeMasters = masterNonTrumps.filter(c => !this.voids[partnerIndex][c.suit.s] || this.hands[this.currentTurnIndex].some(t => isAtout(t)));
+                    if (safeMasters.length > 0) return sortByValDesc(safeMasters)[0];
+                    return sortByValDesc(masterNonTrumps)[0];
+                }
                 
                 let trash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A');
                 if (trash.length > 0) return sortByValAsc(trash)[0];
@@ -1612,23 +1584,10 @@
         showAnnonce(msg) { 
             const annonceEl = document.getElementById('bl-annonce-msg'); 
             annonceEl.textContent = msg; 
-            
-            annonceEl.style.transition = 'none';
-            annonceEl.style.opacity = '0';
-            annonceEl.style.transform = 'translate(-50%, -50%) scale(0.5)';
+            annonceEl.style.transition = 'none'; annonceEl.style.opacity = '0'; annonceEl.style.transform = 'translate(-50%, -50%) scale(0.5)';
             void annonceEl.offsetWidth; 
-            
-            annonceEl.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-            annonceEl.style.opacity = '1';
-            annonceEl.style.transform = 'translate(-50%, -50%) scale(1.2)';
-            
-            setTimeout(() => {
-                annonceEl.style.transform = 'translate(-50%, -50%) scale(1)';
-                setTimeout(() => {
-                    annonceEl.style.transition = 'all 0.4s ease-in';
-                    annonceEl.style.opacity = '0';
-                }, 1500);
-            }, 400);
+            annonceEl.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; annonceEl.style.opacity = '1'; annonceEl.style.transform = 'translate(-50%, -50%) scale(1.2)';
+            setTimeout(() => { annonceEl.style.transform = 'translate(-50%, -50%) scale(1)'; setTimeout(() => { annonceEl.style.transition = 'all 0.4s ease-in'; annonceEl.style.opacity = '0'; }, 1500); }, 400);
         },
         renderHand() {
             const handContainer = document.getElementById('bl-hand'); handContainer.innerHTML = '';
@@ -1645,6 +1604,12 @@
         },
         playCard(cardIndex, cardElement) {
             this.phase = 'resolving'; let playedCardObj = this.hands[0].splice(cardIndex, 1)[0]; this.renderHand(); this.checkBelote(playedCardObj, 0);
+            
+            // ENREGISTREMENT DES RENONCES SI ON NE JOUE PAS LA COULEUR DEMANDÉE
+            if (this.currentTrick.length > 0 && playedCardObj.suit.s !== this.currentTrick[0].card.suit.s) {
+                this.voids[0][this.currentTrick[0].card.suit.s] = true;
+            }
+
             let visualCard = cardElement.cloneNode(true); visualCard.style.setProperty('--rand', Math.random()); visualCard.className += ' bl-played'; document.getElementById('bl-s-s').appendChild(visualCard);
             this.currentTrick.push({ player: 0, card: playedCardObj }); this.currentTurnIndex = 1; this.syncNetwork();
             if (this.currentTrick.length === 4) { this.resolveTrick(); } else { this.phase = 'playing'; this.processPlay(); }
@@ -1652,6 +1617,12 @@
         botPlay() {
             let validCardsArray = this.getValidCards(this.hands[this.currentTurnIndex]); let playedCardObj = this.chooseBotCard(validCardsArray); 
             this.hands[this.currentTurnIndex] = this.hands[this.currentTurnIndex].filter(c => c !== playedCardObj); this.checkBelote(playedCardObj, this.currentTurnIndex);
+            
+            // ENREGISTREMENT DES RENONCES DES BOTS
+            if (this.currentTrick.length > 0 && playedCardObj.suit.s !== this.currentTrick[0].card.suit.s) {
+                this.voids[this.currentTurnIndex][this.currentTrick[0].card.suit.s] = true;
+            }
+
             const positionsMap = ['s', 'e', 'n', 'w']; let visualCard = document.createElement('div'); visualCard.className = `bl-card bl-played ${playedCardObj.isRed ? 'red' : ''}`; visualCard.innerHTML = `<span>${playedCardObj.rank}</span><span>${playedCardObj.suit.s}</span>`; visualCard.style.setProperty('--rand', Math.random()); document.getElementById('bl-s-' + positionsMap[this.currentTurnIndex]).appendChild(visualCard);
             this.currentTrick.push({ player: this.currentTurnIndex, card: playedCardObj }); this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
             this.renderBotHands(); this.syncNetwork();
@@ -2294,7 +2265,6 @@
             
             let p1Count = 0, p2Count = 0;
             for(let r=0;r<10;r++) for(let c=0;c<10;c++) { if(this.grid[r][c]===1 || this.grid[r][c]===3) p1Count++; if(this.grid[r][c]===2 || this.grid[r][c]===4) p2Count++; }
-            
             if(p1Count === 0 || p2Count === 0) { 
                 this.render(); 
                 if (p2Count === 0) window.UI.showEndScreen('win', 'Victoire !', 'Tu as mangé tous les pions adverses.', () => this.init());
@@ -2303,83 +2273,102 @@
             }
             
             this.player = this.player === 1 ? 2 : 1; this.isBotThinking = (this.player === 2); this.updateStatus(); this.render();
-            if(this.player === 2) setTimeout(() => this.botPlay(), 700);
+            if(this.player === 2) setTimeout(() => this.botPlay(), 100); // Réduit pour le calcul Alpha-Beta
+        },
+        getValidMovesForPlayer(playerNum, gridState) {
+            let a = [], j = [];
+            for(let r=0; r<10; r++) {
+                for(let c=0; c<10; c++) {
+                    let p = gridState[r][c];
+                    if(p === playerNum || p === playerNum + 2) {
+                        let mvs = this.getPieceMoves(r, c, p, gridState);
+                        mvs.forEach(m => { if(m.jump) j.push({from:{r,c}, to:m}); else a.push({from:{r,c}, to:m}); });
+                    }
+                }
+            }
+            return j.length > 0 ? j : a; // Priorité aux sauts
+        },
+        evaluateGrid(gridState) {
+            let score = 0;
+            for(let r=0; r<10; r++) {
+                for(let c=0; c<10; c++) {
+                    let p = gridState[r][c];
+                    if(p===2) { score += 10; score += (r * 1.5); if (c>2 && c<7 && r>3 && r<6) score += 3; if (r===0) score += 8; } 
+                    if(p===4) score += 80; 
+                    if(p===1) { score -= 10; score -= ((9-r) * 1.5); if (c>2 && c<7 && r>3 && r<6) score -= 3; if (r===9) score -= 8; }
+                    if(p===3) score -= 80; 
+                }
+            }
+            return score;
+        },
+        minimax(gridState, depth, alpha, beta, isMaximizing) {
+            if (depth === 0) return this.evaluateGrid(gridState);
+            let pNum = isMaximizing ? 2 : 1;
+            let moves = this.getValidMovesForPlayer(pNum, gridState);
+            if (moves.length === 0) return isMaximizing ? -9999 : 9999;
+
+            if (isMaximizing) {
+                let maxEval = -Infinity;
+                for (let m of moves) {
+                    let newGrid = gridState.map(row => [...row]);
+                    let piece = newGrid[m.from.r][m.from.c];
+                    newGrid[m.from.r][m.from.c] = 0;
+                    if(m.to.jump) newGrid[m.to.jump.r][m.to.jump.c] = 0;
+                    if (piece === 2 && m.to.r === 9) piece = 4;
+                    newGrid[m.to.r][m.to.c] = piece;
+                    
+                    let ev = this.minimax(newGrid, depth - 1, alpha, beta, false);
+                    maxEval = Math.max(maxEval, ev);
+                    alpha = Math.max(alpha, ev);
+                    if (beta <= alpha) break;
+                }
+                return maxEval;
+            } else {
+                let minEval = Infinity;
+                for (let m of moves) {
+                    let newGrid = gridState.map(row => [...row]);
+                    let piece = newGrid[m.from.r][m.from.c];
+                    newGrid[m.from.r][m.from.c] = 0;
+                    if(m.to.jump) newGrid[m.to.jump.r][m.to.jump.c] = 0;
+                    if (piece === 1 && m.to.r === 0) piece = 3;
+                    newGrid[m.to.r][m.to.c] = piece;
+                    
+                    let ev = this.minimax(newGrid, depth - 1, alpha, beta, true);
+                    minEval = Math.min(minEval, ev);
+                    beta = Math.min(beta, ev);
+                    if (beta <= alpha) break;
+                }
+                return minEval;
+            }
         },
         botPlay() {
-            let getValidMovesForPlayer = (playerNum, gridState) => {
-                let a = [], j = [];
-                for(let r=0; r<10; r++) {
-                    for(let c=0; c<10; c++) {
-                        let p = gridState[r][c];
-                        if(p === playerNum || p === playerNum + 2) {
-                            let mvs = this.getPieceMoves(r, c, p, gridState);
-                            mvs.forEach(m => { if(m.jump) j.push({from:{r,c}, to:m}); else a.push({from:{r,c}, to:m}); });
-                        }
-                    }
-                }
-                return j.length > 0 ? j : a;
-            };
-
-            let evaluateGrid = (gridState) => {
-                let score = 0;
-                for(let r=0; r<10; r++) {
-                    for(let c=0; c<10; c++) {
-                        let p = gridState[r][c];
-                        if(p===2) score += 10 + r; 
-                        if(p===4) score += 80; 
-                        if(p===1) score -= (10 + (9-r)); 
-                        if(p===3) score -= 80; 
-                        if((p===2||p===4) && c>=3 && c<=6 && r>=3 && r<=6) score += 5;
-                        if(p===2 && r===0) score += 20; 
-                    }
-                }
-                return score;
-            };
-
-            let botMoves = getValidMovesForPlayer(2, this.grid);
-            if(botMoves.length === 0) { setTimeout(() => window.UI.showModal('Victoire !', 'Le Bot est bloqué, tu as gagné !', () => this.init()), 300); return; }
+            let botMoves = this.getValidMovesForPlayer(2, this.grid);
+            if(botMoves.length === 0) { window.UI.showEndScreen('win', 'Victoire !', 'Le Bot est bloqué, tu as gagné !', () => this.init()); return; }
 
             let bestScore = -Infinity;
             let bestMove = null;
 
+            // Profondeur 3 pour anticiper les pièges
             for(let m of botMoves) {
                 let simGrid = this.grid.map(row => [...row]);
                 let p = simGrid[m.from.r][m.from.c];
                 simGrid[m.from.r][m.from.c] = 0;
                 if(m.to.jump) simGrid[m.to.jump.r][m.to.jump.c] = 0;
-                let isPromo = (p === 2 && m.to.r === 9);
-                simGrid[m.to.r][m.to.c] = isPromo ? 4 : p;
+                if(p === 2 && m.to.r === 9) p = 4;
+                simGrid[m.to.r][m.to.c] = p;
 
-                let humanMoves = getValidMovesForPlayer(1, simGrid);
-                let worstHumanScore = Infinity; 
+                let score = this.minimax(simGrid, 3, -Infinity, Infinity, false);
+                
+                // Bonus immédiat pour un saut
+                if(m.to.jump) score += 5;
 
-                if(humanMoves.length === 0) {
-                    worstHumanScore = 10000;
-                } else {
-                    for(let hm of humanMoves) {
-                        let simGrid2 = simGrid.map(row => [...row]);
-                        let hp = simGrid2[hm.from.r][hm.from.c];
-                        simGrid2[hm.from.r][hm.from.c] = 0;
-                        if(hm.to.jump) simGrid2[hm.to.jump.r][hm.to.jump.c] = 0;
-                        let hPromo = (hp === 1 && hm.to.r === 0);
-                        simGrid2[hm.to.r][hm.to.c] = hPromo ? 3 : hp;
-                        
-                        let ev = evaluateGrid(simGrid2);
-                        if(ev < worstHumanScore) worstHumanScore = ev; 
-                    }
-                }
-
-                if(m.to.jump) worstHumanScore += 5;
-                if(isPromo) worstHumanScore += 10;
-
-                if(worstHumanScore > bestScore) {
-                    bestScore = worstHumanScore;
+                if(score > bestScore) {
+                    bestScore = score;
                     bestMove = m;
-                } else if (worstHumanScore === bestScore && Math.random() < 0.5) {
+                } else if (score === bestScore && Math.random() < 0.5) {
                     bestMove = m;
                 }
             }
-
             this.executeMove(bestMove.from, bestMove.to);
         },
         botContinueJump() {
@@ -2390,7 +2379,7 @@
             }
         },
         updateStatus() {
-            const st = document.getElementById('dames-status'); st.textContent = this.player === 1 ? "Ton tour ! (Tu es Rouge)" : "Le Bot réfléchit..."; st.style.color = this.player === 1 ? 'var(--player-x)' : 'var(--player-o)';
+            const st = document.getElementById('dames-status'); st.textContent = this.player === 1 ? "Ton tour ! (Tu es Rouge)" : "Le Bot calcule 3 coups d'avance..."; st.style.color = this.player === 1 ? 'var(--player-x)' : 'var(--player-o)';
         }
     };
 
