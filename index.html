@@ -1190,34 +1190,65 @@
             let counts = {}; this.dice.forEach(x => counts[x] = (counts[x]||0)+1);
             let vals = Object.keys(counts).map(Number), maxC = Math.max(...Object.values(counts)), uniqueSet = new Set(this.dice);
             
-            if(maxC >= 4) {
+            this.kept.fill(false); // Reset des gardés
+            
+            // 1. Yams ou Carré (On garde la masse)
+            if (maxC >= 4) {
                 let num = vals.find(k => counts[k] === maxC);
-                this.dice.forEach((v, i) => this.kept[i] = (v == num));
-            } else if (maxC === 3) {
-                let num = vals.find(k => counts[k] === maxC);
-                if (uniqueSet.size === 2 && this.scores[1]['Full'] === undefined) this.dice.forEach((v, i) => this.kept[i] = true);
-                else this.dice.forEach((v, i) => this.kept[i] = (v == num));
-            } else if (uniqueSet.size >= 4 && (this.scores[1]['GrandeSuite'] === undefined || this.scores[1]['PetiteSuite'] === undefined)) {
-                 let has2345 = [2,3,4,5].every(n => uniqueSet.has(n)), has3456 = [3,4,5,6].every(n => uniqueSet.has(n)), has1234 = [1,2,3,4].every(n => uniqueSet.has(n));
-                 if (has2345 || has3456 || has1234) {
-                     let target = has3456 ? [3,4,5,6] : (has2345 ? [2,3,4,5] : [1,2,3,4]);
-                     let seen = new Set();
-                     this.dice.forEach((v, i) => { if(target.includes(v) && !seen.has(v)) { this.kept[i]=true; seen.add(v); } else this.kept[i]=false; });
-                 } else {
-                     let seen = new Set();
-                     this.dice.forEach((v, i) => { if(!seen.has(v) && v >= 2 && v <= 5) { this.kept[i] = true; seen.add(v); } else this.kept[i] = false; });
-                 }
-            } else if (maxC === 2) {
-                let pairs = vals.filter(k => counts[k] >= 2);
-                let bestPair = Math.max(...pairs);
-                if (bestPair >= 4 && this.scores[1][bestPair.toString()] === undefined) {
-                    this.dice.forEach((v, i) => this.kept[i] = (v == bestPair));
-                } else {
-                    this.dice.forEach((v, i) => this.kept[i] = (v >= 4 && this.scores[1][v.toString()] === undefined));
-                }
-            } else {
-                this.dice.forEach((v, i) => this.kept[i] = (v >= 4 && this.scores[1][v.toString()] === undefined));
+                this.dice.forEach((v, i) => { if (v === num) this.kept[i] = true; });
+                return;
             }
+            
+            // 2. Brelan / Full House
+            if (maxC === 3) {
+                let num3 = vals.find(k => counts[k] === 3);
+                let num2 = vals.find(k => counts[k] === 2);
+                if (num2 && this.scores[1]['Full'] === undefined) {
+                    this.kept.fill(true); // On a un Full et il est libre, on bloque tout
+                } else {
+                    this.dice.forEach((v, i) => { if (v === num3) this.kept[i] = true; });
+                }
+                return;
+            }
+
+            // 3. Suites (Si on a 4 dés qui se suivent et que les cases Suites sont libres)
+            let needSuite = this.scores[1]['GrandeSuite'] === undefined || this.scores[1]['PetiteSuite'] === undefined;
+            if (needSuite) {
+                let s1 = [1,2,3,4].every(n => uniqueSet.has(n)), s2 = [2,3,4,5].every(n => uniqueSet.has(n)), s3 = [3,4,5,6].every(n => uniqueSet.has(n));
+                if (s1 || s2 || s3) {
+                    let target = s3 ? [3,4,5,6] : (s2 ? [2,3,4,5] : [1,2,3,4]);
+                    if (uniqueSet.size === 5 && ([1,2,3,4,5].every(n => uniqueSet.has(n)) || [2,3,4,5,6].every(n => uniqueSet.has(n)))) {
+                        this.kept.fill(true); // C'est une Grande Suite, on garde tout !
+                        return;
+                    }
+                    let seen = new Set();
+                    this.dice.forEach((v, i) => {
+                        if (target.includes(v) && !seen.has(v)) { this.kept[i] = true; seen.add(v); }
+                    });
+                    return;
+                }
+            }
+
+            // 4. Paires & Protection du Bonus (5 et 6)
+            let pairs = vals.filter(k => counts[k] === 2);
+            if (pairs.length > 0) {
+                let bestPair = Math.max(...pairs);
+                if (pairs.length === 2 && this.scores[1]['Full'] === undefined) {
+                    this.dice.forEach((v, i) => { if (pairs.includes(v)) this.kept[i] = true; }); // On garde les 2 paires pour chercher le Full
+                    return;
+                }
+                // Garder la meilleure paire + les 5/6 isolés pour préparer le bonus
+                this.dice.forEach((v, i) => {
+                    if (v === bestPair) this.kept[i] = true;
+                    else if ((v === 5 || v === 6) && this.scores[1][v.toString()] === undefined) this.kept[i] = true;
+                });
+                return;
+            }
+
+            // 5. Tirage pourri : On sauve les meubles en gardant les 5 et les 6
+            this.dice.forEach((v, i) => {
+                if ((v === 5 || v === 6) && this.scores[1][v.toString()] === undefined) this.kept[i] = true;
+            });
             this.ui();
         },
         botChooseCategory() {
@@ -1229,31 +1260,45 @@
             
             for(let cat of cats) {
                 if(this.scores[1][cat] !== undefined) continue;
+                
                 let el = document.getElementById(`y-1-${cat.replace(/\s/g, '')}`);
                 if(el && el.classList.contains('pot')) { 
                     let pts = parseInt(el.textContent), weight = 0;
                     
                     if(pts === 0) {
-                        const sac = {'Yams': -2000, 'Grande Suite': -500, 'Petite Suite': -250, 'Carré': -150, 'Full': -120, 'Brelan': -80, 'Chance': -100, '6': -60, '5': -50, '4': -40, '3': -30, '2': -20, '1': -10};
-                        weight = sac[cat];
+                        // Ordre STRICT de Sacrifice PRO : Le bot sacrifie le 1, 2, ou le Yams impossible AVANT de tuer ses 5 et 6
+                        const sac = {
+                            '1': -10, '2': -20, 'Yams': -30, 'Grande Suite': -40, '3': -50, 
+                            'Petite Suite': -60, 'Carré': -70, 'Full': -80, '4': -90, 
+                            'Brelan': -100, 'Chance': -120, '5': -200, '6': -300
+                        };
+                        weight = sac[cat] || -400;
                     } else {
+                        // SCORING : Priorité à la rentabilité et au Bonus !
                         if(['1','2','3','4','5','6'].includes(cat)) {
-                            let diff = pts - (parseInt(cat) * 3); 
-                            weight = pts + (diff * 5); 
-                            if (sumTop + pts >= 63 && sumTop < 63) weight += 1000;
-                        } else if (cat === 'Chance') { weight = pts >= 22 ? pts : -30; } 
-                        else if (cat === 'Yams') { weight = 2000; } 
-                        else if (cat === 'Grande Suite') { weight = 400; } 
-                        else if (cat === 'Full') { weight = 300; } 
-                        else if (cat === 'Petite Suite') { weight = 200; } 
-                        else if (cat === 'Carré') { weight = 150 + pts; } 
-                        else if (cat === 'Brelan') { weight = 50 + pts; }
+                            let val = parseInt(cat); let count = pts / val;
+                            if (count >= 3) weight = pts * 15; // Un Brelan en partie haute, c'est le Graal
+                            else if (count === 2) weight = pts * 2; 
+                            else weight = pts - 10; // 1 seul dé, c'est risqué
+                            
+                            // L'arme secrète : Si ça débloque le bonus de 63 points, il le prend INSTANTANÉMENT
+                            if (sumTop + pts >= 63 && sumTop < 63) weight += 10000;
+                        } 
+                        else if (cat === 'Yams') { weight = 8000; } 
+                        else if (cat === 'Grande Suite') { weight = 3000; } 
+                        else if (cat === 'Petite Suite') { weight = 1000; } 
+                        else if (cat === 'Full') { weight = 900; } 
+                        else if (cat === 'Carré') { weight = 800 + pts; } 
+                        else if (cat === 'Brelan') { weight = 150 + pts; }
+                        else if (cat === 'Chance') { weight = pts >= 23 ? pts * 10 : -10; } // Garder Chance pour une grosse somme
                     }
                     if(weight > bestScore) { bestScore = weight; chosenCat = cat; }
                 }
             }
+            
+            // Filet de sécurité ultime au cas où
             if(!chosenCat) {
-                let sac = ['1','2','3','Chance','Petite Suite','Carré','Full','4','5','6','Brelan','Grande Suite','Yams'];
+                let sac = ['1','2','Yams','Grande Suite','3','Petite Suite','4','Carré','Full','Chance','Brelan','5','6'];
                 for(let cat of sac) if(this.scores[1][cat] === undefined) { chosenCat = cat; break; }
             }
             if(chosenCat) this.lockCategory(chosenCat, 1);
