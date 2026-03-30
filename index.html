@@ -1245,6 +1245,11 @@
         dice.forEach((v, i) => { if (arr.includes(v) && !seen.has(v)) { kept[i] = true; seen.add(v); } });
     };
 
+    const upperSum = ['1','2','3','4','5','6']
+        .reduce((acc, k) => acc + (this.scores[1][k] || 0), 0);
+    const bonusNeeded = upperSum < 63;
+    const upperAvail = [6, 5, 4, 3, 2, 1].filter(v => availableCats.includes(v.toString()));
+
     // Carré ou Yams
     if (maxCount >= 4) { keepVal(vals.find(k => counts[k] >= 4)); return kept; }
 
@@ -1267,6 +1272,27 @@
     for (let seq of [[1,2,3,4],[2,3,4,5],[3,4,5,6]]) {
         if (hasSeq(seq) && (availableCats.includes('Petite Suite') || availableCats.includes('Grande Suite'))) {
             keepSet(seq); return kept;
+        }
+    }
+
+    // BONUS AWARENESS : si on a besoin du bonus, prioriser les dés de la partie haute
+    if (bonusNeeded && upperAvail.length > 0) {
+        // Chercher la valeur avec le plus de dés ET la case encore disponible
+        const bestUpperVal = upperAvail.reduce((best, v) => {
+            const score = (counts[v] || 0) * v;
+            const bestScore = (counts[best] || 0) * best;
+            return score > bestScore ? v : best;
+        });
+        const bestUpperCount = counts[bestUpperVal] || 0;
+        if (bestUpperCount >= 2) {
+            keepVal(bestUpperVal);
+            // Garder aussi les autres valeurs utiles pour le bonus
+            upperAvail.forEach(v => {
+                if (v !== bestUpperVal && counts[v] >= 2) {
+                    dice.forEach((d, i) => { if (d === v && !kept[i]) kept[i] = true; });
+                }
+            });
+            return kept;
         }
     }
 
@@ -1295,6 +1321,7 @@
 
     const upperSum = ['1','2','3','4','5','6']
         .reduce((acc, k) => acc + (this.scores[1][k] || 0), 0);
+    const bonusAlreadyWon = upperSum >= 63;
 
     let best = 0;
 
@@ -1302,9 +1329,22 @@
         let pts = 0;
 
         if (!isNaN(cat)) {
-            pts = (counts[cat] || 0) * parseInt(cat);
-            // Si ce score décroche le bonus (+35), on l'intègre dans la valeur
-            if (upperSum < 63 && upperSum + pts >= 63) pts += 35;
+            const raw = (counts[cat] || 0) * parseInt(cat);
+            pts = raw;
+
+            if (!bonusAlreadyWon) {
+                const newSum = upperSum + raw;
+                if (newSum >= 63) {
+                    // Franchissement complet du bonus
+                    pts += 35;
+                } else if (raw > 0) {
+                    // Valeur partielle : progression proportionnelle
+                    // Ex : 8pts sur 8 manquants = +18, 4pts sur 16 manquants = +4.5
+                    const remaining = 63 - upperSum;
+                    const progress = raw / remaining;
+                    pts += Math.round(progress * 18);
+                }
+            }
         }
         else if (cat === 'Brelan' && vals.some(x => x >= 3))  { pts = sum; }
         else if (cat === 'Carré'  && vals.some(x => x >= 4))  { pts = sum; }
@@ -1333,6 +1373,21 @@
     const upperRemaining = ['1','2','3','4','5','6'].filter(k => avail(k));
     const bonusDeficit = Math.max(0, 63 - upperSum);
 
+    // Valeur résiduelle moyenne estimée par catégorie encore disponible
+    const residualValues = {
+        '1': 2, '2': 4, '3': 6, '4': 9, '5': 11, '6': 13,
+        'Brelan': 17, 'Carré': 13, 'Full': 10,
+        'Petite Suite': 18, 'Grande Suite': 15, 'Yams': 11, 'Chance': 21
+    };
+
+    // Valeur résiduelle totale des cases restantes (hors celle qu'on évalue)
+    const getTotalResidual = (excludeCat) => {
+        const cats = ['1','2','3','4','5','6','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'];
+        return cats
+            .filter(c => avail(c) && c !== excludeCat)
+            .reduce((sum, c) => sum + (residualValues[c] || 0), 0);
+    };
+
     const cats = ['1','2','3','4','5','6','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'];
     let bestScore = -Infinity, chosenCat = null;
 
@@ -1345,7 +1400,6 @@
         let weight = -9999;
 
         if (pts === 0) {
-            // Ordre de sacrifice : du moins douloureux au plus douloureux
             const sacrifice = {
                 '1': 100, '2': 90,
                 'Yams': 80, 'Grande Suite': 70,
@@ -1361,20 +1415,16 @@
             const val = parseInt(cat);
             const count = pts / val;
 
-            // TRIGGER ABSOLU : ce score complète le bonus → jouer immédiatement
             if (upperSum + pts >= 63 && upperSum < 63) {
                 weight = 500000;
             } else {
-                const deficit = count - 3; // objectif neutre = 3 dés par valeur
+                const deficit = count - 3;
 
-                if (val >= 5)      weight = deficit >= 0 ? 8000 + pts : (pts >= 8 ? 1500 + pts : -500);
+                if (val >= 5)       weight = deficit >= 0 ? 8000 + pts : (pts >= 8 ? 1500 + pts : -500);
                 else if (val === 4) weight = deficit >= 0 ? 5000 + pts : (pts >= 8 ?  800 + pts : -500);
-                else               weight = deficit >= 0 ? 2000 + pts :                           500 + pts;
+                else                weight = deficit >= 0 ? 2000 + pts :                           500 + pts;
 
-                // Bonus de cohérence si au-dessus de la moyenne
                 if (count >= 3) weight += 500;
-
-                // Malus si on est en fin de partie et qu'on rate le bonus
                 if (bonusDeficit > 0 && upperRemaining.length <= 3 && deficit < 0) weight -= 2000;
             }
         } else if (cat === 'Yams')         { weight = 30000; }
@@ -1383,12 +1433,21 @@
         else if (cat === 'Petite Suite')   { weight = 11000; }
         else if (cat === 'Carré')          { weight = pts >= 20 ? 8000 + pts : 200; }
         else if (cat === 'Brelan')         { weight = pts >= 15 ? 6000 + pts : 100; }
-        else if (cat === 'Chance')         { weight = pts >= 25 ? 5000 + pts : -200; }
+        else if (cat === 'Chance')         { weight = pts >= 18 ? 5000 + pts : -100; } // seuil 25→18
+
+        // VALEUR RÉSIDUELLE : ajouter l'espérance des cases restantes
+        // Cela protège les cases rares d'être brûlées inutilement
+        if (weight > 0) {
+            const residualAfter = getTotalResidual(cat);
+            const residualBefore = getTotalResidual('__none__');
+            // Malus si on brûle une case dont la valeur résiduelle est haute
+            const opportunityCost = (residualValues[cat] || 0);
+            weight += residualAfter - (residualBefore - opportunityCost) * 0.3;
+        }
 
         if (weight > bestScore) { bestScore = weight; chosenCat = cat; }
     }
 
-    // Fallback robuste si tout échoue
     if (!chosenCat) {
         const fallback = ['1','2','Yams','Grande Suite','Petite Suite','3','Full','Carré','Brelan','4','Chance','5','6'];
         for (let cat of fallback) if (avail(cat)) { chosenCat = cat; break; }
