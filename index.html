@@ -322,9 +322,9 @@
     <section id="s-belote" class="screen">
         <h1>Belote Officielle (1000 Pts)</h1>
         <div class="bl-scoreboard">
-            <span style="color: var(--accent);">Nous : <span id="bl-score-nous">0</span></span>
-            <span style="color: var(--player-x);">Eux : <span id="bl-score-eux">0</span></span>
-        </div>
+    <span style="color: var(--accent);">🟢 Nous <small style="opacity:0.6; font-size:0.85rem;">(Toi + Nord)</small> : <span id="bl-score-nous">0</span></span>
+    <span style="color: var(--player-x);">🔴 Eux <small style="opacity:0.6; font-size:0.85rem;">(Est + Ouest)</small> : <span id="bl-score-eux">0</span></span>
+</div>
         <div class="bl-info" id="bl-status">Cliquez sur Nouvelle Partie pour commencer.</div>
         <div class="bl-tapis">
             <div id="bl-n-n" class="bl-name">Nord</div>
@@ -340,7 +340,9 @@
             <div id="bl-h-w" class="bl-bot-hand"></div>
             <div id="bl-dealer-token" class="bl-dealer" style="display:none;">D</div>
             <div id="bl-atout-corner"><div id="bl-taker-name"></div><div id="bl-atout-suit"></div></div>
-            <div id="bl-trick-points">Manche : <span id="bl-trick-pts-val">0</span> pts</div>
+            <div id="bl-trick-points">
+    <span id="bl-trick-pts-val">0</span> pts &nbsp;|&nbsp; Plis : <span id="bl-tricks-nous" style="color:var(--accent)">0</span> - <span id="bl-tricks-eux" style="color:var(--player-x)">0</span>
+</div>
             <div id="bl-annonce-msg" class="bl-annonce">BELOTE !</div>
             <div id="bl-center"></div>
             <div id="bl-actions-1" style="position:absolute; top:75%; left:50%; transform:translate(-50%, 0); display:none; gap:10px; z-index:20;">
@@ -1480,6 +1482,43 @@
                 });
             }
         },
+        evaluateBidStrength(hand, trumpSuitChar) {
+    const trumpCards = hand.filter(c => c.suit.s === trumpSuitChar);
+    const sideCards = hand.filter(c => c.suit.s !== trumpSuitChar);
+    let power = 0;
+
+    // Valeur des atouts — le Valet est roi
+    trumpCards.forEach(c => {
+        if      (c.rank === 'V')  power += 5.5;
+        else if (c.rank === '9')  power += 3.5;
+        else if (c.rank === 'A')  power += 2.0;
+        else if (c.rank === '10') power += 1.5;
+        else if (c.rank === 'R')  power += 0.6;
+        else if (c.rank === 'D')  power += 0.3;
+        else                      power += 0.1;
+    });
+
+    // Bonus de longueur en atout
+    if (trumpCards.length >= 4) power += 1.0;
+    if (trumpCards.length >= 5) power += 2.0;
+
+    // Couleurs latérales
+    sideCards.forEach(c => {
+        if      (c.rank === 'A')  power += 1.5;
+        else if (c.rank === '10') power += 0.4;
+        else if (c.rank === 'R')  power += 0.2;
+    });
+
+    // Voids (couleurs absentes) = capacité de couper = très fort
+    ['♠','♣','♥','♦'].forEach(s => {
+        if (s === trumpSuitChar) return;
+        const count = hand.filter(c => c.suit.s === s).length;
+        if (count === 0)      power += 1.8;  // void = excellent
+        else if (count === 1) power += 0.6;  // singleton = bon
+    });
+
+    return power;
+},
         initGame() { 
             this.scores = { nous: 0, eux: 0 }; this.litigePot = 0; this.deck = []; 
             if (this.dealerIndex === -1) this.dealerIndex = Math.floor(Math.random() * 4); 
@@ -1535,20 +1574,22 @@
                 this.updateStatus(`${botName} réfléchit...`); this.syncNetwork();
                 
                 setTimeout(() => {
-                    let suit = this.centerCard.suit.s, rank = this.centerCard.rank, hand = this.hands[this.currentTurnIndex];
-                    let suitCards = hand.filter(c => c.suit.s === suit);
-                    
-                    let power = 0;
-                    if (rank === 'V') power += 5;
-                    if (rank === '9') power += 3;
-                    suitCards.forEach(c => {
-                        if (c.rank === 'V') power += 5; else if (c.rank === '9') power += 3; else if (c.rank === 'A') power += 2; else if (c.rank === '10') power += 1; else power += 0.5;
-                    });
-                    hand.filter(c => c.suit.s !== suit && c.rank === 'A').forEach(() => power += 1.5);
+    // Simuler la main avec la carte retournée incluse (on la prendrait si on bid)
+    const simulatedHand = [...this.hands[this.currentTurnIndex], this.centerCard];
+    const power = this.evaluateBidStrength(simulatedHand, this.centerCard.suit.s);
+    
+    // Ajustement positionnel : parler en dernier = seuil plus bas
+    const passedBefore = (this.currentTurnIndex - this.firstPlayerIndex + 4) % 4;
+    const threshold = 7.5 - (passedBefore * 0.5); // 7.5 → 7.0 → 6.5 → 6.0
 
-                    if (power >= 7.5) { this.showSpeech(this.currentTurnIndex, `Je prends ! (${this.centerCard.suit.s})`); setTimeout(() => { this.take(this.currentTurnIndex, this.centerCard.suit); }, 800); } 
-                    else { this.showSpeech(this.currentTurnIndex, "Passe."); setTimeout(() => { this.passBidding1(); }, 800); }
-                }, 1200);
+    if (power >= threshold) {
+        this.showSpeech(this.currentTurnIndex, `Je prends ! (${this.centerCard.suit.s})`);
+        setTimeout(() => { this.take(this.currentTurnIndex, this.centerCard.suit); }, 800);
+    } else {
+        this.showSpeech(this.currentTurnIndex, "Passe.");
+        setTimeout(() => { this.passBidding1(); }, 800);
+    }
+}, 1200);
             }
         },
         passBidding1() {
@@ -1573,19 +1614,28 @@
                 let botName = this.currentTurnIndex === 1 ? 'Est' : (this.currentTurnIndex === 2 ? 'Nord' : 'Ouest'); this.updateStatus(`${botName} réfléchit (Tour 2)...`); this.syncNetwork();
                 
                 setTimeout(() => {
-                    let hand = this.hands[this.currentTurnIndex], bestSuit = null, bestScore = 0;
-                    availableSuits.forEach(suitObj => {
-                        let power = 0; let suitCards = hand.filter(c => c.suit.s === suitObj.s);
-                        suitCards.forEach(c => {
-                            if (c.rank === 'V') power += 5; else if (c.rank === '9') power += 3; else if (c.rank === 'A') power += 2; else if (c.rank === '10') power += 1; else power += 0.5;
-                        });
-                        hand.filter(c => c.suit.s !== suitObj.s && c.rank === 'A').forEach(() => power += 1.5);
-                        if (power > bestScore) { bestScore = power; bestSuit = suitObj; }
-                    });
-                    
-                    if (bestScore >= 6.5) { this.showSpeech(this.currentTurnIndex, `Je prends ! (${bestSuit.s})`); setTimeout(() => { this.take(this.currentTurnIndex, bestSuit); }, 800); } 
-                    else { this.showSpeech(this.currentTurnIndex, "Passe."); setTimeout(() => { this.passBidding2(); }, 800); }
-                }, 1200);
+    let hand = this.hands[this.currentTurnIndex];
+    let bestSuit = null, bestScore = 0;
+    let rejectedSuit = this.centerCard.suit.s;
+    
+    availableSuits.forEach(suitObj => {
+        // Au tour 2, on choisit sa couleur donc on évalue directement
+        const power = this.evaluateBidStrength(hand, suitObj.s);
+        if (power > bestScore) { bestScore = power; bestSuit = suitObj; }
+    });
+
+    // Seuil tour 2 : plus bas qu'au tour 1, ajusté par position
+    const passedBefore = (this.currentTurnIndex - this.firstPlayerIndex + 4) % 4;
+    const threshold = 6.5 - (passedBefore * 0.4); // 6.5 → 6.1 → 5.7 → 5.3
+
+    if (bestScore >= threshold && bestSuit) {
+        this.showSpeech(this.currentTurnIndex, `Je prends ! (${bestSuit.s})`);
+        setTimeout(() => { this.take(this.currentTurnIndex, bestSuit); }, 800);
+    } else {
+        this.showSpeech(this.currentTurnIndex, "Passe.");
+        setTimeout(() => { this.passBidding2(); }, 800);
+    }
+}, 1200);
             }
         },
         passBidding2() {
@@ -1651,105 +1701,170 @@
             return handArray;
         },
         chooseBotCard(validCardsArray) {
-            let isAtout = c => c.suit.s === this.atoutSuit.s;
-            let trumps = validCardsArray.filter(isAtout);
-            let nonTrumps = validCardsArray.filter(c => !isAtout(c));
-            let sortByValDesc = arr => arr.sort((a,b) => this.getCardValue(b) - this.getCardValue(a));
-            let sortByValAsc = arr => arr.sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
+    const isAtout = c => c.suit.s === this.atoutSuit.s;
+    const trumps = validCardsArray.filter(isAtout);
+    const nonTrumps = validCardsArray.filter(c => !isAtout(c));
+    const sortByValDesc = arr => [...arr].sort((a,b) => this.getCardValue(b) - this.getCardValue(a));
+    const sortByValAsc  = arr => [...arr].sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
 
-            let playedCards = this.pastTricks.concat(this.currentTrick.map(t=>t.card));
-            let isMaster = (card) => {
-                let order = isAtout(card) ? this.ordAtout : this.ordNormal;
-                let myIdx = order.indexOf(card.rank);
-                let higherRanks = order.slice(0, myIdx); 
-                for (let hr of higherRanks) {
-                    let isOut = playedCards.some(c => c.suit.s === card.suit.s && c.rank === hr) || this.hands[this.currentTurnIndex].some(c => c.suit.s === card.suit.s && c.rank === hr);
-                    if (!isOut) return false; 
-                }
-                return true;
-            };
+    const playedCards = this.pastTricks.concat(this.currentTrick.map(t => t.card));
+    const myHand = this.hands[this.currentTurnIndex];
+    const partnerIndex = (this.currentTurnIndex + 2) % 4;
+    const opponent1 = (this.currentTurnIndex + 1) % 4;
+    const opponent2 = (this.currentTurnIndex + 3) % 4;
+    const iAmTakerTeam = (this.takerIndex % 2) === (this.currentTurnIndex % 2);
 
-            // INFERENCE INTELLIGENTE : Si je mène le pli, j'utilise la mémoire des défausses (voids)
-            if (this.currentTrick.length === 0) {
-                let iAmTakerTeam = (this.takerIndex % 2) === (this.currentTurnIndex % 2);
-                let partnerIndex = (this.currentTurnIndex + 2) % 4;
-                let opponent1 = (this.currentTurnIndex + 1) % 4;
-                let opponent2 = (this.currentTurnIndex + 3) % 4;
+    const isMaster = (card) => {
+        const order = isAtout(card) ? this.ordAtout : this.ordNormal;
+        const myIdx = order.indexOf(card.rank);
+        return order.slice(0, myIdx).every(hr =>
+            playedCards.some(c => c.suit.s === card.suit.s && c.rank === hr) ||
+            myHand.some(c => c.suit.s === card.suit.s && c.rank === hr)
+        );
+    };
 
-                let trumpsPlayed = this.pastTricks.filter(c => c.suit.s === this.atoutSuit.s).length;
-                let myTrumps = this.hands[this.currentTurnIndex].filter(c => c.suit.s === this.atoutSuit.s).length;
-                let trumpsLeftInGame = 8 - trumpsPlayed - myTrumps; 
-                
-                // Si l'équipe adverse n'a plus d'atouts, jouer ses As tranquilles
-                if (this.voids[opponent1][this.atoutSuit.s] && this.voids[opponent2][this.atoutSuit.s]) {
-                    let masterNonTrumps = nonTrumps.filter(c => isMaster(c));
-                    if (masterNonTrumps.length > 0) return sortByValDesc(masterNonTrumps)[0]; 
-                }
+    const myTrumps = myHand.filter(isAtout);
+    const trumpsPlayed = playedCards.filter(c => c.suit.s === this.atoutSuit.s).length;
+    const trumpsLeftInOtherHands = 8 - trumpsPlayed - myTrumps.length;
+    const opponentsVoidTrump = this.voids[opponent1][this.atoutSuit.s] && this.voids[opponent2][this.atoutSuit.s];
 
-                // Faire tomber les atouts
-                if (iAmTakerTeam && trumpsLeftInGame > 0 && trumps.length > 0) { 
-                    let masterTrumps = trumps.filter(c => isMaster(c));
-                    if (masterTrumps.length > 0) return sortByValDesc(masterTrumps)[0]; 
-                }
-                
-                let masterNonTrumps = nonTrumps.filter(c => isMaster(c));
-                if (masterNonTrumps.length > 0) {
-                    // Éviter de jouer une couleur si mon partenaire ne l'a pas et qu'il ne peut pas couper
-                    let safeMasters = masterNonTrumps.filter(c => !this.voids[partnerIndex][c.suit.s] || this.hands[this.currentTurnIndex].some(t => isAtout(t)));
-                    if (safeMasters.length > 0) return sortByValDesc(safeMasters)[0];
-                    return sortByValDesc(masterNonTrumps)[0];
-                }
-                
-                let trash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A');
-                if (trash.length > 0) return sortByValAsc(trash)[0];
-                return sortByValAsc(validCardsArray)[0];
+    // =========================================================
+    // CAS 1 : JE MÈNE LE PLI
+    // =========================================================
+    if (this.currentTrick.length === 0) {
+
+        // Adversaires sans atout → jouer As/10 maîtres en sécurité totale
+        if (opponentsVoidTrump) {
+            const safeMasters = nonTrumps.filter(c => isMaster(c));
+            if (safeMasters.length > 0) return sortByValDesc(safeMasters)[0];
+        }
+
+        // Équipe PRENEUR → tirer les atouts
+        if (iAmTakerTeam && myTrumps.length > 0 && trumpsLeftInOtherHands > 0) {
+            const hasJack = myTrumps.some(c => c.rank === 'V');
+            const hasNine = myTrumps.some(c => c.rank === '9');
+            // Tirer si : Valet présent, ou 9 + 1 autre, ou 3 atouts ou plus
+            const shouldPull = hasJack || (hasNine && myTrumps.length >= 2) || myTrumps.length >= 3;
+
+            if (shouldPull) {
+                // Jouer le plus fort atout disponible pour tirer efficacement
+                const masterTrumps = myTrumps.filter(c => isMaster(c));
+                if (masterTrumps.length > 0) return sortByValDesc(masterTrumps)[0];
+                return sortByValDesc(myTrumps)[0]; // Forcer même sans être maître
             }
-            
-            let currentWinnerData = this.getTrickWinner(this.currentTrick); 
-            let partnerIndex = (this.currentTurnIndex + 2) % 4; 
-            let isPartnerWinning = (currentWinnerData && currentWinnerData.player === partnerIndex);
-            
-            if (isPartnerWinning) {
-                let winningCard = currentWinnerData.card;
-                let isLastToPlay = this.currentTrick.length === 3;
-                let isSecure = isLastToPlay || isMaster(winningCard);
+        }
 
-                if (isSecure) {
-                    let points = validCardsArray.filter(c => c.rank === '10' || c.rank === 'A');
-                    if (points.length > 0) return sortByValDesc(points)[0]; 
+        // Équipe DÉFENSE → jouer une couleur maîtresse ou courte pour gêner
+        if (!iAmTakerTeam) {
+            const suits = ['♠','♣','♥','♦'].filter(s => s !== this.atoutSuit.s);
+            let bestLead = null, bestScore = -1;
+            suits.forEach(s => {
+                const suitCards = nonTrumps.filter(c => c.suit.s === s);
+                if (suitCards.length === 0) return;
+                const top = sortByValDesc(suitCards)[0];
+                if (isMaster(top) && this.getCardValue(top) > bestScore) {
+                    bestScore = this.getCardValue(top);
+                    bestLead = top;
                 }
-                
-                let cheapCards = validCardsArray.filter(c => c.rank !== '10' && c.rank !== 'A' && !isAtout(c));
-                if (cheapCards.length > 0) return sortByValAsc(cheapCards)[0];
-                return sortByValAsc(validCardsArray)[0];
-            } 
-            else {
-                let winningCard = currentWinnerData.card; 
-                let winningVal = isAtout(winningCard) ? (8 - this.ordAtout.indexOf(winningCard.rank)) : (8 - this.ordNormal.indexOf(winningCard.rank));
-                
-                let cardsThatBeatWinner = validCardsArray.filter(c => {
-                    if (isAtout(c) && !isAtout(winningCard)) return true;
-                    if (c.suit.s === winningCard.suit.s) { 
-                        let order = isAtout(c) ? this.ordAtout : this.ordNormal; 
-                        return (8 - order.indexOf(c.rank)) > winningVal; 
-                    } return false;
-                });
-                
-                if (cardsThatBeatWinner.length > 0) { 
-                    let pointsInTrick = this.currentTrick.reduce((acc, t) => acc + this.getCardValue(t.card), 0);
-                    if (pointsInTrick >= 10) {
-                        let masterBeater = cardsThatBeatWinner.find(c => isMaster(c));
-                        if (masterBeater) return masterBeater;
-                    }
-                    return sortByValAsc(cardsThatBeatWinner)[0]; 
-                } else { 
-                    let absoluteTrash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A');
-                    if (absoluteTrash.length > 0) return sortByValAsc(absoluteTrash)[0];
-                    if (nonTrumps.length > 0) return sortByValAsc(nonTrumps)[0];
-                    return sortByValAsc(validCardsArray)[0]; 
-                }
-            }
-        },
+            });
+            if (bestLead) return bestLead;
+        }
+
+        // Jouer une carte maîtresse non-atout (en évitant les couleurs vides du partenaire)
+        const masterNonTrumps = nonTrumps.filter(c => isMaster(c));
+        if (masterNonTrumps.length > 0) {
+            const safeMasters = masterNonTrumps.filter(c => !this.voids[partnerIndex][c.suit.s]);
+            return sortByValDesc(safeMasters.length > 0 ? safeMasters : masterNonTrumps)[0];
+        }
+
+        // Fallback : jeter la carte la moins dangereuse
+        const trash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A' && c.rank !== 'R');
+        if (trash.length > 0) return sortByValAsc(trash)[0];
+        return sortByValAsc(validCardsArray)[0];
+    }
+
+    // =========================================================
+    // CAS 2 : JE SUIS SUIVEUR
+    // =========================================================
+    const currentWinnerData = this.getTrickWinner(this.currentTrick);
+    const isPartnerWinning = currentWinnerData && currentWinnerData.player === partnerIndex;
+    const isLastToPlay = this.currentTrick.length === 3;
+    const pointsInTrick = this.currentTrick.reduce((acc, t) => acc + this.getCardValue(t.card), 0);
+
+    // MON PARTENAIRE GAGNE → gérer intelligemment
+    if (isPartnerWinning) {
+        const isSecure = isLastToPlay || isMaster(currentWinnerData.card);
+
+        if (isSecure && pointsInTrick >= 0) {
+            // Pli sécurisé → maximiser les points donnés au partenaire
+            const pointCards = validCardsArray.filter(c => c.rank === '10' || c.rank === 'A');
+            if (pointCards.length > 0) return sortByValDesc(pointCards)[0];
+            // Sinon donner un Roi si possible
+            const kings = validCardsArray.filter(c => c.rank === 'R' && !isAtout(c));
+            if (kings.length > 0) return kings[0];
+        }
+
+        // Pas sécurisé → économiser les points
+        const cheapCards = validCardsArray.filter(c =>
+            this.getCardValue(c) === 0 && !isAtout(c)
+        );
+        if (cheapCards.length > 0) {
+            // Parmi les cartes à 0 point, défausser de la couleur la plus longue
+            return cheapCards.reduce((best, c) => {
+                const cLen = myHand.filter(x => x.suit.s === c.suit.s).length;
+                const bestLen = myHand.filter(x => x.suit.s === best.suit.s).length;
+                return cLen > bestLen ? c : best;
+            });
+        }
+        const cheapNonPoints = validCardsArray.filter(c => c.rank !== '10' && c.rank !== 'A' && !isAtout(c));
+        if (cheapNonPoints.length > 0) return sortByValAsc(cheapNonPoints)[0];
+        return sortByValAsc(validCardsArray)[0];
+    }
+
+    // L'ADVERSAIRE GAGNE → essayer de prendre
+    const winningCard = currentWinnerData.card;
+    const winningVal = isAtout(winningCard)
+        ? (8 - this.ordAtout.indexOf(winningCard.rank))
+        : (8 - this.ordNormal.indexOf(winningCard.rank));
+
+    const cardsThatBeatWinner = validCardsArray.filter(c => {
+        if (isAtout(c) && !isAtout(winningCard)) return true;
+        if (c.suit.s === winningCard.suit.s) {
+            const order = isAtout(c) ? this.ordAtout : this.ordNormal;
+            return (8 - order.indexOf(c.rank)) > winningVal;
+        }
+        return false;
+    });
+
+    if (cardsThatBeatWinner.length > 0) {
+        // Économiser : jouer la carte la plus faible qui suffit à gagner
+        // SAUF si le pli est précieux → jouer plus fort pour sécuriser
+        const trickIsWorthIt = pointsInTrick >= 8 || isLastToPlay;
+
+        if (!trickIsWorthIt && pointsInTrick <= 2 && !isLastToPlay) {
+            // Pli anodin → ne pas se forcer avec un gros atout
+            const cheapWinners = cardsThatBeatWinner.filter(c => this.getCardValue(c) <= 4);
+            if (cheapWinners.length > 0) return sortByValAsc(cheapWinners)[0];
+        }
+        return sortByValAsc(cardsThatBeatWinner)[0]; // minimum pour gagner
+    }
+
+    // IMPOSSIBLE DE GAGNER → meilleure défausse possible
+    // Garder les As, 10 ; jeter les cartes sans valeur de la couleur la plus longue
+    const worthless = validCardsArray.filter(c => this.getCardValue(c) === 0 && !isAtout(c));
+    if (worthless.length > 0) {
+        return worthless.reduce((best, c) => {
+            const cLen = myHand.filter(x => x.suit.s === c.suit.s).length;
+            const bestLen = myHand.filter(x => x.suit.s === best.suit.s).length;
+            return cLen > bestLen ? c : best;
+        });
+    }
+
+    const absoluteTrash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A');
+    if (absoluteTrash.length > 0) return sortByValAsc(absoluteTrash)[0];
+    if (nonTrumps.length > 0) return sortByValAsc(nonTrumps)[0];
+    return sortByValAsc(validCardsArray)[0];
+},
         checkBelote(cardObj, playerIndex) {
             if (cardObj.suit.s === this.atoutSuit.s && (cardObj.rank === 'R' || cardObj.rank === 'D')) {
                 let hand = this.hands[playerIndex];
@@ -1834,7 +1949,11 @@
                 if (this.tricksPlayedCount === 8) { this.endDeal(); } else { this.processPlay(); }
             }, 2500);
         },
-        updateTrickPointsUI() { document.getElementById('bl-trick-pts-val').textContent = this.dealPoints.nous; },
+        updateTrickPointsUI() {
+    document.getElementById('bl-trick-pts-val').textContent = this.dealPoints.nous;
+    document.getElementById('bl-tricks-nous').textContent = this.tricksWon.nous;
+    document.getElementById('bl-tricks-eux').textContent = this.tricksWon.eux;
+},
         updateScoreUI() { document.getElementById('bl-score-nous').textContent = this.scores.nous; document.getElementById('bl-score-eux').textContent = this.scores.eux; },
         endDeal() { 
             document.getElementById('bl-atout-corner').style.display = 'none';
