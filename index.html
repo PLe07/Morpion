@@ -1188,102 +1188,142 @@
     }, 800);
 },
         botDecideKeeps(rollsLeft) {
-    this.kept.fill(false);
-    const s = this.scores[1];
-    const avail = cat => s[cat] === undefined;
+    const availableCats = this.getAvailableCategories(1);
+    this.kept = this.monteCarloKeep(this.dice, rollsLeft, availableCats);
+    this.ui();
+},
+        getAvailableCategories(playerIndex) {
+    const cats = ['1','2','3','4','5','6','Brelan','Carré','Full','Petite Suite','Grande Suite','Yams','Chance'];
+    return cats.filter(cat => this.scores[playerIndex][cat] === undefined);
+},
+        monteCarloKeep(dice, rollsLeft, availableCats, N = 400) {
+    if (availableCats.length === 0) return Array(5).fill(false);
 
+    let bestExpected = -Infinity;
+    let bestKept = Array(5).fill(false);
+
+    for (let mask = 0; mask < 32; mask++) {
+        const kept = Array(5).fill(false);
+        for (let i = 0; i < 5; i++) if (mask & (1 << i)) kept[i] = true;
+
+        let total = 0;
+
+        for (let sim = 0; sim < N; sim++) {
+            // Simuler le prochain lancer sur les dés non gardés
+            let simDice = dice.map((v, i) => kept[i] ? v : Math.floor(Math.random() * 6) + 1);
+
+            if (rollsLeft > 1) {
+                // Simuler un 2ème lancer : keep greedy intermédiaire + re-roll
+                const nextKept = this.greedyKeep(simDice, availableCats);
+                simDice = simDice.map((v, i) => nextKept[i] ? v : Math.floor(Math.random() * 6) + 1);
+            }
+
+            total += this.bestScoreForDice(simDice, availableCats);
+        }
+
+        const expected = total / N;
+        if (expected > bestExpected) {
+            bestExpected = expected;
+            bestKept = kept;
+        }
+    }
+
+    return bestKept;
+},
+        greedyKeep(dice, availableCats) {
     const counts = {};
-    this.dice.forEach(x => counts[x] = (counts[x]||0)+1);
+    dice.forEach(x => counts[x] = (counts[x]||0)+1);
     const vals = Object.keys(counts).map(Number);
     const maxCount = Math.max(...Object.values(counts));
-    const uniqueSet = new Set(this.dice);
+    const uniqueSet = new Set(dice);
+    const hasSeq = arr => arr.every(n => uniqueSet.has(n));
+    const kept = Array(5).fill(false);
 
-    // Helpers
-    const keepVal = (val) => this.dice.forEach((v, i) => { if (v === val) this.kept[i] = true; });
-    const keepSet = (arr) => {
+    const keepVal = v => dice.forEach((d, i) => { if (d === v) kept[i] = true; });
+    const keepSet = arr => {
         const seen = new Set();
-        this.dice.forEach((v, i) => { if (arr.includes(v) && !seen.has(v)) { this.kept[i] = true; seen.add(v); } });
+        dice.forEach((v, i) => { if (arr.includes(v) && !seen.has(v)) { kept[i] = true; seen.add(v); } });
     };
-    const hasSeq = (arr) => arr.every(n => uniqueSet.has(n));
 
-    // === 1. 4 ou 5 identiques → Yams/Carré en vue, toujours garder ===
-    if (maxCount >= 4) {
-        keepVal(vals.find(k => counts[k] >= 4));
-        return;
-    }
+    // Carré ou Yams
+    if (maxCount >= 4) { keepVal(vals.find(k => counts[k] >= 4)); return kept; }
 
-    // === 2. Grande Suite déjà complète (5 dés) ===
-    if (avail('Grande Suite')) {
+    // Grande Suite complète
+    if (availableCats.includes('Grande Suite')) {
         for (let seq of [[1,2,3,4,5],[2,3,4,5,6]]) {
-            if (hasSeq(seq)) { keepSet(seq); return; }
+            if (hasSeq(seq)) { keepSet(seq); return kept; }
         }
     }
 
-    // === 3. Full complet (3 + 2) — uniquement si la case est disponible ===
-    const numWith3 = vals.find(k => counts[k] === 3);
-    const numWith2 = vals.find(k => counts[k] === 2);
-    if (numWith3 && numWith2 && avail('Full')) { this.kept.fill(true); return; }
+    // Full
+    const n3 = vals.find(k => counts[k] === 3);
+    const n2 = vals.find(k => counts[k] === 2);
+    if (n3 && n2 && availableCats.includes('Full')) { kept.fill(true); return kept; }
 
-    // === 4. Brelan (3 identiques) ===
-    if (maxCount === 3) {
-        keepVal(vals.find(k => counts[k] === 3));
-        return;
-    }
+    // Brelan
+    if (maxCount === 3) { keepVal(vals.find(k => counts[k] === 3)); return kept; }
 
-    // === 5. Suite de 4 dés consécutifs ===
-    if (avail('Grande Suite') || avail('Petite Suite')) {
-        for (let seq of [[1,2,3,4],[2,3,4,5],[3,4,5,6]]) {
-            if (hasSeq(seq)) { keepSet(seq); return; }
+    // Suite de 4
+    for (let seq of [[1,2,3,4],[2,3,4,5],[3,4,5,6]]) {
+        if (hasSeq(seq) && (availableCats.includes('Petite Suite') || availableCats.includes('Grande Suite'))) {
+            keepSet(seq); return kept;
         }
     }
 
-    // === 6. Deux paires → Full potentiel ===
-    const pairs = vals.filter(k => counts[k] >= 2);
-    if (pairs.length >= 2 && avail('Full')) {
-        this.dice.forEach((v, i) => { if (pairs.includes(v)) this.kept[i] = true; });
-        return;
+    // Deux paires
+    const pairs = vals.filter(k => counts[k] >= 2).sort((a, b) => b - a);
+    if (pairs.length >= 2 && availableCats.includes('Full')) {
+        dice.forEach((v, i) => { if (pairs.includes(v)) kept[i] = true; });
+        return kept;
     }
 
-    // === 7. Suite de 3 consécutifs (seulement si 2 lancers encore disponibles) ===
-    if (rollsLeft >= 2 && (avail('Grande Suite') || avail('Petite Suite'))) {
-        for (let seq of [[1,2,3],[2,3,4],[3,4,5],[4,5,6]]) {
-            if (hasSeq(seq)) { keepSet(seq); return; }
-        }
-    }
+    // Une paire
+    if (pairs.length >= 1) { keepVal(pairs[0]); return kept; }
 
-    // === 8. Une paire → bonus ou combo ===
-    const sortedPairs = [...pairs].sort((a, b) => b - a);
-    if (sortedPairs.length >= 1) {
-        // Paire utile pour une case numérique encore disponible
-        const bestBonusPair = sortedPairs.find(p => avail(p.toString()));
-        if (bestBonusPair) {
-            keepVal(bestBonusPair);
-            // Bonus : garder aussi les hauts dés dont la case est libre
-            this.dice.forEach((v, i) => { if (!this.kept[i] && avail(v.toString()) && v >= 5) this.kept[i] = true; });
-            return;
-        }
-        // Paire pour tenter Brelan/Carré/Yams
-        if (avail('Brelan') || avail('Carré') || avail('Yams')) {
-            keepVal(sortedPairs[0]);
-            return;
-        }
-    }
-
-    // === 9. Optimisation bonus : garder la valeur avec le meilleur rendement ===
-    const numCats = [6,5,4,3,2,1].filter(v => avail(v.toString()) && counts[v]);
-    if (numCats.length > 0) {
-        const bestVal = numCats.reduce((best, v) => (counts[v]*v > counts[best]*best ? v : best));
-        keepVal(bestVal);
-        return;
-    }
-
-    // === Fallback : garder le dé le plus haut ===
-    const maxVal = Math.max(...this.dice);
-    this.dice.forEach((v, i) => { if (v === maxVal) this.kept[i] = true; });
-
-    
-    this.ui(); // ← ligne manquante à rajouter ici
+    // Fallback : meilleur dé
+    const maxVal = Math.max(...dice);
+    dice.forEach((v, i) => { if (v === maxVal) kept[i] = true; });
+    return kept;
 },
+        bestScoreForDice(dice, availableCats) {
+    const counts = {};
+    dice.forEach(x => counts[x] = (counts[x]||0)+1);
+    const vals = Object.values(counts);
+    const uniqueSet = new Set(dice);
+    const sum = dice.reduce((a, b) => a + b, 0);
+    const hasSeq = arr => arr.every(n => uniqueSet.has(n));
+
+    const upperSum = ['1','2','3','4','5','6']
+        .reduce((acc, k) => acc + (this.scores[1][k] || 0), 0);
+
+    let best = 0;
+
+    for (let cat of availableCats) {
+        let pts = 0;
+
+        if (!isNaN(cat)) {
+            pts = (counts[cat] || 0) * parseInt(cat);
+            // Si ce score décroche le bonus (+35), on l'intègre dans la valeur
+            if (upperSum < 63 && upperSum + pts >= 63) pts += 35;
+        }
+        else if (cat === 'Brelan' && vals.some(x => x >= 3))  { pts = sum; }
+        else if (cat === 'Carré'  && vals.some(x => x >= 4))  { pts = sum; }
+        else if (cat === 'Full'   && vals.includes(3) && vals.includes(2)) { pts = 25; }
+        else if (cat === 'Petite Suite') {
+            if ([[1,2,3,4],[2,3,4,5],[3,4,5,6]].some(s => hasSeq(s))) pts = 30;
+        }
+        else if (cat === 'Grande Suite') {
+            if ([[1,2,3,4,5],[2,3,4,5,6]].some(s => hasSeq(s))) pts = 40;
+        }
+        else if (cat === 'Yams'   && vals.includes(5)) { pts = 50; }
+        else if (cat === 'Chance')                     { pts = sum; }
+
+        if (pts > best) best = pts;
+    }
+
+    return best;
+},
+        
         botChooseCategory() {
     this.calculatePotentials();
     const s = this.scores[1];
