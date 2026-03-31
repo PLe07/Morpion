@@ -1484,37 +1484,50 @@
         },
         evaluateBidStrength(hand, trumpSuitChar) {
     const trumpCards = hand.filter(c => c.suit.s === trumpSuitChar);
-    const sideCards = hand.filter(c => c.suit.s !== trumpSuitChar);
+    const sideCards  = hand.filter(c => c.suit.s !== trumpSuitChar);
+
+    const hasJack  = trumpCards.some(c => c.rank === 'V');
+    const hasNine  = trumpCards.some(c => c.rank === '9');
+    const hasAceT  = trumpCards.some(c => c.rank === 'A');
+
     let power = 0;
 
-    // Valeur des atouts — le Valet est roi
+    // ── Valeur des atouts ──────────────────────────────────────────────────
     trumpCards.forEach(c => {
-        if      (c.rank === 'V')  power += 5.5;
-        else if (c.rank === '9')  power += 3.5;
-        else if (c.rank === 'A')  power += 2.0;
+        if      (c.rank === 'V')  power += 6.0;   // Maître absolu
+        else if (c.rank === '9')  power += hasJack ? 4.0 : 1.5; // 9 seul sans V = danger
+        else if (c.rank === 'A')  power += 2.5;
         else if (c.rank === '10') power += 1.5;
-        else if (c.rank === 'R')  power += 0.6;
-        else if (c.rank === 'D')  power += 0.3;
+        else if (c.rank === 'R')  power += 0.7;
+        else if (c.rank === 'D')  power += 0.4;
         else                      power += 0.1;
     });
 
-    // Bonus de longueur en atout
-    if (trumpCards.length >= 4) power += 1.0;
-    if (trumpCards.length >= 5) power += 2.0;
+    // ── Bonus de longueur (tenir les atouts adverses) ─────────────────────
+    if (trumpCards.length >= 3) power += 0.8;
+    if (trumpCards.length >= 4) power += 1.5;
+    if (trumpCards.length >= 5) power += 3.0;
 
-    // Couleurs latérales
+    // ── FACTEUR DE RISQUE : sans Valet, on est très vulnérable ───────────
+    // Le 9 seul sans V peut se faire passer dessus => malus sévère
+    if (!hasJack) {
+        power -= 2.5;
+        if (hasNine && !hasAceT) power -= 1.0; // 9 isolé = quasi-piège
+    }
+
+    // ── Couleurs latérales (As, 10, Roi) ──────────────────────────────────
     sideCards.forEach(c => {
-        if      (c.rank === 'A')  power += 1.5;
-        else if (c.rank === '10') power += 0.4;
-        else if (c.rank === 'R')  power += 0.2;
+        if      (c.rank === 'A')  power += 1.8;
+        else if (c.rank === '10') power += 0.5;
+        else if (c.rank === 'R')  power += 0.3;
     });
 
-    // Voids (couleurs absentes) = capacité de couper = très fort
+    // ── Voids et singletons (couper = valeur énorme) ──────────────────────
     ['♠','♣','♥','♦'].forEach(s => {
         if (s === trumpSuitChar) return;
-        const count = hand.filter(c => c.suit.s === s).length;
-        if (count === 0)      power += 1.8;  // void = excellent
-        else if (count === 1) power += 0.6;  // singleton = bon
+        const n = hand.filter(c => c.suit.s === s).length;
+        if      (n === 0) power += 2.0;   // Void : on coupe tout
+        else if (n === 1) power += 0.8;   // Singleton : probable coupe au 2e tour
     });
 
     return power;
@@ -1701,19 +1714,26 @@
             return handArray;
         },
         chooseBotCard(validCardsArray) {
-    const isAtout = c => c.suit.s === this.atoutSuit.s;
-    const trumps = validCardsArray.filter(isAtout);
-    const nonTrumps = validCardsArray.filter(c => !isAtout(c));
-    const sortByValDesc = arr => [...arr].sort((a,b) => this.getCardValue(b) - this.getCardValue(a));
-    const sortByValAsc  = arr => [...arr].sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
+    const isAtout      = c => c.suit.s === this.atoutSuit.s;
+    const trumps       = validCardsArray.filter(isAtout);
+    const nonTrumps    = validCardsArray.filter(c => !isAtout(c));
+    const sortDesc     = arr => [...arr].sort((a,b) => this.getCardValue(b) - this.getCardValue(a));
+    const sortAsc      = arr => [...arr].sort((a,b) => this.getCardValue(a) - this.getCardValue(b));
 
-    const playedCards = this.pastTricks.concat(this.currentTrick.map(t => t.card));
-    const myHand = this.hands[this.currentTurnIndex];
-    const partnerIndex = (this.currentTurnIndex + 2) % 4;
-    const opponent1 = (this.currentTurnIndex + 1) % 4;
-    const opponent2 = (this.currentTurnIndex + 3) % 4;
-    const iAmTakerTeam = (this.takerIndex % 2) === (this.currentTurnIndex % 2);
+    const me           = this.currentTurnIndex;
+    const partner      = (me + 2) % 4;
+    const opp1         = (me + 1) % 4;
+    const opp2         = (me + 3) % 4;
+    const iAmTaker     = (this.takerIndex % 2) === (me % 2);
+    const myHand       = this.hands[me];
+    const playedCards  = this.pastTricks.concat(this.currentTrick.map(t => t.card));
 
+    // ── Helpers ─────────────────────────────────────────────────────────────
+    const cardValue    = c => this.getCardValue(c);
+    const atoutOrder   = c => 8 - this.ordAtout.indexOf(c.rank);
+    const normalOrder  = c => 8 - this.ordNormal.indexOf(c.rank);
+
+    // Vérifie si une carte est maîtresse (plus haute restante dans sa couleur)
     const isMaster = (card) => {
         const order = isAtout(card) ? this.ordAtout : this.ordNormal;
         const myIdx = order.indexOf(card.rank);
@@ -1723,147 +1743,199 @@
         );
     };
 
-    const myTrumps = myHand.filter(isAtout);
-    const trumpsPlayed = playedCards.filter(c => c.suit.s === this.atoutSuit.s).length;
-    const trumpsLeftInOtherHands = 8 - trumpsPlayed - myTrumps.length;
-    const opponentsVoidTrump = this.voids[opponent1][this.atoutSuit.s] && this.voids[opponent2][this.atoutSuit.s];
+    // Le Valet d'atout est-il encore en jeu (pas tombé, pas dans ma main) ?
+    const jackFallen   = playedCards.some(c => isAtout(c) && c.rank === 'V');
+    const iHaveJack    = myHand.some(c => isAtout(c) && c.rank === 'V');
+    const jackInGame   = !jackFallen && !iHaveJack; // Jack encore dans une main adverse
 
-    // =========================================================
-    // CAS 1 : JE MÈNE LE PLI
-    // =========================================================
+    // Compter les atouts encore en circulation hors ma main
+    const myTrumps     = myHand.filter(isAtout);
+    const trumpsPlayed = playedCards.filter(isAtout).length;
+    const trumpsOut    = 8 - trumpsPlayed - myTrumps.length; // atouts adverses restants
+    const oppVoidTrump = this.voids[opp1][this.atoutSuit.s] && this.voids[opp2][this.atoutSuit.s];
+
+    // As "tombés" : mémorisation pour la défense
+    const acesFallen   = suit => playedCards.some(c => c.suit.s === suit && c.rank === 'A');
+
+    // ════════════════════════════════════════════════════════════════════════
+    // CAS 1 : J'ENTAME LE PLI (currentTrick vide)
+    // ════════════════════════════════════════════════════════════════════════
     if (this.currentTrick.length === 0) {
 
-        // Adversaires sans atout → jouer As/10 maîtres en sécurité totale
-        if (opponentsVoidTrump) {
+        // ── Sécurité absolue : As maîtres si adversaires vides en atout ────
+        if (oppVoidTrump) {
             const safeMasters = nonTrumps.filter(c => isMaster(c));
-            if (safeMasters.length > 0) return sortByValDesc(safeMasters)[0];
+            if (safeMasters.length > 0) return sortDesc(safeMasters)[0];
         }
 
-        // Équipe PRENEUR → tirer les atouts
-        if (iAmTakerTeam && myTrumps.length > 0 && trumpsLeftInOtherHands > 0) {
-            const hasJack = myTrumps.some(c => c.rank === 'V');
-            const hasNine = myTrumps.some(c => c.rank === '9');
-            // Tirer si : Valet présent, ou 9 + 1 autre, ou 3 atouts ou plus
-            const shouldPull = hasJack || (hasNine && myTrumps.length >= 2) || myTrumps.length >= 3;
+        // ── JE SUIS PRENEUR ────────────────────────────────────────────────
+        if (iAmTaker && myTrumps.length > 0 && trumpsOut > 0) {
 
-            if (shouldPull) {
-                // Jouer le plus fort atout disponible pour tirer efficacement
+            // RÈGLE D'OR : Ne JAMAIS entamer du 9 si le Valet est encore en jeu
+            const safe9 = !jackInGame;
+
+            // Si j'ai le Valet → tirer les atouts agressivement
+            if (iHaveJack) {
                 const masterTrumps = myTrumps.filter(c => isMaster(c));
-                if (masterTrumps.length > 0) return sortByValDesc(masterTrumps)[0];
-                return sortByValDesc(myTrumps)[0]; // Forcer même sans être maître
+                if (masterTrumps.length > 0) return sortDesc(masterTrumps)[0];
+                return sortDesc(myTrumps)[0];
+            }
+
+            // Si j'ai 3+ atouts sans Valet → tirer prudemment (jamais le 9 seul)
+            if (myTrumps.length >= 3) {
+                const safeTrumps = myTrumps.filter(c => {
+                    if (c.rank === '9' && jackInGame) return false; // jamais 9 si V pas tombé
+                    return true;
+                });
+                if (safeTrumps.length > 0) return sortDesc(safeTrumps)[0];
+            }
+
+            // Sinon jouer une carte maîtresse non-atout
+            const masterNT = nonTrumps.filter(c => isMaster(c));
+            if (masterNT.length > 0) {
+                const safe = masterNT.filter(c => !this.voids[partner][c.suit.s]);
+                return sortDesc(safe.length > 0 ? safe : masterNT)[0];
             }
         }
 
-        // Équipe DÉFENSE → jouer une couleur maîtresse ou courte pour gêner
-        if (!iAmTakerTeam) {
-            const suits = ['♠','♣','♥','♦'].filter(s => s !== this.atoutSuit.s);
-            let bestLead = null, bestScore = -1;
-            suits.forEach(s => {
-                const suitCards = nonTrumps.filter(c => c.suit.s === s);
-                if (suitCards.length === 0) return;
-                const top = sortByValDesc(suitCards)[0];
-                if (isMaster(top) && this.getCardValue(top) > bestScore) {
-                    bestScore = this.getCardValue(top);
-                    bestLead = top;
-                }
+        // ── JE SUIS EN DÉFENSE ─────────────────────────────────────────────
+        if (!iAmTaker) {
+            // Entame d'un As "sec" (couleur où j'ai 1 seule carte = l'As)
+            const aceSec = nonTrumps.filter(c => {
+                if (c.rank !== 'A') return false;
+                const count = myHand.filter(x => x.suit.s === c.suit.s).length;
+                return count === 1; // As sec
             });
-            if (bestLead) return bestLead;
+            if (aceSec.length > 0) return aceSec[0];
+
+            // Entame d'un As maître (couleur où l'As n'est pas encore tombé)
+            const aceMaster = nonTrumps.filter(c => c.rank === 'A' && isMaster(c));
+            if (aceMaster.length > 0) return sortDesc(aceMaster)[0];
+
+            // Entame d'une couleur longue et forte (attaque coordonnée)
+            const suitCounts = {};
+            nonTrumps.forEach(c => {
+                if (!suitCounts[c.suit.s]) suitCounts[c.suit.s] = [];
+                suitCounts[c.suit.s].push(c);
+            });
+            let bestLeadSuit = null, bestLeadScore = -1;
+            Object.entries(suitCounts).forEach(([suit, cards]) => {
+                if (acesFallen(suit)) return; // As tombé = couleur morte
+                const topCard = sortDesc(cards)[0];
+                const score = cards.length * 2 + (topCard.rank === 'A' ? 5 : topCard.rank === '10' ? 2 : 0);
+                if (score > bestLeadScore) { bestLeadScore = score; bestLeadSuit = cards; }
+            });
+            if (bestLeadSuit) return sortDesc(bestLeadSuit)[0];
         }
 
-        // Jouer une carte maîtresse non-atout (en évitant les couleurs vides du partenaire)
-        const masterNonTrumps = nonTrumps.filter(c => isMaster(c));
-        if (masterNonTrumps.length > 0) {
-            const safeMasters = masterNonTrumps.filter(c => !this.voids[partnerIndex][c.suit.s]);
-            return sortByValDesc(safeMasters.length > 0 ? safeMasters : masterNonTrumps)[0];
+        // ── Fallback général : carte maîtresse ou petite carte ─────────────
+        const masterNT = nonTrumps.filter(c => isMaster(c));
+        if (masterNT.length > 0) {
+            const safe = masterNT.filter(c => !this.voids[partner][c.suit.s]);
+            return sortDesc(safe.length > 0 ? safe : masterNT)[0];
         }
 
-        // Fallback : jeter la carte la moins dangereuse
+        // Jeter la carte la plus inoffensive
         const trash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A' && c.rank !== 'R');
-        if (trash.length > 0) return sortByValAsc(trash)[0];
-        return sortByValAsc(validCardsArray)[0];
+        if (trash.length > 0) return sortAsc(trash)[0];
+        return sortAsc(validCardsArray)[0];
     }
 
-    // =========================================================
+    // ════════════════════════════════════════════════════════════════════════
     // CAS 2 : JE SUIS SUIVEUR
-    // =========================================================
-    const currentWinnerData = this.getTrickWinner(this.currentTrick);
-    const isPartnerWinning = currentWinnerData && currentWinnerData.player === partnerIndex;
-    const isLastToPlay = this.currentTrick.length === 3;
-    const pointsInTrick = this.currentTrick.reduce((acc, t) => acc + this.getCardValue(t.card), 0);
+    // ════════════════════════════════════════════════════════════════════════
+    const winner      = this.getTrickWinner(this.currentTrick);
+    const partnerWins = winner && winner.player === partner;
+    const isLast      = this.currentTrick.length === 3;
+    const trickPts    = this.currentTrick.reduce((acc, t) => acc + cardValue(t.card), 0);
+    const leadSuit    = this.currentTrick[0].card.suit.s;
 
-    // MON PARTENAIRE GAGNE → gérer intelligemment
-    if (isPartnerWinning) {
-        const isSecure = isLastToPlay || isMaster(currentWinnerData.card);
+    // ── MON PARTENAIRE EST MAÎTRE DU PLI ────────────────────────────────────
+    if (partnerWins) {
+        const partnerCard   = winner.card;
+        const partnerIsSafe = isLast || isMaster(partnerCard);
 
-        if (isSecure && pointsInTrick >= 0) {
-            // Pli sécurisé → maximiser les points donnés au partenaire
-            const pointCards = validCardsArray.filter(c => c.rank === '10' || c.rank === 'A');
-            if (pointCards.length > 0) return sortByValDesc(pointCards)[0];
-            // Sinon donner un Roi si possible
+        if (partnerIsSafe) {
+            // PISSER : charger le pli de points
+            const bigPoints = validCardsArray.filter(c => c.rank === 'A' || c.rank === '10');
+            if (bigPoints.length > 0) return sortDesc(bigPoints)[0];
+            // Sinon Roi
             const kings = validCardsArray.filter(c => c.rank === 'R' && !isAtout(c));
-            if (kings.length > 0) return kings[0];
+            if (kings.length > 0) return sortDesc(kings)[0];
         }
 
-        // Pas sécurisé → économiser les points
-        const cheapCards = validCardsArray.filter(c =>
-            this.getCardValue(c) === 0 && !isAtout(c)
-        );
-        if (cheapCards.length > 0) {
-            // Parmi les cartes à 0 point, défausser de la couleur la plus longue
-            return cheapCards.reduce((best, c) => {
-                const cLen = myHand.filter(x => x.suit.s === c.suit.s).length;
-                const bestLen = myHand.filter(x => x.suit.s === best.suit.s).length;
-                return cLen > bestLen ? c : best;
+        // Pli pas sécurisé → signal / défausse intelligente
+        // Jeter une grande carte d'une couleur pour "appeler" le partenaire
+        const callCard = validCardsArray.filter(c => {
+            if (isAtout(c)) return false;
+            // Grosse carte d'une couleur dont on veut voir l'entame
+            return (c.rank === 'A' || c.rank === '10') && c.suit.s !== leadSuit;
+        });
+        if (callCard.length > 0) return callCard[0]; // Appel couleur
+
+        // Défausse : petite carte d'une couleur inutile
+        const worthless = validCardsArray.filter(c => cardValue(c) === 0 && !isAtout(c));
+        if (worthless.length > 0) {
+            // Choisir la couleur la plus longue à éliminer (signal négatif)
+            return worthless.reduce((best, c) => {
+                const len = myHand.filter(x => x.suit.s === c.suit.s).length;
+                return len > myHand.filter(x => x.suit.s === best.suit.s).length ? c : best;
             });
         }
-        const cheapNonPoints = validCardsArray.filter(c => c.rank !== '10' && c.rank !== 'A' && !isAtout(c));
-        if (cheapNonPoints.length > 0) return sortByValAsc(cheapNonPoints)[0];
-        return sortByValAsc(validCardsArray)[0];
+        return sortAsc(validCardsArray)[0];
     }
 
-    // L'ADVERSAIRE GAGNE → essayer de prendre
-    const winningCard = currentWinnerData.card;
-    const winningVal = isAtout(winningCard)
-        ? (8 - this.ordAtout.indexOf(winningCard.rank))
-        : (8 - this.ordNormal.indexOf(winningCard.rank));
+    // ── L'ADVERSAIRE EST MAÎTRE DU PLI ──────────────────────────────────────
+    const winCard = winner.card;
+    const winVal  = isAtout(winCard) ? atoutOrder(winCard) : normalOrder(winCard);
 
-    const cardsThatBeatWinner = validCardsArray.filter(c => {
-        if (isAtout(c) && !isAtout(winningCard)) return true;
-        if (c.suit.s === winningCard.suit.s) {
-            const order = isAtout(c) ? this.ordAtout : this.ordNormal;
-            return (8 - order.indexOf(c.rank)) > winningVal;
+    const beaters = validCardsArray.filter(c => {
+        if (isAtout(c) && !isAtout(winCard)) return true;  // Couper
+        if (c.suit.s === winCard.suit.s) {
+            const myVal = isAtout(c) ? atoutOrder(c) : normalOrder(c);
+            return myVal > winVal;
         }
         return false;
     });
 
-    if (cardsThatBeatWinner.length > 0) {
-        // Économiser : jouer la carte la plus faible qui suffit à gagner
-        // SAUF si le pli est précieux → jouer plus fort pour sécuriser
-        const trickIsWorthIt = pointsInTrick >= 8 || isLastToPlay;
+    if (beaters.length > 0) {
+        const trickWorthIt = trickPts >= 8 || isLast;
 
-        if (!trickIsWorthIt && pointsInTrick <= 2 && !isLastToPlay) {
-            // Pli anodin → ne pas se forcer avec un gros atout
-            const cheapWinners = cardsThatBeatWinner.filter(c => this.getCardValue(c) <= 4);
-            if (cheapWinners.length > 0) return sortByValAsc(cheapWinners)[0];
+        if (trickWorthIt) {
+            // Pli précieux : jouer la carte MAÎTRE la plus économe
+            const masterBeaters = beaters.filter(c => isMaster(c));
+            if (masterBeaters.length > 0) return sortAsc(masterBeaters)[0];
+            return sortAsc(beaters)[0];
+        } else {
+            // Pli vide : économiser les gros atouts, prendre à moindre coût
+            // RÈGLE : ne pas jouer 9 d'atout si Valet encore en jeu
+            const cheapBeaters = beaters.filter(c => {
+                if (isAtout(c) && c.rank === '9' && jackInGame) return false;
+                return cardValue(c) <= 4;
+            });
+            if (cheapBeaters.length > 0) return sortAsc(cheapBeaters)[0];
+            // Pas le choix : jouer le minimum
+            const safe = beaters.filter(c => !(isAtout(c) && c.rank === '9' && jackInGame));
+            return sortAsc(safe.length > 0 ? safe : beaters)[0];
         }
-        return sortByValAsc(cardsThatBeatWinner)[0]; // minimum pour gagner
     }
 
-    // IMPOSSIBLE DE GAGNER → meilleure défausse possible
-    // Garder les As, 10 ; jeter les cartes sans valeur de la couleur la plus longue
-    const worthless = validCardsArray.filter(c => this.getCardValue(c) === 0 && !isAtout(c));
+    // ── IMPOSSIBLE DE GAGNER → meilleure défausse ─────────────────────────
+    // Signal négatif : jeter petite carte d'une couleur non désirée
+    const worthless = validCardsArray.filter(c => cardValue(c) === 0 && !isAtout(c));
     if (worthless.length > 0) {
+        // Jeter de la couleur la plus longue (signal que je n'ai pas d'intérêt là)
         return worthless.reduce((best, c) => {
-            const cLen = myHand.filter(x => x.suit.s === c.suit.s).length;
-            const bestLen = myHand.filter(x => x.suit.s === best.suit.s).length;
-            return cLen > bestLen ? c : best;
+            const len = myHand.filter(x => x.suit.s === c.suit.s).length;
+            return len > myHand.filter(x => x.suit.s === best.suit.s).length ? c : best;
         });
     }
 
-    const absoluteTrash = nonTrumps.filter(c => c.rank !== '10' && c.rank !== 'A');
-    if (absoluteTrash.length > 0) return sortByValAsc(absoluteTrash)[0];
-    if (nonTrumps.length > 0) return sortByValAsc(nonTrumps)[0];
-    return sortByValAsc(validCardsArray)[0];
+    // Garder les As et 10 jusqu'au dernier moment
+    const safeDiscard = nonTrumps.filter(c => c.rank !== 'A' && c.rank !== '10');
+    if (safeDiscard.length > 0) return sortAsc(safeDiscard)[0];
+    if (nonTrumps.length > 0) return sortAsc(nonTrumps)[0];
+    return sortAsc(validCardsArray)[0];
 },
         checkBelote(cardObj, playerIndex) {
             if (cardObj.suit.s === this.atoutSuit.s && (cardObj.rank === 'R' || cardObj.rank === 'D')) {
