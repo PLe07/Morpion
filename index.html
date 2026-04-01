@@ -1927,7 +1927,7 @@
 
     // Impossible de gagner → Défausse intelligente classique
     return smartDiscard(validCardsArray);
-}
+},
         checkBelote(cardObj, playerIndex) {
             if (cardObj.suit.s === this.atoutSuit.s && (cardObj.rank === 'R' || cardObj.rank === 'D')) {
                 let hand = this.hands[playerIndex];
