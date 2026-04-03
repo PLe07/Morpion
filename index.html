@@ -1459,541 +1459,850 @@
 },
     };
 
+    // ============================================================
+    //  BELOTE (COMPLÈTE ET ULTRA-ROBUSTE)
+    // ============================================================
     window.App.Belote = {
         deck: [], hands: [[], [], [], []], scores: { nous: 0, eux: 0 }, litigePot: 0,
-        dealerIndex: -1, firstPlayerIndex: 0, currentTurnIndex: 0, phase: 'init', 
-        centerCard: null, atoutSuit: null, takerIndex: -1, currentTrick: [], pastTricks: [], 
-        dealPoints: { nous: 0, eux: 0 }, tricksWon: { nous: 0, eux: 0 }, 
-        tricksPlayedCount: 0, beloteAnnouncedBy: null, activeModal: null, lastActionId: 0, guestModalShown: false,
+        dealerIndex: -1, firstPlayerIndex: 0, currentTurnIndex: 0, phase: 'init',
+        centerCard: null, atoutSuit: null, takerIndex: -1, currentTrick: [], pastTricks: [],
+        dealPoints: { nous: 0, eux: 0 }, tricksWon: { nous: 0, eux: 0 },
+        tricksPlayedCount: 0, beloteAnnouncedBy: null, activeModal: null,
         voids: [{ '♠': false, '♣': false, '♥': false, '♦': false }, { '♠': false, '♣': false, '♥': false, '♦': false }, { '♠': false, '♣': false, '♥': false, '♦': false }, { '♠': false, '♣': false, '♥': false, '♦': false }],
         
-        suits: [{s: '♠', color: 'b'}, {s: '♣', color: 'b'}, {s: '♥', color: 'r'}, {s: '♦', color: 'r'}], 
+        suits: [{s: '♠', color: 'b'}, {s: '♣', color: 'b'}, {s: '♥', color: 'r'}, {s: '♦', color: 'r'}],
         ranks: ['7', '8', '9', '10', 'V', 'D', 'R', 'A'],
-        valAtout: { 'V':20, '9':14, 'A':11, '10':10, 'R':4, 'D':3, '8':0, '7':0 }, 
-        valNormal: { 'A':11, '10':10, 'R':4, 'D':3, 'V':2, '9':0, '8':0, '7':0 }, 
-        ordAtout: ['V', '9', 'A', '10', 'R', 'D', '8', '7'], 
+        valAtout: { 'V':20, '9':14, 'A':11, '10':10, 'R':4, 'D':3, '8':0, '7':0 },
+        valNormal: { 'A':11, '10':10, 'R':4, 'D':3, 'V':2, '9':0, '8':0, '7':0 },
+        ordAtout: ['V', '9', 'A', '10', 'R', 'D', '8', '7'],
         ordNormal: ['A', '10', 'R', 'D', 'V', '9', '8', '7'],
 
-        // ── HELPERS EXPERTS ──────────────────────────────────────────────────
-        getAllPlayedCards() { return [...this.pastTricks.map(t => t.card), ...this.currentTrick.map(t => t.card)]; },
-        getCardsLeftInSuit(suitChar) {
-            const played = this.getAllPlayedCards().filter(c => c.suit.s === suitChar).length;
-            const inHand = this.hands[this.currentTurnIndex].filter(c => c.suit.s === suitChar).length;
-            return 8 - played - inHand;
-        },
-        getRemainingPoints() { return 162 - this.getAllPlayedCards().reduce((s, c) => s + this.getCardValue(c), 0); },
-        partnerSignaledSuit() {
-            if (this.pastTricks.length < 4) return null;
-            const me = this.currentTurnIndex, partner = (me + 2) % 4;
-            for (let i = this.pastTricks.length - 4; i >= 0; i -= 4) {
-                const trick = this.pastTricks.slice(i, i + 4);
-                const winner = this.getTrickWinner(trick);
-                const pPlay = trick.find(t => t.player === partner);
-                if (winner && (winner.player === me || winner.player === partner)) {
-                    if (pPlay && (pPlay.card.rank === 'A' || pPlay.card.rank === '10') && pPlay.card.suit.s !== trick[0].card.suit.s) return pPlay.card.suit.s;
-                }
-            }
-            return null;
-        },
-
-        // ── CERVEAU IA (EXPERT) ──────────────────────────────────────────────────
-        chooseBotCard(validCardsArray) {
-            const me = this.currentTurnIndex, partner = (me + 2) % 4, opp1 = (me + 1) % 4, opp2 = (me + 3) % 4;
-            const isA = c => c.suit.s === this.atoutSuit.s;
-            const myHand = this.hands[me], myA = myHand.filter(isA), myNT = myHand.filter(c => !isA(c));
-            const allPlayedCards = this.getAllPlayedCards();
-            const isTakerTeam = (this.takerIndex % 2) === (me % 2);
-
-            const v = c => this.getCardValue(c);
-            const aOrd = c => 8 - this.ordAtout.indexOf(c.rank);
-            const nOrd = c => 8 - this.ordNormal.indexOf(c.rank);
-            const byAsc = arr => [...arr].sort((a, b) => v(a) - v(b));
-            const byDesc = arr => [...arr].sort((a, b) => v(b) - v(a));
-            
-            const isMaster = card => {
-                const ord = isA(card) ? this.ordAtout : this.ordNormal; const idx = ord.indexOf(card.rank);
-                return ord.slice(0, idx).every(r => allPlayedCards.some(c => c.suit.s === card.suit.s && c.rank === r) || myHand.some(c => c.suit.s === card.suit.s && c.rank === r));
-            };
-
-            const valetVivant = !allPlayedCards.some(c => isA(c) && c.rank === 'V') && !myA.some(c => c.rank === 'V');
-            const atoutsRestants = 8 - allPlayedCards.filter(isA).length - myA.length;
-            const onCapot = (this.tricksWon[isTakerTeam ? 'eux' : 'nous'] === 0 && this.tricksPlayedCount > 0); // Simplifié pour le bot
-
-            const smartDiscard = (pool, wantSignal = false, leadSuit = null) => {
-                const nt = pool.filter(c => !isA(c));
-                if (wantSignal && leadSuit) { const signal = nt.filter(c => (c.rank === 'A' || c.rank === '10') && c.suit.s !== leadSuit && !this.voids[partner]?.[c.suit.s]); if (signal.length) return signal[0]; }
-                const zeros = nt.filter(c => v(c) === 0);
-                if (zeros.length) return zeros.reduce((b, c) => myHand.filter(x => x.suit.s === c.suit.s).length > myHand.filter(x => x.suit.s === b.suit.s).length ? c : b);
-                const safe = nt.filter(c => c.rank !== 'A' && c.rank !== '10');
-                if (safe.length) return byAsc(safe)[0];
-                if (nt.length) return byAsc(nt)[0];
-                const weakA = pool.filter(isA).filter(c => c.rank !== 'V' && !(c.rank === '9' && valetVivant));
-                return byAsc(weakA.length ? weakA : pool)[0];
-            };
-
-            if (this.currentTrick.length === 0) {
-                if (onCapot && isTakerTeam) { const masters = validCardsArray.filter(isMaster); if (masters.length) return byDesc(masters)[0]; }
-                const calledSuit = this.partnerSignaledSuit();
-                if (calledSuit) { const toPlay = validCardsArray.filter(c => c.suit.s === calledSuit); if (toPlay.length) return byDesc(toPlay)[0]; }
-                if (this.tricksPlayedCount === 7) return byDesc(validCardsArray)[0];
-                
-                if (isTakerTeam) {
-                    if (myA.some(c => c.rank === 'V') && atoutsRestants > 0) return byDesc(myA.filter(isMaster).length ? myA.filter(isMaster) : myA)[0];
-                    const masters = myNT.filter(isMaster);
-                    if (masters.length) return byDesc(masters.filter(c => !this.voids[partner]?.[c.suit.s]))[0] || byDesc(masters)[0];
-                } else {
-                    if (myA.length >= 3 && atoutsRestants > 1 && !this.voids[partner]?.[this.atoutSuit.s]) return byAsc(myA.filter(c => c.rank !== 'V'))[0];
-                    const asM = myNT.filter(c => c.rank === 'A' && isMaster(c));
-                    if (asM.length) return asM[0];
-                }
-                return smartDiscard(validCardsArray);
-            }
-
-            const winner = this.getTrickWinner(this.currentTrick);
-            const partnerWin = winner?.player === partner;
-            const trickPts = this.currentTrick.reduce((s, t) => s + v(t.card), 0);
-
-            if (partnerWin) {
-                const safe = this.currentTrick.length === 3 || isMaster(winner.card);
-                if (safe) {
-                    const charge = validCardsArray.filter(c => !isA(c) && (c.rank === 'A' || c.rank === '10'));
-                    if (charge.length) return byDesc(charge)[0];
-                }
-                return smartDiscard(validCardsArray.filter(c => !isA(c)).length ? validCardsArray.filter(c => !isA(c)) : validCardsArray, !safe, this.currentTrick[0].card.suit.s);
-            }
-
-            const canBeat = validCardsArray.filter(c => {
-                if (isA(c) && !isA(winner.card)) return true;
-                if (c.suit.s === winner.card.suit.s) { return (isA(c) ? aOrd(c) : nOrd(c)) > (isA(winner.card) ? aOrd(winner.card) : nOrd(winner.card)); }
-                return false;
-            });
-
-            if (canBeat.length && (trickPts > 10 || this.currentTrick.length === 3 || this.tricksPlayedCount === 7)) {
-                if (this.currentTrick.length === 2 && winner.card.rank === 'D' && !isA(winner.card)) {
-                    const king = canBeat.find(c => c.rank === 'R'), ace = canBeat.find(c => c.rank === 'A');
-                    if (king && ace) return king;
-                }
-                const noV = canBeat.filter(c => !(isA(c) && c.rank === 'V'));
-                const finalBeaters = noV.filter(c => !(isA(c) && c.rank === '9' && valetVivant));
-                return byAsc(finalBeaters.length ? finalBeaters : (noV.length ? noV : canBeat))[0];
-            }
-            return smartDiscard(validCardsArray);
-        },
-
-        // ── MÉCANIQUES DE JEU ──────────────────────────────────────────────────
         sortAllHands() {
-            for (let i = 0; i < 4; i++) {
-                this.hands[i].sort((a, b) => {
-                    if (a.suit.s !== b.suit.s) { const so = {'♥': 1, '♠': 2, '♦': 3, '♣': 4}; return so[a.suit.s] - so[b.suit.s]; }
-                    let isAtout = (this.atoutSuit && a.suit.s === this.atoutSuit.s); let order = isAtout ? this.ordAtout : this.ordNormal; return order.indexOf(a.rank) - order.indexOf(b.rank);
+            for(let i=0; i<4; i++) {
+                this.hands[i].sort((a,b) => {
+                    if (a.suit.s !== b.suit.s) { const so={'♥':1,'♠':2,'♦':3,'♣':4}; return so[a.suit.s]-so[b.suit.s]; }
+                    let isAtout = (this.atoutSuit && a.suit.s === this.atoutSuit.s); 
+                    let order = isAtout ? this.ordAtout : this.ordNormal; 
+                    return order.indexOf(a.rank) - order.indexOf(b.rank);
                 });
             }
         },
+
         evaluateBidStrength(hand, trumpSuitChar) {
-            const tC = hand.filter(c => c.suit.s === trumpSuitChar); const sC = hand.filter(c => c.suit.s !== trumpSuitChar);
-            let power = tC.length * 2 + (tC.some(c => c.rank === 'V') ? 5 : 0);
-            sC.forEach(c => { if(c.rank === 'A') power += 2; if(c.rank === '10') power += 1; });
+            const trumpCards = hand.filter(c => c.suit.s === trumpSuitChar);
+            const sideCards = hand.filter(c => c.suit.s !== trumpSuitChar);
+            const hasJack = trumpCards.some(c => c.rank === 'V');
+            const hasNine = trumpCards.some(c => c.rank === '9');
+            const hasAceT = trumpCards.some(c => c.rank === 'A');
+            let power = 0;
+
+            trumpCards.forEach(c => {
+                if (c.rank === 'V') power += 6.0;
+                else if (c.rank === '9') power += hasJack ? 4.0 : 1.5;
+                else if (c.rank === 'A') power += 2.5;
+                else if (c.rank === '10') power += 1.5;
+                else if (c.rank === 'R') power += 0.7;
+                else if (c.rank === 'D') power += 0.4;
+                else power += 0.1;
+            });
+
+            if (trumpCards.length >= 3) power += 0.8;
+            if (trumpCards.length >= 4) power += 1.5;
+            if (trumpCards.length >= 5) power += 3.0;
+
+            if (!hasJack) {
+                power -= 2.5;
+                if (hasNine && !hasAceT) power -= 1.0;
+            }
+
+            sideCards.forEach(c => {
+                if (c.rank === 'A') power += 1.8;
+                else if (c.rank === '10') power += 0.5;
+                else if (c.rank === 'R') power += 0.3;
+            });
+
+            ['♠','♣','♥','♦'].forEach(s => {
+                if (s === trumpSuitChar) return;
+                const n = hand.filter(c => c.suit.s === s).length;
+                if (n === 0) power += 2.0;
+                else if (n === 1) power += 0.8;
+            });
             return power;
         },
-        initGame() { 
-            this.scores = { nous: 0, eux: 0 }; this.litigePot = 0; this.deck = []; 
-            if (this.dealerIndex === -1) this.dealerIndex = Math.floor(Math.random() * 4); 
-            this.updateScoreUI(); this.startDeal(); 
+
+        initGame() {
+            this.scores = { nous: 0, eux: 0 }; this.litigePot = 0; this.deck = [];
+            if(this.dealerIndex === -1) this.dealerIndex = Math.floor(Math.random() * 4);
+            this.updateScoreUI(); this.startDeal();
         },
+
         startDeal() {
-            document.querySelectorAll('.bl-slot').forEach(s => s.innerHTML = ''); document.getElementById('bl-center').innerHTML = ''; document.getElementById('bl-hand').innerHTML = ''; 
-            document.getElementById('bl-actions-1').style.display = 'none'; document.getElementById('bl-actions-2').style.display = 'none'; 
-            document.getElementById('bl-annonce-msg').style.opacity = '0'; document.getElementById('bl-trick-points').style.display = 'none'; document.getElementById('bl-atout-corner').style.display = 'none';
-            this.activeModal = null; // Important for Network guest reset
-            this.guestModalShown = false;
+            document.querySelectorAll('.bl-slot').forEach(s => s.innerHTML = '');
+            document.getElementById('bl-center').innerHTML = '';
+            document.getElementById('bl-hand').innerHTML = '';
+            document.getElementById('bl-actions-1').style.display = 'none';
+            document.getElementById('bl-actions-2').style.display = 'none';
+            document.getElementById('bl-annonce-msg').style.opacity = '0';
+            document.getElementById('bl-trick-points').style.display = 'none';
+            document.getElementById('bl-atout-corner').style.display = 'none';
             
-            this.updatePlayerHighlight(-1); this.dealerIndex = (this.dealerIndex + 1) % 4; this.firstPlayerIndex = (this.dealerIndex + 1) % 4;
-            const positions = [{x: 450, y: 420}, {x: 680, y: 300}, {x: 450, y: 40}, {x: 100, y: 300}];
-            const tk = document.getElementById('bl-dealer-token'); tk.style.display = 'flex'; tk.style.left = positions[this.dealerIndex].x + 'px'; tk.style.top = positions[this.dealerIndex].y + 'px';
+            this.updatePlayerHighlight(-1);
+            this.dealerIndex = (this.dealerIndex + 1) % 4; 
+            this.firstPlayerIndex = (this.dealerIndex + 1) % 4;
+            
+            const positions = [{x:450,y:420},{x:680,y:300},{x:450,y:40},{x:100,y:300}];
+            const token = document.getElementById('bl-dealer-token');
+            token.style.display = 'flex'; token.style.left = positions[this.dealerIndex].x+'px'; token.style.top = positions[this.dealerIndex].y+'px';
             
             if (this.deck.length !== 32) {
-                this.deck = []; this.suits.forEach(s => { this.ranks.forEach(r => { this.deck.push({ suit: s, rank: r, isRed: s.color === 'r' }); }); });
+                this.deck = [];
+                this.suits.forEach(s => { this.ranks.forEach(r => { this.deck.push({ suit: s, rank: r, isRed: s.color === 'r' }); }); });
                 for (let i = this.deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; }
             } else {
-                let cutIdx = Math.floor(Math.random() * 12) + 10; this.deck = [...this.deck.slice(cutIdx), ...this.deck.slice(0, cutIdx)];
+                let cutIdx = Math.floor(Math.random() * 12) + 10;
+                this.deck = [...this.deck.slice(cutIdx), ...this.deck.slice(0, cutIdx)];
             }
             
             this.hands = [[], [], [], []]; this.currentTrick = []; this.pastTricks = [];
-            this.voids = [{ '♠': false, '♣': false, '♥': false, '♦': false }, { '♠': false, '♣': false, '♥': false, '♦': false }, { '♠': false, '♣': false, '♥': false, '♦': false }, { '♠': false, '♣': false, '♥': false, '♦': false }];
-            this.dealPoints = { nous: 0, eux: 0 }; this.tricksWon = { nous: 0, eux: 0 }; this.tricksPlayedCount = 0; 
-            this.atoutSuit = null; this.takerIndex = -1; this.beloteAnnouncedBy = null; this.phase = 'bidding_1';
+            this.voids = [{'♠':false,'♣':false,'♥':false,'♦':false}, {'♠':false,'♣':false,'♥':false,'♦':false}, {'♠':false,'♣':false,'♥':false,'♦':false}, {'♠':false,'♣':false,'♥':false,'♦':false}];
+            this.dealPoints = { nous: 0, eux: 0 }; this.tricksWon = { nous: 0, eux: 0 }; this.tricksPlayedCount = 0;
+            this.atoutSuit = null; this.takerIndex = -1; this.beloteAnnouncedBy = null; this.phase = 'bidding_1'; this.activeModal = null;
             
-            for (let p = 0; p < 4; p++) { let tp = (this.firstPlayerIndex + p) % 4; this.hands[tp].push(...this.deck.splice(0, 3)); this.hands[tp].push(...this.deck.splice(0, 2)); }
-            this.centerCard = this.deck.shift(); this.sortAllHands(); this.showCenterCard(); this.renderHand(); this.renderBotHands(); this.currentTurnIndex = this.firstPlayerIndex; this.processBidding1();
+            for (let p = 0; p < 4; p++) {
+                let tp = (this.firstPlayerIndex + p) % 4;
+                this.hands[tp].push(...this.deck.splice(0, 3));
+                this.hands[tp].push(...this.deck.splice(0, 2));
+            }
+            this.centerCard = this.deck.shift(); 
+            this.sortAllHands(); this.showCenterCard(); this.renderHand(); this.renderBotHands();
+            this.currentTurnIndex = this.firstPlayerIndex; this.processBidding1();
         },
-        showSpeech(playerIndex, textMsg) { 
-            const bubble = document.getElementById(`bl-speech-${playerIndex}`); bubble.textContent = textMsg; bubble.style.opacity = 1; setTimeout(() => { bubble.style.opacity = 0; }, 1200); 
-            if (window.App.Network && window.App.Network.room && window.App.Network.myId === 'X') update(window.App.Network.ref, { 'blState/netSpeech': { p: playerIndex, m: textMsg, ts: Date.now() } });
+
+        showSpeech(playerIndex, textMsg) {
+            const bubble = document.getElementById(`bl-speech-${playerIndex}`);
+            bubble.textContent = textMsg; bubble.style.opacity = 1;
+            setTimeout(() => { bubble.style.opacity = 0; }, 1200);
+            if (window.App.Network && window.App.Network.room && window.App.Network.myId === 'X') {
+                update(window.App.Network.ref, { 'blState/netSpeech': { p: playerIndex, m: textMsg, ts: Date.now() } });
+            }
         },
-        showCenterCard() { 
-            const ca = document.getElementById('bl-center'); const cE = document.createElement('div'); 
-            cE.className = `bl-card ${this.centerCard.isRed ? 'red' : ''}`; cE.innerHTML = `<span>${this.centerCard.rank}</span><span>${this.centerCard.suit.s}</span>`; 
-            ca.innerHTML = ''; ca.appendChild(cE); 
+
+        showCenterCard() {
+            const centerArea = document.getElementById('bl-center');
+            const cardElement = document.createElement('div');
+            cardElement.className = `bl-card ${this.centerCard.isRed ? 'red' : ''}`;
+            cardElement.innerHTML = `<span>${this.centerCard.rank}</span><span>${this.centerCard.suit.s}</span>`;
+            centerArea.innerHTML = ''; centerArea.appendChild(cardElement);
         },
+
         processBidding1() {
             this.updatePlayerHighlight(this.currentTurnIndex);
             if (this.currentTurnIndex === 0) {
-                this.updateStatus("TOUR 1 : Voulez-vous prendre cette couleur ?"); document.getElementById('bl-actions-1').style.display = 'flex';
+                this.updateStatus("TOUR 1 : Voulez-vous prendre cette couleur ?");
+                document.getElementById('bl-actions-1').style.display = 'flex';
                 document.getElementById('btn-prendre-1').onclick = () => { this.showSpeech(0, "Je prends !"); this.take(0, this.centerCard.suit); };
                 document.getElementById('btn-passer-1').onclick = () => { this.showSpeech(0, "Passe."); this.passBidding1(); };
                 this.syncNetwork();
             } else if (this.currentTurnIndex === 2 && window.App.Network.room && window.App.Network.gameType === 'belote') {
                 document.getElementById('bl-actions-1').style.display = 'none'; this.updateStatus("Votre ami réfléchit..."); this.syncNetwork();
             } else {
-                document.getElementById('bl-actions-1').style.display = 'none'; let botName = this.currentTurnIndex === 1 ? 'Est' : (this.currentTurnIndex === 2 ? 'Nord' : 'Ouest');
+                document.getElementById('bl-actions-1').style.display = 'none';
+                let botName = this.currentTurnIndex === 1 ? 'Est' : (this.currentTurnIndex === 2 ? 'Nord' : 'Ouest');
                 this.updateStatus(`${botName} réfléchit...`); this.syncNetwork();
+                
                 setTimeout(() => {
-                    const p = this.evaluateBidStrength([...this.hands[this.currentTurnIndex], this.centerCard], this.centerCard.suit.s);
-                    const t = 7.5 - (((this.currentTurnIndex - this.firstPlayerIndex + 4) % 4) * 0.5);
-                    if (p >= t) { this.showSpeech(this.currentTurnIndex, `Je prends ! (${this.centerCard.suit.s})`); setTimeout(() => { this.take(this.currentTurnIndex, this.centerCard.suit); }, 800); } 
-                    else { this.showSpeech(this.currentTurnIndex, "Passe."); setTimeout(() => { this.passBidding1(); }, 800); }
+                    const simulatedHand = [...this.hands[this.currentTurnIndex], this.centerCard];
+                    const power = this.evaluateBidStrength(simulatedHand, this.centerCard.suit.s);
+                    const passedBefore = (this.currentTurnIndex - this.firstPlayerIndex + 4) % 4;
+                    const threshold = 7.5 - (passedBefore * 0.5);
+                    if (power >= threshold) {
+                        this.showSpeech(this.currentTurnIndex, `Je prends ! (${this.centerCard.suit.s})`);
+                        setTimeout(() => { this.take(this.currentTurnIndex, this.centerCard.suit); }, 800);
+                    } else {
+                        this.showSpeech(this.currentTurnIndex, "Passe.");
+                        setTimeout(() => { this.passBidding1(); }, 800);
+                    }
                 }, 1200);
             }
         },
+
         passBidding1() {
             document.getElementById('bl-actions-1').style.display = 'none'; this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
-            if (this.currentTurnIndex === this.firstPlayerIndex) { this.phase = 'bidding_2'; this.updateStatus("TOUR 2 : Choix d'une autre couleur."); this.syncNetwork(); setTimeout(() => { this.processBidding2(); }, 500); } 
+            if (this.currentTurnIndex === this.firstPlayerIndex) { this.phase = 'bidding_2'; this.updateStatus("TOUR 2 : Choix d'une autre couleur."); this.syncNetwork(); setTimeout(() => { this.processBidding2(); }, 500); }
             else { this.processBidding1(); }
         },
+
         processBidding2() {
-            this.updatePlayerHighlight(this.currentTurnIndex); let aS = this.suits.filter(s => s.s !== this.centerCard.suit.s);
+            this.updatePlayerHighlight(this.currentTurnIndex);
+            let rejectedSuit = this.centerCard.suit.s; let availableSuits = this.suits.filter(s => s.s !== rejectedSuit);
+            
             if (this.currentTurnIndex === 0) {
-                this.updateStatus("TOUR 2 : Choisissez une couleur ou passez."); document.getElementById('bl-actions-2').style.display = 'flex';
-                const sC = document.getElementById('bl-suits-container'); sC.innerHTML = '';
-                aS.forEach(sObj => {
-                    let btn = document.createElement('button'); btn.className = `bl-suit-btn ${sObj.color === 'r' ? 'red' : 'black'}`; btn.textContent = sObj.s;
-                    btn.onclick = () => { this.showSpeech(0, `Je prends ! (${sObj.s})`); document.getElementById('bl-actions-2').style.display = 'none'; this.take(0, sObj); }; sC.appendChild(btn);
+                this.updateStatus("TOUR 2 : Choisissez une couleur ou passez.");
+                document.getElementById('bl-actions-2').style.display = 'flex';
+                const suitsContainer = document.getElementById('bl-suits-container'); suitsContainer.innerHTML = '';
+                availableSuits.forEach(suitObj => {
+                    let btn = document.createElement('button'); btn.className = `bl-suit-btn ${suitObj.color === 'r' ? 'red' : 'black'}`; btn.textContent = suitObj.s;
+                    btn.onclick = () => { this.showSpeech(0, `Je prends ! (${suitObj.s})`); document.getElementById('bl-actions-2').style.display = 'none'; this.take(0, suitObj); }; suitsContainer.appendChild(btn);
                 });
                 document.getElementById('btn-passer-2').onclick = () => { this.showSpeech(0, "Passe."); document.getElementById('bl-actions-2').style.display = 'none'; this.passBidding2(); };
                 this.syncNetwork();
             } else if (this.currentTurnIndex === 2 && window.App.Network.room && window.App.Network.gameType === 'belote') {
                 document.getElementById('bl-actions-2').style.display = 'none'; this.updateStatus("Votre ami réfléchit (Tour 2)..."); this.syncNetwork();
             } else {
-                let bN = this.currentTurnIndex === 1 ? 'Est' : (this.currentTurnIndex === 2 ? 'Nord' : 'Ouest'); this.updateStatus(`${bN} réfléchit (Tour 2)...`); this.syncNetwork();
+                let botName = this.currentTurnIndex === 1 ? 'Est' : (this.currentTurnIndex === 2 ? 'Nord' : 'Ouest'); this.updateStatus(`${botName} réfléchit (Tour 2)...`); this.syncNetwork();
                 setTimeout(() => {
-                    let h = this.hands[this.currentTurnIndex], bS = null, bSc = 0;
-                    aS.forEach(sObj => { const p = this.evaluateBidStrength(h, sObj.s); if (p > bSc) { bSc = p; bS = sObj; } });
-                    const t = 6.5 - (((this.currentTurnIndex - this.firstPlayerIndex + 4) % 4) * 0.4);
-                    if (bSc >= t && bS) { this.showSpeech(this.currentTurnIndex, `Je prends ! (${bS.s})`); setTimeout(() => { this.take(this.currentTurnIndex, bS); }, 800); } 
-                    else { this.showSpeech(this.currentTurnIndex, "Passe."); setTimeout(() => { this.passBidding2(); }, 800); }
+                    let hand = this.hands[this.currentTurnIndex]; let bestSuit = null, bestScore = 0;
+                    availableSuits.forEach(suitObj => {
+                        const power = this.evaluateBidStrength(hand, suitObj.s);
+                        if (power > bestScore) { bestScore = power; bestSuit = suitObj; }
+                    });
+                    const passedBefore = (this.currentTurnIndex - this.firstPlayerIndex + 4) % 4;
+                    const threshold = 6.5 - (passedBefore * 0.4);
+                    if (bestScore >= threshold && bestSuit) {
+                        this.showSpeech(this.currentTurnIndex, `Je prends ! (${bestSuit.s})`);
+                        setTimeout(() => { this.take(this.currentTurnIndex, bestSuit); }, 800);
+                    } else {
+                        this.showSpeech(this.currentTurnIndex, "Passe.");
+                        setTimeout(() => { this.passBidding2(); }, 800);
+                    }
                 }, 1200);
             }
         },
+
         passBidding2() {
             this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
-            if (this.currentTurnIndex === this.firstPlayerIndex) { this.updateStatus("Tout le monde a passé. Redistribution générale !"); this.syncNetwork(); setTimeout(() => { this.startDeal(); }, 1500); } 
-            else { this.processBidding2(); }
+            if (this.currentTurnIndex === this.firstPlayerIndex) {
+                this.updateStatus("Tout le monde a passé. Redistribution !"); this.syncNetwork();
+                setTimeout(() => { this.startDeal(); }, 1500);
+            } else { this.processBidding2(); }
         },
+
         take(playerIdx, selectedSuit) {
             document.getElementById('bl-actions-1').style.display = 'none'; document.getElementById('bl-actions-2').style.display = 'none'; document.getElementById('bl-center').innerHTML = '';
             this.takerIndex = playerIdx; this.atoutSuit = selectedSuit; this.hands[playerIdx].push(this.centerCard);
-            let nD = playerIdx === 0 ? "Vous avez" : (playerIdx === 1 ? "Est a" : (playerIdx === 2 ? "Nord a" : "Ouest a"));
-            this.updateStatus(`${nD} pris à <span style="color:${this.atoutSuit.color === 'r' ? '#f43f5e' : 'white'}; font-size:1.5rem;">${this.atoutSuit.s}</span> !`);
+            let nameDisplay = playerIdx === 0 ? "Vous avez" : (playerIdx === 1 ? "Est a" : (playerIdx === 2 ? "Nord a" : "Ouest a"));
+            this.updateStatus(`${nameDisplay} pris à <span style="color:${this.atoutSuit.color === 'r' ? '#f43f5e' : 'white'};font-size:1.5rem;">${this.atoutSuit.s}</span> !`);
             this.syncNetwork(); setTimeout(() => { this.finishDeal(); }, 1500);
         },
+
         finishDeal() {
-            this.phase = 'playing'; let tN = this.takerIndex === 0 ? "Toi" : (this.takerIndex === 1 ? "Est" : (this.takerIndex === 2 ? "Nord" : "Ouest"));
-            document.getElementById('bl-atout-corner').style.display = 'block'; document.getElementById('bl-taker-name').innerText = `Preneur : ${tN}`; document.getElementById('bl-atout-suit').innerText = this.atoutSuit.s; document.getElementById('bl-atout-suit').style.color = this.atoutSuit.color === 'r' ? '#f43f5e' : 'white';
-            document.getElementById('bl-trick-points').style.display = 'block'; this.updateTrickPointsUI();
-            for (let p = 0; p < 4; p++) { let t = (this.firstPlayerIndex + p) % 4; this.hands[t].push(...this.deck.splice(0, (t === this.takerIndex) ? 2 : 3)); }
+            this.phase = 'playing';
+            let takerName = this.takerIndex === 0 ? "Toi" : (this.takerIndex === 1 ? "Est" : (this.takerIndex === 2 ? "Nord" : "Ouest"));
+            document.getElementById('bl-atout-corner').style.display = 'block';
+            document.getElementById('bl-taker-name').innerText = `Preneur : ${takerName}`;
+            document.getElementById('bl-atout-suit').innerText = this.atoutSuit.s;
+            document.getElementById('bl-atout-suit').style.color = this.atoutSuit.color === 'r' ? '#f43f5e' : 'white';
+            document.getElementById('bl-trick-points').style.display = 'block';
+            this.updateTrickPointsUI();
+            
+            for (let p = 0; p < 4; p++) {
+                let tp = (this.firstPlayerIndex + p) % 4;
+                let n = (tp === this.takerIndex) ? 2 : 3;
+                this.hands[tp].push(...this.deck.splice(0, n));
+            }
             this.sortAllHands(); this.currentTurnIndex = this.firstPlayerIndex; this.processPlay();
         },
+
         updatePlayerHighlight(index) {
             document.querySelectorAll('.bl-name').forEach(el => el.classList.remove('active-turn'));
-            if (index === 0) document.getElementById('bl-n-s').classList.add('active-turn'); if (index === 1) document.getElementById('bl-n-e').classList.add('active-turn'); if (index === 2) document.getElementById('bl-n-n').classList.add('active-turn'); if (index === 3) document.getElementById('bl-n-w').classList.add('active-turn');
+            if (index === 0) document.getElementById('bl-n-s').classList.add('active-turn');
+            if (index === 1) document.getElementById('bl-n-e').classList.add('active-turn');
+            if (index === 2) document.getElementById('bl-n-n').classList.add('active-turn');
+            if (index === 3) document.getElementById('bl-n-w').classList.add('active-turn');
         },
+
         renderBotHands() {
-            const mId = ['none', 'bl-h-e', 'bl-h-n', 'bl-h-w'];
-            for (let i = 1; i <= 3; i++) { 
-                const c = document.getElementById(mId[i]); c.innerHTML = ''; 
-                for (let j = 0; j < this.hands[i].length; j++) { let b = document.createElement('div'); b.className = 'bl-card-back'; c.appendChild(b); } 
+            const mapId = ['none', 'bl-h-e', 'bl-h-n', 'bl-h-w'];
+            for (let i = 1; i <= 3; i++) {
+                const container = document.getElementById(mapId[i]); container.innerHTML = '';
+                let nbCards = this.hands[i].length;
+                for (let c = 0; c < nbCards; c++) {
+                    let back = document.createElement('div'); back.className = 'bl-card-back'; container.appendChild(back);
+                }
             }
         },
+
         processPlay() {
-            if (this.tricksPlayedCount === 8) return; this.updatePlayerHighlight(this.currentTurnIndex); this.renderHand(); this.renderBotHands();
-            if (this.currentTurnIndex === 0) { this.updateStatus("À vous de jouer !"); this.syncNetwork(); } 
-            else if (this.currentTurnIndex === 2 && window.App.Network.room && window.App.Network.gameType === 'belote') { this.updateStatus("Votre ami réfléchit..."); this.syncNetwork(); } 
-            else { let bN = this.currentTurnIndex === 1 ? "Est" : (this.currentTurnIndex === 2 ? "Nord" : "Ouest"); this.updateStatus(`${bN} calcule...`); this.syncNetwork(); setTimeout(() => { this.botPlay(); }, 600); }
+            if (this.tricksPlayedCount === 8) return;
+            this.updatePlayerHighlight(this.currentTurnIndex); this.renderHand(); this.renderBotHands();
+            if (this.currentTurnIndex === 0) { 
+                this.updateStatus("À vous de jouer !"); this.syncNetwork(); 
+            } else if (this.currentTurnIndex === 2 && window.App.Network.room && window.App.Network.gameType === 'belote') { 
+                this.updateStatus("Votre ami réfléchit..."); this.syncNetwork(); 
+            } else { 
+                let botName = this.currentTurnIndex === 1 ? "Est" : (this.currentTurnIndex === 2 ? "Nord" : "Ouest");
+                this.updateStatus(`${botName} calcule...`); this.syncNetwork();
+                setTimeout(() => { this.botPlay(); }, 600);
+            }
         },
+
         getTrickWinner(trickArray) {
             if (trickArray.length === 0) return null;
-            let lS = trickArray[0].card.suit.s, hV = -1, wI = 0, isA = trickArray.some(t => t.card.suit.s === this.atoutSuit.s);
+            let leadSuit = trickArray[0].card.suit.s, highest = -1, winnerIdx = 0;
+            let isAtoutPlayed = trickArray.some(t => t.card.suit.s === this.atoutSuit.s);
             for (let i = 0; i < trickArray.length; i++) {
-                let c = trickArray[i].card, ord = (c.suit.s === this.atoutSuit.s) ? this.ordAtout : this.ordNormal, val = 8 - ord.indexOf(c.rank); 
-                if (isA) { if (c.suit.s === this.atoutSuit.s && val > hV) { hV = val; wI = i; } } 
-                else { if (c.suit.s === lS && val > hV) { hV = val; wI = i; } }
-            } 
-            return trickArray[wI];
+                let card = trickArray[i].card;
+                let ord = (card.suit.s === this.atoutSuit.s) ? this.ordAtout : this.ordNormal;
+                let val = 8 - ord.indexOf(card.rank);
+                if (isAtoutPlayed) {
+                    if (card.suit.s === this.atoutSuit.s && val > highest) { highest = val; winnerIdx = i; }
+                } else {
+                    if (card.suit.s === leadSuit && val > highest) { highest = val; winnerIdx = i; }
+                }
+            }
+            return trickArray[winnerIdx];
         },
+
         getValidCards(handArray) {
             if (this.currentTrick.length === 0) return handArray;
-            let lS = this.currentTrick[0].card.suit.s, cR = handArray.filter(c => c.suit.s === lS), tC = handArray.filter(c => c.suit.s === this.atoutSuit.s), hT = -1;
-            this.currentTrick.forEach(t => { if (t.card.suit.s === this.atoutSuit.s) { let v = 8 - this.ordAtout.indexOf(t.card.rank); if (v > hT) hT = v; } });
+            let leadSuit = this.currentTrick[0].card.suit.s;
+            let cardsOfRequestedSuit = handArray.filter(c => c.suit.s === leadSuit);
+            let trumpCardsInHand = handArray.filter(c => c.suit.s === this.atoutSuit.s);
+            let highestTrumpInTrick = -1;
             
-            if (cR.length > 0) { 
-                if (lS === this.atoutSuit.s) { let h = cR.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > hT); if (h.length > 0) return h; } 
-                return cR; 
+            this.currentTrick.forEach(t => {
+                if (t.card.suit.s === this.atoutSuit.s) {
+                    let val = 8 - this.ordAtout.indexOf(t.card.rank);
+                    if (val > highestTrumpInTrick) highestTrumpInTrick = val;
+                }
+            });
+            
+            if (cardsOfRequestedSuit.length > 0) {
+                if (leadSuit === this.atoutSuit.s) {
+                    let higher = cardsOfRequestedSuit.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpInTrick);
+                    if (higher.length > 0) return higher;
+                }
+                return cardsOfRequestedSuit;
             }
-            let cW = this.getTrickWinner(this.currentTrick), pI = (this.currentTurnIndex + 2) % 4, isP = (cW && cW.player === pI);
-            if (tC.length > 0) { 
-                if (isP) { return handArray; } 
-                else { let h = tC.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > hT); if (h.length > 0) return h; return tC; } 
+            
+            let currentWinner = this.getTrickWinner(this.currentTrick);
+            let partnerIndex = (this.currentTurnIndex + 2) % 4;
+            let isPartnerWinning = (currentWinner && currentWinner.player === partnerIndex);
+            
+            if (trumpCardsInHand.length > 0) {
+                if (isPartnerWinning) return handArray;
+                else {
+                    let higher = trumpCardsInHand.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrumpInTrick);
+                    if (higher.length > 0) return higher;
+                    return trumpCardsInHand;
+                }
             }
             return handArray;
         },
+
+        // ── HELPERS DU CERVEAU GRAND MAÎTRE ─────────────────────────────────────
+        getAllPlayedCards() {
+            return [...this.pastTricks.map(t => t.card), ...this.currentTrick.map(t => t.card)];
+        },
+
+        getCardValue(card) {
+            return card.suit.s === this.atoutSuit.s ? this.valAtout[card.rank] : this.valNormal[card.rank];
+        },
+
+        partnerSignaledSuit() {
+            if (this.pastTricks.length < 4) return null;
+            const me = this.currentTurnIndex, partner = (me + 2) % 4;
+            for (let i = this.pastTricks.length - 4; i >= 0; i -= 4) {
+                const trick = this.pastTricks.slice(i, i + 4);
+                const winner = this.getTrickWinner(trick);
+                const partnerPlay = trick.find(t => t.player === partner);
+                if (winner && (winner.player === me || winner.player === partner)) {
+                    if (partnerPlay && (partnerPlay.card.rank === 'A' || partnerPlay.card.rank === '10') && partnerPlay.card.suit.s !== trick[0].card.suit.s) {
+                        return partnerPlay.card.suit.s;
+                    }
+                }
+            }
+            return null;
+        },
+
+        // ── LE CERVEAU PRO ET SÉCURISÉ (chooseBotCard) ──────────────────────────
+        chooseBotCard(validCardsArray) {
+            if (!validCardsArray || validCardsArray.length === 0) return this.hands[this.currentTurnIndex][0];
+
+            const me = this.currentTurnIndex;
+            const partner = (me + 2) % 4;
+            const opp1 = (me + 1) % 4;
+            const opp2 = (me + 3) % 4;
+            const isA = c => c.suit.s === this.atoutSuit.s;
+            const myHand = this.hands[me];
+            const myA = myHand.filter(isA);
+            const myNT = myHand.filter(c => !isA(c));
+            const allPlayed = this.getAllPlayedCards();
+            const isTakerTeam = (this.takerIndex % 2) === (me % 2);
+            const takerTeamStr = (this.takerIndex % 2 === 0) ? 'nous' : 'eux';
+            const trickN = this.tricksPlayedCount;
+            
+            const v = c => this.getCardValue(c);
+            const aOrd = c => 8 - this.ordAtout.indexOf(c.rank);
+            const nOrd = c => 8 - this.ordNormal.indexOf(c.rank);
+            const byAsc = arr => [...arr].sort((a, b) => v(a) - v(b));
+            const byDesc = arr => [...arr].sort((a, b) => v(b) - v(a));
+
+            const isMaster = (card) => {
+                const ord = isA(card) ? this.ordAtout : this.ordNormal;
+                const idx = ord.indexOf(card.rank);
+                return ord.slice(0, idx).every(r => 
+                    allPlayed.some(p => p.suit.s === card.suit.s && p.rank === r) ||
+                    myHand.some(m => m.suit.s === card.suit.s && m.rank === r)
+                );
+            };
+
+            const trumpsPlayed = allPlayed.filter(isA).length;
+            const trumpsOut = 8 - trumpsPlayed - myA.length;
+            const valetTombé = allPlayed.some(c => isA(c) && c.rank === 'V');
+            const valetEnMain = myA.some(c => c.rank === 'V');
+            const valetVivantAdversaire = !valetTombé && !valetEnMain && !this.voids[partner][this.atoutSuit.s];
+            
+            const pointsRestantsEnJeu = 162 - allPlayed.reduce((acc, c) => acc + this.getCardValue(c), 0);
+            const estEnDanger = isTakerTeam && (this.dealPoints[takerTeamStr] + pointsRestantsEnJeu < 82);
+            const suitCalledByPartner = this.partnerSignaledSuit();
+
+            // SÉCURITÉ ANTI-CRASH SUR LA DÉFAUSSE
+            const smartDiscard = (pool, forceSignal = false, leadSuit = null) => {
+                if (!pool || pool.length === 0) pool = validCardsArray;
+                const nt = pool.filter(c => !isA(c));
+                if (!nt.length) return byAsc(pool)[0] || pool[0]; // Sécurité si on n'a que des atouts
+
+                if (forceSignal && leadSuit) {
+                    const highNT = nt.filter(c => (c.rank === 'A' || c.rank === '10') && c.suit.s !== leadSuit);
+                    const safeAppel = highNT.filter(c => !this.voids[partner][c.suit.s]);
+                    if (safeAppel.length) return safeAppel[0];
+                }
+
+                const suitCounts = {};
+                nt.forEach(c => suitCounts[c.suit.s] = (suitCounts[c.suit.s] || 0) + 1);
+                const bestSuitToVoid = Object.keys(suitCounts).sort((a,b) => suitCounts[b] - suitCounts[a])[0];
+                const zeroVal = nt.filter(c => c.suit.s === bestSuitToVoid && v(c) === 0);
+                if (zeroVal.length) return zeroVal[0];
+
+                const deadSuit = nt.find(c => {
+                    const s = c.suit.s;
+                    return allPlayed.some(p => p.suit.s === s && p.rank === 'A') && allPlayed.some(p => p.suit.s === s && p.rank === '10');
+                });
+                if (deadSuit) return deadSuit;
+
+                return byAsc(nt)[0] || pool[0];
+            };
+
+            // CAS A : J'ENTAME LE PLI
+            if (this.currentTrick.length === 0) {
+                const onCapot = (isTakerTeam && this.tricksWon[takerTeamStr === 'nous' ? 'eux' : 'nous'] === 0);
+                if (onCapot && trickN > 0) {
+                    const absoluteMaster = validCardsArray.find(isMaster);
+                    if (absoluteMaster) return absoluteMaster;
+                }
+
+                if (suitCalledByPartner) {
+                    const cards = validCardsArray.filter(c => c.suit.s === suitCalledByPartner);
+                    if (cards.length) return byDesc(cards.filter(isMaster).length ? cards.filter(isMaster) : cards)[0];
+                }
+
+                if (isTakerTeam) {
+                    if (myA.some(c => c.rank === 'V') && trumpsOut > 0) {
+                        const topA = myA.filter(isMaster);
+                        return byDesc(topA.length ? topA : myA)[0];
+                    }
+                    const asM = myNT.filter(c => c.rank === 'A' && isMaster(c) && !this.voids[partner][c.suit.s]);
+                    if (asM.length) return byDesc(asM)[0];
+                    if (this.takerIndex === partner && myA.length && !this.voids[partner][this.atoutSuit.s]) {
+                        return byAsc(myA.filter(c => c.rank !== 'V' && c.rank !== '9'))[0] || byAsc(myA)[0];
+                    }
+                } 
+                else {
+                    const asSec = myNT.find(c => c.rank === 'A' && myHand.filter(x => x.suit.s === c.suit.s).length === 1);
+                    if (asSec) return asSec;
+                    const suitToForce = Object.keys(this.voids[this.takerIndex] || {}).find(s => s !== this.atoutSuit.s && this.voids[this.takerIndex][s]);
+                    if (suitToForce) {
+                        const forceCard = validCardsArray.find(c => c.suit.s === suitToForce);
+                        if (forceCard) return forceCard;
+                    }
+                    const longest = byDesc(myNT)[0];
+                    if (longest && isMaster(longest)) return longest;
+                }
+
+                if (trickN >= 6) {
+                    const derMaster = validCardsArray.find(isMaster);
+                    if (derMaster) return derMaster;
+                }
+                return smartDiscard(validCardsArray);
+            }
+
+            // CAS B : JE SUIS SUIVEUR
+            const winner = this.getTrickWinner(this.currentTrick);
+            const partnerWins = (winner.player === partner);
+            const trickPts = this.currentTrick.reduce((acc, t) => acc + v(t.card), 0);
+            const leadSuit = this.currentTrick[0].card.suit.s;
+
+            if (partnerWins) {
+                const pCard = winner.card;
+                const isSafe = (this.currentTrick.length === 3) || isMaster(pCard);
+
+                if (isSafe) {
+                    const pisse = validCardsArray.filter(c => !isA(c) && (c.rank === 'A' || c.rank === '10'));
+                    if (pisse.length) return byDesc(pisse)[0];
+                    const kings = validCardsArray.filter(c => c.rank === 'R' && !isA(c));
+                    if (kings.length) return kings[0];
+                } else {
+                    const ntValid = validCardsArray.filter(c => !isA(c));
+                    return smartDiscard(ntValid.length ? ntValid : validCardsArray, true, leadSuit);
+                }
+                return smartDiscard(validCardsArray);
+            }
+
+            const canBeat = validCardsArray.filter(c => {
+                if (isA(c) && !isA(winner.card)) return true;
+                if (c.suit.s === winner.card.suit.s) {
+                    const ord = isA(c) ? this.ordAtout : this.ordNormal;
+                    return ord.indexOf(c.rank) < ord.indexOf(winner.card.rank);
+                }
+                return false;
+            });
+
+            if (canBeat.length) {
+                const worthIt = trickPts >= 10 || estEnDanger || this.currentTrick.length === 3 || trickN >= 6;
+                if (worthIt) {
+                    // L'impasse
+                    if (this.currentTrick.length === 2 && winner.card.rank === 'D' && !isA(winner.card)) {
+                        const k = canBeat.find(c => c.rank === 'R');
+                        const a = canBeat.find(c => c.rank === 'A');
+                        if (k && a) return k;
+                    }
+                    const noV = canBeat.filter(c => !(isA(c) && c.rank === 'V'));
+                    const filter9 = noV.filter(c => !(isA(c) && c.rank === '9' && valetVivantAdversaire));
+                    const source = filter9.length ? filter9 : (noV.length ? noV : canBeat);
+                    const bestMaster = source.filter(isMaster);
+                    return byAsc(bestMaster.length ? bestMaster : source)[0] || canBeat[0];
+                }
+            }
+
+            return smartDiscard(validCardsArray, false, leadSuit);
+        },
+
+        // ── RENDU ET RÉSOLUTION ──────────────────────────────────────────────────
         checkBelote(cardObj, playerIndex) {
             if (cardObj.suit.s === this.atoutSuit.s && (cardObj.rank === 'R' || cardObj.rank === 'D')) {
-                let h = this.hands[playerIndex], oR = (cardObj.rank === 'R') ? 'D' : 'R', tI = (playerIndex === 0 || playerIndex === 2) ? 'nous' : 'eux', has = h.some(c => c.suit.s === this.atoutSuit.s && c.rank === oR);
-                if (this.beloteAnnouncedBy === tI) { this.showAnnonce("REBELOTE ! (+20)"); this.updateStatus(`REBELOTE pour ${tI === 'nous' ? 'Nous' : 'Eux'} !`); } 
-                else if (has) { this.beloteAnnouncedBy = tI; this.showAnnonce("BELOTE !"); this.updateStatus(`BELOTE pour ${tI === 'nous' ? 'Nous' : 'Eux'} !`); }
+                let hand = this.hands[playerIndex];
+                let otherRank = (cardObj.rank === 'R') ? 'D' : 'R';
+                let teamIdentity = (playerIndex === 0 || playerIndex === 2) ? 'nous' : 'eux';
+                let hasOther = hand.some(c => c.suit.s === this.atoutSuit.s && c.rank === otherRank);
+                if (this.beloteAnnouncedBy === teamIdentity) { 
+                    this.showAnnonce("REBELOTE ! (+20)"); this.updateStatus(`REBELOTE pour ${teamIdentity === 'nous' ? 'Nous' : 'Eux'} !`); 
+                }
+                else if (hasOther) { 
+                    this.beloteAnnouncedBy = teamIdentity; this.showAnnonce("BELOTE !"); this.updateStatus(`BELOTE pour ${teamIdentity === 'nous' ? 'Nous' : 'Eux'} !`); 
+                }
             }
         },
-        showAnnonce(msg) { 
-            const aE = document.getElementById('bl-annonce-msg'); aE.textContent = msg; 
-            aE.style.transition = 'none'; aE.style.opacity = '0'; aE.style.transform = 'translate(-50%, -50%) scale(0.5)'; void aE.offsetWidth; 
-            aE.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; aE.style.opacity = '1'; aE.style.transform = 'translate(-50%, -50%) scale(1.2)';
-            setTimeout(() => { aE.style.transform = 'translate(-50%, -50%) scale(1)'; setTimeout(() => { aE.style.transition = 'all 0.4s ease-in'; aE.style.opacity = '0'; }, 1500); }, 400);
+
+        showAnnonce(msg) {
+            const el = document.getElementById('bl-annonce-msg');
+            el.textContent = msg;
+            el.style.transition = 'none'; el.style.opacity = '0'; el.style.transform = 'translate(-50%,-50%) scale(0.5)';
+            void el.offsetWidth;
+            el.style.transition = 'all 0.4s cubic-bezier(0.175,0.885,0.32,1.275)'; el.style.opacity = '1'; el.style.transform = 'translate(-50%,-50%) scale(1.2)';
+            setTimeout(() => { el.style.transform = 'translate(-50%,-50%) scale(1)'; setTimeout(() => { el.style.transition = 'all 0.4s ease-in'; el.style.opacity = '0'; }, 1500); }, 400);
         },
+
         renderHand() {
-            const hC = document.getElementById('bl-hand'); hC.innerHTML = '';
-            let vC = (this.phase === 'playing' && this.currentTurnIndex === 0) ? this.getValidCards(this.hands[0]) : [];
+            const handContainer = document.getElementById('bl-hand'); handContainer.innerHTML = '';
+            let validCardsArray = (this.phase === 'playing' && this.currentTurnIndex === 0) ? this.getValidCards(this.hands[0]) : [];
             this.hands[0].forEach((card, index) => {
-                let cE = document.createElement('div'), isV = vC.includes(card) || this.phase !== 'playing';
-                cE.className = `bl-card ${card.isRed ? 'red' : ''} ${!isV && this.phase === 'playing' ? 'invalid' : ''}`; 
-                cE.innerHTML = `<span>${card.rank}</span><span>${card.suit.s}</span>`;
-                if (isV && this.phase === 'playing' && this.currentTurnIndex === 0) { cE.onclick = () => { if (this.phase === 'playing' && this.currentTurnIndex === 0) this.playCard(index, cE); }; }
-                hC.appendChild(cE);
+                let cardElement = document.createElement('div');
+                let isValid = validCardsArray.includes(card) || this.phase !== 'playing';
+                cardElement.className = `bl-card ${card.isRed ? 'red' : ''} ${!isValid && this.phase === 'playing' ? 'invalid' : ''}`;
+                cardElement.innerHTML = `<span>${card.rank}</span><span>${card.suit.s}</span>`;
+                if (isValid && this.phase === 'playing' && this.currentTurnIndex === 0) { 
+                    cardElement.onclick = () => { if (this.phase === 'playing' && this.currentTurnIndex === 0) this.playCard(index, cardElement); }; 
+                }
+                handContainer.appendChild(cardElement);
             });
         },
+
         playCard(cardIndex, cardElement) {
-            this.phase = 'resolving'; let pC = this.hands[0].splice(cardIndex, 1)[0]; this.renderHand(); this.checkBelote(pC, 0);
-            if (this.currentTrick.length > 0 && pC.suit.s !== this.currentTrick[0].card.suit.s) { this.voids[0][this.currentTrick[0].card.suit.s] = true; }
-            let vC = cardElement.cloneNode(true); vC.style.setProperty('--rand', Math.random()); vC.className += ' bl-played'; document.getElementById('bl-s-s').appendChild(vC);
-            this.currentTrick.push({ player: 0, card: pC }); this.currentTurnIndex = 1; this.syncNetwork();
+            this.phase = 'resolving'; 
+            let playedCard = this.hands[0].splice(cardIndex, 1)[0]; 
+            this.renderHand(); this.checkBelote(playedCard, 0);
+            
+            if (this.currentTrick.length > 0 && playedCard.suit.s !== this.currentTrick[0].card.suit.s) {
+                this.voids[0][this.currentTrick[0].card.suit.s] = true;
+            }
+            
+            let visualCard = cardElement.cloneNode(true); visualCard.style.setProperty('--rand', Math.random()); visualCard.className += ' bl-played'; 
+            document.getElementById('bl-s-s').appendChild(visualCard);
+            this.currentTrick.push({ player: 0, card: playedCard }); this.currentTurnIndex = 1; this.syncNetwork();
+            
             if (this.currentTrick.length === 4) { this.resolveTrick(); } else { this.phase = 'playing'; this.processPlay(); }
         },
+
         botPlay() {
-            let vC = this.getValidCards(this.hands[this.currentTurnIndex]); let pC = this.chooseBotCard(vC); 
-            this.hands[this.currentTurnIndex] = this.hands[this.currentTurnIndex].filter(c => c !== pC); this.checkBelote(pC, this.currentTurnIndex);
-            if (this.currentTrick.length > 0 && pC.suit.s !== this.currentTrick[0].card.suit.s) { this.voids[this.currentTurnIndex][this.currentTrick[0].card.suit.s] = true; }
-            const pM = ['s', 'e', 'n', 'w']; let viC = document.createElement('div'); viC.className = `bl-card bl-played ${pC.isRed ? 'red' : ''}`; viC.innerHTML = `<span>${pC.rank}</span><span>${pC.suit.s}</span>`; viC.style.setProperty('--rand', Math.random()); document.getElementById('bl-s-' + pM[this.currentTurnIndex]).appendChild(viC);
-            this.currentTrick.push({ player: this.currentTurnIndex, card: pC }); this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
+            let validCards = this.getValidCards(this.hands[this.currentTurnIndex]);
+            let playedCard = this.chooseBotCard(validCards);
+            this.hands[this.currentTurnIndex] = this.hands[this.currentTurnIndex].filter(c => c !== playedCard);
+            this.checkBelote(playedCard, this.currentTurnIndex);
+            
+            if (this.currentTrick.length > 0 && playedCard.suit.s !== this.currentTrick[0].card.suit.s) {
+                this.voids[this.currentTurnIndex][this.currentTrick[0].card.suit.s] = true;
+            }
+            
+            const posMap = ['s', 'e', 'n', 'w']; 
+            let visualCard = document.createElement('div');
+            visualCard.className = `bl-card bl-played ${playedCard.isRed ? 'red' : ''}`; 
+            visualCard.innerHTML = `<span>${playedCard.rank}</span><span>${playedCard.suit.s}</span>`; 
+            visualCard.style.setProperty('--rand', Math.random());
+            document.getElementById('bl-s-' + posMap[this.currentTurnIndex]).appendChild(visualCard);
+            
+            this.currentTrick.push({ player: this.currentTurnIndex, card: playedCard }); this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
             this.renderBotHands(); this.syncNetwork();
+            
             if (this.currentTrick.length === 4) { this.resolveTrick(); } else { this.processPlay(); }
         },
+
         resolveTrick() {
             this.phase = 'resolving'; this.updatePlayerHighlight(-1);
-            let wO = this.getTrickWinner(this.currentTrick); let pT = this.currentTrick.reduce((sum, t) => sum + this.getCardValue(t.card), 0); let tW = wO.player; let wT = (tW === 0 || tW === 2) ? 'nous' : 'eux';
+            let winnerObject = this.getTrickWinner(this.currentTrick);
+            let pointsInTrick = this.currentTrick.reduce((sum, t) => sum + this.getCardValue(t.card), 0);
+            let trickWinnerIndex = winnerObject.player;
+            let winningTeam = (trickWinnerIndex === 0 || trickWinnerIndex === 2) ? 'nous' : 'eux';
             
-            // LA CLÉ EXPERTE
+            // ARCHIVAGE INTELLIGENT DU PLI
             this.pastTricks.push(...JSON.parse(JSON.stringify(this.currentTrick)));
-
-            this.tricksPlayedCount++; 
-            if (this.tricksPlayedCount === 8) pT += 10; 
             
-            this.dealPoints[wT] += pT; this.tricksWon[wT] += 1; this.updateTrickPointsUI();
-            let wM = tW === 0 ? "Vous remportez" : (tW === 1 ? "Est remporte" : (tW === 2 ? "Votre ami remporte" : "Ouest remporte"));
-            this.updateStatus(`${wM} le pli ! (+${pT} pts)`); this.syncNetwork();
+            this.tricksPlayedCount++;
+            if (this.tricksPlayedCount === 8) pointsInTrick += 10;
+            this.dealPoints[winningTeam] += pointsInTrick; this.tricksWon[winningTeam] += 1; this.updateTrickPointsUI();
+            
+            let winName = trickWinnerIndex === 0 ? "Vous remportez" : (trickWinnerIndex === 1 ? "Est remporte" : (trickWinnerIndex === 2 ? "Votre ami remporte" : "Ouest remporte"));
+            this.updateStatus(`${winName} le pli ! (+${pointsInTrick} pts)`); this.syncNetwork();
             
             setTimeout(() => {
                 document.querySelectorAll('.bl-slot').forEach(s => { s.innerHTML = ''; });
-                this.currentTrick = []; this.currentTurnIndex = tW; this.phase = 'playing';
+                this.currentTrick = []; this.currentTurnIndex = trickWinnerIndex; this.phase = 'playing';
                 if (this.tricksPlayedCount === 8) { this.endDeal(); } else { this.processPlay(); }
             }, 2500);
         },
+
         updateTrickPointsUI() {
             document.getElementById('bl-trick-pts-val').textContent = this.dealPoints.nous;
             document.getElementById('bl-tricks-nous').textContent = this.tricksWon.nous;
             document.getElementById('bl-tricks-eux').textContent = this.tricksWon.eux;
         },
-        updateScoreUI() { document.getElementById('bl-score-nous').textContent = this.scores.nous; document.getElementById('bl-score-eux').textContent = this.scores.eux; },
-        endDeal() { 
-            let ptsN = this.dealPoints.nous, ptsE = this.dealPoints.eux, msg = "";
-            let bN = this.beloteAnnouncedBy === 'nous' ? 20 : 0, bE = this.beloteAnnouncedBy === 'eux' ? 20 : 0;
-            let iCN = this.tricksWon.nous === 8, iCE = this.tricksWon.eux === 8;
-            
-            let tT = (this.takerIndex === 0 || this.takerIndex === 2) ? 'nous' : 'eux';
-            let tN = ptsN + bN, tE = ptsE + bE;
-            let tS = 'info', tTx = "Bilan de la Manche";
 
-            if (tT === 'nous' && !iCN) {
-                if (tN > tE) { this.scores.nous += tN + this.litigePot; this.scores.eux += tE; this.litigePot = 0; msg += "Contrat rempli !"; tS = 'win'; tTx = 'Contrat Rempli !'; } 
-                else if (tN < tE) { msg += "<b style='color:var(--player-x);'>CHUTE ! L'adversaire prend 162 pts.</b>"; this.scores.eux += 162 + bE + this.litigePot; this.scores.nous += bN; this.litigePot = 0; ptsN = 0; ptsE = 162; tS = 'lose'; tTx = 'Chute...'; } 
-                else { msg += "<b style='color:var(--gold);'>LITIGE ! Vos points sont reportés.</b>"; this.litigePot += ptsN; this.scores.eux += tE; this.scores.nous += bN; ptsN = 0; tS = 'tie'; tTx = 'Litige'; }
-            } else if (tT === 'eux' && !iCE) {
-                if (tE > tN) { this.scores.eux += tE + this.litigePot; this.scores.nous += tN; this.litigePot = 0; msg += "L'adversaire a rempli son contrat."; tS = 'lose'; tTx = 'Contrat adverse rempli'; } 
-                else if (tE < tN) { msg += "<b style='color:var(--accent);'>ADVERSAIRE DEDANS ! Vous prenez 162 pts.</b>"; this.scores.nous += 162 + bN + this.litigePot; this.scores.eux += bE; this.litigePot = 0; ptsE = 0; ptsN = 162; tS = 'win'; tTx = 'Adversaire Dedans !'; } 
-                else { msg += "<b style='color:var(--gold);'>LITIGE ! Points adverses reportés.</b>"; this.litigePot += ptsE; this.scores.nous += tN; this.scores.eux += bE; ptsE = 0; tS = 'tie'; tTx = 'Litige'; }
-            } else if (iCN) { ptsN = 250; this.scores.nous += ptsN + bN + this.litigePot; this.scores.eux += bE; this.litigePot = 0; msg += "<b style='color:var(--accent);'>CAPOT ! (250 pts)</b>"; tS = 'win'; tTx = 'CAPOT !'; }
-            else if (iCE) { ptsE = 250; this.scores.eux += ptsE + bE + this.litigePot; this.scores.nous += bN; this.litigePot = 0; msg += "<b style='color:var(--player-x);'>CAPOT ADVERSE ! (250 pts)</b>"; tS = 'lose'; tTx = 'CAPOT ADVERSE...'; }
+        updateScoreUI() { 
+            document.getElementById('bl-score-nous').textContent = this.scores.nous; 
+            document.getElementById('bl-score-eux').textContent = this.scores.eux; 
+        },
 
-            let sHTML = `
-                <p style="margin-bottom:20px;">${msg}</p>
-                <div style="display:flex; justify-content:space-around; background:rgba(0,0,0,0.4); padding:15px; border-radius:10px; margin-bottom:20px;">
-                    <div style="color:var(--accent);"><span style="font-size:0.9rem; color:#94a3b8;">NOUS</span><br><span style="font-size:2rem; font-weight:bold;">${ptsN + bN}</span></div>
-                    <div style="color:var(--player-x);"><span style="font-size:0.9rem; color:#94a3b8;">EUX</span><br><span style="font-size:2rem; font-weight:bold;">${ptsE + bE}</span></div>
-                </div>
-            `;
+        endDeal() {
+            document.getElementById('bl-atout-corner').style.display = 'none';
+            document.getElementById('bl-trick-points').style.display = 'none';
             
-            this.deck = this.pastTricks.map(t => t.card); // PREPARE DECK
+            let ptsNous = this.dealPoints.nous, ptsEux = this.dealPoints.eux, msg = "";
+            let beloteNous = this.beloteAnnouncedBy === 'nous' ? 20 : 0, beloteEux = this.beloteAnnouncedBy === 'eux' ? 20 : 0;
+            let isCapotNous = this.tricksWon.nous === 8, isCapotEux = this.tricksWon.eux === 8;
+            let takerTeam = (this.takerIndex === 0 || this.takerIndex === 2) ? 'nous' : 'eux';
+            let totalNous = ptsNous + beloteNous, totalEux = ptsEux + beloteEux;
+            let titleStat = 'info', titleText = "Bilan de la Manche";
+
+            if (takerTeam === 'nous' && !isCapotNous) {
+                if (totalNous > totalEux) { this.scores.nous += totalNous + this.litigePot; this.scores.eux += totalEux; this.litigePot = 0; msg += "Contrat rempli !"; titleStat = 'win'; titleText = 'Contrat Rempli !'; }
+                else if (totalNous < totalEux) { msg += "<b style='color:var(--player-x);'>CHUTE ! L'adversaire prend 162 pts.</b>"; this.scores.eux += 162 + beloteEux + this.litigePot; this.scores.nous += beloteNous; this.litigePot = 0; ptsNous = 0; ptsEux = 162; titleStat = 'lose'; titleText = 'Chute...'; }
+                else { msg += "<b style='color:var(--gold);'>LITIGE ! Vos points sont reportés.</b>"; this.litigePot += ptsNous; this.scores.eux += totalEux; this.scores.nous += beloteNous; ptsNous = 0; titleStat = 'tie'; titleText = 'Litige'; }
+            } else if (takerTeam === 'eux' && !isCapotEux) {
+                if (totalEux > totalNous) { this.scores.eux += totalEux + this.litigePot; this.scores.nous += totalNous; this.litigePot = 0; msg += "L'adversaire a rempli son contrat."; titleStat = 'lose'; titleText = 'Contrat adverse rempli'; }
+                else if (totalEux < totalNous) { msg += "<b style='color:var(--accent);'>ADVERSAIRE DEDANS ! Vous prenez 162 pts.</b>"; this.scores.nous += 162 + beloteNous + this.litigePot; this.scores.eux += beloteEux; this.litigePot = 0; ptsEux = 0; ptsNous = 162; titleStat = 'win'; titleText = 'Adversaire Dedans !'; }
+                else { msg += "<b style='color:var(--gold);'>LITIGE ! Points adverses reportés.</b>"; this.litigePot += ptsEux; this.scores.nous += totalNous; this.scores.eux += beloteEux; ptsEux = 0; titleStat = 'tie'; titleText = 'Litige'; }
+            } else if (isCapotNous) { ptsNous = 250; this.scores.nous += ptsNous + beloteNous + this.litigePot; this.scores.eux += beloteEux; this.litigePot = 0; msg += "<b style='color:var(--accent);'>CAPOT ! (250 pts)</b>"; titleStat = 'win'; titleText = 'CAPOT !'; }
+            else if (isCapotEux) { ptsEux = 250; this.scores.eux += ptsEux + beloteEux + this.litigePot; this.scores.nous += beloteNous; this.litigePot = 0; msg += "<b style='color:var(--player-x);'>CAPOT ADVERSE ! (250 pts)</b>"; titleStat = 'lose'; titleText = 'CAPOT ADVERSE...'; }
+
+            let scoreboardHTML = `<p style="margin-bottom:20px;">${msg}</p><div style="display:flex;justify-content:space-around;background:rgba(0,0,0,0.4);padding:15px;border-radius:10px;margin-bottom:20px;"><div style="color:var(--accent);"><span style="font-size:0.9rem;color:#94a3b8;">NOUS</span><br><span style="font-size:2rem;font-weight:bold;">${ptsNous + beloteNous}</span></div><div style="color:var(--player-x);"><span style="font-size:0.9rem;color:#94a3b8;">EUX</span><br><span style="font-size:2rem;font-weight:bold;">${ptsEux + beloteEux}</span></div></div>`;
+            this.deck = this.pastTricks.map(t => t.card);
 
             if (this.scores.nous >= 1000 || this.scores.eux >= 1000) {
-                let fS = this.scores.nous >= 1000 ? 'win' : 'lose';
-                let fT = this.scores.nous >= 1000 ? "VICTOIRE ABSOLUE !" : "DÉFAITE CUISANTE...";
-                this.activeModal = { status: fS, title: fT, msg: `Score Final :<br><br><b style="color:var(--accent)">NOUS : ${this.scores.nous}</b><br><b style="color:var(--player-x)">EUX : ${this.scores.eux}</b>` };
+                let finalStatus = this.scores.nous >= 1000 ? 'win' : 'lose';
+                let finalTitle = this.scores.nous >= 1000 ? "VICTOIRE ABSOLUE !" : "DÉFAITE CUISANTE...";
+                let finalText = `Score Final :<br><br><b style="color:var(--accent)">NOUS : ${this.scores.nous}</b><br><b style="color:var(--player-x)">EUX : ${this.scores.eux}</b>`;
+                this.activeModal = { status: finalStatus, title: finalTitle, msg: finalText };
                 this.syncNetwork();
-                window.UI.showEndScreen(fS, fT, this.activeModal.msg, () => { this.activeModal = null; this.syncNetwork(); this.initGame(); });
+                window.UI.showEndScreen(finalStatus, finalTitle, finalText, () => { this.activeModal = null; this.syncNetwork(); this.initGame(); });
             } else {
-                this.updateScoreUI(); 
-                this.activeModal = { status: tS, title: tTx, msg: sHTML };
+                this.updateScoreUI();
+                this.activeModal = { status: titleStat, title: titleText, msg: scoreboardHTML };
                 this.syncNetwork();
-                window.UI.showEndScreen(tS, tTx, sHTML, () => { this.activeModal = null; this.syncNetwork(); this.startDeal(); });
+                window.UI.showEndScreen(titleStat, titleText, scoreboardHTML, () => { this.activeModal = null; this.syncNetwork(); this.startDeal(); });
             }
         },
-        updateStatus(t) { document.getElementById('bl-status').innerHTML = t; },
 
-        // =========================================================
-        // INJECTION : RÉSEAU BELOTE
-        // =========================================================
-        lastActionId: 0,
-        guestModalShown: false,
-        
-        syncNetwork() {
-            if (window.App.Network.room && window.App.Network.gameType === 'belote' && window.App.Network.myId === 'X') {
-                let vGI = [];
-                if (this.phase === 'playing' && this.currentTurnIndex === 2) {
-                    let vC = this.getValidCards(this.hands[2]);
-                    vGI = vC.map(c => this.hands[2].indexOf(c));
-                }
-                update(window.App.Network.ref, { 
-                    blState: { 
-                        hands: this.hands, trick: this.currentTrick, turn: this.currentTurnIndex, scores: this.scores, 
-                        dealPoints: this.dealPoints, tricksWon: this.tricksWon, centerCard: this.centerCard, atout: this.atoutSuit, 
-                        phase: this.phase, takerIndex: this.takerIndex, validGuestIndices: vGI, msg: document.getElementById('bl-status').innerHTML, 
-                        modal: this.activeModal || null 
-                    } 
-                });
-            }
-        },
-        
-        renderFromNetwork(state) {
-            if (!state || state.status === 'waiting') return;
-            
-            if (state.modal && !this.guestModalShown) { 
-                this.guestModalShown = true;
-                window.UI.showEndScreen(state.modal.status, state.modal.title, state.modal.msg, null);
-                document.getElementById('modal-btn').style.display = 'none'; 
-            } else if (!state.modal && this.guestModalShown) { 
-                this.guestModalShown = false;
-                window.UI.closeModal();
-            }
+        updateStatus(msg) { document.getElementById('bl-status').innerHTML = msg; }
+    };
 
-            document.getElementById('bl-score-nous').textContent = state.scores.nous; 
-            document.getElementById('bl-score-eux').textContent = state.scores.eux; 
-            document.getElementById('bl-status').innerHTML = state.msg; 
-            document.getElementById('bl-trick-pts-val').textContent = state.dealPoints.nous || 0;
-            document.getElementById('bl-tricks-nous').textContent = state.tricksWon.nous || 0;
-            document.getElementById('bl-tricks-eux').textContent = state.tricksWon.eux || 0;
-            
-            document.getElementById('bl-n-s').textContent = "Toi"; document.getElementById('bl-n-n').textContent = "L'Hôte"; document.getElementById('bl-n-w').textContent = "Est"; document.getElementById('bl-n-e').textContent = "Ouest"; 
-            
-            if (state.netSpeech && state.netSpeech.ts !== this.lastSpeechTs) {
-                this.lastSpeechTs = state.netSpeech.ts;
-                const bubble = document.getElementById(`bl-speech-${state.netSpeech.p}`);
-                if (bubble) { bubble.textContent = state.netSpeech.m; bubble.style.opacity = 1; setTimeout(() => { bubble.style.opacity = 0; }, 1200); }
+    // ════════════════════════════════════════════════════════════════════════
+    //  RÉSEAU BELOTE (SYNCHRONISATION ET INVITE)
+    // ════════════════════════════════════════════════════════════════════════
+    window.App.Belote.lastActionId = 0;
+    
+    window.App.Belote.syncNetwork = function() {
+        if (window.App.Network.room && window.App.Network.gameType === 'belote' && window.App.Network.myId === 'X') {
+            let validGuestIndices = [];
+            if (this.phase === 'playing' && this.currentTurnIndex === 2) {
+                let validCards = this.getValidCards(this.hands[2]);
+                validGuestIndices = validCards.map(c => this.hands[2].indexOf(c));
             }
-
-            if (state.phase === 'bidding_1' || state.phase === 'bidding_2' || state.phase === 'init') { 
-                document.getElementById('bl-atout-corner').style.display = 'none';
-                document.getElementById('bl-trick-points').style.display = 'none';
-                if (state.centerCard) { document.getElementById('bl-center').innerHTML = `<div class="bl-card ${state.centerCard.isRed ? 'red' : ''}"><span>${state.centerCard.rank}</span><span>${state.centerCard.suit.s}</span></div>`; } 
-            } else if (state.phase === 'playing' || state.phase === 'resolving') { 
-                document.getElementById('bl-center').innerHTML = ''; 
-                if (state.atout) { 
-                    document.getElementById('bl-atout-corner').style.display = 'block'; document.getElementById('bl-trick-points').style.display = 'block'; 
-                    document.getElementById('bl-atout-suit').innerText = state.atout.s; document.getElementById('bl-atout-suit').style.color = state.atout.color === 'r' ? '#f43f5e' : 'white'; 
-                    if (state.takerIndex !== -1) { let tN = state.takerIndex === 0 ? "Hôte" : (state.takerIndex === 1 ? "Est" : (state.takerIndex === 2 ? "Toi" : "Ouest")); document.getElementById('bl-taker-name').innerText = `Preneur : ${tN}`; } 
+            update(window.App.Network.ref, { 
+                blState: { 
+                    hands: this.hands, trick: this.currentTrick, turn: this.currentTurnIndex, scores: this.scores, 
+                    dealPoints: this.dealPoints, tricksWon: this.tricksWon, centerCard: this.centerCard, atout: this.atoutSuit, 
+                    phase: this.phase, takerIndex: this.takerIndex, validGuestIndices: validGuestIndices, 
+                    msg: document.getElementById('bl-status').innerHTML, modal: this.activeModal || null 
                 } 
-            }
-            
-            const cPM = { 2: 's', 3: 'e', 0: 'n', 1: 'w' }; 
-            const cTP = state.trick ? state.trick.map(t => t.player) : [];
-            [0, 1, 2, 3].forEach(p => { if (!cTP.includes(p)) { document.getElementById('bl-s-' + cPM[p]).innerHTML = ''; } });
-
-            if (state.trick) { 
-                state.trick.forEach(t => { 
-                    const slot = document.getElementById('bl-s-' + cPM[t.player]);
-                    if (slot.innerHTML === '') {
-                        let vC = document.createElement('div'); vC.className = `bl-card bl-played ${t.card.isRed ? 'red' : ''}`;
-                        vC.innerHTML = `<span>${t.card.rank}</span><span>${t.card.suit.s}</span>`; vC.style.setProperty('--rand', Math.random());
-                        slot.appendChild(vC);
-                    }
-                }); 
-            }
-            document.querySelectorAll('.bl-name').forEach(el => el.classList.remove('active-turn'));
-            if (state.turn === 2) document.getElementById('bl-n-s').classList.add('active-turn'); if (state.turn === 3) document.getElementById('bl-n-e').classList.add('active-turn'); if (state.turn === 0) document.getElementById('bl-n-n').classList.add('active-turn'); if (state.turn === 1) document.getElementById('bl-n-w').classList.add('active-turn');
-            
-            const hC = document.getElementById('bl-hand'); hC.innerHTML = '';
-            if (state.hands && state.hands[2]) {
-                state.hands[2].forEach((card, index) => {
-                    let cE = document.createElement('div'), isV = state.validGuestIndices ? state.validGuestIndices.includes(index) : true;
-                    cE.className = `bl-card ${card.isRed ? 'red' : ''} ${!isV && state.phase === 'playing' ? 'invalid' : ''}`; 
-                    cE.innerHTML = `<span>${card.rank}</span><span>${card.suit.s}</span>`;
-                    
-                    if (isV && state.turn === 2 && state.phase === 'playing') { 
-                        cE.onclick = () => { 
-                            if (window.actionSentLock) return; window.actionSentLock = true; 
-                            let vC = cE.cloneNode(true); vC.style.setProperty('--rand', Math.random()); vC.className += ' bl-played'; document.getElementById('bl-s-s').appendChild(vC);
-                            cE.style.display = 'none'; update(window.App.Network.ref, { guestAction: { id: Date.now(), type: 'play', index: index } }); 
-                        }; 
-                    } 
-                    hC.appendChild(cE);
-                });
-            }
-            if (state.turn !== 2) window.actionSentLock = false;
-            
-            document.getElementById('bl-actions-1').style.display = (state.turn === 2 && state.phase === 'bidding_1') ? 'flex' : 'none'; document.getElementById('bl-actions-2').style.display = (state.turn === 2 && state.phase === 'bidding_2') ? 'flex' : 'none';
-            if (state.turn === 2 && state.phase === 'bidding_1') { 
-                document.getElementById('btn-prendre-1').onclick = () => { if(!window.actionSentLock){ window.actionSentLock=true; update(window.App.Network.ref, { guestAction: { id: Date.now(), type: 'take_1', suit: state.centerCard.suit } }); }}; 
-                document.getElementById('btn-passer-1').onclick = () => { if(!window.actionSentLock){ window.actionSentLock=true; update(window.App.Network.ref, { guestAction: { id: Date.now(), type: 'pass' } }); }}; 
-            }
-            if (state.turn === 2 && state.phase === 'bidding_2') {
-                const sC = document.getElementById('bl-suits-container'); sC.innerHTML = ''; 
-                let aS = window.App.Belote.suits.filter(s => s.s !== state.centerCard.suit.s);
-                aS.forEach(sObj => { 
-                    let btn = document.createElement('button'); btn.className = `bl-suit-btn ${sObj.color === 'r' ? 'red' : 'black'}`; btn.textContent = sObj.s; 
-                    btn.onclick = () => { if(!window.actionSentLock){ window.actionSentLock=true; update(window.App.Network.ref, { guestAction: { id: Date.now(), type: 'take_2', suit: sObj } }); }}; sC.appendChild(btn); 
-                });
-                document.getElementById('btn-passer-2').onclick = () => { if(!window.actionSentLock){ window.actionSentLock=true; update(window.App.Network.ref, { guestAction: { id: Date.now(), type: 'pass' } }); }};
-            }
-        },
-        executeGuestAction(action) {
-            if (action.type === 'play') { 
-                let pC = this.hands[2].splice(action.index, 1)[0]; this.checkBelote(pC, 2); 
-                let vC = document.createElement('div'); vC.className = `bl-card bl-played ${pC.isRed ? 'red' : ''}`; vC.innerHTML = `<span>${pC.rank}</span><span>${pC.suit.s}</span>`; vC.style.setProperty('--rand', Math.random()); document.getElementById('bl-s-n').appendChild(vC);
-                this.currentTrick.push({ player: 2, card: pC }); this.currentTurnIndex = 3; this.renderBotHands(); this.syncNetwork(); 
-                if (this.currentTrick.length === 4) this.resolveTrick(); else this.processPlay(); 
-            } 
-            else if (action.type === 'pass') { this.showSpeech(2, "Passe."); if (this.phase === 'bidding_1') this.passBidding1(); if (this.phase === 'bidding_2') this.passBidding2(); } 
-            else if (action.type === 'take_1') { this.showSpeech(2, `Je prends ! (${action.suit.s})`); this.take(2, action.suit); } 
-            else if (action.type === 'take_2') { this.showSpeech(2, `Je prends ! (${action.suit.s})`); this.take(2, action.suit); }
+            });
         }
     };
+
     window.actionSentLock = false;
-    const obp = window.App.Belote.botPlay;
-    window.App.Belote.botPlay = function() {
-        if (window.App.Network.room && window.App.Network.gameType === 'belote') { this.syncNetwork(); if (this.currentTurnIndex === 2) { this.updateStatus("L'Ami réfléchit..."); this.syncNetwork(); return; } }
-        obp.apply(this); this.syncNetwork();
+    
+    window.App.Belote.renderFromNetwork = function(state) {
+        if (!state || state.status === 'waiting') return;
+        
+        // MODALES SYNCHRONISÉES
+        if (state.modal && !this.guestModalShown) { 
+            this.guestModalShown = true;
+            window.UI.showEndScreen(state.modal.status, state.modal.title, state.modal.msg, null);
+            document.getElementById('modal-btn').style.display = 'none'; 
+        } else if (!state.modal && this.guestModalShown) { 
+            this.guestModalShown = false;
+            window.UI.closeModal();
+        }
+
+        // SCORES ET TEXTES
+        document.getElementById('bl-score-nous').textContent = state.scores.nous; 
+        document.getElementById('bl-score-eux').textContent = state.scores.eux; 
+        document.getElementById('bl-status').innerHTML = state.msg; 
+        document.getElementById('bl-trick-pts-val').textContent = state.dealPoints.nous || 0;
+        document.getElementById('bl-tricks-nous').textContent = state.tricksWon.nous || 0;
+        document.getElementById('bl-tricks-eux').textContent = state.tricksWon.eux || 0;
+        document.getElementById('bl-n-s').textContent = "Toi"; document.getElementById('bl-n-n').textContent = "L'Hôte"; document.getElementById('bl-n-w').textContent = "Est"; document.getElementById('bl-n-e').textContent = "Ouest"; 
+        
+        // BULLES DE DISCUSSIONS SYNCHRONISÉES ET INVERSÉES
+        if (state.netSpeech && state.netSpeech.ts !== this.lastSpeechTs) {
+            this.lastSpeechTs = state.netSpeech.ts;
+            const pToSpeechGuest = { 2: 0, 3: 1, 0: 2, 1: 3 }; 
+            const mappedP = pToSpeechGuest[state.netSpeech.p];
+            const bubble = document.getElementById(`bl-speech-${mappedP}`);
+            if (bubble) { bubble.textContent = state.netSpeech.m; bubble.style.opacity = 1; setTimeout(() => { bubble.style.opacity = 0; }, 1200); }
+        }
+
+        // PHASES DE JEU
+        if (state.phase === 'bidding_1' || state.phase === 'bidding_2' || state.phase === 'init') { 
+            document.getElementById('bl-atout-corner').style.display = 'none';
+            document.getElementById('bl-trick-points').style.display = 'none';
+            if (state.centerCard) { document.getElementById('bl-center').innerHTML = `<div class="bl-card ${state.centerCard.isRed ? 'red' : ''}"><span>${state.centerCard.rank}</span><span>${state.centerCard.suit.s}</span></div>`; } 
+            else { document.getElementById('bl-center').innerHTML = ''; }
+        } else if (state.phase === 'playing' || state.phase === 'resolving') { 
+            document.getElementById('bl-center').innerHTML = ''; 
+            if (state.atout) { 
+                document.getElementById('bl-atout-corner').style.display = 'block'; document.getElementById('bl-trick-points').style.display = 'block'; 
+                document.getElementById('bl-atout-suit').innerText = state.atout.s; document.getElementById('bl-atout-suit').style.color = state.atout.color === 'r' ? '#f43f5e' : 'white'; 
+                if (state.takerIndex !== -1) { 
+                    let tN = state.takerIndex === 0 ? "Hôte" : (state.takerIndex === 1 ? "Est" : (state.takerIndex === 2 ? "Toi" : "Ouest")); 
+                    document.getElementById('bl-taker-name').innerText = `Preneur : ${tN}`; 
+                } 
+            } 
+        }
+
+        // RENDU DE LA TABLE (TRICK)
+        document.querySelectorAll('.bl-slot').forEach(s => s.innerHTML = ''); 
+        const cPM = { 2: 's', 3: 'e', 0: 'n', 1: 'w' }; 
+        if (state.trick) { 
+            state.trick.forEach(t => { 
+                let vC = document.createElement('div'); vC.className = `bl-card bl-played ${t.card.isRed ? 'red' : ''}`;
+                vC.innerHTML = `<span>${t.card.rank}</span><span>${t.card.suit.s}</span>`; vC.style.setProperty('--rand', Math.random());
+                document.getElementById('bl-s-' + cPM[t.player]).appendChild(vC);
+            }); 
+        }
+        
+        // HIGHTLIGHT DES JOUEURS
+        document.querySelectorAll('.bl-name').forEach(el => el.classList.remove('active-turn'));
+        if (state.turn === 2) document.getElementById('bl-n-s').classList.add('active-turn'); 
+        if (state.turn === 3) document.getElementById('bl-n-e').classList.add('active-turn'); 
+        if (state.turn === 0) document.getElementById('bl-n-n').classList.add('active-turn'); 
+        if (state.turn === 1) document.getElementById('bl-n-w').classList.add('active-turn');
+        
+        // DOS DES CARTES BOTS
+        if (state.hands) {
+            document.getElementById('bl-h-w').innerHTML = ''; document.getElementById('bl-h-n').innerHTML = ''; document.getElementById('bl-h-e').innerHTML = '';
+            if (state.hands[1]) { for(let i=0; i<state.hands[1].length; i++) document.getElementById('bl-h-w').innerHTML += '<div class="bl-card-back"></div>'; }
+            if (state.hands[0]) { for(let i=0; i<state.hands[0].length; i++) document.getElementById('bl-h-n').innerHTML += '<div class="bl-card-back"></div>'; }
+            if (state.hands[3]) { for(let i=0; i<state.hands[3].length; i++) document.getElementById('bl-h-e').innerHTML += '<div class="bl-card-back"></div>'; }
+        }
+
+        // MAIN DE L'INVITÉ
+        const handContainer = document.getElementById('bl-hand'); handContainer.innerHTML = '';
+        if (state.hands && state.hands[2]) {
+            state.hands[2].forEach((card, index) => {
+                let cardEl = document.createElement('div'), isValid = state.validGuestIndices ? state.validGuestIndices.includes(index) : true;
+                cardEl.className = `bl-card ${card.isRed ? 'red' : ''} ${!isValid && state.phase === 'playing' ? 'invalid' : ''}`; 
+                cardEl.innerHTML = `<span>${card.rank}</span><span>${card.suit.s}</span>`;
+                
+                if (isValid && state.turn === 2 && state.phase === 'playing') { 
+                    cardEl.onclick = () => { 
+                        if (window.actionSentLock) return; window.actionSentLock = true; 
+                        let visualCard = cardEl.cloneNode(true); visualCard.style.setProperty('--rand', Math.random()); visualCard.className += ' bl-played'; document.getElementById('bl-s-s').appendChild(visualCard);
+                        cardEl.style.display = 'none'; update(window.App.Network.ref, { guestAction: { id: Date.now(), type: 'play', index: index } }); 
+                    }; 
+                } 
+                handContainer.appendChild(cardEl);
+            });
+        }
+        
+        if (state.turn !== 2) window.actionSentLock = false;
+        
+        // BOUTONS D'ENCHÈRE POUR L'INVITÉ
+        document.getElementById('bl-actions-1').style.display = (state.turn === 2 && state.phase === 'bidding_1') ? 'flex' : 'none'; 
+        document.getElementById('bl-actions-2').style.display = (state.turn === 2 && state.phase === 'bidding_2') ? 'flex' : 'none';
+        
+        if (state.turn === 2 && state.phase === 'bidding_1') { 
+            document.getElementById('btn-prendre-1').onclick = () => { if(!window.actionSentLock){ window.actionSentLock=true; update(window.App.Network.ref, { guestAction: { id: Date.now(), type: 'take_1', suit: state.centerCard.suit } }); }}; 
+            document.getElementById('btn-passer-1').onclick = () => { if(!window.actionSentLock){ window.actionSentLock=true; update(window.App.Network.ref, { guestAction: { id: Date.now(), type: 'pass' } }); }}; 
+        }
+        if (state.turn === 2 && state.phase === 'bidding_2') {
+            const suitsContainer = document.getElementById('bl-suits-container'); suitsContainer.innerHTML = ''; 
+            let rejectedSuit = state.centerCard.suit.s; let availableSuits = window.App.Belote.suits.filter(s => s.s !== rejectedSuit);
+            
+            availableSuits.forEach(suitObj => { 
+                let btn = document.createElement('button'); btn.className = `bl-suit-btn ${suitObj.color === 'r' ? 'red' : 'black'}`; btn.textContent = suitObj.s; 
+                btn.onclick = () => { if(!window.actionSentLock){ window.actionSentLock=true; update(window.App.Network.ref, { guestAction: { id: Date.now(), type: 'take_2', suit: suitObj } }); }}; suitsContainer.appendChild(btn); 
+            });
+            document.getElementById('btn-passer-2').onclick = () => { if(!window.actionSentLock){ window.actionSentLock=true; update(window.App.Network.ref, { guestAction: { id: Date.now(), type: 'pass' } }); }};
+        }
     };
-    const ous = window.App.Belote.updateStatus; 
-    window.App.Belote.updateStatus = function(t) { ous.apply(this, [t]); this.syncNetwork(); };
-    const ort = window.App.Belote.resolveTrick; 
-    window.App.Belote.resolveTrick = function() { ort.apply(this); this.syncNetwork(); };
+
+    window.App.Belote.executeGuestAction = function(action) {
+        if (action.type === 'play') { 
+            let playedCardObj = this.hands[2].splice(action.index, 1)[0]; this.checkBelote(playedCardObj, 2); 
+            if (this.currentTrick.length > 0 && playedCardObj.suit.s !== this.currentTrick[0].card.suit.s) { this.voids[2][this.currentTrick[0].card.suit.s] = true; }
+            let visualCard = document.createElement('div'); visualCard.className = `bl-card bl-played ${playedCardObj.isRed ? 'red' : ''}`; visualCard.innerHTML = `<span>${playedCardObj.rank}</span><span>${playedCardObj.suit.s}</span>`; visualCard.style.setProperty('--rand', Math.random()); document.getElementById('bl-s-n').appendChild(visualCard);
+            this.currentTrick.push({ player: 2, card: playedCardObj }); this.currentTurnIndex = 3; this.renderBotHands(); this.syncNetwork(); 
+            if (this.currentTrick.length === 4) this.resolveTrick(); else this.processPlay(); 
+        } 
+        else if (action.type === 'pass') { this.showSpeech(2, "Passe."); if (this.phase === 'bidding_1') this.passBidding1(); if (this.phase === 'bidding_2') this.passBidding2(); } 
+        else if (action.type === 'take_1') { this.showSpeech(2, `Je prends ! (${action.suit.s})`); this.take(2, action.suit); } 
+        else if (action.type === 'take_2') { this.showSpeech(2, `Je prends ! (${action.suit.s})`); this.take(2, action.suit); }
+    };
+
+    const originalBotPlay = window.App.Belote.botPlay;
+    window.App.Belote.botPlay = function() {
+        if (window.App.Network.room && window.App.Network.gameType === 'belote') { 
+            this.syncNetwork(); 
+            if (this.currentTurnIndex === 2) { this.updateStatus("L'Ami réfléchit..."); this.syncNetwork(); return; } 
+        }
+        originalBotPlay.apply(this); this.syncNetwork();
+    };
+
+    const originalUpdateStatus = window.App.Belote.updateStatus; 
+    window.App.Belote.updateStatus = function(t) { originalUpdateStatus.apply(this, [t]); this.syncNetwork(); };
+    
+    const originalResolveTrick = window.App.Belote.resolveTrick; 
+    window.App.Belote.resolveTrick = function() { originalResolveTrick.apply(this); this.syncNetwork(); };
 
     window.App.P4 = {
         grid: [], player: 1, isBotThinking: false,
