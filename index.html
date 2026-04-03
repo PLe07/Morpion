@@ -596,13 +596,9 @@
             document.getElementById('modal-title').style.display = 'block';
             document.getElementById('modal-title').innerHTML = title;
             
-            // Gestion stricte des couleurs de la modale
-            let titleColor = '#f8fafc'; // Blanc par défaut
-            if (title.includes('Victoire') || title.includes('Gagné') || title.includes('Réussi')) {
-                titleColor = 'var(--accent)'; // Vert
-            } else if (title.includes('Défaite') || title.includes('Perdu') || title.includes('BOUM') || title.includes('Erreur')) {
-                titleColor = 'var(--player-x)'; // Rouge
-            }
+            let titleColor = '#f8fafc';
+            if (title.includes('Victoire') || title.includes('Gagné') || title.includes('Réussi')) { titleColor = 'var(--accent)'; } 
+            else if (title.includes('Défaite') || title.includes('Perdu') || title.includes('BOUM') || title.includes('Erreur')) { titleColor = 'var(--player-x)'; }
             
             document.getElementById('modal-title').style.color = titleColor;
             document.getElementById('modal-desc').innerHTML = desc;
@@ -648,7 +644,7 @@
         switchScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
             document.getElementById(id).classList.add('active');
-            if (id !== 's-mine') clearInterval(window.App.Mine.timer);
+            if (id !== 's-mine' && window.App.Mine) clearInterval(window.App.Mine.timer);
         },
         showRules() {
             const activeScreen = document.querySelector('.screen.active').id;
@@ -656,100 +652,104 @@
             let desc = "";
 
             switch(activeScreen) {
-                case 's-sim': 
-                case 's-net-sim': 
+                case 's-sim': case 's-net-sim':
                     desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
                                 <li style="margin-bottom:10px;"><b>Objectif :</b> Être le premier à aligner 3 symboles (X ou O).</li>
                                 <li style="margin-bottom:10px;"><b>Déroulement :</b> Les joueurs jouent à tour de rôle sur une grille de 3x3.</li>
                                 <li>L'alignement peut être horizontal, vertical ou en diagonale.</li>
-                            </ul>`; 
-                    break;
-                case 's-ult': 
-                case 's-net-ult': 
+                            </ul>`; break;
+                case 's-ult': case 's-net-ult':
                     desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
                                 <li style="margin-bottom:10px;"><b>Objectif :</b> Aligner 3 macro-cases pour remporter la partie.</li>
                                 <li style="margin-bottom:10px;"><b style='color:var(--accent)'>La règle d'or :</b> La petite case que tu choisis dans une sous-grille indique à ton adversaire dans quelle sous-grille il <b>doit</b> jouer au coup suivant !</li>
                                 <li style="margin-bottom:10px;"><b>Capture :</b> Gagne un morpion classique dans une sous-grille pour capturer la grande case correspondante.</li>
                                 <li><b>Liberté :</b> Si l'adversaire t'envoie dans une sous-grille déjà terminée, tu peux jouer où tu veux sur le plateau.</li>
-                            </ul>`; 
-                    break;
-                case 's-mine': 
+                            </ul>`; break;
+                case 's-mine':
                     desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
                                 <li style="margin-bottom:10px;"><b>Objectif :</b> Découvrir toutes les cases vides sans faire exploser de mine.</li>
                                 <li style="margin-bottom:10px;"><b>Indicateurs :</b> Un chiffre indique exactement combien de mines se trouvent dans les 8 cases adjacentes.</li>
                                 <li><b style='color:var(--player-x)'>Action :</b> Fais un <b>Clic Droit</b> sur une case suspecte pour y placer un drapeau de protection (🚩). Clic gauche pour révéler.</li>
-                            </ul>`; 
-                    break;
-                case 's-yams': 
-                case 's-net-yams': 
+                            </ul>`; break;
+                case 's-yams': case 's-net-yams':
                     desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
                                 <li style="margin-bottom:10px;"><b>Déroulement :</b> 3 lancers par tour. Clique sur les dés que tu souhaites conserver entre les lancers.</li>
                                 <li style="margin-bottom:10px;"><b style='color:var(--gold)'>Le Bonus :</b> Si la somme de la partie haute (les 1 à 6) atteint <b>63 points</b> ou plus, tu gagnes un méga-bonus de <b>+35 points</b> !</li>
                                 <li style="margin-bottom:10px;"><b>Figures :</b> Brelan = 3 dés identiques. Carré = 4 dés identiques. Full = Un Brelan + Une Paire (25 pts).</li>
                                 <li><b>Suites & Yams :</b> Petite Suite = 4 dés qui se suivent (30 pts). Grande Suite = 5 dés (40 pts). Yams = 5 dés identiques (50 pts).</li>
-                            </ul>`; 
-                    break;
-                case 's-belote': 
+                            </ul>`; break;
+                case 's-belote':
                     desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
                                 <li style="margin-bottom:10px;"><b style='color:var(--accent)'>Ordre & Valeur à l'Atout :</b> Valet(20), 9(14), As(11), 10(10), Roi(4), Dame(3), 8(0), 7(0).</li>
                                 <li style="margin-bottom:10px;"><b style='color:var(--gold)'>Ordre & Valeur Normal :</b> As(11), 10(10), Roi(4), Dame(3), Valet(2), 9(0), 8(0), 7(0).</li>
                                 <li style="margin-bottom:10px;"><b>Règles de jeu :</b> Il faut toujours fournir la couleur demandée. Si tu n'en as pas, tu dois <b>couper</b> (jouer un atout). Si un atout est déjà posé, tu as l'obligation de <b>monter</b> (jouer un atout plus fort) si tu le peux.</li>
                                 <li><b>Bonus :</b> Avoir le Roi ET la Dame d'atout dans sa main donne la "Belote-Rebelote" (+20 pts). Le preneur doit faire plus de points que la défense pour valider son contrat, sinon il "chute" (l'adversaire prend 162 pts).</li>
-                            </ul>`; 
-                    break;
-                case 's-p4': 
-                case 's-net-p4': 
+                            </ul>`; break;
+                case 's-p4': case 's-net-p4':
                     desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
                                 <li style="margin-bottom:10px;"><b>Objectif :</b> Être le premier à aligner 4 jetons de sa couleur.</li>
                                 <li style="margin-bottom:10px;"><b>Déroulement :</b> Les joueurs lâchent leurs jetons tour à tour. Les jetons tombent toujours au point le plus bas possible.</li>
                                 <li><b>Victoire :</b> L'alignement peut être horizontal, vertical, ou en diagonale.</li>
-                            </ul>`; 
-                    break;
-                case 's-bj': 
+                            </ul>`; break;
+                case 's-bj':
                     desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
                                 <li style="margin-bottom:10px;"><b>Objectif :</b> Battre le score du Croupier en s'approchant le plus possible de 21, sans jamais le dépasser (Bust).</li>
                                 <li style="margin-bottom:10px;"><b>Valeur des cartes :</b> Les têtes (V, D, R) valent 10. Les cartes numériques valent leur nombre. L'As vaut 1 ou 11 selon ce qui t'arrange le plus.</li>
                                 <li><b>Actions :</b> Tu peux "Tirer" autant de fois que tu veux. Si tu cliques sur "Rester", le croupier joue. Il est obligé de tirer jusqu'à atteindre au moins 17.</li>
-                            </ul>`; 
-                    break;
-                case 's-mm': 
-                case 's-net-mm': 
+                            </ul>`; break;
+                case 's-mm': case 's-net-mm':
                     desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
                                 <li style="margin-bottom:10px;"><b>Objectif :</b> Trouver la combinaison secrète de 4 couleurs en 9 essais maximum.</li>
                                 <li style="margin-bottom:10px;"><b>Correction :</b> Après chaque essai, le jeu te donne des indices sur le côté droit.</li>
                                 <li style="margin-bottom:10px;"><b style="color:var(--player-x);">Un point Rouge :</b> Signifie qu'une couleur est correcte ET au bon endroit.</li>
                                 <li><b style="color:#cbd5e1;">Un point Blanc :</b> Signifie qu'une couleur est présente dans le code, mais placée au mauvais endroit.</li>
-                            </ul>`; 
-                    break;
-                case 's-bn': 
-                case 's-net-bn': 
+                            </ul>`; break;
+                case 's-bn': case 's-net-bn':
                     desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
                                 <li style="margin-bottom:10px;"><b>Mise en place :</b> Place ta flotte de 6 navires sur la grille (horizontalement ou verticalement).</li>
                                 <li style="margin-bottom:10px;"><b>Bataille :</b> À tour de rôle, clique sur la grille adverse pour deviner où sont cachés les bateaux ennemis.</li>
                                 <li><b>Fin du jeu :</b> Une 💥 indique qu'un navire est touché. Des 🌊 indiquent un tir dans l'eau. Le premier à couler tous les navires adverses gagne !</li>
-                            </ul>`; 
-                    break;
-                case 's-dames': 
-                case 's-net-dames': 
+                            </ul>`; break;
+                case 's-dames': case 's-net-dames':
                     desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
                                 <li style="margin-bottom:10px;"><b>Déplacements :</b> Les pions se déplacent d'une case en diagonale vers l'avant.</li>
                                 <li style="margin-bottom:10px;"><b style='color:var(--player-x)'>Prise Obligatoire :</b> Si tu PEUX manger un pion adverse en sautant par-dessus, tu DOIS le faire. Si une "rafle" (plusieurs sauts) est possible, tu dois continuer à sauter !</li>
                                 <li><b>La Dame :</b> Un pion qui atteint la dernière ligne adverse devient une Dame (👑). Elle peut reculer, avancer de plusieurs cases d'un coup, et capturer de très loin.</li>
-                            </ul>`; 
-                    break;
-                case 's-net-lobby': 
-                case 's-net-waiting': 
+                            </ul>`; break;
+                case 's-net-lobby': case 's-net-waiting':
                     desc = `<ul style="text-align:left; padding-left: 20px; line-height: 1.8;">
                                 <li style="margin-bottom:10px;"><b>Héberger :</b> Choisis un jeu dans la liste et clique sur "Créer". Le jeu génèrera un code à 4 lettres.</li>
                                 <li style="margin-bottom:10px;"><b>Rejoindre :</b> Demande le code à 4 lettres à ton ami, tape-le dans le champ "Code Secret" et rejoins-le en direct !</li>
                                 <li><b>Réseau :</b> Les parties sont synchronisées en temps réel de n'importe où dans le monde.</li>
-                            </ul>`; 
-                    break;
+                            </ul>`; break;
                 default: 
                     desc = "<p>Sélectionne un jeu dans le menu de gauche pour commencer à jouer !</p>";
             }
-            
             this.showModal(title, desc, null);
+        },
+        showToast(msg, isMe = false) {
+            let tc = document.getElementById('toast-container');
+            if(!tc) {
+                tc = document.createElement('div');
+                tc.id = 'toast-container';
+                tc.style.cssText = 'position:fixed; top:40px; left:50%; transform:translateX(-50%); z-index:10000; display:flex; flex-direction:column; gap:10px; pointer-events:none; align-items:center;';
+                document.body.appendChild(tc);
+            }
+            let t = document.createElement('div');
+            t.style.cssText = `background: ${isMe ? 'var(--accent)' : 'var(--player-o)'}; color: ${isMe ? '#000' : '#fff'}; padding: 12px 25px; border-radius: 50px; font-weight: bold; font-size: 1.2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5); animation: dropInToast 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);`;
+            t.innerHTML = msg;
+            tc.appendChild(t);
+            setTimeout(() => {
+                t.style.animation = 'dropOutToast 0.4s ease-in forwards';
+                setTimeout(() => t.remove(), 400);
+            }, 3500);
+            
+            if(!document.getElementById('toast-styles')) {
+                let s = document.createElement('style');
+                s.id = 'toast-styles';
+                s.innerHTML = `@keyframes dropInToast { from { transform: translateY(-50px) scale(0.5); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } } @keyframes dropOutToast { from { transform: scale(1); opacity: 1; } to { transform: scale(0.8); opacity: 0; } }`;
+                document.head.appendChild(s);
+            }
         }
     };
 
@@ -1459,458 +1459,541 @@
 },
     };
 
-    // ============================================================
-    //  BELOTE (COMPLÈTE)
-    // ============================================================
     window.App.Belote = {
-        deck:[], hands:[[],[],[],[]], scores:{nous:0,eux:0}, litigePot:0,
-        dealerIndex:-1, firstPlayerIndex:0, currentTurnIndex:0, phase:'init',
-        centerCard:null, atoutSuit:null, takerIndex:-1, currentTrick:[], pastTricks:[],
-        dealPoints:{nous:0,eux:0}, tricksWon:{nous:0,eux:0},
-        tricksPlayedCount:0, beloteAnnouncedBy:null, activeModal:null,
-        voids:[{'♠':false,'♣':false,'♥':false,'♦':false},{'♠':false,'♣':false,'♥':false,'♦':false},{'♠':false,'♣':false,'♥':false,'♦':false},{'♠':false,'♣':false,'♥':false,'♦':false}],
-        suits:[{s:'♠',color:'b'},{s:'♣',color:'b'},{s:'♥',color:'r'},{s:'♦',color:'r'}],
-        ranks:['7','8','9','10','V','D','R','A'],
-        valAtout:{'V':20,'9':14,'A':11,'10':10,'R':4,'D':3,'8':0,'7':0},
-        valNormal:{'A':11,'10':10,'R':4,'D':3,'V':2,'9':0,'8':0,'7':0},
-        ordAtout:['V','9','A','10','R','D','8','7'],
-        ordNormal:['A','10','R','D','V','9','8','7'],
+        deck: [], hands: [[], [], [], []], scores: { nous: 0, eux: 0 }, litigePot: 0,
+        dealerIndex: -1, firstPlayerIndex: 0, currentTurnIndex: 0, phase: 'init', 
+        centerCard: null, atoutSuit: null, takerIndex: -1, currentTrick: [], pastTricks: [], 
+        dealPoints: { nous: 0, eux: 0 }, tricksWon: { nous: 0, eux: 0 }, 
+        tricksPlayedCount: 0, beloteAnnouncedBy: null, activeModal: null, lastActionId: 0, guestModalShown: false,
+        voids: [{ '♠': false, '♣': false, '♥': false, '♦': false }, { '♠': false, '♣': false, '♥': false, '♦': false }, { '♠': false, '♣': false, '♥': false, '♦': false }, { '♠': false, '♣': false, '♥': false, '♦': false }],
+        
+        suits: [{s: '♠', color: 'b'}, {s: '♣', color: 'b'}, {s: '♥', color: 'r'}, {s: '♦', color: 'r'}], 
+        ranks: ['7', '8', '9', '10', 'V', 'D', 'R', 'A'],
+        valAtout: { 'V':20, '9':14, 'A':11, '10':10, 'R':4, 'D':3, '8':0, '7':0 }, 
+        valNormal: { 'A':11, '10':10, 'R':4, 'D':3, 'V':2, '9':0, '8':0, '7':0 }, 
+        ordAtout: ['V', '9', 'A', '10', 'R', 'D', '8', '7'], 
+        ordNormal: ['A', '10', 'R', 'D', 'V', '9', '8', '7'],
 
-        sortAllHands() {
-            for(let i=0;i<4;i++) {
-                this.hands[i].sort((a,b)=>{
-                    if(a.suit.s!==b.suit.s){const so={'♥':1,'♠':2,'♦':3,'♣':4};return so[a.suit.s]-so[b.suit.s];}
-                    let isAtout=(this.atoutSuit&&a.suit.s===this.atoutSuit.s);let order=isAtout?this.ordAtout:this.ordNormal;return order.indexOf(a.rank)-order.indexOf(b.rank);
-                });
-            }
+        // ── HELPERS EXPERTS ──────────────────────────────────────────────────
+        getAllPlayedCards() { return [...this.pastTricks.map(t => t.card), ...this.currentTrick.map(t => t.card)]; },
+        getCardsLeftInSuit(suitChar) {
+            const played = this.getAllPlayedCards().filter(c => c.suit.s === suitChar).length;
+            const inHand = this.hands[this.currentTurnIndex].filter(c => c.suit.s === suitChar).length;
+            return 8 - played - inHand;
         },
-        evaluateBidStrength(hand,trumpSuitChar) {
-            const trumpCards=hand.filter(c=>c.suit.s===trumpSuitChar);
-            const sideCards=hand.filter(c=>c.suit.s!==trumpSuitChar);
-            const hasJack=trumpCards.some(c=>c.rank==='V');
-            const hasNine=trumpCards.some(c=>c.rank==='9');
-            const hasAceT=trumpCards.some(c=>c.rank==='A');
-            let power=0;
-            trumpCards.forEach(c=>{if(c.rank==='V')power+=6.0;else if(c.rank==='9')power+=(hasJack?4.0:1.5);else if(c.rank==='A')power+=2.5;else if(c.rank==='10')power+=1.5;else if(c.rank==='R')power+=0.7;else if(c.rank==='D')power+=0.4;else power+=0.1;});
-            if(trumpCards.length>=3)power+=0.8;if(trumpCards.length>=4)power+=1.5;if(trumpCards.length>=5)power+=3.0;
-            if(!hasJack){power-=2.5;if(hasNine&&!hasAceT)power-=1.0;}
-            sideCards.forEach(c=>{if(c.rank==='A')power+=1.8;else if(c.rank==='10')power+=0.5;else if(c.rank==='R')power+=0.3;});
-            ['♠','♣','♥','♦'].forEach(s=>{if(s===trumpSuitChar)return;const n=hand.filter(c=>c.suit.s===s).length;if(n===0)power+=2.0;else if(n===1)power+=0.8;});
-            return power;
-        },
-        initGame() {
-            this.scores={nous:0,eux:0}; this.litigePot=0; this.deck=[];
-            if(this.dealerIndex===-1)this.dealerIndex=Math.floor(Math.random()*4);
-            this.updateScoreUI(); this.startDeal();
-        },
-        startDeal() {
-            document.querySelectorAll('.bl-slot').forEach(s=>s.innerHTML='');
-            document.getElementById('bl-center').innerHTML='';
-            document.getElementById('bl-hand').innerHTML='';
-            document.getElementById('bl-actions-1').style.display='none';
-            document.getElementById('bl-actions-2').style.display='none';
-            document.getElementById('bl-annonce-msg').style.opacity='0';
-            document.getElementById('bl-trick-points').style.display='none';
-            document.getElementById('bl-atout-corner').style.display='none';
-            this.updatePlayerHighlight(-1);
-            this.dealerIndex=(this.dealerIndex+1)%4; this.firstPlayerIndex=(this.dealerIndex+1)%4;
-            const positions=[{x:450,y:420},{x:680,y:300},{x:450,y:40},{x:100,y:300}];
-            const token=document.getElementById('bl-dealer-token');
-            token.style.display='flex'; token.style.left=positions[this.dealerIndex].x+'px'; token.style.top=positions[this.dealerIndex].y+'px';
-            if(this.deck.length!==32){
-                this.deck=[];
-                this.suits.forEach(s=>{this.ranks.forEach(r=>{this.deck.push({suit:s,rank:r,isRed:s.color==='r'});});});
-                for(let i=this.deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[this.deck[i],this.deck[j]]=[this.deck[j],this.deck[i]];}
-            } else {
-                let cutIdx=Math.floor(Math.random()*12)+10;
-                this.deck=[...this.deck.slice(cutIdx),...this.deck.slice(0,cutIdx)];
-            }
-            this.hands=[[],[],[],[]]; this.currentTrick=[]; this.pastTricks=[];
-            this.voids=[{'♠':false,'♣':false,'♥':false,'♦':false},{'♠':false,'♣':false,'♥':false,'♦':false},{'♠':false,'♣':false,'♥':false,'♦':false},{'♠':false,'♣':false,'♥':false,'♦':false}];
-            this.dealPoints={nous:0,eux:0}; this.tricksWon={nous:0,eux:0}; this.tricksPlayedCount=0;
-            this.atoutSuit=null; this.takerIndex=-1; this.beloteAnnouncedBy=null; this.phase='bidding_1'; this.activeModal=null;
-            for(let p=0;p<4;p++){let tp=(this.firstPlayerIndex+p)%4;this.hands[tp].push(...this.deck.splice(0,3));this.hands[tp].push(...this.deck.splice(0,2));}
-            this.centerCard=this.deck.shift(); this.sortAllHands(); this.showCenterCard(); this.renderHand(); this.renderBotHands();
-            this.currentTurnIndex=this.firstPlayerIndex; this.processBidding1();
-        },
-        showSpeech(playerIndex,textMsg) {
-            const bubble=document.getElementById(`bl-speech-${playerIndex}`);
-            bubble.textContent=textMsg; bubble.style.opacity=1;
-            setTimeout(()=>{bubble.style.opacity=0;},1200);
-        },
-        showCenterCard() {
-            const centerArea=document.getElementById('bl-center');
-            const cardElement=document.createElement('div');
-            cardElement.className=`bl-card ${this.centerCard.isRed?'red':''}`;
-            cardElement.innerHTML=`<span>${this.centerCard.rank}</span><span>${this.centerCard.suit.s}</span>`;
-            centerArea.innerHTML=''; centerArea.appendChild(cardElement);
-        },
-        processBidding1() {
-            this.updatePlayerHighlight(this.currentTurnIndex);
-            if(this.currentTurnIndex===0){
-                this.updateStatus("TOUR 1 : Voulez-vous prendre cette couleur ?");
-                document.getElementById('bl-actions-1').style.display='flex';
-                document.getElementById('btn-prendre-1').onclick=()=>{this.showSpeech(0,"Je prends !");this.take(0,this.centerCard.suit);};
-                document.getElementById('btn-passer-1').onclick=()=>{this.showSpeech(0,"Passe.");this.passBidding1();};
-                this.syncNetwork();
-            } else if(this.currentTurnIndex===2&&window.App.Network.room&&window.App.Network.gameType==='belote'){
-                document.getElementById('bl-actions-1').style.display='none'; this.updateStatus("Votre ami réfléchit..."); this.syncNetwork();
-            } else {
-                document.getElementById('bl-actions-1').style.display='none';
-                let botName=this.currentTurnIndex===1?'Est':(this.currentTurnIndex===2?'Nord':'Ouest');
-                this.updateStatus(`${botName} réfléchit...`); this.syncNetwork();
-                setTimeout(()=>{
-                    const simulatedHand=[...this.hands[this.currentTurnIndex],this.centerCard];
-                    const power=this.evaluateBidStrength(simulatedHand,this.centerCard.suit.s);
-                    const passedBefore=(this.currentTurnIndex-this.firstPlayerIndex+4)%4;
-                    const threshold=7.5-(passedBefore*0.5);
-                    if(power>=threshold){this.showSpeech(this.currentTurnIndex,`Je prends ! (${this.centerCard.suit.s})`);setTimeout(()=>{this.take(this.currentTurnIndex,this.centerCard.suit);},800);}
-                    else{this.showSpeech(this.currentTurnIndex,"Passe.");setTimeout(()=>{this.passBidding1();},800);}
-                },1200);
-            }
-        },
-        passBidding1() {
-            document.getElementById('bl-actions-1').style.display='none'; this.currentTurnIndex=(this.currentTurnIndex+1)%4;
-            if(this.currentTurnIndex===this.firstPlayerIndex){this.phase='bidding_2';this.updateStatus("TOUR 2 : Choix d'une autre couleur.");this.syncNetwork();setTimeout(()=>{this.processBidding2();},500);}
-            else{this.processBidding1();}
-        },
-        processBidding2() {
-            this.updatePlayerHighlight(this.currentTurnIndex);
-            let rejectedSuit=this.centerCard.suit.s; let availableSuits=this.suits.filter(s=>s.s!==rejectedSuit);
-            if(this.currentTurnIndex===0){
-                this.updateStatus("TOUR 2 : Choisissez une couleur ou passez.");
-                document.getElementById('bl-actions-2').style.display='flex';
-                const suitsContainer=document.getElementById('bl-suits-container'); suitsContainer.innerHTML='';
-                availableSuits.forEach(suitObj=>{
-                    let btn=document.createElement('button'); btn.className=`bl-suit-btn ${suitObj.color==='r'?'red':'black'}`; btn.textContent=suitObj.s;
-                    btn.onclick=()=>{this.showSpeech(0,`Je prends ! (${suitObj.s})`);document.getElementById('bl-actions-2').style.display='none';this.take(0,suitObj);}; suitsContainer.appendChild(btn);
-                });
-                document.getElementById('btn-passer-2').onclick=()=>{this.showSpeech(0,"Passe.");document.getElementById('bl-actions-2').style.display='none';this.passBidding2();};
-                this.syncNetwork();
-            } else if(this.currentTurnIndex===2&&window.App.Network.room&&window.App.Network.gameType==='belote'){
-                document.getElementById('bl-actions-2').style.display='none'; this.updateStatus("Votre ami réfléchit (Tour 2)..."); this.syncNetwork();
-            } else {
-                let botName=this.currentTurnIndex===1?'Est':(this.currentTurnIndex===2?'Nord':'Ouest'); this.updateStatus(`${botName} réfléchit (Tour 2)...`); this.syncNetwork();
-                setTimeout(()=>{
-                    let hand=this.hands[this.currentTurnIndex]; let bestSuit=null, bestScore=0;
-                    availableSuits.forEach(suitObj=>{const power=this.evaluateBidStrength(hand,suitObj.s);if(power>bestScore){bestScore=power;bestSuit=suitObj;}});
-                    const passedBefore=(this.currentTurnIndex-this.firstPlayerIndex+4)%4;
-                    const threshold=6.5-(passedBefore*0.4);
-                    if(bestScore>=threshold&&bestSuit){this.showSpeech(this.currentTurnIndex,`Je prends ! (${bestSuit.s})`);setTimeout(()=>{this.take(this.currentTurnIndex,bestSuit);},800);}
-                    else{this.showSpeech(this.currentTurnIndex,"Passe.");setTimeout(()=>{this.passBidding2();},800);}
-                },1200);
-            }
-        },
-        passBidding2() {
-            this.currentTurnIndex=(this.currentTurnIndex+1)%4;
-            if(this.currentTurnIndex===this.firstPlayerIndex){this.updateStatus("Tout le monde a passé. Redistribution !");this.syncNetwork();setTimeout(()=>{this.startDeal();},1500);}
-            else{this.processBidding2();}
-        },
-        take(playerIdx,selectedSuit) {
-            document.getElementById('bl-actions-1').style.display='none'; document.getElementById('bl-actions-2').style.display='none'; document.getElementById('bl-center').innerHTML='';
-            this.takerIndex=playerIdx; this.atoutSuit=selectedSuit; this.hands[playerIdx].push(this.centerCard);
-            let nameDisplay=playerIdx===0?"Vous avez":(playerIdx===1?"Est a":(playerIdx===2?"Nord a":"Ouest a"));
-            this.updateStatus(`${nameDisplay} pris à <span style="color:${this.atoutSuit.color==='r'?'#f43f5e':'white'};font-size:1.5rem;">${this.atoutSuit.s}</span> !`);
-            this.syncNetwork(); setTimeout(()=>{this.finishDeal();},1500);
-        },
-        finishDeal() {
-            this.phase='playing';
-            let takerName=this.takerIndex===0?"Toi":(this.takerIndex===1?"Est":(this.takerIndex===2?"Nord":"Ouest"));
-            document.getElementById('bl-atout-corner').style.display='block';
-            document.getElementById('bl-taker-name').innerText=`Preneur : ${takerName}`;
-            document.getElementById('bl-atout-suit').innerText=this.atoutSuit.s;
-            document.getElementById('bl-atout-suit').style.color=this.atoutSuit.color==='r'?'#f43f5e':'white';
-            document.getElementById('bl-trick-points').style.display='block';
-            this.updateTrickPointsUI();
-            for(let p=0;p<4;p++){let tp=(this.firstPlayerIndex+p)%4;let n=(tp===this.takerIndex)?2:3;this.hands[tp].push(...this.deck.splice(0,n));}
-            this.sortAllHands(); this.currentTurnIndex=this.firstPlayerIndex; this.processPlay();
-        },
-        updatePlayerHighlight(index) {
-            document.querySelectorAll('.bl-name').forEach(el=>el.classList.remove('active-turn'));
-            if(index===0)document.getElementById('bl-n-s').classList.add('active-turn');
-            if(index===1)document.getElementById('bl-n-e').classList.add('active-turn');
-            if(index===2)document.getElementById('bl-n-n').classList.add('active-turn');
-            if(index===3)document.getElementById('bl-n-w').classList.add('active-turn');
-        },
-        renderBotHands() {
-            const mapId=['none','bl-h-e','bl-h-n','bl-h-w'];
-            for(let i=1;i<=3;i++){
-                const container=document.getElementById(mapId[i]); container.innerHTML='';
-                let nbCards=this.hands[i].length;
-                for(let c=0;c<nbCards;c++){let back=document.createElement('div');back.className='bl-card-back';container.appendChild(back);}
-            }
-        },
-        processPlay() {
-            if(this.tricksPlayedCount===8)return;
-            this.updatePlayerHighlight(this.currentTurnIndex); this.renderHand(); this.renderBotHands();
-            if(this.currentTurnIndex===0){this.updateStatus("À vous de jouer !");this.syncNetwork();}
-            else if(this.currentTurnIndex===2&&window.App.Network.room&&window.App.Network.gameType==='belote'){this.updateStatus("Votre ami réfléchit...");this.syncNetwork();}
-            else{let botName=this.currentTurnIndex===1?"Est":(this.currentTurnIndex===2?"Nord":"Ouest");this.updateStatus(`${botName} calcule...`);this.syncNetwork();setTimeout(()=>{this.botPlay();},600);}
-        },
-        getTrickWinner(trickArray) {
-            if(trickArray.length===0)return null;
-            let leadSuit=trickArray[0].card.suit.s, highest=-1, winnerIdx=0;
-            let isAtoutPlayed=trickArray.some(t=>t.card.suit.s===this.atoutSuit.s);
-            for(let i=0;i<trickArray.length;i++){
-                let card=trickArray[i].card;
-                let ord=(card.suit.s===this.atoutSuit.s)?this.ordAtout:this.ordNormal;
-                let val=8-ord.indexOf(card.rank);
-                if(isAtoutPlayed){if(card.suit.s===this.atoutSuit.s&&val>highest){highest=val;winnerIdx=i;}}
-                else{if(card.suit.s===leadSuit&&val>highest){highest=val;winnerIdx=i;}}
-            }
-            return trickArray[winnerIdx];
-        },
-        getValidCards(handArray) {
-            if(this.currentTrick.length===0)return handArray;
-            let leadSuit=this.currentTrick[0].card.suit.s;
-            let cardsOfRequestedSuit=handArray.filter(c=>c.suit.s===leadSuit);
-            let trumpCardsInHand=handArray.filter(c=>c.suit.s===this.atoutSuit.s);
-            let highestTrumpInTrick=-1;
-            this.currentTrick.forEach(t=>{if(t.card.suit.s===this.atoutSuit.s){let val=8-this.ordAtout.indexOf(t.card.rank);if(val>highestTrumpInTrick)highestTrumpInTrick=val;}});
-            if(cardsOfRequestedSuit.length>0){
-                if(leadSuit===this.atoutSuit.s){let higher=cardsOfRequestedSuit.filter(c=>(8-this.ordAtout.indexOf(c.rank))>highestTrumpInTrick);if(higher.length>0)return higher;}
-                return cardsOfRequestedSuit;
-            }
-            let currentWinner=this.getTrickWinner(this.currentTrick);
-            let partnerIndex=(this.currentTurnIndex+2)%4;
-            let isPartnerWinning=(currentWinner&&currentWinner.player===partnerIndex);
-            if(trumpCardsInHand.length>0){
-                if(isPartnerWinning)return handArray;
-                else{let higher=trumpCardsInHand.filter(c=>(8-this.ordAtout.indexOf(c.rank))>highestTrumpInTrick);if(higher.length>0)return higher;return trumpCardsInHand;}
-            }
-            return handArray;
-        },
-        getAllPlayedCards() { return [...this.pastTricks.map(t=>t.card),...this.currentTrick.map(t=>t.card)]; },
-        getCardValue(card) { return card.suit.s===this.atoutSuit.s ? this.valAtout[card.rank] : this.valNormal[card.rank]; },
-        isMasterCard(card, allPlayed, myHand) {
-            const isA = card.suit.s === this.atoutSuit.s;
-            const ord = isA ? this.ordAtout : this.ordNormal;
-            const idx = ord.indexOf(card.rank);
-            return ord.slice(0, idx).every(r => allPlayed.some(p => p.suit.s === card.suit.s && p.rank === r) || myHand.some(m => m.suit.s === card.suit.s && m.rank === r));
-        },
+        getRemainingPoints() { return 162 - this.getAllPlayedCards().reduce((s, c) => s + this.getCardValue(c), 0); },
         partnerSignaledSuit() {
-            if(this.pastTricks.length < 4) return null;
-            const me=this.currentTurnIndex, partner=(me+2)%4;
-            for(let i=this.pastTricks.length-4;i>=0;i-=4){
-                const trick=this.pastTricks.slice(i,i+4);
-                const winner=this.getTrickWinner(trick);
-                const partnerPlay=trick.find(t=>t.player===partner);
-                if(winner&&(winner.player===me||winner.player===partner)){
-                    if(partnerPlay&&(partnerPlay.card.rank==='A'||partnerPlay.card.rank==='10')&&partnerPlay.card.suit.s!==trick[0].card.suit.s) return partnerPlay.card.suit.s;
+            if (this.pastTricks.length < 4) return null;
+            const me = this.currentTurnIndex, partner = (me + 2) % 4;
+            for (let i = this.pastTricks.length - 4; i >= 0; i -= 4) {
+                const trick = this.pastTricks.slice(i, i + 4);
+                const winner = this.getTrickWinner(trick);
+                const pPlay = trick.find(t => t.player === partner);
+                if (winner && (winner.player === me || winner.player === partner)) {
+                    if (pPlay && (pPlay.card.rank === 'A' || pPlay.card.rank === '10') && pPlay.card.suit.s !== trick[0].card.suit.s) return pPlay.card.suit.s;
                 }
             }
             return null;
         },
-        chooseBotCard(validCardsArray) {
-            const me=this.currentTurnIndex, partner=(me+2)%4;
-            const isA=c=>c.suit.s===this.atoutSuit.s;
-            const myHand=this.hands[me], myAtout=myHand.filter(isA), myNT=myHand.filter(c=>!isA(c));
-            const allPlayed=this.getAllPlayedCards();
-            const isTakerTeam=(this.takerIndex%2)===(me%2);
-            const takerTeam=(this.takerIndex%2===0)?'nous':'eux';
-            const v=c=>this.getCardValue(c);
-            const aOrd=c=>8-this.ordAtout.indexOf(c.rank);
-            const nOrd=c=>8-this.ordNormal.indexOf(c.rank);
-            const byAsc=arr=>[...arr].sort((a,b)=>v(a)-v(b));
-            const byDesc=arr=>[...arr].sort((a,b)=>v(b)-v(a));
-            const isMaster=card=>this.isMasterCard(card,allPlayed,myHand);
-            const trumpsPlayed=allPlayed.filter(isA).length;
-            const trumpsOut=8-trumpsPlayed-myAtout.length;
-            const valetTombé=allPlayed.some(c=>isA(c)&&c.rank==='V');
-            const valetEnMain=myAtout.some(c=>c.rank==='V');
-            const neufVivantAdv=!allPlayed.some(c=>isA(c)&&c.rank==='9')&&!myAtout.some(c=>c.rank==='9');
-            const trickN=this.tricksPlayedCount;
-            const estEnDanger=isTakerTeam&&(this.dealPoints[takerTeam]+( 162-allPlayed.reduce((acc,c)=>acc+v(c),0)))<82;
-            const suitCalledByPartner=this.partnerSignaledSuit();
 
-            const smartDiscard=(pool,forceSignal=false,leadSuit=null)=>{
-                const nt=pool.filter(c=>!isA(c));
-                if(!nt.length)return byAsc(pool)[0];
-                if(forceSignal&&leadSuit){const highNT=nt.filter(c=>(c.rank==='A'||c.rank==='10')&&c.suit.s!==leadSuit);if(highNT.length)return highNT[0];}
-                const suitCounts={};nt.forEach(c=>suitCounts[c.suit.s]=(suitCounts[c.suit.s]||0)+1);
-                const bestSuitToVoid=Object.keys(suitCounts).sort((a,b)=>suitCounts[b]-suitCounts[a])[0];
-                const zeroVal=nt.filter(c=>c.suit.s===bestSuitToVoid&&v(c)===0);
-                if(zeroVal.length)return zeroVal[0];
-                const deadSuit=nt.find(c=>{const s=c.suit.s;return allPlayed.some(p=>p.suit.s===s&&p.rank==='A')&&allPlayed.some(p=>p.suit.s===s&&p.rank==='10');});
-                if(deadSuit)return deadSuit;
-                return byAsc(nt)[0];
+        // ── CERVEAU IA (EXPERT) ──────────────────────────────────────────────────
+        chooseBotCard(validCardsArray) {
+            const me = this.currentTurnIndex, partner = (me + 2) % 4, opp1 = (me + 1) % 4, opp2 = (me + 3) % 4;
+            const isA = c => c.suit.s === this.atoutSuit.s;
+            const myHand = this.hands[me], myA = myHand.filter(isA), myNT = myHand.filter(c => !isA(c));
+            const allPlayedCards = this.getAllPlayedCards();
+            const isTakerTeam = (this.takerIndex % 2) === (me % 2);
+
+            const v = c => this.getCardValue(c);
+            const aOrd = c => 8 - this.ordAtout.indexOf(c.rank);
+            const nOrd = c => 8 - this.ordNormal.indexOf(c.rank);
+            const byAsc = arr => [...arr].sort((a, b) => v(a) - v(b));
+            const byDesc = arr => [...arr].sort((a, b) => v(b) - v(a));
+            
+            const isMaster = card => {
+                const ord = isA(card) ? this.ordAtout : this.ordNormal; const idx = ord.indexOf(card.rank);
+                return ord.slice(0, idx).every(r => allPlayedCards.some(c => c.suit.s === card.suit.s && c.rank === r) || myHand.some(c => c.suit.s === card.suit.s && c.rank === r));
             };
 
-            // CAS A : J'entame
-            if(this.currentTrick.length===0){
-                // Capot en cours
-                if(isTakerTeam&&this.tricksWon[takerTeam===('nous')?'eux':'nous']===0&&trickN>0){const m=validCardsArray.find(isMaster);if(m)return m;}
-                // Appel partenaire
-                if(suitCalledByPartner){const cards=validCardsArray.filter(c=>c.suit.s===suitCalledByPartner);if(cards.length)return byDesc(cards.filter(isMaster).length?cards.filter(isMaster):cards)[0];}
-                // Stratégie preneur
-                if(isTakerTeam){
-                    if(myAtout.some(c=>c.rank==='V')&&trumpsOut>0){const topA=myAtout.filter(isMaster);return byDesc(topA.length?topA:myAtout)[0];}
-                    const asM=myNT.filter(c=>c.rank==='A'&&isMaster(c)&&!this.voids[partner][c.suit.s]);
-                    if(asM.length)return byDesc(asM)[0];
-                    if(this.takerIndex===partner&&myAtout.length&&!this.voids[partner][this.atoutSuit.s]){return byAsc(myAtout.filter(c=>c.rank!=='V'&&c.rank!=='9'))[0]||byAsc(myAtout)[0];}
+            const valetVivant = !allPlayedCards.some(c => isA(c) && c.rank === 'V') && !myA.some(c => c.rank === 'V');
+            const atoutsRestants = 8 - allPlayedCards.filter(isA).length - myA.length;
+            const onCapot = (this.tricksWon[isTakerTeam ? 'eux' : 'nous'] === 0 && this.tricksPlayedCount > 0); // Simplifié pour le bot
+
+            const smartDiscard = (pool, wantSignal = false, leadSuit = null) => {
+                const nt = pool.filter(c => !isA(c));
+                if (wantSignal && leadSuit) { const signal = nt.filter(c => (c.rank === 'A' || c.rank === '10') && c.suit.s !== leadSuit && !this.voids[partner]?.[c.suit.s]); if (signal.length) return signal[0]; }
+                const zeros = nt.filter(c => v(c) === 0);
+                if (zeros.length) return zeros.reduce((b, c) => myHand.filter(x => x.suit.s === c.suit.s).length > myHand.filter(x => x.suit.s === b.suit.s).length ? c : b);
+                const safe = nt.filter(c => c.rank !== 'A' && c.rank !== '10');
+                if (safe.length) return byAsc(safe)[0];
+                if (nt.length) return byAsc(nt)[0];
+                const weakA = pool.filter(isA).filter(c => c.rank !== 'V' && !(c.rank === '9' && valetVivant));
+                return byAsc(weakA.length ? weakA : pool)[0];
+            };
+
+            if (this.currentTrick.length === 0) {
+                if (onCapot && isTakerTeam) { const masters = validCardsArray.filter(isMaster); if (masters.length) return byDesc(masters)[0]; }
+                const calledSuit = this.partnerSignaledSuit();
+                if (calledSuit) { const toPlay = validCardsArray.filter(c => c.suit.s === calledSuit); if (toPlay.length) return byDesc(toPlay)[0]; }
+                if (this.tricksPlayedCount === 7) return byDesc(validCardsArray)[0];
+                
+                if (isTakerTeam) {
+                    if (myA.some(c => c.rank === 'V') && atoutsRestants > 0) return byDesc(myA.filter(isMaster).length ? myA.filter(isMaster) : myA)[0];
+                    const masters = myNT.filter(isMaster);
+                    if (masters.length) return byDesc(masters.filter(c => !this.voids[partner]?.[c.suit.s]))[0] || byDesc(masters)[0];
+                } else {
+                    if (myA.length >= 3 && atoutsRestants > 1 && !this.voids[partner]?.[this.atoutSuit.s]) return byAsc(myA.filter(c => c.rank !== 'V'))[0];
+                    const asM = myNT.filter(c => c.rank === 'A' && isMaster(c));
+                    if (asM.length) return asM[0];
                 }
-                // Stratégie défense
-                else {
-                    const asSec=myNT.find(c=>c.rank==='A'&&myHand.filter(x=>x.suit.s===c.suit.s).length===1);
-                    if(asSec)return asSec;
-                    const suitToForce=Object.keys(this.voids[this.takerIndex]).find(s=>s!==this.atoutSuit.s&&this.voids[this.takerIndex][s]);
-                    if(suitToForce){const fc=validCardsArray.find(c=>c.suit.s===suitToForce);if(fc)return fc;}
-                    const longest=byDesc(myNT)[0];
-                    if(longest&&isMaster(longest))return longest;
-                }
-                if(trickN>=6){const dm=validCardsArray.find(isMaster);if(dm)return dm;}
                 return smartDiscard(validCardsArray);
             }
 
-            // CAS B : Je suis suiveur
-            const winner=this.getTrickWinner(this.currentTrick);
-            const partnerWins=(winner.player===partner);
-            const trickPts=this.currentTrick.reduce((acc,t)=>acc+v(t.card),0);
-            const leadSuit=this.currentTrick[0].card.suit.s;
+            const winner = this.getTrickWinner(this.currentTrick);
+            const partnerWin = winner?.player === partner;
+            const trickPts = this.currentTrick.reduce((s, t) => s + v(t.card), 0);
 
-            if(partnerWins){
-                const pCard=winner.card;
-                const isSafe=(this.currentTrick.length===3)||isMaster(pCard);
-                if(isSafe){
-                    const pisse=validCardsArray.filter(c=>!isA(c)&&(c.rank==='A'||c.rank==='10'));
-                    if(pisse.length)return byDesc(pisse)[0];
-                    const kings=validCardsArray.filter(c=>c.rank==='R'&&!isA(c));
-                    if(kings.length)return kings[0];
-                } else {return smartDiscard(validCardsArray.filter(c=>!isA(c)),true,leadSuit);}
-                return smartDiscard(validCardsArray);
+            if (partnerWin) {
+                const safe = this.currentTrick.length === 3 || isMaster(winner.card);
+                if (safe) {
+                    const charge = validCardsArray.filter(c => !isA(c) && (c.rank === 'A' || c.rank === '10'));
+                    if (charge.length) return byDesc(charge)[0];
+                }
+                return smartDiscard(validCardsArray.filter(c => !isA(c)).length ? validCardsArray.filter(c => !isA(c)) : validCardsArray, !safe, this.currentTrick[0].card.suit.s);
             }
 
-            const canBeat=validCardsArray.filter(c=>{
-                if(isA(c)&&!isA(winner.card))return true;
-                if(c.suit.s===winner.card.suit.s){const ord=isA(c)?this.ordAtout:this.ordNormal;return ord.indexOf(c.rank)<ord.indexOf(winner.card.rank);}
+            const canBeat = validCardsArray.filter(c => {
+                if (isA(c) && !isA(winner.card)) return true;
+                if (c.suit.s === winner.card.suit.s) { return (isA(c) ? aOrd(c) : nOrd(c)) > (isA(winner.card) ? aOrd(winner.card) : nOrd(winner.card)); }
                 return false;
             });
-            if(canBeat.length){
-                const worthIt=trickPts>=10||estEnDanger||this.currentTrick.length===3||trickN>=6;
-                if(worthIt){
-                    if(this.currentTrick.length===2&&winner.card.rank==='D'&&!isA(winner.card)){const k=canBeat.find(c=>c.rank==='R');const a=canBeat.find(c=>c.rank==='A');if(k&&a)return k;}
-                    const noV=canBeat.filter(c=>!(isA(c)&&c.rank==='V'));
-                    const filter9=noV.filter(c=>!(isA(c)&&c.rank==='9'&&neufVivantAdv));
-                    const source=filter9.length?filter9:(noV.length?noV:canBeat);
-                    const bestMaster=source.filter(isMaster);
-                    return byAsc(bestMaster.length?bestMaster:source)[0];
+
+            if (canBeat.length && (trickPts > 10 || this.currentTrick.length === 3 || this.tricksPlayedCount === 7)) {
+                if (this.currentTrick.length === 2 && winner.card.rank === 'D' && !isA(winner.card)) {
+                    const king = canBeat.find(c => c.rank === 'R'), ace = canBeat.find(c => c.rank === 'A');
+                    if (king && ace) return king;
                 }
+                const noV = canBeat.filter(c => !(isA(c) && c.rank === 'V'));
+                const finalBeaters = noV.filter(c => !(isA(c) && c.rank === '9' && valetVivant));
+                return byAsc(finalBeaters.length ? finalBeaters : (noV.length ? noV : canBeat))[0];
             }
-            return smartDiscard(validCardsArray,false,leadSuit);
+            return smartDiscard(validCardsArray);
         },
-        checkBelote(cardObj,playerIndex) {
-            if(cardObj.suit.s===this.atoutSuit.s&&(cardObj.rank==='R'||cardObj.rank==='D')){
-                let hand=this.hands[playerIndex];
-                let otherRank=(cardObj.rank==='R')?'D':'R';
-                let teamIdentity=(playerIndex===0||playerIndex===2)?'nous':'eux';
-                let hasOther=hand.some(c=>c.suit.s===this.atoutSuit.s&&c.rank===otherRank);
-                if(this.beloteAnnouncedBy===teamIdentity){this.showAnnonce("REBELOTE ! (+20)");this.updateStatus(`REBELOTE pour ${teamIdentity==='nous'?'Nous':'Eux'} !`);}
-                else if(hasOther){this.beloteAnnouncedBy=teamIdentity;this.showAnnonce("BELOTE !");this.updateStatus(`BELOTE pour ${teamIdentity==='nous'?'Nous':'Eux'} !`);}
+
+        // ── MÉCANIQUES DE JEU ──────────────────────────────────────────────────
+        sortAllHands() {
+            for (let i = 0; i < 4; i++) {
+                this.hands[i].sort((a, b) => {
+                    if (a.suit.s !== b.suit.s) { const so = {'♥': 1, '♠': 2, '♦': 3, '♣': 4}; return so[a.suit.s] - so[b.suit.s]; }
+                    let isAtout = (this.atoutSuit && a.suit.s === this.atoutSuit.s); let order = isAtout ? this.ordAtout : this.ordNormal; return order.indexOf(a.rank) - order.indexOf(b.rank);
+                });
             }
         },
-        showAnnonce(msg) {
-            const el=document.getElementById('bl-annonce-msg');
-            el.textContent=msg;
-            el.style.transition='none';el.style.opacity='0';el.style.transform='translate(-50%,-50%) scale(0.5)';
-            void el.offsetWidth;
-            el.style.transition='all 0.4s cubic-bezier(0.175,0.885,0.32,1.275)';el.style.opacity='1';el.style.transform='translate(-50%,-50%) scale(1.2)';
-            setTimeout(()=>{el.style.transform='translate(-50%,-50%) scale(1)';setTimeout(()=>{el.style.transition='all 0.4s ease-in';el.style.opacity='0';},1500);},400);
+        evaluateBidStrength(hand, trumpSuitChar) {
+            const tC = hand.filter(c => c.suit.s === trumpSuitChar); const sC = hand.filter(c => c.suit.s !== trumpSuitChar);
+            let power = tC.length * 2 + (tC.some(c => c.rank === 'V') ? 5 : 0);
+            sC.forEach(c => { if(c.rank === 'A') power += 2; if(c.rank === '10') power += 1; });
+            return power;
+        },
+        initGame() { 
+            this.scores = { nous: 0, eux: 0 }; this.litigePot = 0; this.deck = []; 
+            if (this.dealerIndex === -1) this.dealerIndex = Math.floor(Math.random() * 4); 
+            this.updateScoreUI(); this.startDeal(); 
+        },
+        startDeal() {
+            document.querySelectorAll('.bl-slot').forEach(s => s.innerHTML = ''); document.getElementById('bl-center').innerHTML = ''; document.getElementById('bl-hand').innerHTML = ''; 
+            document.getElementById('bl-actions-1').style.display = 'none'; document.getElementById('bl-actions-2').style.display = 'none'; 
+            document.getElementById('bl-annonce-msg').style.opacity = '0'; document.getElementById('bl-trick-points').style.display = 'none'; document.getElementById('bl-atout-corner').style.display = 'none';
+            this.activeModal = null; // Important for Network guest reset
+            this.guestModalShown = false;
+            
+            this.updatePlayerHighlight(-1); this.dealerIndex = (this.dealerIndex + 1) % 4; this.firstPlayerIndex = (this.dealerIndex + 1) % 4;
+            const positions = [{x: 450, y: 420}, {x: 680, y: 300}, {x: 450, y: 40}, {x: 100, y: 300}];
+            const tk = document.getElementById('bl-dealer-token'); tk.style.display = 'flex'; tk.style.left = positions[this.dealerIndex].x + 'px'; tk.style.top = positions[this.dealerIndex].y + 'px';
+            
+            if (this.deck.length !== 32) {
+                this.deck = []; this.suits.forEach(s => { this.ranks.forEach(r => { this.deck.push({ suit: s, rank: r, isRed: s.color === 'r' }); }); });
+                for (let i = this.deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]]; }
+            } else {
+                let cutIdx = Math.floor(Math.random() * 12) + 10; this.deck = [...this.deck.slice(cutIdx), ...this.deck.slice(0, cutIdx)];
+            }
+            
+            this.hands = [[], [], [], []]; this.currentTrick = []; this.pastTricks = [];
+            this.voids = [{ '♠': false, '♣': false, '♥': false, '♦': false }, { '♠': false, '♣': false, '♥': false, '♦': false }, { '♠': false, '♣': false, '♥': false, '♦': false }, { '♠': false, '♣': false, '♥': false, '♦': false }];
+            this.dealPoints = { nous: 0, eux: 0 }; this.tricksWon = { nous: 0, eux: 0 }; this.tricksPlayedCount = 0; 
+            this.atoutSuit = null; this.takerIndex = -1; this.beloteAnnouncedBy = null; this.phase = 'bidding_1';
+            
+            for (let p = 0; p < 4; p++) { let tp = (this.firstPlayerIndex + p) % 4; this.hands[tp].push(...this.deck.splice(0, 3)); this.hands[tp].push(...this.deck.splice(0, 2)); }
+            this.centerCard = this.deck.shift(); this.sortAllHands(); this.showCenterCard(); this.renderHand(); this.renderBotHands(); this.currentTurnIndex = this.firstPlayerIndex; this.processBidding1();
+        },
+        showSpeech(playerIndex, textMsg) { 
+            const bubble = document.getElementById(`bl-speech-${playerIndex}`); bubble.textContent = textMsg; bubble.style.opacity = 1; setTimeout(() => { bubble.style.opacity = 0; }, 1200); 
+            if (window.App.Network && window.App.Network.room && window.App.Network.myId === 'X') update(window.App.Network.ref, { 'blState/netSpeech': { p: playerIndex, m: textMsg, ts: Date.now() } });
+        },
+        showCenterCard() { 
+            const ca = document.getElementById('bl-center'); const cE = document.createElement('div'); 
+            cE.className = `bl-card ${this.centerCard.isRed ? 'red' : ''}`; cE.innerHTML = `<span>${this.centerCard.rank}</span><span>${this.centerCard.suit.s}</span>`; 
+            ca.innerHTML = ''; ca.appendChild(cE); 
+        },
+        processBidding1() {
+            this.updatePlayerHighlight(this.currentTurnIndex);
+            if (this.currentTurnIndex === 0) {
+                this.updateStatus("TOUR 1 : Voulez-vous prendre cette couleur ?"); document.getElementById('bl-actions-1').style.display = 'flex';
+                document.getElementById('btn-prendre-1').onclick = () => { this.showSpeech(0, "Je prends !"); this.take(0, this.centerCard.suit); };
+                document.getElementById('btn-passer-1').onclick = () => { this.showSpeech(0, "Passe."); this.passBidding1(); };
+                this.syncNetwork();
+            } else if (this.currentTurnIndex === 2 && window.App.Network.room && window.App.Network.gameType === 'belote') {
+                document.getElementById('bl-actions-1').style.display = 'none'; this.updateStatus("Votre ami réfléchit..."); this.syncNetwork();
+            } else {
+                document.getElementById('bl-actions-1').style.display = 'none'; let botName = this.currentTurnIndex === 1 ? 'Est' : (this.currentTurnIndex === 2 ? 'Nord' : 'Ouest');
+                this.updateStatus(`${botName} réfléchit...`); this.syncNetwork();
+                setTimeout(() => {
+                    const p = this.evaluateBidStrength([...this.hands[this.currentTurnIndex], this.centerCard], this.centerCard.suit.s);
+                    const t = 7.5 - (((this.currentTurnIndex - this.firstPlayerIndex + 4) % 4) * 0.5);
+                    if (p >= t) { this.showSpeech(this.currentTurnIndex, `Je prends ! (${this.centerCard.suit.s})`); setTimeout(() => { this.take(this.currentTurnIndex, this.centerCard.suit); }, 800); } 
+                    else { this.showSpeech(this.currentTurnIndex, "Passe."); setTimeout(() => { this.passBidding1(); }, 800); }
+                }, 1200);
+            }
+        },
+        passBidding1() {
+            document.getElementById('bl-actions-1').style.display = 'none'; this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
+            if (this.currentTurnIndex === this.firstPlayerIndex) { this.phase = 'bidding_2'; this.updateStatus("TOUR 2 : Choix d'une autre couleur."); this.syncNetwork(); setTimeout(() => { this.processBidding2(); }, 500); } 
+            else { this.processBidding1(); }
+        },
+        processBidding2() {
+            this.updatePlayerHighlight(this.currentTurnIndex); let aS = this.suits.filter(s => s.s !== this.centerCard.suit.s);
+            if (this.currentTurnIndex === 0) {
+                this.updateStatus("TOUR 2 : Choisissez une couleur ou passez."); document.getElementById('bl-actions-2').style.display = 'flex';
+                const sC = document.getElementById('bl-suits-container'); sC.innerHTML = '';
+                aS.forEach(sObj => {
+                    let btn = document.createElement('button'); btn.className = `bl-suit-btn ${sObj.color === 'r' ? 'red' : 'black'}`; btn.textContent = sObj.s;
+                    btn.onclick = () => { this.showSpeech(0, `Je prends ! (${sObj.s})`); document.getElementById('bl-actions-2').style.display = 'none'; this.take(0, sObj); }; sC.appendChild(btn);
+                });
+                document.getElementById('btn-passer-2').onclick = () => { this.showSpeech(0, "Passe."); document.getElementById('bl-actions-2').style.display = 'none'; this.passBidding2(); };
+                this.syncNetwork();
+            } else if (this.currentTurnIndex === 2 && window.App.Network.room && window.App.Network.gameType === 'belote') {
+                document.getElementById('bl-actions-2').style.display = 'none'; this.updateStatus("Votre ami réfléchit (Tour 2)..."); this.syncNetwork();
+            } else {
+                let bN = this.currentTurnIndex === 1 ? 'Est' : (this.currentTurnIndex === 2 ? 'Nord' : 'Ouest'); this.updateStatus(`${bN} réfléchit (Tour 2)...`); this.syncNetwork();
+                setTimeout(() => {
+                    let h = this.hands[this.currentTurnIndex], bS = null, bSc = 0;
+                    aS.forEach(sObj => { const p = this.evaluateBidStrength(h, sObj.s); if (p > bSc) { bSc = p; bS = sObj; } });
+                    const t = 6.5 - (((this.currentTurnIndex - this.firstPlayerIndex + 4) % 4) * 0.4);
+                    if (bSc >= t && bS) { this.showSpeech(this.currentTurnIndex, `Je prends ! (${bS.s})`); setTimeout(() => { this.take(this.currentTurnIndex, bS); }, 800); } 
+                    else { this.showSpeech(this.currentTurnIndex, "Passe."); setTimeout(() => { this.passBidding2(); }, 800); }
+                }, 1200);
+            }
+        },
+        passBidding2() {
+            this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
+            if (this.currentTurnIndex === this.firstPlayerIndex) { this.updateStatus("Tout le monde a passé. Redistribution générale !"); this.syncNetwork(); setTimeout(() => { this.startDeal(); }, 1500); } 
+            else { this.processBidding2(); }
+        },
+        take(playerIdx, selectedSuit) {
+            document.getElementById('bl-actions-1').style.display = 'none'; document.getElementById('bl-actions-2').style.display = 'none'; document.getElementById('bl-center').innerHTML = '';
+            this.takerIndex = playerIdx; this.atoutSuit = selectedSuit; this.hands[playerIdx].push(this.centerCard);
+            let nD = playerIdx === 0 ? "Vous avez" : (playerIdx === 1 ? "Est a" : (playerIdx === 2 ? "Nord a" : "Ouest a"));
+            this.updateStatus(`${nD} pris à <span style="color:${this.atoutSuit.color === 'r' ? '#f43f5e' : 'white'}; font-size:1.5rem;">${this.atoutSuit.s}</span> !`);
+            this.syncNetwork(); setTimeout(() => { this.finishDeal(); }, 1500);
+        },
+        finishDeal() {
+            this.phase = 'playing'; let tN = this.takerIndex === 0 ? "Toi" : (this.takerIndex === 1 ? "Est" : (this.takerIndex === 2 ? "Nord" : "Ouest"));
+            document.getElementById('bl-atout-corner').style.display = 'block'; document.getElementById('bl-taker-name').innerText = `Preneur : ${tN}`; document.getElementById('bl-atout-suit').innerText = this.atoutSuit.s; document.getElementById('bl-atout-suit').style.color = this.atoutSuit.color === 'r' ? '#f43f5e' : 'white';
+            document.getElementById('bl-trick-points').style.display = 'block'; this.updateTrickPointsUI();
+            for (let p = 0; p < 4; p++) { let t = (this.firstPlayerIndex + p) % 4; this.hands[t].push(...this.deck.splice(0, (t === this.takerIndex) ? 2 : 3)); }
+            this.sortAllHands(); this.currentTurnIndex = this.firstPlayerIndex; this.processPlay();
+        },
+        updatePlayerHighlight(index) {
+            document.querySelectorAll('.bl-name').forEach(el => el.classList.remove('active-turn'));
+            if (index === 0) document.getElementById('bl-n-s').classList.add('active-turn'); if (index === 1) document.getElementById('bl-n-e').classList.add('active-turn'); if (index === 2) document.getElementById('bl-n-n').classList.add('active-turn'); if (index === 3) document.getElementById('bl-n-w').classList.add('active-turn');
+        },
+        renderBotHands() {
+            const mId = ['none', 'bl-h-e', 'bl-h-n', 'bl-h-w'];
+            for (let i = 1; i <= 3; i++) { 
+                const c = document.getElementById(mId[i]); c.innerHTML = ''; 
+                for (let j = 0; j < this.hands[i].length; j++) { let b = document.createElement('div'); b.className = 'bl-card-back'; c.appendChild(b); } 
+            }
+        },
+        processPlay() {
+            if (this.tricksPlayedCount === 8) return; this.updatePlayerHighlight(this.currentTurnIndex); this.renderHand(); this.renderBotHands();
+            if (this.currentTurnIndex === 0) { this.updateStatus("À vous de jouer !"); this.syncNetwork(); } 
+            else if (this.currentTurnIndex === 2 && window.App.Network.room && window.App.Network.gameType === 'belote') { this.updateStatus("Votre ami réfléchit..."); this.syncNetwork(); } 
+            else { let bN = this.currentTurnIndex === 1 ? "Est" : (this.currentTurnIndex === 2 ? "Nord" : "Ouest"); this.updateStatus(`${bN} calcule...`); this.syncNetwork(); setTimeout(() => { this.botPlay(); }, 600); }
+        },
+        getTrickWinner(trickArray) {
+            if (trickArray.length === 0) return null;
+            let lS = trickArray[0].card.suit.s, hV = -1, wI = 0, isA = trickArray.some(t => t.card.suit.s === this.atoutSuit.s);
+            for (let i = 0; i < trickArray.length; i++) {
+                let c = trickArray[i].card, ord = (c.suit.s === this.atoutSuit.s) ? this.ordAtout : this.ordNormal, val = 8 - ord.indexOf(c.rank); 
+                if (isA) { if (c.suit.s === this.atoutSuit.s && val > hV) { hV = val; wI = i; } } 
+                else { if (c.suit.s === lS && val > hV) { hV = val; wI = i; } }
+            } 
+            return trickArray[wI];
+        },
+        getValidCards(handArray) {
+            if (this.currentTrick.length === 0) return handArray;
+            let lS = this.currentTrick[0].card.suit.s, cR = handArray.filter(c => c.suit.s === lS), tC = handArray.filter(c => c.suit.s === this.atoutSuit.s), hT = -1;
+            this.currentTrick.forEach(t => { if (t.card.suit.s === this.atoutSuit.s) { let v = 8 - this.ordAtout.indexOf(t.card.rank); if (v > hT) hT = v; } });
+            
+            if (cR.length > 0) { 
+                if (lS === this.atoutSuit.s) { let h = cR.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > hT); if (h.length > 0) return h; } 
+                return cR; 
+            }
+            let cW = this.getTrickWinner(this.currentTrick), pI = (this.currentTurnIndex + 2) % 4, isP = (cW && cW.player === pI);
+            if (tC.length > 0) { 
+                if (isP) { return handArray; } 
+                else { let h = tC.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > hT); if (h.length > 0) return h; return tC; } 
+            }
+            return handArray;
+        },
+        checkBelote(cardObj, playerIndex) {
+            if (cardObj.suit.s === this.atoutSuit.s && (cardObj.rank === 'R' || cardObj.rank === 'D')) {
+                let h = this.hands[playerIndex], oR = (cardObj.rank === 'R') ? 'D' : 'R', tI = (playerIndex === 0 || playerIndex === 2) ? 'nous' : 'eux', has = h.some(c => c.suit.s === this.atoutSuit.s && c.rank === oR);
+                if (this.beloteAnnouncedBy === tI) { this.showAnnonce("REBELOTE ! (+20)"); this.updateStatus(`REBELOTE pour ${tI === 'nous' ? 'Nous' : 'Eux'} !`); } 
+                else if (has) { this.beloteAnnouncedBy = tI; this.showAnnonce("BELOTE !"); this.updateStatus(`BELOTE pour ${tI === 'nous' ? 'Nous' : 'Eux'} !`); }
+            }
+        },
+        showAnnonce(msg) { 
+            const aE = document.getElementById('bl-annonce-msg'); aE.textContent = msg; 
+            aE.style.transition = 'none'; aE.style.opacity = '0'; aE.style.transform = 'translate(-50%, -50%) scale(0.5)'; void aE.offsetWidth; 
+            aE.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; aE.style.opacity = '1'; aE.style.transform = 'translate(-50%, -50%) scale(1.2)';
+            setTimeout(() => { aE.style.transform = 'translate(-50%, -50%) scale(1)'; setTimeout(() => { aE.style.transition = 'all 0.4s ease-in'; aE.style.opacity = '0'; }, 1500); }, 400);
         },
         renderHand() {
-            const handContainer=document.getElementById('bl-hand'); handContainer.innerHTML='';
-            let validCardsArray=(this.phase==='playing'&&this.currentTurnIndex===0)?this.getValidCards(this.hands[0]):[];
-            this.hands[0].forEach((card,index)=>{
-                let cardElement=document.createElement('div');
-                let isValid=validCardsArray.includes(card)||this.phase!=='playing';
-                cardElement.className=`bl-card ${card.isRed?'red':''} ${!isValid&&this.phase==='playing'?'invalid':''}`;
-                cardElement.innerHTML=`<span>${card.rank}</span><span>${card.suit.s}</span>`;
-                if(isValid&&this.phase==='playing'&&this.currentTurnIndex===0){cardElement.onclick=()=>{if(this.phase==='playing'&&this.currentTurnIndex===0)this.playCard(index,cardElement);};}
-                handContainer.appendChild(cardElement);
+            const hC = document.getElementById('bl-hand'); hC.innerHTML = '';
+            let vC = (this.phase === 'playing' && this.currentTurnIndex === 0) ? this.getValidCards(this.hands[0]) : [];
+            this.hands[0].forEach((card, index) => {
+                let cE = document.createElement('div'), isV = vC.includes(card) || this.phase !== 'playing';
+                cE.className = `bl-card ${card.isRed ? 'red' : ''} ${!isV && this.phase === 'playing' ? 'invalid' : ''}`; 
+                cE.innerHTML = `<span>${card.rank}</span><span>${card.suit.s}</span>`;
+                if (isV && this.phase === 'playing' && this.currentTurnIndex === 0) { cE.onclick = () => { if (this.phase === 'playing' && this.currentTurnIndex === 0) this.playCard(index, cE); }; }
+                hC.appendChild(cE);
             });
         },
-        playCard(cardIndex,cardElement) {
-            this.phase='resolving'; let playedCard=this.hands[0].splice(cardIndex,1)[0]; this.renderHand(); this.checkBelote(playedCard,0);
-            if(this.currentTrick.length>0&&playedCard.suit.s!==this.currentTrick[0].card.suit.s)this.voids[0][this.currentTrick[0].card.suit.s]=true;
-            let visualCard=cardElement.cloneNode(true); visualCard.style.setProperty('--rand',Math.random()); visualCard.className+=' bl-played'; document.getElementById('bl-s-s').appendChild(visualCard);
-            this.currentTrick.push({player:0,card:playedCard}); this.currentTurnIndex=1; this.syncNetwork();
-            if(this.currentTrick.length===4){this.resolveTrick();}else{this.phase='playing';this.processPlay();}
+        playCard(cardIndex, cardElement) {
+            this.phase = 'resolving'; let pC = this.hands[0].splice(cardIndex, 1)[0]; this.renderHand(); this.checkBelote(pC, 0);
+            if (this.currentTrick.length > 0 && pC.suit.s !== this.currentTrick[0].card.suit.s) { this.voids[0][this.currentTrick[0].card.suit.s] = true; }
+            let vC = cardElement.cloneNode(true); vC.style.setProperty('--rand', Math.random()); vC.className += ' bl-played'; document.getElementById('bl-s-s').appendChild(vC);
+            this.currentTrick.push({ player: 0, card: pC }); this.currentTurnIndex = 1; this.syncNetwork();
+            if (this.currentTrick.length === 4) { this.resolveTrick(); } else { this.phase = 'playing'; this.processPlay(); }
         },
         botPlay() {
-            let validCards=this.getValidCards(this.hands[this.currentTurnIndex]);
-            let playedCard=this.chooseBotCard(validCards);
-            this.hands[this.currentTurnIndex]=this.hands[this.currentTurnIndex].filter(c=>c!==playedCard);
-            this.checkBelote(playedCard,this.currentTurnIndex);
-            if(this.currentTrick.length>0&&playedCard.suit.s!==this.currentTrick[0].card.suit.s)this.voids[this.currentTurnIndex][this.currentTrick[0].card.suit.s]=true;
-            const posMap=['s','e','n','w']; let visualCard=document.createElement('div');
-            visualCard.className=`bl-card bl-played ${playedCard.isRed?'red':''}`; visualCard.innerHTML=`<span>${playedCard.rank}</span><span>${playedCard.suit.s}</span>`; visualCard.style.setProperty('--rand',Math.random());
-            document.getElementById('bl-s-'+posMap[this.currentTurnIndex]).appendChild(visualCard);
-            this.currentTrick.push({player:this.currentTurnIndex,card:playedCard}); this.currentTurnIndex=(this.currentTurnIndex+1)%4;
+            let vC = this.getValidCards(this.hands[this.currentTurnIndex]); let pC = this.chooseBotCard(vC); 
+            this.hands[this.currentTurnIndex] = this.hands[this.currentTurnIndex].filter(c => c !== pC); this.checkBelote(pC, this.currentTurnIndex);
+            if (this.currentTrick.length > 0 && pC.suit.s !== this.currentTrick[0].card.suit.s) { this.voids[this.currentTurnIndex][this.currentTrick[0].card.suit.s] = true; }
+            const pM = ['s', 'e', 'n', 'w']; let viC = document.createElement('div'); viC.className = `bl-card bl-played ${pC.isRed ? 'red' : ''}`; viC.innerHTML = `<span>${pC.rank}</span><span>${pC.suit.s}</span>`; viC.style.setProperty('--rand', Math.random()); document.getElementById('bl-s-' + pM[this.currentTurnIndex]).appendChild(viC);
+            this.currentTrick.push({ player: this.currentTurnIndex, card: pC }); this.currentTurnIndex = (this.currentTurnIndex + 1) % 4;
             this.renderBotHands(); this.syncNetwork();
-            if(this.currentTrick.length===4){this.resolveTrick();}else{this.processPlay();}
+            if (this.currentTrick.length === 4) { this.resolveTrick(); } else { this.processPlay(); }
         },
         resolveTrick() {
-            this.phase='resolving'; this.updatePlayerHighlight(-1);
-            let winnerObject=this.getTrickWinner(this.currentTrick);
-            let pointsInTrick=this.currentTrick.reduce((sum,t)=>sum+this.getCardValue(t.card),0);
-            let trickWinnerIndex=winnerObject.player;
-            let winningTeam=(trickWinnerIndex===0||trickWinnerIndex===2)?'nous':'eux';
+            this.phase = 'resolving'; this.updatePlayerHighlight(-1);
+            let wO = this.getTrickWinner(this.currentTrick); let pT = this.currentTrick.reduce((sum, t) => sum + this.getCardValue(t.card), 0); let tW = wO.player; let wT = (tW === 0 || tW === 2) ? 'nous' : 'eux';
+            
+            // LA CLÉ EXPERTE
             this.pastTricks.push(...JSON.parse(JSON.stringify(this.currentTrick)));
-            this.tricksPlayedCount++;
-            if(this.tricksPlayedCount===8)pointsInTrick+=10;
-            this.dealPoints[winningTeam]+=pointsInTrick; this.tricksWon[winningTeam]+=1; this.updateTrickPointsUI();
-            let winName=trickWinnerIndex===0?"Vous remportez":(trickWinnerIndex===1?"Est remporte":(trickWinnerIndex===2?"Votre ami remporte":"Ouest remporte"));
-            this.updateStatus(`${winName} le pli ! (+${pointsInTrick} pts)`); this.syncNetwork();
-            setTimeout(()=>{
-                document.querySelectorAll('.bl-slot').forEach(s=>{s.innerHTML='';});
-                this.currentTrick=[]; this.currentTurnIndex=trickWinnerIndex; this.phase='playing';
-                if(this.tricksPlayedCount===8){this.endDeal();}else{this.processPlay();}
-            },2500);
+
+            this.tricksPlayedCount++; 
+            if (this.tricksPlayedCount === 8) pT += 10; 
+            
+            this.dealPoints[wT] += pT; this.tricksWon[wT] += 1; this.updateTrickPointsUI();
+            let wM = tW === 0 ? "Vous remportez" : (tW === 1 ? "Est remporte" : (tW === 2 ? "Votre ami remporte" : "Ouest remporte"));
+            this.updateStatus(`${wM} le pli ! (+${pT} pts)`); this.syncNetwork();
+            
+            setTimeout(() => {
+                document.querySelectorAll('.bl-slot').forEach(s => { s.innerHTML = ''; });
+                this.currentTrick = []; this.currentTurnIndex = tW; this.phase = 'playing';
+                if (this.tricksPlayedCount === 8) { this.endDeal(); } else { this.processPlay(); }
+            }, 2500);
         },
         updateTrickPointsUI() {
-            document.getElementById('bl-trick-pts-val').textContent=this.dealPoints.nous;
-            document.getElementById('bl-tricks-nous').textContent=this.tricksWon.nous;
-            document.getElementById('bl-tricks-eux').textContent=this.tricksWon.eux;
+            document.getElementById('bl-trick-pts-val').textContent = this.dealPoints.nous;
+            document.getElementById('bl-tricks-nous').textContent = this.tricksWon.nous;
+            document.getElementById('bl-tricks-eux').textContent = this.tricksWon.eux;
         },
-        updateScoreUI() { document.getElementById('bl-score-nous').textContent=this.scores.nous; document.getElementById('bl-score-eux').textContent=this.scores.eux; },
-        endDeal() {
-            document.getElementById('bl-atout-corner').style.display='none';
-            let ptsNous=this.dealPoints.nous, ptsEux=this.dealPoints.eux, msg="";
-            let beloteNous=this.beloteAnnouncedBy==='nous'?20:0, beloteEux=this.beloteAnnouncedBy==='eux'?20:0;
-            let isCapotNous=this.tricksWon.nous===8, isCapotEux=this.tricksWon.eux===8;
-            let takerTeam=(this.takerIndex===0||this.takerIndex===2)?'nous':'eux';
-            let totalNous=ptsNous+beloteNous, totalEux=ptsEux+beloteEux;
-            let titleStat='info', titleText="Bilan de la Manche";
+        updateScoreUI() { document.getElementById('bl-score-nous').textContent = this.scores.nous; document.getElementById('bl-score-eux').textContent = this.scores.eux; },
+        endDeal() { 
+            let ptsN = this.dealPoints.nous, ptsE = this.dealPoints.eux, msg = "";
+            let bN = this.beloteAnnouncedBy === 'nous' ? 20 : 0, bE = this.beloteAnnouncedBy === 'eux' ? 20 : 0;
+            let iCN = this.tricksWon.nous === 8, iCE = this.tricksWon.eux === 8;
+            
+            let tT = (this.takerIndex === 0 || this.takerIndex === 2) ? 'nous' : 'eux';
+            let tN = ptsN + bN, tE = ptsE + bE;
+            let tS = 'info', tTx = "Bilan de la Manche";
 
-            if(takerTeam==='nous'&&!isCapotNous){
-                if(totalNous>totalEux){this.scores.nous+=totalNous+this.litigePot;this.scores.eux+=totalEux;this.litigePot=0;msg+="Contrat rempli !";titleStat='win';titleText='Contrat Rempli !';}
-                else if(totalNous<totalEux){msg+="<b style='color:var(--player-x);'>CHUTE ! L'adversaire prend 162 pts.</b>";this.scores.eux+=162+beloteEux+this.litigePot;this.scores.nous+=beloteNous;this.litigePot=0;ptsNous=0;ptsEux=162;titleStat='lose';titleText='Chute...';}
-                else{msg+="<b style='color:var(--gold);'>LITIGE ! Vos points sont reportés.</b>";this.litigePot+=ptsNous;this.scores.eux+=totalEux;this.scores.nous+=beloteNous;ptsNous=0;titleStat='tie';titleText='Litige';}
-            } else if(takerTeam==='eux'&&!isCapotEux){
-                if(totalEux>totalNous){this.scores.eux+=totalEux+this.litigePot;this.scores.nous+=totalNous;this.litigePot=0;msg+="L'adversaire a rempli son contrat.";titleStat='lose';titleText='Contrat adverse rempli';}
-                else if(totalEux<totalNous){msg+="<b style='color:var(--accent);'>ADVERSAIRE DEDANS ! Vous prenez 162 pts.</b>";this.scores.nous+=162+beloteNous+this.litigePot;this.scores.eux+=beloteEux;this.litigePot=0;ptsEux=0;ptsNous=162;titleStat='win';titleText='Adversaire Dedans !';}
-                else{msg+="<b style='color:var(--gold);'>LITIGE ! Points adverses reportés.</b>";this.litigePot+=ptsEux;this.scores.nous+=totalNous;this.scores.eux+=beloteEux;ptsEux=0;titleStat='tie';titleText='Litige';}
-            } else if(isCapotNous){ptsNous=250;this.scores.nous+=ptsNous+beloteNous+this.litigePot;this.scores.eux+=beloteEux;this.litigePot=0;msg+="<b style='color:var(--accent);'>CAPOT ! (250 pts)</b>";titleStat='win';titleText='CAPOT !';}
-            else if(isCapotEux){ptsEux=250;this.scores.eux+=ptsEux+beloteEux+this.litigePot;this.scores.nous+=beloteNous;this.litigePot=0;msg+="<b style='color:var(--player-x);'>CAPOT ADVERSE ! (250 pts)</b>";titleStat='lose';titleText='CAPOT ADVERSE...';}
+            if (tT === 'nous' && !iCN) {
+                if (tN > tE) { this.scores.nous += tN + this.litigePot; this.scores.eux += tE; this.litigePot = 0; msg += "Contrat rempli !"; tS = 'win'; tTx = 'Contrat Rempli !'; } 
+                else if (tN < tE) { msg += "<b style='color:var(--player-x);'>CHUTE ! L'adversaire prend 162 pts.</b>"; this.scores.eux += 162 + bE + this.litigePot; this.scores.nous += bN; this.litigePot = 0; ptsN = 0; ptsE = 162; tS = 'lose'; tTx = 'Chute...'; } 
+                else { msg += "<b style='color:var(--gold);'>LITIGE ! Vos points sont reportés.</b>"; this.litigePot += ptsN; this.scores.eux += tE; this.scores.nous += bN; ptsN = 0; tS = 'tie'; tTx = 'Litige'; }
+            } else if (tT === 'eux' && !iCE) {
+                if (tE > tN) { this.scores.eux += tE + this.litigePot; this.scores.nous += tN; this.litigePot = 0; msg += "L'adversaire a rempli son contrat."; tS = 'lose'; tTx = 'Contrat adverse rempli'; } 
+                else if (tE < tN) { msg += "<b style='color:var(--accent);'>ADVERSAIRE DEDANS ! Vous prenez 162 pts.</b>"; this.scores.nous += 162 + bN + this.litigePot; this.scores.eux += bE; this.litigePot = 0; ptsE = 0; ptsN = 162; tS = 'win'; tTx = 'Adversaire Dedans !'; } 
+                else { msg += "<b style='color:var(--gold);'>LITIGE ! Points adverses reportés.</b>"; this.litigePot += ptsE; this.scores.nous += tN; this.scores.eux += bE; ptsE = 0; tS = 'tie'; tTx = 'Litige'; }
+            } else if (iCN) { ptsN = 250; this.scores.nous += ptsN + bN + this.litigePot; this.scores.eux += bE; this.litigePot = 0; msg += "<b style='color:var(--accent);'>CAPOT ! (250 pts)</b>"; tS = 'win'; tTx = 'CAPOT !'; }
+            else if (iCE) { ptsE = 250; this.scores.eux += ptsE + bE + this.litigePot; this.scores.nous += bN; this.litigePot = 0; msg += "<b style='color:var(--player-x);'>CAPOT ADVERSE ! (250 pts)</b>"; tS = 'lose'; tTx = 'CAPOT ADVERSE...'; }
 
-            let scoreboardHTML=`<p style="margin-bottom:20px;">${msg}</p><div style="display:flex;justify-content:space-around;background:rgba(0,0,0,0.4);padding:15px;border-radius:10px;margin-bottom:20px;"><div style="color:var(--accent);"><span style="font-size:0.9rem;color:#94a3b8;">NOUS</span><br><span style="font-size:2rem;font-weight:bold;">${ptsNous+beloteNous}</span></div><div style="color:var(--player-x);"><span style="font-size:0.9rem;color:#94a3b8;">EUX</span><br><span style="font-size:2rem;font-weight:bold;">${ptsEux+beloteEux}</span></div></div>`;
-            this.deck=this.pastTricks.map(t=>t.card);
+            let sHTML = `
+                <p style="margin-bottom:20px;">${msg}</p>
+                <div style="display:flex; justify-content:space-around; background:rgba(0,0,0,0.4); padding:15px; border-radius:10px; margin-bottom:20px;">
+                    <div style="color:var(--accent);"><span style="font-size:0.9rem; color:#94a3b8;">NOUS</span><br><span style="font-size:2rem; font-weight:bold;">${ptsN + bN}</span></div>
+                    <div style="color:var(--player-x);"><span style="font-size:0.9rem; color:#94a3b8;">EUX</span><br><span style="font-size:2rem; font-weight:bold;">${ptsE + bE}</span></div>
+                </div>
+            `;
+            
+            this.deck = this.pastTricks.map(t => t.card); // PREPARE DECK
 
-            if(this.scores.nous>=1000||this.scores.eux>=1000){
-                let finalStatus=this.scores.nous>=1000?'win':'lose';
-                let finalTitle=this.scores.nous>=1000?"VICTOIRE ABSOLUE !":"DÉFAITE CUISANTE...";
-                let finalText=`Score Final :<br><br><b style="color:var(--accent)">NOUS : ${this.scores.nous}</b><br><b style="color:var(--player-x)">EUX : ${this.scores.eux}</b>`;
-                this.activeModal={status:finalStatus,title:finalTitle,msg:finalText};
+            if (this.scores.nous >= 1000 || this.scores.eux >= 1000) {
+                let fS = this.scores.nous >= 1000 ? 'win' : 'lose';
+                let fT = this.scores.nous >= 1000 ? "VICTOIRE ABSOLUE !" : "DÉFAITE CUISANTE...";
+                this.activeModal = { status: fS, title: fT, msg: `Score Final :<br><br><b style="color:var(--accent)">NOUS : ${this.scores.nous}</b><br><b style="color:var(--player-x)">EUX : ${this.scores.eux}</b>` };
                 this.syncNetwork();
-                window.UI.showEndScreen(finalStatus,finalTitle,finalText,()=>{this.activeModal=null;this.syncNetwork();this.initGame();});
+                window.UI.showEndScreen(fS, fT, this.activeModal.msg, () => { this.activeModal = null; this.syncNetwork(); this.initGame(); });
             } else {
-                this.updateScoreUI();
-                this.activeModal={status:titleStat,title:titleText,msg:scoreboardHTML};
+                this.updateScoreUI(); 
+                this.activeModal = { status: tS, title: tTx, msg: sHTML };
                 this.syncNetwork();
-                window.UI.showEndScreen(titleStat,titleText,scoreboardHTML,()=>{this.activeModal=null;this.syncNetwork();this.startDeal();});
+                window.UI.showEndScreen(tS, tTx, sHTML, () => { this.activeModal = null; this.syncNetwork(); this.startDeal(); });
             }
         },
-        updateStatus(msg) { document.getElementById('bl-status').innerHTML=msg; }
+        updateStatus(t) { document.getElementById('bl-status').innerHTML = t; },
+
+        // =========================================================
+        // INJECTION : RÉSEAU BELOTE
+        // =========================================================
+        lastActionId: 0,
+        guestModalShown: false,
+        
+        syncNetwork() {
+            if (window.App.Network.room && window.App.Network.gameType === 'belote' && window.App.Network.myId === 'X') {
+                let vGI = [];
+                if (this.phase === 'playing' && this.currentTurnIndex === 2) {
+                    let vC = this.getValidCards(this.hands[2]);
+                    vGI = vC.map(c => this.hands[2].indexOf(c));
+                }
+                update(window.App.Network.ref, { 
+                    blState: { 
+                        hands: this.hands, trick: this.currentTrick, turn: this.currentTurnIndex, scores: this.scores, 
+                        dealPoints: this.dealPoints, tricksWon: this.tricksWon, centerCard: this.centerCard, atout: this.atoutSuit, 
+                        phase: this.phase, takerIndex: this.takerIndex, validGuestIndices: vGI, msg: document.getElementById('bl-status').innerHTML, 
+                        modal: this.activeModal || null 
+                    } 
+                });
+            }
+        },
+        
+        renderFromNetwork(state) {
+            if (!state || state.status === 'waiting') return;
+            
+            if (state.modal && !this.guestModalShown) { 
+                this.guestModalShown = true;
+                window.UI.showEndScreen(state.modal.status, state.modal.title, state.modal.msg, null);
+                document.getElementById('modal-btn').style.display = 'none'; 
+            } else if (!state.modal && this.guestModalShown) { 
+                this.guestModalShown = false;
+                window.UI.closeModal();
+            }
+
+            document.getElementById('bl-score-nous').textContent = state.scores.nous; 
+            document.getElementById('bl-score-eux').textContent = state.scores.eux; 
+            document.getElementById('bl-status').innerHTML = state.msg; 
+            document.getElementById('bl-trick-pts-val').textContent = state.dealPoints.nous || 0;
+            document.getElementById('bl-tricks-nous').textContent = state.tricksWon.nous || 0;
+            document.getElementById('bl-tricks-eux').textContent = state.tricksWon.eux || 0;
+            
+            document.getElementById('bl-n-s').textContent = "Toi"; document.getElementById('bl-n-n').textContent = "L'Hôte"; document.getElementById('bl-n-w').textContent = "Est"; document.getElementById('bl-n-e').textContent = "Ouest"; 
+            
+            if (state.netSpeech && state.netSpeech.ts !== this.lastSpeechTs) {
+                this.lastSpeechTs = state.netSpeech.ts;
+                const bubble = document.getElementById(`bl-speech-${state.netSpeech.p}`);
+                if (bubble) { bubble.textContent = state.netSpeech.m; bubble.style.opacity = 1; setTimeout(() => { bubble.style.opacity = 0; }, 1200); }
+            }
+
+            if (state.phase === 'bidding_1' || state.phase === 'bidding_2' || state.phase === 'init') { 
+                document.getElementById('bl-atout-corner').style.display = 'none';
+                document.getElementById('bl-trick-points').style.display = 'none';
+                if (state.centerCard) { document.getElementById('bl-center').innerHTML = `<div class="bl-card ${state.centerCard.isRed ? 'red' : ''}"><span>${state.centerCard.rank}</span><span>${state.centerCard.suit.s}</span></div>`; } 
+            } else if (state.phase === 'playing' || state.phase === 'resolving') { 
+                document.getElementById('bl-center').innerHTML = ''; 
+                if (state.atout) { 
+                    document.getElementById('bl-atout-corner').style.display = 'block'; document.getElementById('bl-trick-points').style.display = 'block'; 
+                    document.getElementById('bl-atout-suit').innerText = state.atout.s; document.getElementById('bl-atout-suit').style.color = state.atout.color === 'r' ? '#f43f5e' : 'white'; 
+                    if (state.takerIndex !== -1) { let tN = state.takerIndex === 0 ? "Hôte" : (state.takerIndex === 1 ? "Est" : (state.takerIndex === 2 ? "Toi" : "Ouest")); document.getElementById('bl-taker-name').innerText = `Preneur : ${tN}`; } 
+                } 
+            }
+            
+            const cPM = { 2: 's', 3: 'e', 0: 'n', 1: 'w' }; 
+            const cTP = state.trick ? state.trick.map(t => t.player) : [];
+            [0, 1, 2, 3].forEach(p => { if (!cTP.includes(p)) { document.getElementById('bl-s-' + cPM[p]).innerHTML = ''; } });
+
+            if (state.trick) { 
+                state.trick.forEach(t => { 
+                    const slot = document.getElementById('bl-s-' + cPM[t.player]);
+                    if (slot.innerHTML === '') {
+                        let vC = document.createElement('div'); vC.className = `bl-card bl-played ${t.card.isRed ? 'red' : ''}`;
+                        vC.innerHTML = `<span>${t.card.rank}</span><span>${t.card.suit.s}</span>`; vC.style.setProperty('--rand', Math.random());
+                        slot.appendChild(vC);
+                    }
+                }); 
+            }
+            document.querySelectorAll('.bl-name').forEach(el => el.classList.remove('active-turn'));
+            if (state.turn === 2) document.getElementById('bl-n-s').classList.add('active-turn'); if (state.turn === 3) document.getElementById('bl-n-e').classList.add('active-turn'); if (state.turn === 0) document.getElementById('bl-n-n').classList.add('active-turn'); if (state.turn === 1) document.getElementById('bl-n-w').classList.add('active-turn');
+            
+            const hC = document.getElementById('bl-hand'); hC.innerHTML = '';
+            if (state.hands && state.hands[2]) {
+                state.hands[2].forEach((card, index) => {
+                    let cE = document.createElement('div'), isV = state.validGuestIndices ? state.validGuestIndices.includes(index) : true;
+                    cE.className = `bl-card ${card.isRed ? 'red' : ''} ${!isV && state.phase === 'playing' ? 'invalid' : ''}`; 
+                    cE.innerHTML = `<span>${card.rank}</span><span>${card.suit.s}</span>`;
+                    
+                    if (isV && state.turn === 2 && state.phase === 'playing') { 
+                        cE.onclick = () => { 
+                            if (window.actionSentLock) return; window.actionSentLock = true; 
+                            let vC = cE.cloneNode(true); vC.style.setProperty('--rand', Math.random()); vC.className += ' bl-played'; document.getElementById('bl-s-s').appendChild(vC);
+                            cE.style.display = 'none'; update(window.App.Network.ref, { guestAction: { id: Date.now(), type: 'play', index: index } }); 
+                        }; 
+                    } 
+                    hC.appendChild(cE);
+                });
+            }
+            if (state.turn !== 2) window.actionSentLock = false;
+            
+            document.getElementById('bl-actions-1').style.display = (state.turn === 2 && state.phase === 'bidding_1') ? 'flex' : 'none'; document.getElementById('bl-actions-2').style.display = (state.turn === 2 && state.phase === 'bidding_2') ? 'flex' : 'none';
+            if (state.turn === 2 && state.phase === 'bidding_1') { 
+                document.getElementById('btn-prendre-1').onclick = () => { if(!window.actionSentLock){ window.actionSentLock=true; update(window.App.Network.ref, { guestAction: { id: Date.now(), type: 'take_1', suit: state.centerCard.suit } }); }}; 
+                document.getElementById('btn-passer-1').onclick = () => { if(!window.actionSentLock){ window.actionSentLock=true; update(window.App.Network.ref, { guestAction: { id: Date.now(), type: 'pass' } }); }}; 
+            }
+            if (state.turn === 2 && state.phase === 'bidding_2') {
+                const sC = document.getElementById('bl-suits-container'); sC.innerHTML = ''; 
+                let aS = window.App.Belote.suits.filter(s => s.s !== state.centerCard.suit.s);
+                aS.forEach(sObj => { 
+                    let btn = document.createElement('button'); btn.className = `bl-suit-btn ${sObj.color === 'r' ? 'red' : 'black'}`; btn.textContent = sObj.s; 
+                    btn.onclick = () => { if(!window.actionSentLock){ window.actionSentLock=true; update(window.App.Network.ref, { guestAction: { id: Date.now(), type: 'take_2', suit: sObj } }); }}; sC.appendChild(btn); 
+                });
+                document.getElementById('btn-passer-2').onclick = () => { if(!window.actionSentLock){ window.actionSentLock=true; update(window.App.Network.ref, { guestAction: { id: Date.now(), type: 'pass' } }); }};
+            }
+        },
+        executeGuestAction(action) {
+            if (action.type === 'play') { 
+                let pC = this.hands[2].splice(action.index, 1)[0]; this.checkBelote(pC, 2); 
+                let vC = document.createElement('div'); vC.className = `bl-card bl-played ${pC.isRed ? 'red' : ''}`; vC.innerHTML = `<span>${pC.rank}</span><span>${pC.suit.s}</span>`; vC.style.setProperty('--rand', Math.random()); document.getElementById('bl-s-n').appendChild(vC);
+                this.currentTrick.push({ player: 2, card: pC }); this.currentTurnIndex = 3; this.renderBotHands(); this.syncNetwork(); 
+                if (this.currentTrick.length === 4) this.resolveTrick(); else this.processPlay(); 
+            } 
+            else if (action.type === 'pass') { this.showSpeech(2, "Passe."); if (this.phase === 'bidding_1') this.passBidding1(); if (this.phase === 'bidding_2') this.passBidding2(); } 
+            else if (action.type === 'take_1') { this.showSpeech(2, `Je prends ! (${action.suit.s})`); this.take(2, action.suit); } 
+            else if (action.type === 'take_2') { this.showSpeech(2, `Je prends ! (${action.suit.s})`); this.take(2, action.suit); }
+        }
     };
+    window.actionSentLock = false;
+    const obp = window.App.Belote.botPlay;
+    window.App.Belote.botPlay = function() {
+        if (window.App.Network.room && window.App.Network.gameType === 'belote') { this.syncNetwork(); if (this.currentTurnIndex === 2) { this.updateStatus("L'Ami réfléchit..."); this.syncNetwork(); return; } }
+        obp.apply(this); this.syncNetwork();
+    };
+    const ous = window.App.Belote.updateStatus; 
+    window.App.Belote.updateStatus = function(t) { ous.apply(this, [t]); this.syncNetwork(); };
+    const ort = window.App.Belote.resolveTrick; 
+    window.App.Belote.resolveTrick = function() { ort.apply(this); this.syncNetwork(); };
 
     window.App.P4 = {
         grid: [], player: 1, isBotThinking: false,
@@ -2605,7 +2688,7 @@
     };
 
     window.App.Network = {
-        room: null, myId: null, ref: null, gameType: null,
+        room: null, myId: null, ref: null, gameType: null, lastChatTs: 0,
         
         gen() { 
             let c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r = ''; 
@@ -2641,6 +2724,7 @@
             await set(this.ref, initData);
             document.getElementById('display-room-code').textContent = this.room; 
             window.UI.switchScreen('s-net-waiting'); 
+            document.getElementById('chat-container').style.display = 'block';
             this.listen();
         },
         
@@ -2657,13 +2741,33 @@
                 this.gameType = snapshot.val().type; 
                 
                 await update(this.ref, { status: 'playing' }); 
+                document.getElementById('chat-container').style.display = 'block';
                 this.listen();
             } else {
                 window.UI.showModal('Erreur', 'Salon introuvable.', null);
             }
         },
+
+        sendChat(msg) {
+            if (!this.room) return;
+            const chatRef = ref(db, `rooms/${this.room}/chat`);
+            set(chatRef, { msg: msg, sender: this.myId, ts: Date.now() });
+            window.UI.showToast(`Moi : ${msg}`, true);
+            document.getElementById('chat-menu').style.display = 'none';
+        },
         
         listen() {
+            // Ecoute du Chat
+            const chatRef = ref(db, `rooms/${this.room}/chat`);
+            onValue(chatRef, (snap) => {
+                const data = snap.val();
+                if (data && data.ts !== this.lastChatTs && data.sender !== this.myId) {
+                    this.lastChatTs = data.ts;
+                    window.UI.showToast(`L'Ami : ${data.msg}`, false);
+                }
+            });
+
+            // Ecoute du Jeu
             onValue(this.ref, (snapshot) => {
                 const data = snapshot.val();
                 if (!data) return window.UI.showModal('Fermé', 'Le salon a été fermé.', () => window.location.reload()); 
@@ -2719,27 +2823,22 @@
         renderUlt(data) {
             const boardContainer = document.getElementById('net-ult-board'); 
             boardContainer.innerHTML = '';
-            
             for (let i = 0; i < 9; i++) { 
                 let subGrid = document.createElement('div'); 
                 subGrid.className = 'mu-grid'; 
                 if ((data.next === -1 || data.next === i) && data.bGrid[i] === '') subGrid.classList.add('mu-active'); 
-                
                 for (let j = 0; j < 9; j++) { 
                     let cell = document.createElement('div'); 
                     cell.className = 'mu-cell' + (data.sGrids[i][j] !== '' ? ' taken' : ''); 
                     cell.textContent = data.sGrids[i][j]; 
                     if (data.sGrids[i][j]) cell.style.color = data.sGrids[i][j] === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
-                    
                     cell.onclick = async () => { 
                         if (data.sGrids[i][j] === '' && data.bGrid[i] === '' && data.winner === '' && data.turn === this.myId && (data.next === -1 || data.next === i)) { 
                             let newSGrids = JSON.parse(JSON.stringify(data.sGrids)); 
                             let newBGrid = [...data.bGrid]; 
                             newSGrids[i][j] = this.myId; 
-                            
                             if (window.App.Sim.checkWin(newSGrids[i])) newBGrid[i] = this.myId; 
                             else if (!newSGrids[i].includes('')) newBGrid[i] = 'D'; 
-                            
                             let winPlayer = window.App.Sim.checkWin(newBGrid.map(v => v === 'D' ? '' : v)) ? this.myId : (!newBGrid.includes('') ? 'Draw' : ''); 
                             await update(this.ref, { sGrids: newSGrids, bGrid: newBGrid, next: (newBGrid[j] !== '' ? -1 : j), turn: (this.myId === 'X' ? 'O' : 'X'), winner: winPlayer }); 
                         } 
@@ -2747,11 +2846,8 @@
                     subGrid.appendChild(cell); 
                 } 
                 if (data.bGrid[i] !== '' && data.bGrid[i] !== 'D') { 
-                    let cover = document.createElement('div'); 
-                    cover.className = 'mu-won'; 
-                    cover.textContent = data.bGrid[i]; 
-                    cover.style.color = data.bGrid[i] === 'X' ? 'var(--player-x)' : 'var(--player-o)'; 
-                    subGrid.appendChild(cover); 
+                    let cover = document.createElement('div'); cover.className = 'mu-won'; cover.textContent = data.bGrid[i]; 
+                    cover.style.color = data.bGrid[i] === 'X' ? 'var(--player-x)' : 'var(--player-o)'; subGrid.appendChild(cover); 
                 } 
                 boardContainer.appendChild(subGrid); 
             }
@@ -2762,23 +2858,18 @@
             const boardContainer = document.getElementById('net-p4-board'); 
             boardContainer.innerHTML = ''; 
             const currentGrid = data.grid || Array.from({length: 6}, () => Array(7).fill(0));
-            
             for (let r = 0; r < 6; r++) {
                 for (let c = 0; c < 7; c++) {
-                    let cell = document.createElement('div'); 
-                    cell.className = 'p4-cell'; 
+                    let cell = document.createElement('div'); cell.className = 'p4-cell'; 
                     if (currentGrid[r][c] !== 0) cell.classList.add('taken', currentGrid[r][c] === 'X' ? 'p4-red' : 'p4-yellow');
-                    
                     cell.onclick = async () => { 
                         if (currentGrid[r][c] === 0 && data.winner === '' && data.turn === this.myId) { 
                             let dropR = 5; 
                             while(dropR>=0 && currentGrid[dropR][c]!==0) dropR--;
                             if(dropR < 0) return;
-                            
                             let newGrid = JSON.parse(JSON.stringify(currentGrid)); 
                             newGrid[dropR][c] = this.myId; 
                             let winPlayer = window.App.P4.checkWinGrid(newGrid, this.myId) ? this.myId : (newGrid[0].every(col => col !== 0) ? 'Draw' : ''); 
-                            
                             await update(this.ref, { grid: newGrid, turn: (this.myId === 'X' ? 'O' : 'X'), winner: winPlayer }); 
                         } 
                     }; 
@@ -2789,44 +2880,28 @@
         },
 
         renderDames(data) {
-            const b = document.getElementById('net-dames-board'); 
-            b.innerHTML = ''; 
-            let myNum = this.myId === 'X' ? 1 : 2; 
-            let currentGrid = data.damesGrid;
-
-            if (!this.damesLocal) {
-                this.damesLocal = { selected: null, validMoves: [] };
-            }
-
+            const b = document.getElementById('net-dames-board'); b.innerHTML = ''; 
+            let myNum = this.myId === 'X' ? 1 : 2; let currentGrid = data.damesGrid;
+            if (!this.damesLocal) { this.damesLocal = { selected: null, validMoves: [] }; }
             let anyJumps = [];
             if (data.turn === this.myId && data.winner === '') {
-                for(let r=0; r<10; r++) {
-                    for(let c=0; c<10; c++) {
-                        if (currentGrid[r][c] === myNum || currentGrid[r][c] === myNum + 2) {
-                            let moves = window.App.Dames.getPieceMoves(r, c, currentGrid[r][c], currentGrid);
-                            if (moves.some(m => m.jump)) anyJumps.push({r, c});
-                        }
+                for(let r=0; r<10; r++) for(let c=0; c<10; c++) {
+                    if (currentGrid[r][c] === myNum || currentGrid[r][c] === myNum + 2) {
+                        let moves = window.App.Dames.getPieceMoves(r, c, currentGrid[r][c], currentGrid);
+                        if (moves.some(m => m.jump)) anyJumps.push({r, c});
                     }
                 }
             }
-
             for (let r = 0; r < 10; r++) {
                 for (let c = 0; c < 10; c++) {
-                    let cell = document.createElement('div');
-                    cell.className = `dames-cell ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
-
-                    if (this.damesLocal.selected && this.damesLocal.selected.r === r && this.damesLocal.selected.c === c) {
-                        cell.classList.add('selected');
-                    }
-
+                    let cell = document.createElement('div'); cell.className = `dames-cell ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
+                    if (this.damesLocal.selected && this.damesLocal.selected.r === r && this.damesLocal.selected.c === c) { cell.classList.add('selected'); }
                     let move = this.damesLocal.validMoves.find(m => m.r === r && m.c === c);
                     if (move) cell.classList.add('valid-move');
 
                     if (currentGrid[r][c] !== 0) {
-                        let val = currentGrid[r][c];
-                        let p = document.createElement('div');
+                        let val = currentGrid[r][c]; let p = document.createElement('div');
                         p.className = `dames-piece ${val === 1 || val === 3 ? 'dames-p1' : 'dames-p2'} ${val > 2 ? 'dames-king' : ''}`;
-
                         if (data.turn === this.myId && data.winner === '' && (val === myNum || val === myNum + 2)) {
                             if (!data.damesMustJump || (data.damesMustJump && this.damesLocal.selected && this.damesLocal.selected.r===r && this.damesLocal.selected.c===c)) {
                                 if (anyJumps.length === 0 || anyJumps.some(j => j.r===r && j.c===c) || data.damesMustJump) {
@@ -2848,36 +2923,21 @@
 
                     if (move) {
                         cell.onclick = async () => {
-                            let f = this.damesLocal.selected;
-                            let t = move;
-                            let p = currentGrid[f.r][f.c];
-
-                            currentGrid[f.r][f.c] = 0;
-                            let hasJumped = false;
-                            if (t.jump) {
-                                currentGrid[t.jump.r][t.jump.c] = 0;
-                                hasJumped = true;
-                            }
-
+                            let f = this.damesLocal.selected; let t = move; let p = currentGrid[f.r][f.c];
+                            currentGrid[f.r][f.c] = 0; let hasJumped = false;
+                            if (t.jump) { currentGrid[t.jump.r][t.jump.c] = 0; hasJumped = true; }
                             let promoted = false;
                             if (p === 1 && t.r === 0) { p = 3; promoted = true; }
                             if (p === 2 && t.r === 9) { p = 4; promoted = true; }
-
-                            currentGrid[t.r][t.c] = p;
-                            this.damesLocal.selected = null;
-                            this.damesLocal.validMoves = [];
-
+                            currentGrid[t.r][t.c] = p; this.damesLocal.selected = null; this.damesLocal.validMoves = [];
                             let mustJumpContinuation = false;
                             if (hasJumped && !promoted) {
                                 let nextMoves = window.App.Dames.getPieceMoves(t.r, t.c, p, currentGrid);
                                 let nextJumps = nextMoves.filter(m => m.jump);
                                 if (nextJumps.length > 0) {
-                                    mustJumpContinuation = true;
-                                    this.damesLocal.selected = {r: t.r, c: t.c};
-                                    this.damesLocal.validMoves = nextJumps;
+                                    mustJumpContinuation = true; this.damesLocal.selected = {r: t.r, c: t.c}; this.damesLocal.validMoves = nextJumps;
                                 }
                             }
-
                             let p1Count = 0, p2Count = 0;
                             for (let ir = 0; ir < 10; ir++) {
                                 for (let ic = 0; ic < 10; ic++) {
@@ -2885,79 +2945,40 @@
                                     if (currentGrid[ir][ic] === 2 || currentGrid[ir][ic] === 4) p2Count++;
                                 }
                             }
-
-                            let win = '';
-                            if (p1Count === 0) win = 'O';
-                            if (p2Count === 0) win = 'X';
-
-                            await update(this.ref, {
-                                damesGrid: currentGrid,
-                                damesMustJump: mustJumpContinuation,
-                                turn: mustJumpContinuation ? this.myId : (this.myId === 'X' ? 'O' : 'X'),
-                                winner: win
-                            });
+                            let win = ''; if (p1Count === 0) win = 'O'; if (p2Count === 0) win = 'X';
+                            await update(this.ref, { damesGrid: currentGrid, damesMustJump: mustJumpContinuation, turn: mustJumpContinuation ? this.myId : (this.myId === 'X' ? 'O' : 'X'), winner: win });
                         };
                     } else {
-                        cell.onclick = () => {
-                            if (this.damesLocal.selected && !data.damesMustJump) {
-                                this.damesLocal.selected = null;
-                                this.damesLocal.validMoves = [];
-                                this.renderDames(data);
-                            }
-                        };
+                        cell.onclick = () => { if (this.damesLocal.selected && !data.damesMustJump) { this.damesLocal.selected = null; this.damesLocal.validMoves = []; this.renderDames(data); } };
                     }
                     b.appendChild(cell);
                 }
             }
-
             this.statusUI('net-dames-status', data, () => {
-                update(this.ref, {
-                    damesGrid: [
-                        [0,2,0,2,0,2,0,2,0,2], [2,0,2,0,2,0,2,0,2,0], [0,2,0,2,0,2,0,2,0,2], [2,0,2,0,2,0,2,0,2,0],
-                        [0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0], 
-                        [0,1,0,1,0,1,0,1,0,1], [1,0,1,0,1,0,1,0,1,0], [0,1,0,1,0,1,0,1,0,1], [1,0,1,0,1,0,1,0,1,0]
-                    ],
-                    damesMustJump: false,
-                    turn: Math.random() < 0.5 ? 'X' : 'O',
-                    winner: ''
-                });
+                update(this.ref, { damesGrid: [ [0,2,0,2,0,2,0,2,0,2], [2,0,2,0,2,0,2,0,2,0], [0,2,0,2,0,2,0,2,0,2], [2,0,2,0,2,0,2,0,2,0], [0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0], [0,1,0,1,0,1,0,1,0,1], [1,0,1,0,1,0,1,0,1,0], [0,1,0,1,0,1,0,1,0,1], [1,0,1,0,1,0,1,0,1,0] ], damesMustJump: false, turn: Math.random() < 0.5 ? 'X' : 'O', winner: '' });
             });
         },
         
         renderYams(data) {
-            const diceBox = document.getElementById('net-yams-dice'); 
-            diceBox.innerHTML = ''; 
-            
+            const diceBox = document.getElementById('net-yams-dice'); diceBox.innerHTML = ''; 
             data.dice.forEach((dieVal, index) => { 
-                let el = document.createElement('div'); 
-                el.className = 'y-die' + (data.kept[index] ? ' kept' : ''); 
+                let el = document.createElement('div'); el.className = 'y-die' + (data.kept[index] ? ' kept' : ''); 
                 el.textContent = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'][dieVal - 1]; 
                 el.onclick = async () => { 
-                    if (data.turn === this.myId && data.rolls < 3 && data.winner === '') { 
-                        let newKept = [...data.kept]; 
-                        newKept[index] = !newKept[index]; 
-                        await update(this.ref, { kept: newKept }); 
-                    }
+                    if (data.turn === this.myId && data.rolls < 3 && data.winner === '') { let newKept = [...data.kept]; newKept[index] = !newKept[index]; await update(this.ref, { kept: newKept }); }
                 }; 
                 diceBox.appendChild(el); 
             });
             
-            let rollBtn = document.getElementById('net-yams-roll-btn'); 
-            rollBtn.textContent = `Lancer (${data.rolls})`; 
+            let rollBtn = document.getElementById('net-yams-roll-btn'); rollBtn.textContent = `Lancer (${data.rolls})`; 
             rollBtn.onclick = async () => { 
-                if (data.turn === this.myId && data.rolls > 0 && data.winner === '') { 
-                    let newDice = data.dice.map((v, i) => data.kept[i] ? v : Math.floor(Math.random() * 6) + 1); 
-                    await update(this.ref, { dice: newDice, rolls: data.rolls - 1 }); 
-                } 
+                if (data.turn === this.myId && data.rolls > 0 && data.winner === '') { let newDice = data.dice.map((v, i) => data.kept[i] ? v : Math.floor(Math.random() * 6) + 1); await update(this.ref, { dice: newDice, rolls: data.rolls - 1 }); } 
             }; 
             rollBtn.disabled = (data.turn !== this.myId || data.rolls === 0);
             
-            const scoresContainer = document.getElementById('net-yams-scores'); 
-            scoresContainer.innerHTML = ''; 
-            const countObj = {}; 
-            data.dice.forEach(x => countObj[x] = (countObj[x] || 0) + 1); 
-            const valuesCount = Object.values(countObj); 
-            const uniqueSet = new Set(data.dice); 
+            const scoresContainer = document.getElementById('net-yams-scores'); scoresContainer.innerHTML = ''; 
+            const countObj = {}; data.dice.forEach(x => countObj[x] = (countObj[x] || 0) + 1); 
+            const valuesCount = Object.values(countObj); const uniqueSet = new Set(data.dice); 
             const hasSequence = (lengthRequired) => { let st = 0; let mx = 0; for (let i = 1; i <= 6; i++) { if (uniqueSet.has(i)) st++; else st = 0; mx = Math.max(mx, st); } return mx >= lengthRequired; };
             
             ['X', 'O'].forEach((playerID, idx) => { 
@@ -2997,10 +3018,8 @@
             
             document.querySelectorAll('.pot').forEach(element => { 
                 element.onclick = async () => { 
-                    let categoryChosen = element.dataset.action; 
-                    let pointsEarned = parseInt(element.dataset.pts); 
-                    let newScores = JSON.parse(JSON.stringify(data.scores)); 
-                    newScores[this.myId][categoryChosen] = pointsEarned; 
+                    let categoryChosen = element.dataset.action; let pointsEarned = parseInt(element.dataset.pts); 
+                    let newScores = JSON.parse(JSON.stringify(data.scores)); newScores[this.myId][categoryChosen] = pointsEarned; 
                     let winPlayer = ''; 
                     
                     if (Object.keys(newScores['X']).length === 14 && Object.keys(newScores['O']).length === 14) { 
@@ -3038,6 +3057,227 @@
         leave() { 
             if (this.myId === 'X' && this.ref) remove(this.ref); 
             window.location.reload(); 
+        }
+    };
+
+    window.App.Network.MM = {
+        mySecret: [null, null, null, null], myGuess: [null, null, null, null], selectedColor: '#ef4444', myHints: [0, 0, 0, 0],
+        render(data) {
+            const status = document.getElementById('net-mm-status');
+            const makerUI = document.getElementById('net-mm-maker-ui');
+            const breakerUI = document.getElementById('net-mm-breaker-ui');
+            
+            if (data.winner !== '') {
+                makerUI.style.display = 'none'; breakerUI.style.display = 'none';
+                let winMsg = data.winner === 'O' ? "Le Devineur a trouvé le code !" : "L'Hôte a gagné, le code était introuvable.";
+                status.innerHTML = `<span style='color:var(--accent)'>FIN DU JEU : ${winMsg}</span>`;
+                if (window.App.Network.myId === 'X') {
+                    status.innerHTML += `<br><button class="btn" style="margin-top:10px;" id="btn-replay-mm">Rejouer</button>`;
+                    document.getElementById('btn-replay-mm').onclick = () => { update(window.App.Network.ref, { 'mm': { phase: 'set_secret', secret: [null,null,null,null], currentGuess: null, history: [] }, winner: '', turn: Math.random() < 0.5 ? 'X' : 'O' }); };
+                }
+                return;
+            }
+            if (window.App.Network.myId === 'X') {
+                makerUI.style.display = 'block'; breakerUI.style.display = 'none';
+                if (data.mm.phase === 'set_secret') { 
+                    status.textContent = "Choisis ton code secret pour ton ami."; document.getElementById('net-mm-maker-setup').style.display = 'block'; document.getElementById('net-mm-maker-hints-ui').style.display = 'none'; this.renderMakerSecret(); 
+                } 
+                else if (data.mm.phase === 'guess') { 
+                    document.getElementById('net-mm-maker-setup').style.display = 'none'; document.getElementById('net-mm-maker-hints-ui').style.display = 'none'; status.textContent = "Ton ami réfléchit à une combinaison..."; 
+                } 
+                else if (data.mm.phase === 'hint') { 
+                    status.textContent = "À toi d'envoyer la correction !"; document.getElementById('net-mm-maker-setup').style.display = 'none'; document.getElementById('net-mm-maker-hints-ui').style.display = 'block'; this.renderMakerHints(data.mm.currentGuess, data.mm.secret); 
+                }
+            } else {
+                makerUI.style.display = 'none'; breakerUI.style.display = 'block';
+                if (data.mm.phase === 'set_secret') { 
+                    status.textContent = "Attente que l'Hôte choisisse son code secret..."; document.getElementById('net-mm-breaker-picker').style.display = 'none'; document.getElementById('net-mm-breaker-btn').style.display = 'none'; this.renderBreakerBoard(data.mm.history, false); 
+                } 
+                else if (data.mm.phase === 'guess') { 
+                    status.textContent = "À toi de deviner !"; document.getElementById('net-mm-breaker-picker').style.display = 'flex'; document.getElementById('net-mm-breaker-btn').style.display = 'inline-block'; this.renderBreakerBoard(data.mm.history, true); this.renderBreakerPicker(); 
+                } 
+                else if (data.mm.phase === 'hint') { 
+                    status.textContent = "L'Hôte valide ta proposition..."; document.getElementById('net-mm-breaker-picker').style.display = 'none'; document.getElementById('net-mm-breaker-btn').style.display = 'none'; this.renderBreakerBoard(data.mm.history, false); 
+                }
+            }
+        },
+        renderMakerSecret() {
+            let pegsDiv = document.getElementById('net-mm-maker-secret'); pegsDiv.innerHTML = ''; let pickDiv = document.getElementById('net-mm-maker-picker'); pickDiv.innerHTML = '';
+            for(let i=0; i<4; i++) { 
+                let peg = document.createElement('div'); peg.className = 'mm-peg'; if(this.mySecret[i]) peg.style.background = this.mySecret[i]; 
+                peg.onclick = () => { this.mySecret[i] = this.selectedColor; this.renderMakerSecret(); }; pegsDiv.appendChild(peg); 
+            }
+            window.App.MM.colors.forEach(c => { 
+                let btn = document.createElement('div'); btn.className = 'mm-color-btn'; btn.style.background = c; 
+                if(c === this.selectedColor) btn.classList.add('selected'); btn.onclick = () => { this.selectedColor = c; this.renderMakerSecret(); }; pickDiv.appendChild(btn); 
+            });
+        },
+        async submitSecret() { 
+            if(this.mySecret.includes(null)) return window.UI.showModal("Erreur", "Remplissez les 4 trous.", null); 
+            await update(window.App.Network.ref, { 'mm/secret': this.mySecret, 'mm/phase': 'guess' }); 
+        },
+        renderMakerHints(guess, secret) {
+            let gDiv = document.getElementById('net-mm-maker-guess'); gDiv.innerHTML = ''; guess.forEach(c => { let peg = document.createElement('div'); peg.className = 'mm-peg'; peg.style.background = c; gDiv.appendChild(peg); });
+            let hDiv = document.getElementById('net-mm-maker-hint-pegs'); hDiv.innerHTML = '';
+            
+            let exact = 0, color = 0, secretCopy = [...secret], guessCopy = [...guess];
+            for(let i=0; i<4; i++) { if(guessCopy[i] === secretCopy[i]) { exact++; secretCopy[i] = null; guessCopy[i] = null; } }
+            for(let i=0; i<4; i++) { if(guessCopy[i] && secretCopy.includes(guessCopy[i])) { color++; secretCopy[secretCopy.indexOf(guessCopy[i])] = null; } }
+            
+            this.myHints = []; for(let i=0; i<exact; i++) this.myHints.push(1); for(let i=0; i<color; i++) this.myHints.push(2); while(this.myHints.length < 4) this.myHints.push(0);
+            for(let i=0; i<4; i++) { let hint = document.createElement('div'); hint.className = 'mm-hint'; if(this.myHints[i] === 1) hint.style.background = '#ef4444'; else if(this.myHints[i] === 2) hint.style.background = '#f8fafc'; else hint.style.background = '#1e293b'; hDiv.appendChild(hint); }
+        },
+        async submitHints() {
+            let exact = this.myHints.filter(h => h===1).length; let color = this.myHints.filter(h => h===2).length;
+            let snap = await get(window.App.Network.ref); let data = snap.val(); let history = data.mm.history || []; 
+            history.push({ guess: data.mm.currentGuess, exact: exact, color: color });
+            let win = ''; if (exact === 4) win = 'O'; else if (history.length >= 9) win = 'X';
+            await update(window.App.Network.ref, { 'mm/history': history, 'mm/phase': 'guess', winner: win });
+        },
+        renderBreakerPicker() {
+            const p = document.getElementById('net-mm-breaker-picker'); p.innerHTML = '';
+            window.App.MM.colors.forEach(c => { let btn = document.createElement('div'); btn.className = 'mm-color-btn'; btn.style.background = c; if(c === this.selectedColor) btn.classList.add('selected'); btn.onclick = () => { this.selectedColor = c; this.renderBreakerPicker(); }; p.appendChild(btn); });
+        },
+        renderBreakerBoard(historyArr, canPlay) {
+            let history = historyArr || []; const b = document.getElementById('net-mm-breaker-board'); b.innerHTML = '';
+            for(let i=0; i<9; i++) {
+                let row = document.createElement('div'); row.className = 'mm-row'; row.style.opacity = i === history.length ? '1' : '0.4'; 
+                let pegs = document.createElement('div'); pegs.className = 'mm-pegs';
+                for(let j=0; j<4; j++) { 
+                    let peg = document.createElement('div'); peg.className = 'mm-peg'; 
+                    if(i < history.length) { peg.style.background = history[i].guess[j]; } else if(i === history.length && this.myGuess[j]) { peg.style.background = this.myGuess[j]; } 
+                    if(i === history.length && canPlay) { peg.onclick = () => { this.myGuess[j] = this.selectedColor; this.renderBreakerBoard(history, canPlay); }; }
+                    pegs.appendChild(peg); 
+                }
+                let hints = document.createElement('div'); hints.className = 'mm-hints'; let pastHints = i < history.length ? history[i] : null; let hIndex = 0;
+                for(let j=0; j<4; j++) { 
+                    let hint = document.createElement('div'); hint.className = 'mm-hint'; 
+                    if (pastHints) { if (hIndex < pastHints.exact) hint.style.background = '#ef4444'; else if (hIndex < pastHints.exact + pastHints.color) hint.style.background = '#f8fafc'; hIndex++; } 
+                    hints.appendChild(hint); 
+                }
+                row.appendChild(pegs); row.appendChild(hints); b.appendChild(row);
+            }
+        },
+        async submitGuess() { 
+            if(this.myGuess.includes(null)) return window.UI.showModal("Erreur", "Remplissez les 4 trous.", null); 
+            let g = [...this.myGuess]; this.myGuess = [null,null,null,null]; 
+            await update(window.App.Network.ref, { 'mm/currentGuess': g, 'mm/phase': 'hint' }); 
+        }
+    };
+
+    window.App.Network.BN = {
+        render(data) {
+            if (data.winner !== '') {
+                document.getElementById('net-bn-setup').style.display = 'none'; document.getElementById('net-bn-play').style.display = 'none';
+                document.getElementById('net-bn-status').innerHTML = `<span style='color:var(--accent)'>FIN DU JEU : ${data.winner === window.App.Network.myId ? 'VICTOIRE !' : 'DÉFAITE...'}</span>`;
+                if(window.App.Network.myId === 'X') {
+                    document.getElementById('net-bn-status').innerHTML += `<br><button class="btn" style="margin-top:10px;" id="btn-replay-bn">Rejouer</button>`;
+                    document.getElementById('btn-replay-bn').onclick = () => {
+                        window.App.Network.BN.myGrid = Array.from({length:12}, () => Array(12).fill(0)); window.App.Network.BN.currentShipIndex = 0;
+                        update(window.App.Network.ref, { bn: { phase: 'setup', readyX: false, readyO: false, gridX: null, gridO: null, shotsX: Array.from({length:12}, () => Array(12).fill(0)), shotsO: Array.from({length:12}, () => Array(12).fill(0)) }, winner: '', turn: Math.random() < 0.5 ? 'X' : 'O' }); 
+                    };
+                }
+                return;
+            }
+
+            if (data.bn.phase === 'setup') {
+                document.getElementById('net-bn-setup').style.display = 'block'; document.getElementById('net-bn-play').style.display = 'none';
+                let amIReady = data.bn['ready' + window.App.Network.myId];
+                if (amIReady) { 
+                    document.getElementById('net-bn-status').textContent = "Attente de l'adversaire..."; document.getElementById('net-bn-setup-grid').style.opacity = '0.5'; document.getElementById('net-bn-setup-grid').style.pointerEvents = 'none'; 
+                } else { 
+                    document.getElementById('net-bn-status').textContent = `Place tes navires : Taille ${window.App.BN.ships[window.App.Network.BN.currentShipIndex] || 'Terminé'}`; window.App.Network.BN.drawSetupGrid(); 
+                    if (window.App.Network.myId === 'X' && data.bn.readyX && data.bn.readyO) { update(window.App.Network.ref, { 'bn/phase': 'play' }); }
+                }
+            } else if (data.bn.phase === 'play') {
+                document.getElementById('net-bn-setup').style.display = 'none'; document.getElementById('net-bn-play').style.display = 'flex';
+                document.getElementById('net-bn-status').textContent = data.turn === window.App.Network.myId ? "À l'attaque !" : "L'adversaire tire...";
+                document.getElementById('net-bn-status').style.color = data.turn === window.App.Network.myId ? "var(--accent)" : "white";
+                window.App.Network.BN.drawPlayGrids(data);
+            }
+        },
+        myGrid: Array.from({length:12}, () => Array(12).fill(0)), currentShipIndex: 0, isHorizontal: true,
+        toggleRotation() { this.isHorizontal = !this.isHorizontal; document.getElementById('net-bn-rotate-btn').textContent = `Pivoter : ${this.isHorizontal ? 'Horizontal' : 'Vertical'}`; },
+        drawSetupGrid() {
+            const el = document.getElementById('net-bn-setup-grid'); el.innerHTML = '';
+            for(let r=0; r<12; r++) { 
+                for(let c=0; c<12; c++) { 
+                    let cell = document.createElement('div'); cell.className = 'bn-cell'; if(this.myGrid[r][c] === 1) cell.classList.add('bn-ship');
+                    cell.onclick = () => {
+                        if(this.currentShipIndex >= window.App.BN.ships.length) return;
+                        let len = window.App.BN.ships[this.currentShipIndex], dir = this.isHorizontal ? 0 : 1, valid = true;
+                        for (let i = 0; i < len; i++) { let nr = r + (dir ? i : 0), nc = c + (dir ? 0 : i); if (nr >= 12 || nc >= 12 || this.myGrid[nr][nc] !== 0) { valid = false; break; } }
+                        if (valid) { 
+                            for (let i = 0; i < len; i++) this.myGrid[r + (dir ? i : 0)][c + (dir ? 0 : i)] = 1; 
+                            this.currentShipIndex++; this.drawSetupGrid(); 
+                            document.getElementById('net-bn-status').textContent = `Place tes navires : Taille ${window.App.BN.ships[this.currentShipIndex] || 'Terminé. Clique sur Prêt !'}`; 
+                        }
+                    }; 
+                    el.appendChild(cell); 
+                } 
+            }
+        },
+        autoPlace() {
+            this.myGrid.forEach(row => row.fill(0));
+            window.App.BN.ships.forEach(len => { 
+                let placed = false; 
+                while(!placed) { 
+                    let r = Math.floor(Math.random()*12), c = Math.floor(Math.random()*12), dir = Math.random()>0.5?1:0, valid = true; 
+                    for(let i=0; i<len; i++) { let nr = r + (dir?i:0), nc = c + (dir?0:i); if(nr>=12 || nc>=12 || this.myGrid[nr][nc]!==0) { valid=false; break; } } 
+                    if(valid) { for(let i=0; i<len; i++) this.myGrid[r + (dir?i:0)][c + (dir?0:i)] = 1; placed = true; } 
+                } 
+            });
+            this.currentShipIndex = window.App.BN.ships.length; this.drawSetupGrid(); 
+            document.getElementById('net-bn-status').textContent = "Flotte placée. Clique sur Prêt !";
+        },
+        async ready() {
+            if(this.currentShipIndex < window.App.BN.ships.length) return window.UI.showModal('Erreur', 'Place tous tes bateaux !', null);
+            let updates = {}; updates[`bn/grid${window.App.Network.myId}`] = this.myGrid; updates[`bn/ready${window.App.Network.myId}`] = true;
+            let snap = await get(window.App.Network.ref); let data = snap.val();
+            if (window.App.Network.myId === 'X' && data.bn.readyO) updates['bn/phase'] = 'play';
+            if (window.App.Network.myId === 'O' && data.bn.readyX) updates['bn/phase'] = 'play';
+            await update(window.App.Network.ref, updates);
+        },
+        drawPlayGrids(data) {
+            let myShots = data.bn['shots' + window.App.Network.myId] || Array.from({length:12}, () => Array(12).fill(0));
+            let oppShots = data.bn['shots' + (window.App.Network.myId === 'X' ? 'O' : 'X')] || Array.from({length:12}, () => Array(12).fill(0));
+            
+            const oppGridEl = document.getElementById('net-bn-opp-grid'); oppGridEl.innerHTML = ''; 
+            oppGridEl.style.opacity = data.turn === window.App.Network.myId ? '1' : '0.5'; oppGridEl.style.pointerEvents = data.turn === window.App.Network.myId ? 'auto' : 'none';
+            for(let r=0; r<12; r++) { 
+                for(let c=0; c<12; c++) { 
+                    let cell = document.createElement('div'); cell.className = 'bn-cell'; 
+                    if(myShots[r][c] === 'H') { cell.classList.add('bn-hit', 'shot'); cell.textContent = '💥'; } 
+                    if(myShots[r][c] === 'M') { cell.classList.add('bn-miss', 'shot'); cell.textContent = '🌊'; } 
+                    cell.onclick = () => this.shoot(r, c, data); oppGridEl.appendChild(cell); 
+                } 
+            }
+            
+            const myGridEl = document.getElementById('net-bn-my-grid'); myGridEl.innerHTML = ''; 
+            let trueMyGrid = data.bn['grid' + window.App.Network.myId];
+            for(let r=0; r<12; r++) { 
+                for(let c=0; c<12; c++) { 
+                    let cell = document.createElement('div'); cell.className = 'bn-cell'; 
+                    if(trueMyGrid[r][c] === 1) cell.classList.add('bn-ship'); 
+                    if(oppShots[r][c] === 'H') { cell.classList.add('bn-hit', 'shot'); cell.textContent = '💥'; } 
+                    if(oppShots[r][c] === 'M') { cell.classList.add('bn-miss', 'shot'); cell.textContent = '🌊'; } 
+                    myGridEl.appendChild(cell); 
+                } 
+            }
+        },
+        async shoot(r, c, data) {
+            if(data.turn !== window.App.Network.myId || data.winner !== '') return;
+            let oppGridKey = 'grid' + (window.App.Network.myId === 'X' ? 'O' : 'X');
+            let oppGrid = data.bn[oppGridKey]; let myShotsKey = 'shots' + window.App.Network.myId; let myShots = data.bn[myShotsKey] || Array.from({length:12}, () => Array(12).fill(0));
+            
+            if(myShots[r][c] !== 0) return; 
+            let isHit = oppGrid[r][c] === 1; myShots[r][c] = isHit ? 'H' : 'M';
+            let win = true; 
+            for(let ir=0; ir<12; ir++) { for(let ic=0; ic<12; ic++) { if(oppGrid[ir][ic] === 1 && myShots[ir][ic] !== 'H') { win = false; break; } } if(!win) break; }
+            
+            let updates = {}; updates['bn/' + myShotsKey] = myShots;
+            if(win) updates['winner'] = window.App.Network.myId; else if(!isHit) updates['turn'] = window.App.Network.myId === 'X' ? 'O' : 'X';
+            await update(window.App.Network.ref, updates);
         }
     };
 
