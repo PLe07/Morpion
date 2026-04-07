@@ -1854,19 +1854,19 @@
             }
             return null;
         },
-// ── MOTEUR MONTE-CARLO (MCTS) ──────────────────────────────────────────
-        monteCarloChooseCard(validCardsArray) {
+monteCarloChooseCard(validCardsArray) {
             if (validCardsArray.length === 1) return validCardsArray[0];
 
-            const N_SIMULATIONS = 300; // Ajustable : 300 est un bon ratio vitesse/intelligence
+            const N_SIMULATIONS = 200; // On descend à 200 pour garantir la fluidité sur tous les navigateurs
             let bestMove = null;
             let bestAvgScore = -Infinity;
 
             const me = this.currentTurnIndex;
             const myTeam = (me % 2 === 0) ? 'nous' : 'eux';
             
-            // 1. Inventorier les cartes inconnues
-            const playedKeys = new Set(this.getAllPlayedCards().map(c => c.suit.s + c.rank));
+            // 1. Inventorier les cartes réellement inconnues
+            const played = this.getAllPlayedCards();
+            const playedKeys = new Set(played.map(c => c.suit.s + c.rank));
             const myHandKeys = new Set(this.hands[me].map(c => c.suit.s + c.rank));
             let unknownCards = [];
             
@@ -1878,162 +1878,83 @@
                 });
             });
 
-            const targetLengths = [0, 1, 2, 3].map(i => this.hands[i].length);
+            // --- CORRECTION : Calcul précis du besoin en cartes pour chaque joueur ---
+            const cardsNeeded = [0, 0, 0, 0];
+            for (let p = 0; p < 4; p++) {
+                if (p === me) continue;
+                // Un joueur a besoin de : ses cartes en main MOINS 1 s'il a déjà joué dans ce pli
+                let hasPlayedInCurrent = this.currentTrick.some(t => t.player === p);
+                cardsNeeded[p] = this.hands[p].length - (hasPlayedInCurrent ? 1 : 0);
+            }
 
             // 2. Tester chaque carte valide
             for (let move of validCardsArray) {
                 let totalScore = 0;
 
                 for (let i = 0; i < N_SIMULATIONS; i++) {
-                    // --- A. Déterminisation (Distribution aléatoire intelligente) ---
                     let simHands = [[], [], [], []];
                     simHands[me] = this.hands[me].filter(c => c !== move);
+                    
                     let available = [...unknownCards].sort(() => Math.random() - 0.5);
                     
-                    let success = true;
+                    // Distribution respectant les chicanes (voids)
+                    let possible = true;
                     for (let p = 0; p < 4; p++) {
                         if (p === me) continue;
-                        for (let k = 0; k < targetLengths[p]; k++) {
-                            // On respecte les chicanes (voids) connues !
+                        let needed = cardsNeeded[p];
+                        for (let k = 0; k < needed; k++) {
                             let cIdx = available.findIndex(c => !this.voids[p][c.suit.s]);
                             if (cIdx !== -1) {
                                 simHands[p].push(available.splice(cIdx, 1)[0]);
                             } else {
-                                success = false; break; // Impossible avec ce mélange
+                                possible = false; break; 
                             }
                         }
+                        if (!possible) break;
                     }
                     
-                    // Fallback de sécurité si la distribution bloque à cause des chicanes
-                    if (!success) {
+                    // Sécurité : si la distribution échoue, on remplit au hasard sans tenir compte des chicanes
+                    if (!possible || available.length > 0) {
                         available = [...unknownCards].sort(() => Math.random() - 0.5);
                         for (let p = 0; p < 4; p++) {
                             if (p === me) continue;
-                            while (simHands[p].length < targetLengths[p]) {
+                            while (simHands[p].length < cardsNeeded[p] && available.length > 0) {
                                 simHands[p].push(available.pop());
                             }
                         }
                     }
 
-                    // --- B. Simulation de la partie ---
                     totalScore += this.simulatePlayout(simHands, move, me, myTeam);
                 }
 
                 let avgScore = totalScore / N_SIMULATIONS;
-                
-               
-               // --- HEURISTIQUES AVANCÉES (Dix de Der, Maîtrise, Entame & Chicanes) ---
+
+                // --- INTEGRATION DES HEURISTIQUES (Entame, Impasse, Dix de Der) ---
                 let isTrump = (move.suit.s === this.atoutSuit.s);
-                let myTrumps = this.hands[me].filter(c => c.suit.s === this.atoutSuit.s);
-                let isMaster = this.isMasterSim(move, this.getAllPlayedCards());
+                let isMaster = this.isMasterSim(move, played);
                 let partner = (me + 2) % 4;
 
-                // 1. LOGIQUE D'ENTAME (Quand le bot est le premier à jouer sur le pli)
                 if (this.currentTrick.length === 0) {
-                    
-                    // === 8. FAIRE COUPER LE PARTENAIRE (Mémoire des Chicanes) ===
-                    // Si le partenaire n'a plus de cette couleur, on l'invite à couper pour faire des points !
-                    if (!isTrump && this.voids[partner][move.suit.s]) {
-                        avgScore += 18; // Gros bonus : "Fais travailler le collègue"
-                    }
-
-                    // === 9. OPTIMISATION DE L'ENTAME (Le tout premier pli du jeu) ===
+                    if (!isTrump && this.voids[partner][move.suit.s]) avgScore += 18;
                     if (this.tricksPlayedCount === 0) {
-                        // A. Tirer le Valet d'atout si on est preneur
-                        if (this.takerIndex === me && isTrump && move.rank === 'V') {
-                            avgScore += 50; // Priorité absolue pour rassurer le partenaire
-                        }
-                        
-                        // B. Jouer un As de couleur si on est en défense
-                        if (this.takerIndex % 2 !== me % 2 && !isTrump && move.rank === 'A') {
-                            avgScore += 30; // Très fort : on encaisse nos points direct
-                        }
+                        if (this.takerIndex === me && isTrump && move.rank === 'V') avgScore += 50;
+                        if (this.takerIndex % 2 !== me % 2 && !isTrump && move.rank === 'A') avgScore += 30;
                     }
-                    
-                    // C. NE JAMAIS entamer sous un 10 sec (Valable à tous les plis !)
-                    if (!isTrump && move.rank === '10') {
-                        let cardsInSuit = this.hands[me].filter(c => c.suit.s === move.suit.s).length;
-                        if (cardsInSuit === 1) {
-                            avgScore -= 200; // Veto absolu ! On ne donne pas 10 points gratuits à l'adversaire.
-                        }
-                    }
-
-                    // D. Dérouler ses maîtres (Ancienne règle conservée)
-                    if (!isTrump && isMaster) {
-                        avgScore += 5; 
-                    }
-                }
-
-
-                // 2. LOGIQUE DU "DIX DE DER" (Plis 5, 6 et 7)
-                if (this.tricksPlayedCount >= 4 && this.tricksPlayedCount < 7) {
-                    
-                    // A. Sauver le dernier petit atout (L'arme ultime du 10 de der)
-                    if (isTrump && myTrumps.length === 1 && !['V', '9', 'A'].includes(move.rank)) {
-                        // Si on a d'autres choix (ex: on se défausse au lieu de couper inutilement)
-                        if (validCardsArray.length > 1) {
-                            avgScore -= 25; // GROS MALUS : "Garde-le pour le pli 8 !"
-                        }
-                    }
-                    
-                    // B. Sauver une carte maîtresse hors-atout (ex: un As ou un 10 maître)
-                    if (!isTrump && isMaster) {
-                        // Si on a le choix de jouer une carte poubelle à la place
-                        if (validCardsArray.length > 1) {
-                            // On pénalise légèrement pour la conserver, SAUF si le pli actuel rapporte déjà très gros (ex: > 15 pts sur la table)
-                            let currentTrickPoints = this.currentTrick.reduce((acc, t) => acc + this.getCardValue(t.card), 0);
-                            if (currentTrickPoints < 15) {
-                                avgScore -= 12; // MALUS MODÉRÉ : "Ne gâche pas ton As sur un pli vide"
-                            }
-                        }
-                    }
-                }
-// 3. STRATÉGIE DE L'IMPASSE (Finesse As/10/Roi)
-                if (!isTrump && this.currentTrick.length > 0) {
-                    let currentWinner = this.getTrickWinner(this.currentTrick);
-                    
-                    // Si un adversaire mène actuellement le pli
-                    if (currentWinner && currentWinner.player % 2 !== me % 2) {
-                        let winCard = currentWinner.card;
-                        
-                        // Si l'adversaire a joué la même couleur (et qu'il n'a pas coupé à l'atout)
-                        if (winCard.suit.s === move.suit.s && winCard.suit.s !== this.atoutSuit.s) {
-                            let valToBeat = this.getCardValue(winCard);
-                            let moveVal = this.getCardValue(move);
-                            
-                            // Si la carte qu'on simule bat celle de l'adversaire
-                            if (moveVal > valToBeat) {
-                                
-                                // A-t-on une carte ENCORE PLUS FORTE dans la main ? (ex: je joue le 10, mais j'ai l'As)
-                                let hasHigherInHand = this.hands[me].some(c => 
-                                    c.suit.s === move.suit.s && this.getCardValue(c) > moveVal
-                                );
-                                
-                                // A-t-on une carte PLUS FAIBLE mais qui bat quand même l'adversaire ? (ex: je joue l'As, mais j'ai le 10)
-                                let hasLowerButWinning = this.hands[me].some(c => 
-                                    c.suit.s === move.suit.s && this.getCardValue(c) > valToBeat && this.getCardValue(c) < moveVal
-                                );
-
-                                if (hasHigherInHand) {
-                                    // GROS BONUS : C'est le coup parfait ! On fait l'impasse, on prend le pli "pour pas cher" en gardant notre maître.
-                                    avgScore += 20; 
-                                }
-                                
-                                if (hasLowerButWinning) {
-                                    // GROS MALUS : Le bot allait gaspiller son As alors qu'il pouvait gagner le pli avec son 10 ou son Roi.
-                                    avgScore -= 20; 
-                                }
-                            }
-                        }
-                    }
+                    if (!isTrump && move.rank === '10' && this.hands[me].filter(c => c.suit.s === move.suit.s).length === 1) avgScore -= 200;
+                    if (!isTrump && isMaster) avgScore += 5;
                 }
                 
+                // Dix de Der
+                if (this.tricksPlayedCount >= 4 && this.tricksPlayedCount < 7) {
+                    if (isTrump && this.hands[me].filter(c => c.suit.s === this.atoutSuit.s).length === 1 && !['V','9','A'].includes(move.rank)) avgScore -= 25;
+                    if (!isTrump && isMaster && this.currentTrick.reduce((acc, t) => acc + this.getCardValue(t.card), 0) < 15) avgScore -= 12;
+                }
+
                 if (avgScore > bestAvgScore) {
                     bestAvgScore = avgScore;
                     bestMove = move;
                 }
             }
-
             return bestMove;
         },
 
