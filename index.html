@@ -1855,16 +1855,16 @@
             return null;
         },
 // ── MOTEUR MONTE-CARLO (MCTS) OPTIMISÉ ──────────────────────────────────────────
+        // ── MOTEUR MONTE-CARLO (MCTS) OPTIMISÉ ET CORRIGÉ ────────────────────────────────
         monteCarloChooseCard(validCardsArray) {
             if (validCardsArray.length === 1) return validCardsArray[0];
 
-            const N_SIMULATIONS = 200; // Fluide et très intelligent
+            const N_SIMULATIONS = 200; 
             let bestMove = null;
             let bestAvgScore = -Infinity;
 
             const me = this.currentTurnIndex;
             const myTeam = (me % 2 === 0) ? 'nous' : 'eux';
-            
             const playedCards = this.getAllPlayedCards();
             const playedKeys = new Set(playedCards.map(c => c.suit.s + c.rank));
             const myHandKeys = new Set(this.hands[me].map(c => c.suit.s + c.rank));
@@ -1878,7 +1878,7 @@
                 });
             });
 
-            // CORRECTIF 1 : Le besoin en cartes est EXACTEMENT la taille de la main restante
+            // CORRECTIF 1: La taille de la main est DÉJÀ exacte.
             const cardsNeeded = [0, 0, 0, 0];
             for (let p = 0; p < 4; p++) {
                 if (p === me) continue;
@@ -1887,31 +1887,26 @@
 
             for (let move of validCardsArray) {
                 let totalScore = 0;
-
                 for (let i = 0; i < N_SIMULATIONS; i++) {
                     let simHands = [[], [], [], []];
                     simHands[me] = this.hands[me].filter(c => c !== move);
-                    
                     let available = [...unknownCards].sort(() => Math.random() - 0.5);
-                    let possible = true;
                     
-                    // Distribution avec respect des chicanes
+                    let possible = true;
                     for (let p = 0; p < 4; p++) {
                         if (p === me) continue;
                         for (let k = 0; k < cardsNeeded[p]; k++) {
                             let cIdx = available.findIndex(c => !this.voids[p][c.suit.s]);
-                            if (cIdx !== -1) {
-                                simHands[p].push(available.splice(cIdx, 1)[0]);
-                            } else {
-                                possible = false; break; 
-                            }
+                            if (cIdx !== -1) simHands[p].push(available.splice(cIdx, 1)[0]);
+                            else { possible = false; break; }
                         }
                         if (!possible) break;
                     }
                     
-                    // Fallback si la distribution est impossible
-                    if (!possible || available.length > 0) {
+                    // CORRECTIF 2: Purger les mains si la distribution a échoué avant de recommencer
+                    if (!possible) { 
                         available = [...unknownCards].sort(() => Math.random() - 0.5);
+                        for (let p = 0; p < 4; p++) { if (p !== me) simHands[p] = []; } // Reset crucial !
                         for (let p = 0; p < 4; p++) {
                             if (p === me) continue;
                             while (simHands[p].length < cardsNeeded[p] && available.length > 0) {
@@ -1919,18 +1914,17 @@
                             }
                         }
                     }
-
                     totalScore += this.simulatePlayout(simHands, move, me, myTeam);
                 }
 
                 let avgScore = totalScore / N_SIMULATIONS;
                 
-                // --- HEURISTIQUES PRO (Dix de Der, Impasse, Entame) ---
+                // --- HEURISTIQUES DE COLLABORATION ET STRATÉGIE ---
                 let isTrump = (move.suit.s === this.atoutSuit.s);
-                let myTrumps = this.hands[me].filter(c => c.suit.s === this.atoutSuit.s);
                 let isMaster = this.isMasterSim(move, playedCards);
                 let partner = (me + 2) % 4;
 
+                // 1. Entame
                 if (this.currentTrick.length === 0) {
                     if (!isTrump && this.voids[partner][move.suit.s]) avgScore += 18;
                     if (this.tricksPlayedCount === 0) {
@@ -1940,31 +1934,37 @@
                     if (!isTrump && move.rank === '10' && this.hands[me].filter(c => c.suit.s === move.suit.s).length === 1) avgScore -= 200;
                     if (!isTrump && isMaster) avgScore += 5;
                 }
-
+                
+                // 2. Dix de Der
                 if (this.tricksPlayedCount >= 4 && this.tricksPlayedCount < 7) {
-                    if (isTrump && myTrumps.length === 1 && !['V', '9', 'A'].includes(move.rank)) {
-                        if (validCardsArray.length > 1) avgScore -= 25; 
-                    }
-                    if (!isTrump && isMaster) {
-                        if (validCardsArray.length > 1) {
-                            let currentTrickPoints = this.currentTrick.reduce((acc, t) => acc + this.getCardValue(t.card), 0);
-                            if (currentTrickPoints < 15) avgScore -= 12; 
-                        }
+                    if (isTrump && this.hands[me].filter(c => c.suit.s === this.atoutSuit.s).length === 1 && !['V','9','A'].includes(move.rank)) {
+                        if (validCardsArray.length > 1) avgScore -= 25;
                     }
                 }
 
-                if (!isTrump && this.currentTrick.length > 0) {
+                // 3. COLLABORATION (Soutien absolu au partenaire)
+                if (this.currentTrick.length > 0) {
                     let currentWinner = this.getTrickWinner(this.currentTrick);
-                    if (currentWinner && currentWinner.player % 2 !== me % 2) {
-                        let winCard = currentWinner.card;
-                        if (winCard.suit.s === move.suit.s && winCard.suit.s !== this.atoutSuit.s) {
-                            let valToBeat = this.getCardValue(winCard);
-                            let moveVal = this.getCardValue(move);
-                            if (moveVal > valToBeat) {
-                                let hasHigherInHand = this.hands[me].some(c => c.suit.s === move.suit.s && this.getCardValue(c) > moveVal);
-                                let hasLowerButWinning = this.hands[me].some(c => c.suit.s === move.suit.s && this.getCardValue(c) > valToBeat && this.getCardValue(c) < moveVal);
-                                if (hasHigherInHand) avgScore += 20; 
-                                if (hasLowerButWinning) avgScore -= 20; 
+                    if (currentWinner) {
+                        if (currentWinner.player === partner) {
+                            // Le partenaire gagne le pli ! On lui donne des points (As ou 10)
+                            let winCard = currentWinner.card;
+                            let isPartnerSecure = this.isMasterSim(winCard, playedCards) || (winCard.suit.s === this.atoutSuit.s && ['V', '9', 'A'].includes(winCard.rank));
+                            if (isPartnerSecure && !isTrump && ['A', '10'].includes(move.rank)) {
+                                avgScore += 60; // Giga bonus pour charger le pli du collègue
+                            }
+                        } else if (currentWinner.player % 2 !== me % 2) {
+                            // L'adversaire gagne. On essaie de faire l'impasse.
+                            let winCard = currentWinner.card;
+                            if (winCard.suit.s === move.suit.s && winCard.suit.s !== this.atoutSuit.s) {
+                                let valToBeat = this.getCardValue(winCard);
+                                let moveVal = this.getCardValue(move);
+                                if (moveVal > valToBeat) {
+                                    let hasHigher = this.hands[me].some(c => c.suit.s === move.suit.s && this.getCardValue(c) > moveVal);
+                                    let hasLowerWin = this.hands[me].some(c => c.suit.s === move.suit.s && this.getCardValue(c) > valToBeat && this.getCardValue(c) < moveVal);
+                                    if (hasHigher) avgScore += 20; 
+                                    if (hasLowerWin) avgScore -= 20; 
+                                }
                             }
                         }
                     }
@@ -1975,7 +1975,6 @@
                     bestMove = move;
                 }
             }
-
             return bestMove;
         },
 
