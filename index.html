@@ -1942,45 +1942,7 @@
             return bestMove;
         },
 
-        simulatePlayout(simHands, firstMove, botIndex, myTeam) {
-            let simTrick = [...this.currentTrick];
-            let tricksPlayed = this.tricksPlayedCount;
-            let turn = botIndex;
-            let simScore = 0;
-
-            simTrick.push({ player: turn, card: firstMove });
-            turn = (turn + 1) % 4;
-
-            while (tricksPlayed < 8) {
-                while (simTrick.length < 4) {
-                    let hand = simHands[turn];
-                    let valid = this.getValidCardsForSim(hand, simTrick);
-                    if (valid.length === 0) { // SÉCURITÉ ANTI-BOUCLE
-                        simTrick.push({ player: turn, card: { suit: this.suits[0], rank: '7' } });
-                    } else {
-                        let play = valid[Math.floor(Math.random() * valid.length)];
-                        simHands[turn] = simHands[turn].filter(c => c !== play);
-                        simTrick.push({ player: turn, card: play });
-                    }
-                    turn = (turn + 1) % 4;
-                }
-                let winnerObj = this.getTrickWinner(simTrick);
-                let pts = simTrick.reduce((acc, t) => acc + this.getCardValue(t.card), 0);
-                tricksPlayed++;
-                if (tricksPlayed === 8) pts += 10;
-                if ((winnerObj.player % 2 === 0) === (myTeam === 'nous')) simScore += pts;
-                simTrick = [];
-                turn = winnerObj.player;
-            }
-
-            let totalMyTeam = this.dealPoints[myTeam] + simScore;
-            let takerTeam = (this.takerIndex === 0 || this.takerIndex === 2) ? 'nous' : 'eux';
-            if (myTeam === takerTeam) {
-                return (totalMyTeam > 81) ? totalMyTeam + 1000 : totalMyTeam - 1000;
-            }
-            return (totalMyTeam >= 82) ? totalMyTeam + 1000 : totalMyTeam;
-        },
-
+    
         
         simulatePlayout(simHands, firstMove, botIndex, myTeam) {
             let simTrick = [...this.currentTrick];
