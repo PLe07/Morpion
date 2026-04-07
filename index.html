@@ -1854,22 +1854,21 @@
             }
             return null;
         },
-monteCarloChooseCard(validCardsArray) {
+// ── MOTEUR MONTE-CARLO (MCTS) OPTIMISÉ ────────────────────────────────
+        monteCarloChooseCard(validCardsArray) {
             if (validCardsArray.length === 1) return validCardsArray[0];
 
-            const N_SIMULATIONS = 200; // On descend à 200 pour garantir la fluidité sur tous les navigateurs
+            const N_SIMULATIONS = 150; // On reste prudent sur le nombre pour la fluidité
             let bestMove = null;
             let bestAvgScore = -Infinity;
 
             const me = this.currentTurnIndex;
             const myTeam = (me % 2 === 0) ? 'nous' : 'eux';
-            
-            // 1. Inventorier les cartes réellement inconnues
-            const played = this.getAllPlayedCards();
-            const playedKeys = new Set(played.map(c => c.suit.s + c.rank));
+            const playedCards = this.getAllPlayedCards();
+            const playedKeys = new Set(playedCards.map(c => c.suit.s + c.rank));
             const myHandKeys = new Set(this.hands[me].map(c => c.suit.s + c.rank));
-            let unknownCards = [];
             
+            let unknownCards = [];
             this.suits.forEach(s => {
                 this.ranks.forEach(r => {
                     if (!playedKeys.has(s.s + r) && !myHandKeys.has(s.s + r)) {
@@ -1878,43 +1877,32 @@ monteCarloChooseCard(validCardsArray) {
                 });
             });
 
-            // --- CORRECTION : Calcul précis du besoin en cartes pour chaque joueur ---
+            // Calcul précis du besoin en cartes pour la simulation
             const cardsNeeded = [0, 0, 0, 0];
             for (let p = 0; p < 4; p++) {
                 if (p === me) continue;
-                // Un joueur a besoin de : ses cartes en main MOINS 1 s'il a déjà joué dans ce pli
                 let hasPlayedInCurrent = this.currentTrick.some(t => t.player === p);
                 cardsNeeded[p] = this.hands[p].length - (hasPlayedInCurrent ? 1 : 0);
             }
 
-            // 2. Tester chaque carte valide
             for (let move of validCardsArray) {
                 let totalScore = 0;
-
                 for (let i = 0; i < N_SIMULATIONS; i++) {
                     let simHands = [[], [], [], []];
                     simHands[me] = this.hands[me].filter(c => c !== move);
-                    
                     let available = [...unknownCards].sort(() => Math.random() - 0.5);
                     
-                    // Distribution respectant les chicanes (voids)
+                    // Distribution avec fallback de sécurité
                     let possible = true;
                     for (let p = 0; p < 4; p++) {
                         if (p === me) continue;
-                        let needed = cardsNeeded[p];
-                        for (let k = 0; k < needed; k++) {
+                        for (let k = 0; k < cardsNeeded[p]; k++) {
                             let cIdx = available.findIndex(c => !this.voids[p][c.suit.s]);
-                            if (cIdx !== -1) {
-                                simHands[p].push(available.splice(cIdx, 1)[0]);
-                            } else {
-                                possible = false; break; 
-                            }
+                            if (cIdx !== -1) simHands[p].push(available.splice(cIdx, 1)[0]);
+                            else { possible = false; break; }
                         }
-                        if (!possible) break;
                     }
-                    
-                    // Sécurité : si la distribution échoue, on remplit au hasard sans tenir compte des chicanes
-                    if (!possible || available.length > 0) {
+                    if (!possible) { // Fallback si les chicanes empêchent la distribution
                         available = [...unknownCards].sort(() => Math.random() - 0.5);
                         for (let p = 0; p < 4; p++) {
                             if (p === me) continue;
@@ -1923,15 +1911,14 @@ monteCarloChooseCard(validCardsArray) {
                             }
                         }
                     }
-
                     totalScore += this.simulatePlayout(simHands, move, me, myTeam);
                 }
 
                 let avgScore = totalScore / N_SIMULATIONS;
-
-                // --- INTEGRATION DES HEURISTIQUES (Entame, Impasse, Dix de Der) ---
+                
+                // --- HEURISTIQUES ---
                 let isTrump = (move.suit.s === this.atoutSuit.s);
-                let isMaster = this.isMasterSim(move, played);
+                let isMaster = this.isMasterSim(move, playedCards);
                 let partner = (me + 2) % 4;
 
                 if (this.currentTrick.length === 0) {
@@ -1943,11 +1930,8 @@ monteCarloChooseCard(validCardsArray) {
                     if (!isTrump && move.rank === '10' && this.hands[me].filter(c => c.suit.s === move.suit.s).length === 1) avgScore -= 200;
                     if (!isTrump && isMaster) avgScore += 5;
                 }
-                
-                // Dix de Der
                 if (this.tricksPlayedCount >= 4 && this.tricksPlayedCount < 7) {
                     if (isTrump && this.hands[me].filter(c => c.suit.s === this.atoutSuit.s).length === 1 && !['V','9','A'].includes(move.rank)) avgScore -= 25;
-                    if (!isTrump && isMaster && this.currentTrick.reduce((acc, t) => acc + this.getCardValue(t.card), 0) < 15) avgScore -= 12;
                 }
 
                 if (avgScore > bestAvgScore) {
@@ -1956,6 +1940,72 @@ monteCarloChooseCard(validCardsArray) {
                 }
             }
             return bestMove;
+        },
+
+        simulatePlayout(simHands, firstMove, botIndex, myTeam) {
+            let simTrick = [...this.currentTrick];
+            let tricksPlayed = this.tricksPlayedCount;
+            let turn = botIndex;
+            let simScore = 0;
+
+            simTrick.push({ player: turn, card: firstMove });
+            turn = (turn + 1) % 4;
+
+            while (tricksPlayed < 8) {
+                while (simTrick.length < 4) {
+                    let hand = simHands[turn];
+                    let valid = this.getValidCardsForSim(hand, simTrick);
+                    if (valid.length === 0) { // SÉCURITÉ ANTI-BOUCLE
+                        simTrick.push({ player: turn, card: { suit: this.suits[0], rank: '7' } });
+                    } else {
+                        let play = valid[Math.floor(Math.random() * valid.length)];
+                        simHands[turn] = simHands[turn].filter(c => c !== play);
+                        simTrick.push({ player: turn, card: play });
+                    }
+                    turn = (turn + 1) % 4;
+                }
+                let winnerObj = this.getTrickWinner(simTrick);
+                let pts = simTrick.reduce((acc, t) => acc + this.getCardValue(t.card), 0);
+                tricksPlayed++;
+                if (tricksPlayed === 8) pts += 10;
+                if ((winnerObj.player % 2 === 0) === (myTeam === 'nous')) simScore += pts;
+                simTrick = [];
+                turn = winnerObj.player;
+            }
+
+            let totalMyTeam = this.dealPoints[myTeam] + simScore;
+            let takerTeam = (this.takerIndex === 0 || this.takerIndex === 2) ? 'nous' : 'eux';
+            if (myTeam === takerTeam) {
+                return (totalMyTeam > 81) ? totalMyTeam + 1000 : totalMyTeam - 1000;
+            }
+            return (totalMyTeam >= 82) ? totalMyTeam + 1000 : totalMyTeam;
+        },
+
+        getValidCardsForSim(handArray, trickArray) {
+            if (!handArray || handArray.length === 0) return [];
+            if (trickArray.length === 0) return handArray;
+            let leadSuit = trickArray[0].card.suit.s;
+            let requested = handArray.filter(c => c.suit.s === leadSuit);
+            let trumps = handArray.filter(c => c.suit.s === this.atoutSuit.s);
+            let highestTrump = -1;
+            trickArray.forEach(t => {
+                if (t.card.suit.s === this.atoutSuit.s) {
+                    let v = 8 - this.ordAtout.indexOf(t.card.rank);
+                    if (v > highestTrump) highestTrump = v;
+                }
+            });
+            if (requested.length > 0) {
+                if (leadSuit === this.atoutSuit.s) {
+                    let higher = requested.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrump);
+                    return higher.length > 0 ? higher : requested;
+                }
+                return requested;
+            }
+            if (trumps.length > 0) {
+                let higher = trumps.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrump);
+                return higher.length > 0 ? higher : trumps;
+            }
+            return handArray;
         },
 
         simulatePlayout(simHands, firstMove, botIndex, myTeam) {
