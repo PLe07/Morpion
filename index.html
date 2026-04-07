@@ -1981,33 +1981,7 @@
             return (totalMyTeam >= 82) ? totalMyTeam + 1000 : totalMyTeam;
         },
 
-        getValidCardsForSim(handArray, trickArray) {
-            if (!handArray || handArray.length === 0) return [];
-            if (trickArray.length === 0) return handArray;
-            let leadSuit = trickArray[0].card.suit.s;
-            let requested = handArray.filter(c => c.suit.s === leadSuit);
-            let trumps = handArray.filter(c => c.suit.s === this.atoutSuit.s);
-            let highestTrump = -1;
-            trickArray.forEach(t => {
-                if (t.card.suit.s === this.atoutSuit.s) {
-                    let v = 8 - this.ordAtout.indexOf(t.card.rank);
-                    if (v > highestTrump) highestTrump = v;
-                }
-            });
-            if (requested.length > 0) {
-                if (leadSuit === this.atoutSuit.s) {
-                    let higher = requested.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrump);
-                    return higher.length > 0 ? higher : requested;
-                }
-                return requested;
-            }
-            if (trumps.length > 0) {
-                let higher = trumps.filter(c => (8 - this.ordAtout.indexOf(c.rank)) > highestTrump);
-                return higher.length > 0 ? higher : trumps;
-            }
-            return handArray;
-        },
-
+        
         simulatePlayout(simHands, firstMove, botIndex, myTeam) {
             let simTrick = [...this.currentTrick];
             let tricksPlayed = this.tricksPlayedCount;
